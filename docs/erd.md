@@ -1,6 +1,6 @@
 # KonskaAppka: model danych (ERD) do zatwierdzenia
 
-> Wersja robocza v3 · 2026-10-12. Uwzględnia decyzje:
+> Wersja robocza v3 · 2026-10-12, po feedbacku ze stajni. Uwzględnia decyzje:
 > - każdy moduł i każdy cron to osobny mikroserwis w monorepo;
 > - płatności (serwis `billing`);
 > - Cognito jako serwer autoryzacji (OTP przez SMS i TOTP z RFC 6238);
@@ -10,7 +10,10 @@
 > - użytkownik logowany na tabletach; boks wybiera się na tablecie przyciskiem „Zmień boks”, a wybór jest zapamiętany na tablecie (bez blokady i bez tabeli urządzeń);
 > - stajnia może mieć kilka hal z boksami (`buildings`), każda z własnym adresem;
 > - status flagi to tylko „potwierdzona” albo „niepotwierdzona”, bez śledzenia wyświetleń na tablecie;
-> - boks jako kontener z podstawowymi danymi (ostatnie czyszczenie, ostatnio dorzucona karma itd.), z podglądem dla najemcy miejsca;
+> - boks jako kontener: obsługa zapisuje „Ogarnięte” jednym tapnięciem, a posiłki i padok jedną akcją dla całej hali; klient widzi boks swojego konia;
+> - flagi mają godziny od–do i tylko one wymagają potwierdzenia obsługi;
+> - role: Klient (właściciel albo dzierżawca konia), Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz;
+> - działalność → stajnie → hale → boksy (`businesses`);
 > - sesje tylko w Cognito, bez tabel sesji w bazie.
 
 ## Do zatwierdzenia
@@ -30,33 +33,43 @@
    - Nie ma blokady boksu. Na tablicy jest przycisk „Zmień boks”, który otwiera listę boksów pogrupowaną po halach. Stuknięcie w boks od razu przełącza tablet. Bez wyboru tablet po 30 s wraca do poprzedniego boksu.
    - Tablica boksu nie pokazuje, kto jest zalogowany. Logowanie i wylogowanie są w ustawieniach tabletu.
    - Wylogowanie użytkownika ze wszystkich urządzeń robi Cognito (global sign-out).
-   - Tablety są stale włączone i zalogowane, więc akcji z tabletu (potwierdzenie flagi, „nakarmiony”, zdarzenie przy boksie, zadanie) nie przypisujemy zalogowanej osobie. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
+   - Tablety są stale włączone i zalogowane, więc akcji z tabletu (potwierdzenie flagi, „Ogarnięte”, „Podano śniadanie”, „Wyprowadzono na padok”) nie przypisujemy zalogowanej osobie. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
    - Status flagi to tylko „potwierdzona” (z godziną) albo „niepotwierdzona”. Tak pokazują go apka, panel, tablet i wyświetlacz. Nie śledzimy, czy flaga wyświetliła się na tablecie, ani tego, czy tablet działa. Skąd przyszło potwierdzenie (`flag_acknowledgements.method`, `box_id`), zostaje tylko w danych do audytu.
+   - **Blokada ekranu (dotyku).**
+     - Ekran jest dotykowy, więc przycisk „Zablokuj ekran” (kłódka) włącza blokadę na czas mycia albo wycierania tabletu.
+     - Zablokowana tablica dalej się odświeża i jest czytelna, ale dotyk nic nie zmienia. Pasek mówi: „przytrzymaj kłódkę 3 s, aby odblokować”.
+     - Pop-up nowej flagi pojawia się mimo blokady; żeby ją potwierdzić, trzeba odblokować ekran.
+     - Blokada sama zdejmuje się po 10 minutach (propozycja), żeby tablet nie został zablokowany na stałe.
+     - Stan trzyma tylko tablet, bez tabel. To blokada dotyku, a nie blokada boksu (tej nie ma).
    - Bez tabeli urządzeń nie ma zdalnych komend, telemetrii (bateria, Wi-Fi) ani listy tabletów w panelu. Diagnostyka tabletów, jeśli będzie potrzebna, trafia do logów i metryk, nie do bazy.
    - Założenia do potwierdzenia:
      - na tablecie jest zalogowany jeden użytkownik naraz (pilnuje apka);
      - boks może zmienić każdy, kto stoi przy tablecie;
      - ustawienia tabletu otwiera się dłuższym przytrzymaniem, żeby nikt nie trafił w nie przypadkiem;
      - po wylogowaniu tablet pamięta wybrany boks i wraca do niego po kolejnym logowaniu.
-3. **Boks jako kontener i podgląd dla najemcy.**
-   - Boks ma tylko podstawowe dane. To, co się z nim dzieje, zapisuje się jako zdarzenia w `box_care_events`.
-   - Rodzaje zdarzeń to lista (słownik `box_care_types`) per stajnia, z etykietami w językach (`box_care_type_labels`). Na start kod wstawia domyślne: czyszczenie, ścielenie, siano, karma, woda. Admin może dodawać własne, zmieniać kolejność i wyłączać nieużywane.
-   - Wpisy robi obsługa na tablecie (jedno stuknięcie) albo w apce.
-   - „Ostatnie czyszczenie” czy „ostatnio dorzucona karma” to najnowsze zdarzenie danego rodzaju dla boksu (indeks po boksie, rodzaju i czasie). Nie trzymamy osobnych kolumn „ostatnio”, więc zostaje też historia.
-   - **Historia boksu** to zdarzenia przy boksie razem z flagami konia, który w nim stoi (utworzenie, potwierdzenie, odwołanie). Widzi ją każdy, kto ma dostęp do boksu, co najmniej do odczytu: najemca, właściciel konia, obsługa i admin.
-   - Najemca miejsca dostaje dostęp do boksu przez `box_access` z rolą `tenant`, także przez zaproszenie (`invitations.box_id`). Ta rola to podgląd boksu i jego historii. Najemca nie steruje boksem ani tabletem.
-   - Flagi ustawia i odwołuje się przez dostęp do konia (`horse_access`). Zwykle najemca miejsca jest też właścicielem konia w tym boksie, więc jako klient ustawia i odwołuje jego flagi. Odwołana flaga znika z tablicy, a jej pop-up z tabletu przy najbliższym odpytaniu.
-   - **Obsługa** (`staff`) może z apki i z panelu web robić to samo co klient, czyli ustawiać i odwoływać flagi, zmieniać plany karmienia i padoku oraz wpisywać zdarzenia, ale dla wszystkich koni w stajni.
-   - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. po końcu najmu.
+3. **Boks jako kontener, rutyna obsługi i widok klienta.**
+   - Boks ma tylko podstawowe dane. Codzienna rutyna obsługi to trzy szybkie akcje, żeby było jak najmniej klikania:
+     - **„Ogarnięte”** (sprzątanie i ścielenie razem): per boks, jedno tapnięcie na tablecie przy boksie albo zaznaczenie kilku boksów w apce i jeden zapis. Wpis trafia do `box_care_events` (`kind = tidy`). Boks ogarnia się codziennie, czasem 2–3 razy dziennie, więc wpisów może być kilka, a „Ogarnięte dziś 07:10” to najnowszy.
+     - **„Podano śniadanie”** (tak samo obiad i kolację): jedna akcja dla całej hali w `building_routines` (`kind = meal_served`). Koń z flagą, która wstrzymuje ten posiłek w jego godzinie, jest pomijany i wypisany jako pominięty. Nie ma potwierdzania karmienia per koń.
+     - **„Wyprowadzono na padok”**: jedna akcja dla całej hali (`kind = paddock_out`). Obejmuje konie z planem padoku na teraz i pomija konie z flagą „Nie na padok” obowiązującą w tym czasie.
+     - Każdą akcję można cofnąć przez kilka minut (`cancelled_at`). Z tabletu akcja nie ma autora, z apki ma.
+   - Wody nie odnotowujemy, bo poidła są automatyczne. Nie ma też osobnych wpisów „siano” i „karma”.
+   - Pozycja planu karmienia może mieć informację „namoczyć” i ile (`feeding_plan_items.soak`, `soak_note`, np. „w 2 l wody”). To wersja prosta: model karmienia jest otwartą kwestią.
+   - **Historia boksu** to flagi konia (utworzenie, potwierdzenie, odwołanie) i zdarzenia z przycisków obsługi. Widzi ją klient konia, który stoi w boksie (od dnia, w którym koń do niego trafił), obsługa i admin.
+   - **Klient** (rola `client`) to osoba, która przyprowadza konia do stajni: właściciel albo dzierżawca konia. Dla stajni to ten sam klient.
+     - Dostęp ma przez `horse_access` (rola `client`), także przez zaproszenie (`invitations.horse_id`).
+     - Widzi swojego konia i boks, w którym koń stoi, oraz ustawia i odwołuje jego flagi.
+     - Osobnego najmu boksu bez konia nie ma, więc tabela `box_access` odpada.
+   - **Widok klienta jest maksymalnie prosty:** kafelki flag do kliknięcia, opcjonalna notatka i godziny podpowiedziane przez szablon, które można zmienić. Na ekranie „Mój boks” sekcje „Ostatnio” i „Historia” pokazują tylko flagi (z potwierdzeniami) i zdarzenia z przycisków obsługi.
+   - **Obsługa** (`staff`) może z apki i panelu web robić to samo co klient, ale dla wszystkich koni w stajni, oraz wykonuje szybkie akcje i zadania.
+   - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. gdy koń opuszcza stajnię albo kończy się dzierżawa.
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
-   - Do potwierdzenia:
-     - czy najemca widzi też konia, który stoi w jego boksie.
 4. **Wyświetlacz centralny (TV z Raspberry Pi).**
    - Telewizor z Raspberry Pi otwiera w przeglądarce, w trybie kiosku, stronę panelu web z widokiem wszystkich boksów. Strona sama odpytuje serwer co kilka sekund, tak jak tablet.
    - Wyświetlacz loguje się raz na konto techniczne stajni z rolą `display` w `stable_members` (np. `wyswietlacz-korytarz`). Konto zakłada admin w ustawieniach; sesję podtrzymuje Cognito, a admin może konto zablokować.
    - Rola `display` daje tylko odczyt widoku wszystkich boksów: konie, flagi, posiłki, zdarzenia przy boksie. Bez danych osobowych (telefony, e-maile) i bez zapisu.
    - Przy kilku halach strona pokazuje wszystkie hale, każdą w osobnej sekcji.
-   - Każda sekcja hali ma przycisk „Pełny ekran”. Hala zajmuje wtedy cały ekran, większymi kaflami, a w panelu bocznym jest skrót pozostałych hal (liczba koni, pilne flagi). Przycisk „Wszystkie hale” wraca do widoku wszystkich.
+   - Każda sekcja hali ma przycisk „Pełny ekran”. Hala zajmuje wtedy cały ekran, większymi kaflami, a pasek pilnych flag i panel boczny pokazują tylko tę halę. Przycisk „Wszystkie hale” wraca do widoku wszystkich.
    - Wybór widoku zapamiętuje przeglądarka na tym telewizorze, tak jak tablet pamięta wybrany boks. Telewizor w hali głównej ustawia się więc raz na pełny ekran tej hali (myszką przy instalacji albo pilotem przez HDMI-CEC). Serwer o tym nie wie i nie potrzeba tabeli wyświetlaczy.
    - Jedno konto `display` może obsłużyć wszystkie telewizory. Admin może też założyć osobne konto na każdy telewizor, jeśli chce blokować je pojedynczo.
    - Gdy boksów jest dużo, strona zmniejsza kafle do wersji skróconej (numer, koń, flaga, posiłki). Jeśli dalej się nie mieszczą, przełącza strony co 20 s. Pasek pilnych flag zostaje zawsze na górze. W widoku wszystkich hal obejmuje wszystkie hale, a na pełnym ekranie tylko tę halę.
@@ -115,6 +128,32 @@
    - Przeniesienie boksu do innej hali (np. po przebudowie) to zmiana `building_id`. Koń, historia i zdarzenia zostają przy boksie.
    - Hale widać na liście boksów w apce i panelu (grupy i filtr), przy wyborze boksu na tablecie (zakładki hal) i na wyświetlaczu centralnym (sekcje hal, każda z opcją pełnego ekranu).
    - Hale z boksami to co innego niż kryte ujeżdżalnie do jazd (`arenas` w serwisie `rides`).
+12. **Flagi: godziny i potwierdzenia.**
+   - Potwierdzenia obsługi wymagają wyłącznie flagi, czyli wyjątki od rutyny („Bez śniadania”, „Nie na padok”, „Derka”, „Leki” itd.). Przepływ zostaje: nowa flaga → pop-up na tablecie → potwierdzona.
+   - **Godziny są obowiązkowe i działają naprawdę:**
+     - każda flaga ma początek i koniec: `horse_flags.valid_from` i `valid_to`, oba wymagane, czas w strefie stajni. „Do odwołania” nie ma;
+     - szablon podpowiada okno (`flag_templates.default_window`): „Bez śniadania” dziś 06:00–10:00, „Nie na padok” w godzinach padoku, „Derka” 16:00–08:00. Klient może je zmienić;
+     - skutki liczy kod z godzin, przy każdym zapytaniu `board` i przy akcjach zbiorczych. `suspend_meal` wstrzymuje tylko posiłki, których godzina wypada w oknie flagi. `cancel_paddock` skraca albo odwołuje padok tylko w oknie flagi;
+     - przykład: wet o 8:00 i kowal o 15:00, więc flagi „Bez śniadania 06:00–10:00” i „Nie na padok 14:30–16:00” pozwalają koniowi wyjść na padok między wizytami (10:00–14:30);
+     - tablet, wyświetlacz i apka pokazują godziny przy fladze, a flagę, która zacznie się później, oznaczają „od 14:30”.
+   - **Flaga „Derka”** (szablon `derka`) ma wariant `horse_flags.variant`: `on` znaczy zakładać, `off` nie zakładać.
+   - Termin potwierdzenia i eskalacje (`ack_deadline_at`, `warn_at`, `notify_at`) liczy się od początku okna flagi.
+13. **Zadania jednorazowe.**
+   - Zadanie wpisuje admin, czyli zarządca albo właściciel stajni, np. „Poidło w boksie 5 do wymiany”. Może wskazać halę, boks albo konia.
+   - Stajenny w apce sam wybiera zadanie z listy i bierze je na siebie („Biorę”: `taken_by`, `taken_at`), a potem oznacza jako zrobione (`done_by`, `done_at`). Tablet zadań nie obsługuje, bo potrzebna jest osoba.
+   - Zadań cyklicznych nie ma, więc odpadają `task_occurrences` i cron `task-occurrence-generator`. Codzienną rutynę obsługują szybkie akcje z pkt 3.
+14. **Role.**
+   - `stable_members.role`: `admin` (zarządca albo właściciel stajni), `staff` (obsługa), `instructor`, `it_support`, `display` (konto telewizora), `client` (klient, pkt 3).
+   - **Wsparcie IT** (`it_support`, dawniej „serwisant”, co myliło się z weterynarzem): techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami.
+15. **Działalność → stajnie → hale → boksy.**
+   - Jedna działalność (`businesses`) może mieć kilka stajni (`stables.business_id`). Tabela jest od razu, żeby nie migrować później.
+   - Uprawnienia, dane i izolacja zostają na poziomie stajni (`stable_id`). Płatności też zostają przy stajni, bez rozbudowy (zob. „Otwarte kwestie”).
+
+## Otwarte kwestie
+
+1. **Model karmienia:** pudełko (porcja przygotowana wcześniej), namaczanie (co, w ilu litrach wody, jak długo), ile. Dziś jest tylko „namoczyć” i ile przy pozycji planu karmienia.
+2. **Ekran dotykowy z blokadą czy zaprogramowany fizyczny przycisk przy boksie.** Dziś tablet ma blokadę dotyku na czas mycia (pkt 2). Alternatywą jest fizyczny przycisk, np. „Ogarnięte”, zamiast dotyku.
+3. **Płatności, faktury, KSeF:** czy to nie za dużo na PoC. Na razie bez rozbudowy: model `billing` zostaje jak jest, na poziomie stajni.
 
 ## Zasady wspólne
 
@@ -139,14 +178,14 @@
 | Mikroserwis | Kolor na ERD | Tabele (tylko ten serwis do nich pisze) |
 |---|---|---|
 | `identity` | różowy | `users` |
-| `access` | fioletowy | `stable_members`, `horse_access`, `box_access`, `invitations` |
-| `stable` | niebieski | `stables`, `stable_locales`, `stable_settings`, `buildings`, `boxes`, `horses`, `horse_box_history` |
+| `access` | fioletowy | `stable_members`, `horse_access`, `invitations` |
+| `stable` | niebieski | `businesses`, `stables`, `stable_locales`, `stable_settings`, `buildings`, `boxes`, `horses`, `horse_box_history` |
 | `board` | — (bez tabel) | brak; składa stan tablicy z tabel innych serwisów przy każdym zapytaniu tabletu |
 | `flags` | czerwony | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_escalations` |
-| `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `box_care_types`, `box_care_type_labels`, `box_care_events`, `paddock_plans`, `paddock_plan_companions` |
+| `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `building_routines`, `box_care_events`, `paddock_plans`, `paddock_plan_companions` |
 | `health` | limonkowy | `health_events`, `health_attachments` |
 | `rides` | bursztynowy | `arenas`, `rides` |
-| `tasks` | pomarańczowy | `tasks`, `task_occurrences` |
+| `tasks` | pomarańczowy | `tasks` |
 | `billing` | żółty | `billing_accounts`, `billing_plans`, `billing_plan_prices`, `subscriptions`, `usage_snapshots`, `invoices`, `invoice_lines`, `payments`, `payment_provider_events` |
 | `files` | szary | `files` (metadane; treść w S3) |
 | `releases` | grafitowy | `app_releases`, `app_release_targets` |
@@ -158,7 +197,6 @@
 | Cron | Serwisy | Co robi |
 |---|---|---|
 | `escalation-scheduler` | `flags`, `notifications` | Znajduje flagi z minionym `warn_at` albo `notify_at` i bez potwierdzenia |
-| `task-occurrence-generator` | `tasks` | Tworzy wystąpienia zadań cyklicznych |
 | `health-due-reminders` | `health`, `notifications` | Przypomnienia o zbliżających się wizytach |
 | `files-gc` | `files` | Usuwa z S3 pliki `pending` starsze niż 24 h i pliki `deleted` po retencji |
 | `billing-usage-snapshot` | `billing` (czyta `horses`) | Raz w okresie zapisuje zużycie: boksy z koniem |
@@ -169,8 +207,8 @@
 
 ## Współpraca serwisów
 
-- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin) i `task_occurrences`. Uprawnienia sprawdza w `stable_members`, `horse_access` i `box_access`.
-- **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo jego kolejkę SQS. Zapisy z tabletu i apki (potwierdzenia, odhaczenia) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
+- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `buildings`, `boxes`, `horses`, `horse_flags`, `feeding_plans` z pozycjami, `building_routines`, `box_care_events`, `paddock_plans` i `health_events` (sam typ i termin). Uprawnienia sprawdza w `stable_members` i `horse_access`.
+- **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo jego kolejkę SQS. Zapisy z tabletu i apki (potwierdzenia flag, szybkie akcje obsługi) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
 - **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji) służą reakcjom, a nie kopiowaniu danych:
   - `horse.left` zamyka flagi, plany i dostępy w serwisach-właścicielach;
   - `subscription.status_changed` zmienia `stables.status`.
@@ -196,15 +234,20 @@
 
 ![ERD aplikacji, schemat app](erd/app.png)
 
-Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 48 tabel i 63 relacji.
+Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 45 tabel i 59 relacji.
 
 <details>
 <summary>Źródło mermaid</summary>
 
 ```mermaid
 erDiagram
+    businesses {
+        uuid id PK
+        text name "działalność, np. firma"
+    }
     stables {
         uuid id PK
+        uuid business_id FK "businesses"
         text name
         text timezone "IANA, np. Europe/Warsaw"
         text status "active | suspended"
@@ -279,7 +322,7 @@ erDiagram
         uuid id PK
         uuid stable_id FK "stables"
         uuid user_id FK "users, unikalne ze stable_id"
-        text role "admin | staff | instructor | technician | display | member"
+        text role "admin | staff | instructor | it_support | display | client"
         boolean active
         timestamptz deactivated_at
     }
@@ -288,20 +331,9 @@ erDiagram
         uuid stable_id FK "stables"
         uuid horse_id FK "horses"
         uuid user_id FK "users"
-        text role "owner | co_owner | lessee | viewer"
+        text role "client: właściciel albo dzierżawca konia"
         timestamptz valid_from
         timestamptz valid_to
-        timestamptz revoked_at
-        uuid granted_by FK "users"
-    }
-    box_access {
-        uuid id PK
-        uuid stable_id FK "stables"
-        uuid box_id FK "boxes"
-        uuid user_id FK "users"
-        text role "tenant: tylko podgląd"
-        timestamptz valid_from
-        timestamptz valid_to "koniec najmu"
         timestamptz revoked_at
         uuid granted_by FK "users"
     }
@@ -311,9 +343,7 @@ erDiagram
         text channel "sms | email"
         text target "porównywany z claimem z Cognito"
         text role
-        uuid horse_id FK "horses, opcjonalnie"
-        uuid box_id FK "boxes, opcjonalnie"
-        text access_role "np. owner, tenant"
+        uuid horse_id FK "horses, wymagane dla klienta"
         uuid created_by FK "users"
         timestamptz expires_at "wymagane"
         timestamptz accepted_at
@@ -326,9 +356,9 @@ erDiagram
         text code "unikalny w stajni"
         text icon
         text severity "info | warning | critical"
-        text effect "suspend_meal | cancel_paddock | no_riding | none"
+        text effect "suspend_meal | cancel_paddock | no_riding | rug | none"
         text meal_slot_code
-        text default_window "np. next_meal"
+        text default_window "np. 06:00-10:00, paddock, 16:00-08:00"
         boolean requires_ack
         boolean active
         int sort_order
@@ -343,8 +373,9 @@ erDiagram
         text effect
         text note
         text author_role "owner | staff | admin"
-        timestamptz valid_from
-        timestamptz valid_to "NULL = do odwołania"
+        timestamptz valid_from "wymagane"
+        timestamptz valid_to "wymagane, bez do odwołania"
+        text variant "Derka: on | off"
         uuid meal_slot_id FK "meal_slots"
         date service_date
         timestamptz ack_deadline_at
@@ -428,49 +459,37 @@ erDiagram
         uuid feed_id FK
         numeric quantity
         text unit
+        boolean soak "namoczyć"
+        text soak_note "ile, np. w 2 l wody"
         int sort_order
-    }
-    box_care_types {
-        uuid id PK
-        uuid stable_id FK "stables"
-        text code "unikalny w stajni, np. cleaning"
-        text icon
-        boolean show_on_board "pokazywać na tablecie"
-        int sort_order
-        boolean active
-    }
-    box_care_type_labels {
-        uuid type_id PK, FK
-        text locale PK "pl | uk | en"
-        text label "np. Czyszczenie boksu"
     }
     box_care_events {
         uuid id PK "z klienta"
         uuid stable_id FK "stables"
         uuid box_id FK "boxes"
-        uuid type_id FK "box_care_types"
+        text kind "tidy: Ogarnięte"
         timestamptz occurred_at
         uuid user_id FK "users; NULL, gdy z tabletu"
         text source "tablet | app"
-        text note
         text time_quality "synced | unknown"
         timestamptz received_at
         text request_hash
+        timestamptz cancelled_at "cofnięcie"
     }
-    feeding_checks {
+    building_routines {
         uuid id PK "z klienta"
         uuid stable_id FK "stables"
-        uuid horse_id FK "horses"
-        uuid meal_slot_id FK
-        date service_date "unikalne z horse_id i meal_slot_id"
-        uuid user_id FK "users; NULL, gdy z tabletu"
-        text source "tablet | app"
-        uuid box_id FK "boxes"
+        uuid building_id FK "buildings"
+        text kind "meal_served | paddock_out"
+        uuid meal_slot_id FK "meal_slots, dla posiłku"
+        date service_date "unikalne z building_id, kind, meal_slot_id"
         timestamptz occurred_at
+        uuid user_id FK "users; NULL, gdy z tabletu"
+        text source "tablet | app | web"
         text time_quality "synced | unknown"
         timestamptz received_at
-        text conflict "none | meal_suspended"
         text request_hash
+        timestamptz cancelled_at "cofnięcie"
     }
     paddock_plans {
         uuid id PK
@@ -532,29 +551,17 @@ erDiagram
     tasks {
         uuid id PK
         uuid stable_id FK "stables"
-        text title
-        uuid horse_id FK "horses, opcjonalnie"
+        text title "np. Poidło w boksie 5 do wymiany"
+        text note
+        uuid building_id FK "buildings, opcjonalnie"
         uuid box_id FK "boxes, opcjonalnie"
-        timestamptz due_at "zadanie jednorazowe"
-        smallint days_mask "zadanie cykliczne; bity pn..nd"
-        time local_time
-        text assignee_role
-        boolean active
-        timestamptz deleted_at
-    }
-    task_occurrences {
-        uuid id PK
-        uuid stable_id FK "stables"
-        uuid task_id FK
-        timestamptz due_at "unikalne z task_id"
-        text status
-        uuid completion_event_id UK "id zdarzenia z klienta"
-        uuid done_by_user_id FK "users; NULL, gdy z tabletu"
-        text source "tablet | app"
-        timestamptz occurred_at
-        text time_quality "synced | unknown"
-        timestamptz received_at
-        text request_hash
+        uuid horse_id FK "horses, opcjonalnie"
+        uuid created_by FK "users, admin"
+        uuid taken_by FK "users, kto wziął"
+        timestamptz taken_at
+        uuid done_by FK "users"
+        timestamptz done_at
+        timestamptz cancelled_at
     }
     files {
         uuid id PK
@@ -703,6 +710,7 @@ erDiagram
         timestamptz received_at
         timestamptz processed_at
     }
+    businesses ||--o{ stables : "stajnie"
     stables ||--o{ stable_locales : "języki"
     stables ||--|| stable_settings : "ustawienia"
     stables ||--o{ buildings : "hale"
@@ -729,19 +737,19 @@ erDiagram
     meal_slots ||--o{ feeding_plans : "posiłek"
     feeding_plans ||--o{ feeding_plan_items : "pozycje"
     feeds ||--o{ feeding_plan_items : "pasza"
-    meal_slots ||--o{ feeding_checks : "posiłek"
+    meal_slots |o--o{ building_routines : "posiłek"
+    buildings ||--o{ building_routines : "rutyna hali"
     paddocks ||--o{ paddock_plans : "gdzie"
     paddock_plans ||--o{ paddock_plan_companions : "z kim"
     horses ||--o{ paddock_plan_companions : "towarzysz"
     horses ||--o{ feeding_plans : "plan"
-    horses ||--o{ feeding_checks : "odhaczenia"
     horses ||--o{ paddock_plans : "padok"
     horses ||--o{ health_events : "zdrowie"
     health_events ||--o{ health_attachments : "załączniki"
     files ||--o| health_attachments : "plik w S3"
     arenas |o--o{ rides : "miejsce"
     horses ||--o{ rides : "jazdy"
-    tasks ||--o{ task_occurrences : "wystąpienia"
+    buildings |o--o{ tasks : "dotyczy"
     horses |o--o{ tasks : "dotyczy"
     boxes |o--o{ tasks : "dotyczy"
     files ||--o| app_releases : "APK w S3"
@@ -759,12 +767,7 @@ erDiagram
     invoices ||--o{ invoice_lines : "pozycje"
     invoices ||--o{ payments : "płatności"
     files |o--o| invoices : "PDF"
-    boxes |o--o{ invitations : "do boksu"
-    boxes ||--o{ box_access : "najem"
-    users ||--o{ box_access : "najemca"
     boxes ||--o{ box_care_events : "zdarzenia"
-    box_care_types ||--o{ box_care_type_labels : "etykiety"
-    box_care_types ||--o{ box_care_events : "rodzaj"
     boxes |o--o{ flag_acknowledgements : "potwierdzono przy boksie"
     classDef svc_stable fill:#dbeafe,stroke:#1d4ed8
     classDef svc_access fill:#ede9fe,stroke:#6d28d9
@@ -778,14 +781,14 @@ erDiagram
     classDef svc_files fill:#e5e7eb,stroke:#374151
     classDef svc_releases fill:#f1f5f9,stroke:#475569
     classDef svc_notifications fill:#fae8ff,stroke:#a21caf
-    class stables,stable_locales,stable_settings,buildings,boxes,horses,horse_box_history svc_stable
-    class stable_members,horse_access,box_access,invitations svc_access
+    class businesses,stables,stable_locales,stable_settings,buildings,boxes,horses,horse_box_history svc_stable
+    class stable_members,horse_access,invitations svc_access
     class users svc_identity
     class flag_templates,flag_template_labels,horse_flags,flag_acknowledgements,flag_escalations svc_flags
-    class meal_slots,meal_slot_labels,feeds,paddocks,feeding_plans,feeding_plan_items,feeding_checks,box_care_types,box_care_type_labels,box_care_events,paddock_plans,paddock_plan_companions svc_care
+    class meal_slots,meal_slot_labels,feeds,paddocks,feeding_plans,feeding_plan_items,building_routines,box_care_events,paddock_plans,paddock_plan_companions svc_care
     class health_events,health_attachments svc_health
     class arenas,rides svc_rides
-    class tasks,task_occurrences svc_tasks
+    class tasks svc_tasks
     class billing_accounts,billing_plans,billing_plan_prices,subscriptions,usage_snapshots,invoices,invoice_lines,payments,payment_provider_events svc_billing
     class files svc_files
     class app_releases,app_release_targets svc_releases
@@ -828,7 +831,10 @@ erDiagram
 
 ## Słowniki wartości
 
-- `box_care_types`: słownik per stajnia. Domyślne pozycje wstawiane przez kod: `cleaning` (czyszczenie), `bedding` (ścielenie), `hay` (dorzucone siano), `feed` (dorzucona karma), `water` (woda).
+- `box_care_events.kind`: `tidy` („Ogarnięte”, czyli sprzątanie i ścielenie razem). Wody, siana i karmy nie odnotowujemy.
+- `building_routines.kind`: `meal_served` („Podano śniadanie / obiad / kolację”, z `meal_slot_id`), `paddock_out` („Wyprowadzono na padok”).
+- `flag_templates`: domyślne szablony wstawiane przez kod: `bez_sniadania`, `bez_kolacji`, `nie_na_padok`, `derka` (warianty `on` = zakładać, `off` = nie zakładać), `leki`, `wet`. Admin może dodać własne.
+- `stable_members.role`: `admin` (Admin: zarządca albo właściciel stajni), `staff` (Obsługa), `instructor` (Instruktor), `it_support` (Wsparcie IT), `display` (Wyświetlacz), `client` (Klient).
 - `horse_flags.source`: `app` (właściciel w apce) albo flaga wpisana w imieniu właściciela: `on_behalf_phone`, `on_behalf_sms`, `on_behalf_in_person`.
 
 ## Zmiany względem modelu z analizy v3
@@ -838,6 +844,12 @@ erDiagram
   - nie ma parowania (`device_pairing_requests`) ani PIN-ów obsługi (`stable_members.pin_verifier`, `stables.service_pin_verifier`): na tablecie zawsze jest zalogowany konkretny użytkownik;
   - nie ma tabel urządzeń (`devices`, `device_boxes`, `device_presence`, komendy, alerty): wybrany boks jest zapamiętany na tablecie, bez blokady, a sesje są w Cognito;
 - **Hale:** tekstowe `boxes.building` zastępuje tabela `buildings` (z adresem hali) i klucz `boxes.building_id`.
+- **Feedback ze stajni:**
+  - rutyna obsługi to szybkie akcje: „Ogarnięte” per boks (`box_care_events.kind = tidy`) oraz posiłek i padok dla całej hali (`building_routines`). Odpadają `feeding_checks` (karmienie per koń), `box_care_types` i `box_care_type_labels` (osobne czyszczenie, ścielenie, siano, karma i woda);
+  - flagi mają wymagane godziny od–do i wariant (`horse_flags.variant`, flaga „Derka”); `feeding_plan_items` dostaje „namoczyć” i ile;
+  - jedna rola Klient zamiast właściciela konia i najemcy miejsca: odpada `box_access`, a `invitations` traci `box_id` i `access_role`; „serwisant” to teraz Wsparcie IT (`it_support`);
+  - zadania są jednorazowe: odpadają `task_occurrences` i cron `task-occurrence-generator`;
+  - dochodzi `businesses` (działalność → stajnie → hale → boksy).
 - **Bez śledzenia wyświetleń flag:** odpadają `flag_displays` i cron `flag-display-check`. Status flagi to tylko potwierdzona albo niepotwierdzona, a brak potwierdzenia w terminie obsługuje `escalation-scheduler`.
 - **Przejmuje S3:** `stored_files` i `stored_file_chunks`.
 - **Serwisy:** dochodzi `billing` (płatności). Każda tabela ma serwis-właściciela; wszystko jest w schemacie `app`, poza audytem w schemacie `audit`.
@@ -850,4 +862,3 @@ erDiagram
 - **Poza v1, do decyzji:**
   - eksporty danych (`data_exports`, w przyszłości osobny serwis `exports`, który czyta dane wprost z bazy);
   - błędy klientów (`client_errors`, albo zewnętrzne narzędzie wybrane przez Dawida);
-  - odhaczanie padoku (`paddock_checks`, analogicznie do `feeding_checks`).
