@@ -8,3 +8,4 @@ przy każdym boksie z aktualnymi instrukcjami (karmienie, padok, weterynarz) i p
 - [Paleta kolorów](docs/paleta.md)
 - [Development, testy i zakupy](docs/development.md) (pełna wersja ze źródłami: [szczegóły](docs/development-szczegoly.md))
 - [Makiety (kanwas)](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX)
+- [Plan brakujących makiet: rejestracja, ekrany główne, urządzenia](docs/makiety-plan.md)
