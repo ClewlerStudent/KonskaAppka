@@ -8,7 +8,8 @@
 > - koń i boks w relacji 0..1 do 0..1 (koń może stać bez boksu, boks bez konia);
 > - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
 > - użytkownik logowany na tabletach, który może zablokować na tablecie wybrany boks;
-> - podgląd dziennika opieki konia dla użytkownika, który wynajmuje miejsce w stajni (bez dostępu do boksu).
+> - boks jako kontener z podstawowymi danymi (ostatnie czyszczenie, ostatnio dorzucona karma itd.), z podglądem dla najemcy miejsca;
+> - sesje tylko w Cognito, bez tabel sesji w bazie.
 
 ## Do zatwierdzenia
 
@@ -25,23 +26,26 @@
    - Jeden użytkownik może być zalogowany na kilku tabletach naraz i wszędzie widzi te same dane, bo decydują jego uprawnienia, a nie tablet.
    - Na danym tablecie użytkownik wybiera boks i go blokuje (`device_box_locks`). Tablet pokazuje wtedy tylko ten boks.
    - Na tablecie jest najwyżej jedna aktywna blokada, a jeden boks może być zablokowany na kilku tabletach.
+   - Sesji w bazie nie ma, bo sesje i tokeny trzyma Cognito.
+     - Tablet zgłasza w telemetrii, kto jest na nim zalogowany (`devices.current_user_id`). Dzięki temu admin widzi to w panelu.
+     - Zdalne wylogowanie konkretnego tabletu to komenda `sign_out`: tablet unieważnia swój refresh token w Cognito.
+     - Wylogowanie użytkownika ze wszystkich urządzeń robi Cognito (global sign-out).
    - Założenia do potwierdzenia:
-     - na tablecie jest zalogowany jeden użytkownik naraz;
+     - na tablecie jest zalogowany jeden użytkownik naraz (pilnuje apka);
      - zablokować boks na tablecie mogą tylko członkowie stajni z rolą `admin`, `staff` albo `technician`;
      - odblokować może ten, kto zablokował, admin stajni albo serwisant (rola `technician` w `stable_members`; propozycja do potwierdzenia);
      - po wylogowaniu blokada zostaje, a tablet czeka na kolejne logowanie i wraca do tego samego boksu.
-3. **Najemca miejsca: tylko podgląd dziennika opieki.**
-   - Admin stajni udostępnia najemcy konia przez `horse_access` z rolą `tenant`, także przez zaproszenie (`invitations.horse_id`, `access_role = tenant`).
-   - Najemca nie ma dostępu do boksu ani tabletu. Widzi tylko, co się z koniem działo:
-     - kiedy był karmiony (`feeding_checks`);
-     - wykonane zadania przy koniu (`task_occurrences`);
-     - wizyty z historii zdrowia widoczne dla stajni.
-   - Nie ustawia flag, nie zmienia planów, nie blokuje boksu na tablecie.
+3. **Boks jako kontener i podgląd dla najemcy.**
+   - Boks ma tylko podstawowe dane. To, co się z nim dzieje, zapisuje się jako zdarzenia w `box_care_events`, np. czyszczenie, ścielenie, dorzucenie siana albo karmy, woda.
+   - Wpisy robi obsługa na tablecie (jedno stuknięcie) albo w apce.
+   - „Ostatnie czyszczenie” czy „ostatnio dorzucona karma” to najnowsze zdarzenie danego rodzaju dla boksu (indeks po boksie, rodzaju i czasie). Nie trzymamy osobnych kolumn „ostatnio”, więc zostaje też historia.
+   - Najemca miejsca dostaje dostęp do boksu przez `box_access` z rolą `tenant`, także przez zaproszenie (`invitations.box_id`). Widzi tylko podstawowe dane boksu: ostatnie zdarzenia i ich historię.
+   - Najemca nie steruje boksem ani tabletem: nie ustawia flag, nie zmienia planów, nie blokuje boksu na tablecie.
    - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. po końcu najmu.
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
    - Do potwierdzenia:
-     - czy najemca widzi też aktywne flagi i plan karmienia;
-     - czy ma widzieć wyjścia na padok. Wymaga to odhaczania padoku (`paddock_checks`), które dziś jest poza v1.
+     - lista rodzajów zdarzeń przy boksie;
+     - czy najemca widzi też konia, który stoi w jego boksie.
 4. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
    - Klucze obce są normalne, także między tabelami różnych serwisów.
@@ -105,12 +109,12 @@
 | Mikroserwis | Kolor na ERD | Tabele (tylko ten serwis do nich pisze) |
 |---|---|---|
 | `identity` | różowy | `users` |
-| `access` | fioletowy | `stable_members`, `horse_access`, `invitations` |
+| `access` | fioletowy | `stable_members`, `horse_access`, `box_access`, `invitations` |
 | `stable` | niebieski | `stables`, `stable_locales`, `stable_settings`, `boxes`, `horses`, `horse_box_history` |
-| `devices` | morski | `devices`, `device_sessions`, `device_box_locks`, `device_commands`, `device_alerts` |
+| `devices` | morski | `devices`, `device_box_locks`, `device_commands`, `device_alerts` |
 | `board` | błękitny | `board_states` (wersja i `ETag` stanu tablicy), `board_device_sync` |
 | `flags` | czerwony | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_displays`, `flag_escalations` |
-| `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `paddock_plans`, `paddock_plan_companions` |
+| `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `box_care_events`, `paddock_plans`, `paddock_plan_companions` |
 | `health` | limonkowy | `health_events`, `health_attachments` |
 | `rides` | bursztynowy | `arenas`, `rides` |
 | `tasks` | pomarańczowy | `tasks`, `task_occurrences` |
@@ -141,7 +145,7 @@
 
 ## Współpraca serwisów
 
-- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin), `task_occurrences` i `device_box_locks`. Uprawnienia sprawdza w `stable_members` i `horse_access`.
+- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin), `task_occurrences` i `device_box_locks`. Uprawnienia sprawdza w `stable_members`, `horse_access` i `box_access`.
 - **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo jego kolejkę SQS. Zapisy z tabletu i apki (potwierdzenia, odhaczenia) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
 - **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji) służą reakcjom, a nie kopiowaniu danych:
   - `flag.changed` podbija wersję w `board_states`, więc tablet przy następnym odpytaniu dostaje nowy stan;
@@ -169,7 +173,7 @@
 
 ![ERD aplikacji, schemat app](erd/app.png)
 
-Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 51 tabel i 68 relacji.
+Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 52 tabele i 72 relacje.
 
 <details>
 <summary>Źródło mermaid</summary>
@@ -249,9 +253,20 @@ erDiagram
         uuid stable_id FK "stables"
         uuid horse_id FK "horses"
         uuid user_id FK "users"
-        text role "owner | co_owner | lessee | tenant | viewer"
+        text role "owner | co_owner | lessee | viewer"
         timestamptz valid_from
         timestamptz valid_to
+        timestamptz revoked_at
+        uuid granted_by FK "users"
+    }
+    box_access {
+        uuid id PK
+        uuid stable_id FK "stables"
+        uuid box_id FK "boxes"
+        uuid user_id FK "users"
+        text role "tenant: tylko podgląd"
+        timestamptz valid_from
+        timestamptz valid_to "koniec najmu"
         timestamptz revoked_at
         uuid granted_by FK "users"
     }
@@ -262,6 +277,7 @@ erDiagram
         text target "porównywany z claimem z Cognito"
         text role
         uuid horse_id FK "horses, opcjonalnie"
+        uuid box_id FK "boxes, opcjonalnie"
         text access_role "np. owner, tenant"
         uuid created_by FK "users"
         timestamptz expires_at "wymagane"
@@ -288,17 +304,9 @@ erDiagram
         int clock_offset_ms
         int pending_writes
         timestamptz telemetry_at
+        uuid current_user_id FK "users, kto jest zalogowany (z telemetrii)"
         timestamptz registered_at
         timestamptz retired_at
-    }
-    device_sessions {
-        uuid id PK
-        uuid device_id FK "jedna otwarta sesja na tablet"
-        uuid user_id FK "users"
-        timestamptz signed_in_at
-        timestamptz last_seen_at
-        timestamptz signed_out_at "NULL = zalogowany"
-        text sign_out_reason "user | remote | expired"
     }
     device_box_locks {
         uuid id PK
@@ -473,6 +481,19 @@ erDiagram
         numeric quantity
         text unit
         int sort_order
+    }
+    box_care_events {
+        uuid id PK "z klienta"
+        uuid stable_id FK "stables"
+        uuid box_id FK "boxes"
+        text type "cleaning | bedding | hay | feed | water"
+        timestamptz occurred_at
+        uuid user_id FK "users"
+        uuid device_id FK "devices, NULL gdy z apki"
+        text note
+        text time_quality "synced | unknown"
+        timestamptz received_at
+        text request_hash
     }
     feeding_checks {
         uuid id PK "z klienta"
@@ -734,8 +755,6 @@ erDiagram
     horses ||--o{ horse_access : "dostęp"
     stables ||--o{ invitations : "zaprasza"
     horses |o--o{ invitations : "do konia"
-    devices ||--o{ device_sessions : "sesje"
-    users ||--o{ device_sessions : "zalogowany na"
     devices ||--o{ device_box_locks : "blokady"
     boxes ||--o{ device_box_locks : "zablokowany na"
     users ||--o{ device_box_locks : "blokuje"
@@ -789,6 +808,12 @@ erDiagram
     invoices ||--o{ invoice_lines : "pozycje"
     invoices ||--o{ payments : "płatności"
     files |o--o| invoices : "PDF"
+    boxes |o--o{ invitations : "do boksu"
+    boxes ||--o{ box_access : "najem"
+    users ||--o{ box_access : "najemca"
+    boxes ||--o{ box_care_events : "zdarzenia"
+    devices |o--o{ box_care_events : "z tabletu"
+    users |o--o{ devices : "zalogowany na"
     classDef svc_stable fill:#dbeafe,stroke:#1d4ed8
     classDef svc_access fill:#ede9fe,stroke:#6d28d9
     classDef svc_identity fill:#fce7f3,stroke:#be185d
@@ -804,12 +829,12 @@ erDiagram
     classDef svc_releases fill:#f1f5f9,stroke:#475569
     classDef svc_notifications fill:#fae8ff,stroke:#a21caf
     class stables,stable_locales,stable_settings,boxes,horses,horse_box_history svc_stable
-    class stable_members,horse_access,invitations svc_access
+    class stable_members,horse_access,box_access,invitations svc_access
     class users svc_identity
-    class devices,device_sessions,device_box_locks,device_commands,device_alerts svc_devices
+    class devices,device_box_locks,device_commands,device_alerts svc_devices
     class board_states,board_device_sync svc_board
     class flag_templates,flag_template_labels,horse_flags,flag_acknowledgements,flag_displays,flag_escalations svc_flags
-    class meal_slots,meal_slot_labels,feeds,paddocks,feeding_plans,feeding_plan_items,feeding_checks,paddock_plans,paddock_plan_companions svc_care
+    class meal_slots,meal_slot_labels,feeds,paddocks,feeding_plans,feeding_plan_items,feeding_checks,box_care_events,paddock_plans,paddock_plan_companions svc_care
     class health_events,health_attachments svc_health
     class arenas,rides svc_rides
     class tasks,task_occurrences svc_tasks
@@ -857,6 +882,7 @@ erDiagram
 
 - `device_alerts.kind`: `offline`, `power_lost`, `clock_drift`, `board_stale`, `flag_undisplayed`, `battery_full_long`, `firmware_changed`.
 - `device_commands.type`: `refresh_board`, `restart_app`, `sign_out`, `unlock_box`, `add_wifi_network`, `check_updates`, `wipe`.
+- `box_care_events.type`: `cleaning` (czyszczenie), `bedding` (ścielenie), `hay` (dorzucone siano), `feed` (dorzucona karma), `water` (woda); lista do potwierdzenia.
 - `horse_flags.source`: `app` (właściciel w apce) albo flaga wpisana w imieniu właściciela: `on_behalf_phone`, `on_behalf_sms`, `on_behalf_in_person`.
 
 ## Zmiany względem modelu z analizy v3
