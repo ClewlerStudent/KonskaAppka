@@ -6,7 +6,7 @@
 > - Cognito jako serwer autoryzacji (OTP przez SMS i TOTP z RFC 6238);
 > - pliki w S3;
 > - koń i boks w relacji 0..1 do 0..1 (koń może stać bez boksu, boks bez konia);
-> - bez WebSocketów;
+> - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
 > - użytkownik logowany na tabletach, który może zablokować na tablecie wybrany boks.
 
 ## Do zatwierdzenia
@@ -27,14 +27,14 @@
    - Założenia do potwierdzenia:
      - na tablecie jest zalogowany jeden użytkownik naraz;
      - zablokować można tylko boks, który użytkownik ma prawo widzieć;
-     - odblokować może ten, kto zablokował, albo admin stajni;
+     - odblokować może ten, kto zablokował, admin stajni albo serwisant (rola `technician` w `stable_members`; propozycja do potwierdzenia);
      - po wylogowaniu blokada zostaje, a tablet czeka na kolejne logowanie i wraca do tego samego boksu.
 3. **Jedna baza, jeden schemat, właściciel tabeli.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
    - Klucze obce są normalne, także między tabelami różnych serwisów.
    - Dzięki temu nie ma replik ani synchronizacji danych między serwisami. Na przykład `board` składa stan tablicy, czytając wprost konie, flagi i plany karmienia.
+   - Serwisy czytają te same tabele, więc mają jeden schemat. Definicja tabel i migracje leżą w jednym pakiecie monorepo (`packages/db`), a serwisy importują z niego typy tabel.
    - Koszt: zmiana kolumny czytanej przez inne serwisy musi być zgodna wstecz (najpierw dodać, potem usunąć).
-   - Osobne schematy per serwis w PostgreSQL nic nie kosztują w działaniu (to tylko przestrzenie nazw). Kosztowny był zakaz czytania cudzych tabel, który wymuszał repliki, i z niego rezygnujemy.
 4. **Tożsamość w Cognito.**
    - `users.cognito_sub` wiąże nasz profil z kontem w puli Cognito.
    - Hasła, kody OTP (SMS, TOTP), sesje i tokeny trzyma Cognito. Cognito jest też źródłem prawdy dla telefonu i e-maila, a `users` trzyma ich kopię do powiadomień.
@@ -48,7 +48,15 @@
 6. **Bez WebSocketów.**
    - Tablet co kilka sekund odpytuje przez REST stan zablokowanego boksu (`board_states`) z `ETag`; gdy nic się nie zmieniło, dostaje `304`.
    - `board_device_sync` zapisuje, co tablet pobrał i co wyświetlił.
-   - Między serwisami: kolejki albo REST. Przy kolejkach każdy serwis ma techniczne tabele `outbox` i `inbox`, których nie ma na diagramach.
+   - Między serwisami: kolejki **SNS + SQS**, bez outboxów.
+     - Serwis po zatwierdzeniu transakcji publikuje zdarzenie do tematu SNS (jeden temat na rodzaj zdarzenia).
+     - Każdy konsument ma własną kolejkę SQS z kolejką błędów (DLQ).
+     - SQS może dostarczyć wiadomość więcej niż raz, więc obsługa jest idempotentna: zapisy opierają się na unikalnych kluczach w tabelach docelowych, bez osobnej tabeli `inbox`.
+   - Bez outboxu zdarzenie może zginąć, gdy serwis padnie między zapisem w bazie a publikacją. Dlatego żadna krytyczna ścieżka nie opiera się wyłącznie na zdarzeniu:
+     - eskalacje liczy cron prosto z bazy;
+     - `board` przy odpytywaniu porównuje wersje w bazie;
+     - cron uzgadniający poprawia skutki `horse.left`.
+   - E-maile z `notifications` mogą iść przez SES (adapter `EmailSender`).
 7. **Sloty posiłków i padoki należą do `care`, a hale do `rides`**, bo te serwisy z nich korzystają.
 8. **Płatności (`billing`).**
    - Płaci stajnia: ma konto rozliczeniowe (dane do faktury) i subskrypcję planu.
@@ -110,13 +118,14 @@
 | `billing-usage-snapshot` | `billing` (czyta `horses`, `devices`) | Raz w okresie zapisuje zużycie: boksy z koniem, aktywne tablety |
 | `billing-invoicing` | `billing`, `files` | Wystawia faktury z pozycjami, PDF do S3, przekazuje do systemu faktur |
 | `billing-dunning` | `billing`, `notifications` | Przypomnienia o zaległych płatnościach, po terminie `past_due`, potem `suspended` |
+| `horse-left-reconciler` | `access`, `flags`, `care`, `tasks`, `rides` | Szuka koni `left` z otwartymi dostępami, flagami albo planami i zleca ich zamknięcie właścicielom (na wypadek zgubionego zdarzenia) |
 | `retention-pruner` | wszystkie | Woła endpoint `prune` każdego serwisu, bo usuwać może tylko właściciel tabeli |
 
 ## Współpraca serwisów
 
 - **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin), `task_occurrences` i `device_box_locks`. Uprawnienia sprawdza w `stable_members` i `horse_access`.
-- **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo kolejkę. Zapisy z tabletu i apki (potwierdzenia, odhaczenia) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
-- **Zdarzenia** (kolejki albo REST, decyzja otwarta) służą reakcjom, a nie kopiowaniu danych:
+- **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo jego kolejkę SQS. Zapisy z tabletu i apki (potwierdzenia, odhaczenia) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
+- **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji) służą reakcjom, a nie kopiowaniu danych:
   - `flag.changed` unieważnia cache `board_states`;
   - `horse.left` zamyka flagi, plany i dostępy w serwisach-właścicielach;
   - `subscription.status_changed` zmienia `stables.status`.
@@ -198,7 +207,7 @@ erDiagram
         uuid id PK
         uuid stable_id "stables"
         uuid user_id "users, unikalne ze stable_id"
-        text role "admin | staff | instructor | member"
+        text role "admin | staff | instructor | technician | member"
         boolean active
         timestamptz deactivated_at
     }
@@ -811,7 +820,7 @@ erDiagram
 - **Przejmuje S3:** `stored_files` i `stored_file_chunks`.
 - **Serwisy:** dochodzi `billing` (płatności). Każda tabela ma serwisu-właściciela, ale wszystko jest w jednym schemacie.
 - **Odpada razem z WebSocketami i monolitem:**
-  - `outbox_seq` i `outbox_events`; przy kolejkach każdy serwis ma własny `outbox`;
+  - `outbox_seq` i `outbox_events`; zdarzenia idą wprost do SNS + SQS, bez outboxów;
   - `jobs`, bo crony są serwisami;
   - `boxes.board_version` przechodzi do `board_states.version`.
 - **Załączniki:** ogólne `attachments` zastępuje `health_attachments`, bo w v1 załączniki są tylko w zdrowiu.
