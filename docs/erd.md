@@ -7,7 +7,8 @@
 > - pliki w S3;
 > - koń i boks w relacji 0..1 do 0..1 (koń może stać bez boksu, boks bez konia);
 > - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
-> - użytkownik logowany na tabletach, który może zablokować na tablecie wybrany boks.
+> - użytkownik logowany na tabletach, który może zablokować na tablecie wybrany boks;
+> - udostępnianie boksu albo konia użytkownikowi, który wynajmuje miejsce w stajni.
 
 ## Do zatwierdzenia
 
@@ -29,23 +30,29 @@
      - zablokować można tylko boks, który użytkownik ma prawo widzieć;
      - odblokować może ten, kto zablokował, admin stajni albo serwisant (rola `technician` w `stable_members`; propozycja do potwierdzenia);
      - po wylogowaniu blokada zostaje, a tablet czeka na kolejne logowanie i wraca do tego samego boksu.
-3. **Jedna baza, jeden schemat, właściciel tabeli.**
+3. **Udostępnienie boksu albo konia najemcy miejsca.**
+   - Admin stajni może udostępnić użytkownikowi konkretny boks (`box_access`) albo konia (`horse_access`), także przez zaproszenie (`invitations.box_id` albo `invitations.horse_id`).
+   - Najemca widzi online swój boks i konia, który w nim stoi. Może ustawiać flagi i przekazywać informacje dla obsługi oraz zablokować swój boks na tablecie.
+   - Dostęp do boksu daje wgląd w konia tylko na czas, gdy koń w tym boksie stoi. Gdy konia przeniesiono, widać go dalej tylko przez `horse_access`.
+   - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. po końcu najmu.
+   - Rola w `box_access`: `tenant` (najemca, może przekazywać informacje) albo `viewer` (tylko podgląd).
+4. **Jedna baza, jeden schemat, właściciel tabeli.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
    - Klucze obce są normalne, także między tabelami różnych serwisów.
    - Dzięki temu nie ma replik ani synchronizacji danych między serwisami. Na przykład `board` składa stan tablicy, czytając wprost konie, flagi i plany karmienia.
    - Serwisy czytają te same tabele, więc mają jeden schemat. Definicja tabel i migracje leżą w jednym pakiecie monorepo (`packages/db`), a serwisy importują z niego typy tabel.
    - Koszt: zmiana kolumny czytanej przez inne serwisy musi być zgodna wstecz (najpierw dodać, potem usunąć).
-4. **Tożsamość w Cognito.**
+5. **Tożsamość w Cognito.**
    - `users.cognito_sub` wiąże nasz profil z kontem w puli Cognito.
    - Hasła, kody OTP (SMS, TOTP), sesje i tokeny trzyma Cognito. Cognito jest też źródłem prawdy dla telefonu i e-maila, a `users` trzyma ich kopię do powiadomień.
    - Serwis `identity` tworzy wiersz `users` przy pierwszym uwierzytelnionym żądaniu (upsert po `cognito_sub`).
    - Usunięcie konta to pseudonimizacja w `users` i usunięcie konta w Cognito.
    - Zaproszenie nie ma własnego tokenu: po zalogowaniu przez Cognito serwis `access` dopasowuje zweryfikowany telefon albo e-mail z tokenu do `invitations.target`.
    - Tablet wysyła token zalogowanego użytkownika i identyfikator instalacji (`devices.id`).
-5. **Pliki w S3.**
+6. **Pliki w S3.**
    - `files` trzyma metadane, `s3_key` (z prefiksem `stable_id/`) i właściciela (`owner_service`, `owner_id`).
    - Link do pobrania wydaje tylko serwis-właściciel po sprawdzeniu uprawnień. Na przykład `health` sprawdza widoczność wpisu i dostęp do konia, a dopiero potem prosi `files` o krótko ważny presigned URL.
-6. **Bez WebSocketów.**
+7. **Bez WebSocketów.**
    - Tablet co kilka sekund odpytuje przez REST stan zablokowanego boksu (`board_states`) z `ETag`; gdy nic się nie zmieniło, dostaje `304`.
    - `board_device_sync` zapisuje, co tablet pobrał i co wyświetlił.
    - Między serwisami: kolejki **SNS + SQS**, bez outboxów.
@@ -57,8 +64,8 @@
      - `board` przy odpytywaniu porównuje wersje w bazie;
      - cron uzgadniający poprawia skutki `horse.left`.
    - E-maile z `notifications` mogą iść przez SES (adapter `EmailSender`).
-7. **Sloty posiłków i padoki należą do `care`, a hale do `rides`**, bo te serwisy z nich korzystają.
-8. **Płatności (`billing`).**
+8. **Sloty posiłków i padoki należą do `care`, a hale do `rides`**, bo te serwisy z nich korzystają.
+9. **Płatności (`billing`).**
    - Płaci stajnia: ma konto rozliczeniowe (dane do faktury) i subskrypcję planu.
    - Comiesięczny cron zapisuje zużycie (np. boksy z koniem, aktywne tablety). Z niego powstaje faktura z pozycjami, a płatności przychodzą od dostawcy przez webhooki.
    - Kwoty są w groszach (`bigint`).
@@ -87,7 +94,7 @@
 | Mikroserwis | Tabele (tylko ten serwis do nich pisze) |
 |---|---|
 | `identity` | `users` |
-| `access` | `stable_members`, `horse_access`, `invitations` |
+| `access` | `stable_members`, `horse_access`, `box_access`, `invitations` |
 | `stable` | `stables`, `boxes`, `horses`, `horse_box_history` |
 | `devices` | `devices`, `device_sessions`, `device_box_locks`, `device_commands`, `device_alerts` |
 | `board` | `board_states` (cache stanu tablicy), `board_device_sync` |
@@ -123,7 +130,7 @@
 
 ## Współpraca serwisów
 
-- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin), `task_occurrences` i `device_box_locks`. Uprawnienia sprawdza w `stable_members` i `horse_access`.
+- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin), `task_occurrences` i `device_box_locks`. Uprawnienia sprawdza w `stable_members`, `horse_access` i `box_access`.
 - **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo jego kolejkę SQS. Zapisy z tabletu i apki (potwierdzenia, odhaczenia) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
 - **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji) służą reakcjom, a nie kopiowaniu danych:
   - `flag.changed` unieważnia cache `board_states`;
@@ -148,7 +155,7 @@
 
 ## 1. Stajnia, boksy, konie i dostęp
 
-Serwisy: `stable` (stables, boxes, horses, horse_box_history), `identity` (users), `access` (stable_members, horse_access, invitations).
+Serwisy: `stable` (stables, boxes, horses, horse_box_history), `identity` (users), `access` (stable_members, horse_access, box_access, invitations).
 
 ![Stajnia, boksy, konie i dostęp](erd/01-stajnia-konie-dostep.png)
 
@@ -222,6 +229,17 @@ erDiagram
         timestamptz revoked_at
         uuid granted_by "users"
     }
+    box_access {
+        uuid id PK
+        uuid stable_id FK
+        uuid box_id FK
+        uuid user_id FK
+        text role "tenant | viewer"
+        timestamptz valid_from
+        timestamptz valid_to "koniec najmu"
+        timestamptz revoked_at
+        uuid granted_by "users"
+    }
     invitations {
         uuid id PK
         uuid stable_id "stables"
@@ -229,6 +247,7 @@ erDiagram
         text target "porównywany z claimem z Cognito"
         text role
         uuid horse_id "horses, opcjonalnie"
+        uuid box_id "boxes, opcjonalnie"
         text access_role
         uuid created_by "users"
         timestamptz expires_at
@@ -247,6 +266,9 @@ erDiagram
     horses ||--o{ horse_access : "dostęp"
     stables ||--o{ invitations : "zaprasza"
     horses |o--o{ invitations : "do konia"
+    boxes |o--o{ invitations : "do boksu"
+    boxes ||--o{ box_access : "udostępniony"
+    users ||--o{ box_access : "wynajmuje / widzi"
 ```
 
 </details>
