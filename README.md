@@ -4,3 +4,4 @@ SaaS do zarządzania stajnią: aplikacja mobilna dla właścicieli koni, adminó
 przy każdym boksie z aktualnymi instrukcjami (karmienie, padok, weterynarz) i potwierdzeniami obsługi.
 
 - [Architektura i analiza techniczna](docs/analiza.md)
+- [Model danych (ERD) do zatwierdzenia](docs/erd.md)
