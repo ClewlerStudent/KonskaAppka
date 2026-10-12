@@ -97,23 +97,23 @@
 
 ## Mikroserwisy i tabele, które do nich należą
 
-| Mikroserwis | Tabele (tylko ten serwis do nich pisze) |
-|---|---|
-| `identity` | `users` |
-| `access` | `stable_members`, `horse_access`, `box_access`, `invitations` |
-| `stable` | `stables`, `stable_locales`, `stable_settings`, `boxes`, `horses`, `horse_box_history` |
-| `devices` | `devices`, `device_sessions`, `device_box_locks`, `device_commands`, `device_alerts` |
-| `board` | `board_states` (wersja i `ETag` stanu tablicy), `board_device_sync` |
-| `flags` | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_displays`, `flag_escalations` |
-| `care` | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `paddock_plans`, `paddock_plan_companions` |
-| `health` | `health_events`, `health_attachments` |
-| `rides` | `arenas`, `rides` |
-| `tasks` | `tasks`, `task_occurrences` |
-| `billing` | `billing_accounts`, `billing_plans`, `billing_plan_prices`, `subscriptions`, `usage_snapshots`, `invoices`, `invoice_lines`, `payments`, `payment_provider_events` |
-| `files` | `files` (metadane; treść w S3) |
-| `releases` | `app_releases`, `app_release_targets` |
-| `notifications` | `notifications` |
-| `audit` | `audit_log`, `audit_log_changes` (schemat `audit`; wpisy dodają wszystkie serwisy, czyta i usuwa tylko `audit`) |
+| Mikroserwis | Kolor na ERD | Tabele (tylko ten serwis do nich pisze) |
+|---|---|---|
+| `identity` | różowy | `users` |
+| `access` | fioletowy | `stable_members`, `horse_access`, `box_access`, `invitations` |
+| `stable` | niebieski | `stables`, `stable_locales`, `stable_settings`, `boxes`, `horses`, `horse_box_history` |
+| `devices` | morski | `devices`, `device_sessions`, `device_box_locks`, `device_commands`, `device_alerts` |
+| `board` | błękitny | `board_states` (wersja i `ETag` stanu tablicy), `board_device_sync` |
+| `flags` | czerwony | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_displays`, `flag_escalations` |
+| `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `paddock_plans`, `paddock_plan_companions` |
+| `health` | limonkowy | `health_events`, `health_attachments` |
+| `rides` | bursztynowy | `arenas`, `rides` |
+| `tasks` | pomarańczowy | `tasks`, `task_occurrences` |
+| `billing` | żółty | `billing_accounts`, `billing_plans`, `billing_plan_prices`, `subscriptions`, `usage_snapshots`, `invoices`, `invoice_lines`, `payments`, `payment_provider_events` |
+| `files` | szary | `files` (metadane; treść w S3) |
+| `releases` | grafitowy | `app_releases`, `app_release_targets` |
+| `notifications` | purpurowy | `notifications` |
+| `audit` | — (osobny diagram) | `audit_log`, `audit_log_changes` (schemat `audit`; wpisy dodają wszystkie serwisy, czyta i usuwa tylko `audit`) |
 
 **Crony to osobne mikroserwisy bez własnych tabel.** Czytać mogą wprost z bazy, ale zmiany zlecają serwisom-właścicielom przez API albo kolejki. Idempotencję zapewniają unikalności po stronie tych serwisów, np. `notifications.dedupe_key`.
 
@@ -146,24 +146,25 @@
 
 ## Legenda
 
-- **Linie:** każda linia to klucz obcy. Wszystkie tabele poza audytem są w schemacie `app`; tabele audytu (diagram 5) są w schemacie `audit` i nie mają kluczy obcych do `app`. Pod każdym diagramem jest obrazek, a pod nim w zwijanej sekcji źródło mermaid.
+- **Jeden ERD aplikacji:** wszystkie tabele schematu `app` na jednym diagramie. Audit ma osobny, mały diagram, bo leży w schemacie `audit` i nie ma kluczy obcych do `app`.
+- **Kolor tabeli** to jej serwis-właściciel (kolumna „Kolor na ERD” w tabeli serwisów).
+- **Kolumny:** `PK` to klucz główny, `FK` klucz obcy, `UK` unikalność. Komentarz przy `FK` podaje tabelę docelową.
+- **Linie:** relacje między tabelami. Dla czytelności nie rysujemy dwóch rodzajów linii; ich klucze obce są zaznaczone w kolumnach:
+  - linii do `stables` (kolumna `stable_id` jest prawie w każdej tabeli);
+  - linii do `users` z pól atrybucji (`created_by`, `granted_by`, `uploaded_by`, `moved_by` i podobnych).
 - **Krotności.** Znacznik przy tabeli mówi, ile jej wierszy przypada na jeden wiersz tabeli po drugiej stronie:
   - `||` dokładnie jeden;
   - `o|` (zapisane po lewej stronie jako `|o`) zero albo jeden;
   - `o{` (po lewej `}o`) zero lub wiele.
 
   Przykład: `boxes |o--o| horses` znaczy, że koń ma zero albo jeden boks, a boks ma zero albo jednego konia.
-- **Co pominięto dla czytelności:**
-  - linie do `stables`;
-  - pola atrybucji (`created_by`, `uploaded_by`, `granted_by`, `moved_by`).
+- **Pliki:** PNG do szybkiego podglądu, SVG do powiększania (tekst zostaje ostry).
 
-  Wyjątek stanowią potwierdzenia i odhaczenia: tam informacja, kto i na którym tablecie, jest istotą modelu.
+## ERD aplikacji (schemat `app`)
 
-## 1. Stajnia, boksy, konie i dostęp
+![ERD aplikacji, schemat app](erd/app.png)
 
-Serwisy: `stable` (stables, boxes, horses, horse_box_history), `identity` (users), `access` (stable_members, horse_access, box_access, invitations).
-
-![Stajnia, boksy, konie i dostęp](erd/01-stajnia-konie-dostep.png)
+Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 52 tabele i 71 relacji.
 
 <details>
 <summary>Źródło mermaid</summary>
@@ -207,7 +208,7 @@ erDiagram
         text name
         text breed
         date birth_date
-        uuid photo_file_id "files"
+        uuid photo_file_id FK "files"
         timestamptz left_at
     }
     horse_box_history {
@@ -216,7 +217,7 @@ erDiagram
         uuid horse_id FK "jeden otwarty wpis na konia"
         uuid box_id FK "jeden otwarty wpis na boks"
         text reason "arrival | move | swap | left"
-        uuid moved_by "users"
+        uuid moved_by FK "users"
         timestamptz from_at
         timestamptz to_at "NULL = obecnie"
     }
@@ -232,22 +233,22 @@ erDiagram
     }
     stable_members {
         uuid id PK
-        uuid stable_id "stables"
-        uuid user_id "users, unikalne ze stable_id"
+        uuid stable_id FK "stables"
+        uuid user_id FK "users, unikalne ze stable_id"
         text role "admin | staff | instructor | technician | member"
         boolean active
         timestamptz deactivated_at
     }
     horse_access {
         uuid id PK
-        uuid stable_id "stables"
-        uuid horse_id "horses"
-        uuid user_id "users"
+        uuid stable_id FK "stables"
+        uuid horse_id FK "horses"
+        uuid user_id FK "users"
         text role "owner | co_owner | lessee | viewer"
         timestamptz valid_from
         timestamptz valid_to
         timestamptz revoked_at
-        uuid granted_by "users"
+        uuid granted_by FK "users"
     }
     box_access {
         uuid id PK
@@ -258,57 +259,26 @@ erDiagram
         timestamptz valid_from
         timestamptz valid_to "koniec najmu"
         timestamptz revoked_at
-        uuid granted_by "users"
+        uuid granted_by FK "users"
     }
     invitations {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         text channel "sms | email"
         text target "porównywany z claimem z Cognito"
         text role
-        uuid horse_id "horses, opcjonalnie"
-        uuid box_id "boxes, opcjonalnie"
+        uuid horse_id FK "horses, opcjonalnie"
+        uuid box_id FK "boxes, opcjonalnie"
         text access_role
-        uuid created_by "users"
+        uuid created_by FK "users"
         timestamptz expires_at "wymagane"
         timestamptz accepted_at
-        uuid accepted_by "users"
+        uuid accepted_by FK "users"
         timestamptz revoked_at
     }
-    stables ||--o{ stable_locales : "języki"
-    stables ||--|| stable_settings : "ustawienia"
-    stables ||--o{ boxes : "ma"
-    stables ||--o{ horses : "ma"
-    boxes |o--o| horses : "zajmuje (0..1 : 0..1)"
-    horses ||--o{ horse_box_history : "historia"
-    boxes ||--o{ horse_box_history : "historia"
-    users ||--o{ stable_members : "jest członkiem"
-    stables ||--o{ stable_members : "członkowie"
-    users ||--o{ horse_access : "ma dostęp"
-    horses ||--o{ horse_access : "dostęp"
-    stables ||--o{ invitations : "zaprasza"
-    horses |o--o{ invitations : "do konia"
-    boxes |o--o{ invitations : "do boksu"
-    boxes ||--o{ box_access : "udostępniony"
-    users ||--o{ box_access : "wynajmuje / widzi"
-```
-
-</details>
-
-## 2. Tablety: logowanie, blokada boksu i stan tablicy
-
-Serwisy: `devices` (devices, device_sessions, device_box_locks, device_commands, device_alerts), `board` (board_states, board_device_sync).
-
-![Tablety, logowanie, blokada boksu i stan tablicy](erd/02-tablety.png)
-
-<details>
-<summary>Źródło mermaid</summary>
-
-```mermaid
-erDiagram
     devices {
         uuid id PK "identyfikator instalacji z apki"
-        uuid stable_id "stables, gdzie wisi tablet"
+        uuid stable_id FK "stables, gdzie wisi tablet"
         text name
         text status "active | retired"
         text model
@@ -331,7 +301,7 @@ erDiagram
     device_sessions {
         uuid id PK
         uuid device_id FK "jedna otwarta sesja na tablet"
-        uuid user_id "users"
+        uuid user_id FK "users"
         timestamptz signed_in_at
         timestamptz last_seen_at
         timestamptz signed_out_at "NULL = zalogowany"
@@ -339,22 +309,22 @@ erDiagram
     }
     device_box_locks {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         uuid device_id FK "jedna otwarta blokada na tablet"
-        uuid box_id "boxes"
-        uuid locked_by "users"
+        uuid box_id FK "boxes"
+        uuid locked_by FK "users"
         timestamptz locked_at
         timestamptz unlocked_at "NULL = aktywna"
-        uuid unlocked_by "users"
+        uuid unlocked_by FK "users"
     }
     device_commands {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         uuid device_id FK
         text type "rodzaj komendy, lista pod diagramem"
         bytea payload_enc "zerowany po zakończeniu"
         text status "pending | delivered | succeeded | failed | expired"
-        uuid created_by "users"
+        uuid created_by FK "users"
         timestamptz delivered_at
         timestamptz finished_at
         text result_code
@@ -363,7 +333,7 @@ erDiagram
     }
     device_alerts {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         uuid device_id FK "jeden otwarty alert danego rodzaju"
         text kind "rodzaj alertu, lista pod diagramem"
         timestamptz opened_at
@@ -371,9 +341,9 @@ erDiagram
         timestamptz notified_at
     }
     board_states {
-        uuid box_id PK "boxes"
-        uuid stable_id "stables"
-        uuid horse_id "horses"
+        uuid box_id PK, FK "boxes"
+        uuid stable_id FK "stables"
+        uuid horse_id FK "horses"
         bigint version
         text etag "z wersji i kubełka horyzontu; treść składana przy GET"
         timestamptz horizon_from
@@ -381,48 +351,17 @@ erDiagram
         timestamptz updated_at
     }
     board_device_sync {
-        uuid device_id PK "devices"
-        uuid stable_id "stables"
+        uuid device_id PK, FK "devices"
+        uuid stable_id FK "stables"
         uuid box_id FK
         timestamptz last_poll_at
         bigint served_version
         bigint seen_version
         timestamptz seen_at
     }
-    users
-    boxes
-    devices ||--o{ device_sessions : "sesje"
-    users ||--o{ device_sessions : "zalogowany na"
-    devices ||--o{ device_box_locks : "blokady"
-    boxes ||--o{ device_box_locks : "zablokowany na"
-    users ||--o{ device_box_locks : "blokuje"
-    devices ||--o{ device_commands : "komendy"
-    devices ||--o{ device_alerts : "alerty"
-    boxes ||--o| board_states : "stan tablicy"
-    board_states ||--o{ board_device_sync : "tablety boksu"
-    devices ||--o| board_device_sync : "co pobrał i wyświetlił"
-```
-
-</details>
-
-Wartości:
-- `device_alerts.kind`: `offline`, `power_lost`, `clock_drift`, `board_stale`, `flag_undisplayed`, `battery_full_long`, `firmware_changed`.
-- `device_commands.type`: `refresh_board`, `restart_app`, `sign_out`, `unlock_box`, `add_wifi_network`, `check_updates`, `wipe`.
-
-## 3. Flagi i potwierdzenia
-
-Serwis: `flags`.
-
-![Flagi i potwierdzenia](erd/03-flagi.png)
-
-<details>
-<summary>Źródło mermaid</summary>
-
-```mermaid
-erDiagram
     flag_templates {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         text code "unikalny w stajni"
         text icon
         text severity "info | warning | critical"
@@ -435,8 +374,8 @@ erDiagram
     }
     horse_flags {
         uuid id PK "z klienta"
-        uuid stable_id "stables"
-        uuid horse_id "horses"
+        uuid stable_id FK "stables"
+        uuid horse_id FK "horses"
         uuid template_id FK "opcjonalnie"
         text custom_text
         text severity
@@ -446,18 +385,18 @@ erDiagram
         text author_role "owner | staff | admin"
         timestamptz valid_from
         timestamptz valid_to "NULL = do odwołania"
-        uuid meal_slot_id "meal_slots"
+        uuid meal_slot_id FK "meal_slots"
         date service_date
         timestamptz ack_deadline_at
         timestamptz warn_at "liczone przy zapisie"
         timestamptz notify_at "liczone przy zapisie"
         text source "app | on_behalf_*, lista pod diagramem"
         uuid replaces_flag_id FK, UK
-        uuid created_by "users"
+        uuid created_by FK "users"
         timestamptz client_created_at
         text request_hash
         timestamptz cancelled_at
-        uuid cancelled_by "users"
+        uuid cancelled_by FK "users"
         text cancel_reason
         timestamptz acknowledged_at
     }
@@ -468,11 +407,11 @@ erDiagram
     }
     flag_acknowledgements {
         uuid id PK "id zdarzenia z klienta"
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         uuid flag_id FK
-        uuid user_id "users, zalogowany użytkownik"
-        uuid device_id "devices, NULL gdy z apki"
-        uuid box_id "boxes, gdzie potwierdzono"
+        uuid user_id FK "users, zalogowany użytkownik"
+        uuid device_id FK "devices, NULL gdy z apki"
+        uuid box_id FK "boxes, gdzie potwierdzono"
         text method "tablet | app"
         timestamptz occurred_at
         text time_quality "synced | unknown"
@@ -482,56 +421,24 @@ erDiagram
     }
     flag_displays {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         uuid flag_id FK "unikalne z device_id"
-        uuid device_id "devices"
-        uuid box_id "boxes"
+        uuid device_id FK "devices"
+        uuid box_id FK "boxes"
         bigint board_version
         timestamptz displayed_at
         timestamptz received_at
     }
     flag_escalations {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         uuid flag_id FK "unikalne z level"
         text level "board_warning | admin_notify"
         timestamptz escalated_at
     }
-    horses
-    meal_slots
-    devices
-    users
-    flag_templates ||--o{ flag_template_labels : "etykiety"
-    flag_templates |o--o{ horse_flags : "szablon"
-    horse_flags |o--o| horse_flags : "zastępuje"
-    horse_flags ||--o{ flag_acknowledgements : "potwierdzenia"
-    horse_flags ||--o{ flag_displays : "wyświetlenia"
-    horse_flags ||--o{ flag_escalations : "eskalacje"
-    horses ||--o{ horse_flags : "flagi"
-    meal_slots |o--o{ horse_flags : "cel: posiłek"
-    users ||--o{ flag_acknowledgements : "kto potwierdził"
-    devices |o--o{ flag_acknowledgements : "z tabletu"
-    devices ||--o{ flag_displays : "na tablecie"
-```
-
-</details>
-
-Wartości `horse_flags.source`: `app` (właściciel w apce) albo flaga wpisana w imieniu właściciela: `on_behalf_phone`, `on_behalf_sms`, `on_behalf_in_person`.
-
-## 4. Opieka, zdrowie, jazdy i zadania
-
-Serwisy: `care` (meal_slots, paddocks, feeding_plans, feeding_checks, paddock_plans), `health` (health_events, health_attachments), `rides` (arenas, rides), `tasks` (tasks, task_occurrences).
-
-![Opieka, zdrowie, jazdy i zadania](erd/04-opieka-zdrowie-jazdy-zadania.png)
-
-<details>
-<summary>Źródło mermaid</summary>
-
-```mermaid
-erDiagram
     meal_slots {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         text code "np. breakfast"
         time local_time
         smallint days_mask "bity: pn=1 ... nd=64"
@@ -546,7 +453,7 @@ erDiagram
     }
     feeds {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         text name "np. owies, siano, suplement X"
         text kind "feed | supplement | medicine"
         text default_unit "kg | g | miarka | szt"
@@ -554,13 +461,13 @@ erDiagram
     }
     paddocks {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         text name
     }
     feeding_plans {
         uuid id PK
-        uuid stable_id "stables"
-        uuid horse_id "horses"
+        uuid stable_id FK "stables"
+        uuid horse_id FK "horses"
         uuid meal_slot_id FK
         date valid_from
         date valid_to
@@ -576,13 +483,13 @@ erDiagram
     }
     feeding_checks {
         uuid id PK "z klienta"
-        uuid stable_id "stables"
-        uuid horse_id "horses"
+        uuid stable_id FK "stables"
+        uuid horse_id FK "horses"
         uuid meal_slot_id FK
         date service_date "unikalne z horse_id i meal_slot_id"
-        uuid user_id "users"
-        uuid device_id "devices, NULL gdy z apki"
-        uuid box_id "boxes"
+        uuid user_id FK "users"
+        uuid device_id FK "devices, NULL gdy z apki"
+        uuid box_id FK "boxes"
         timestamptz occurred_at
         text time_quality "synced | unknown"
         timestamptz received_at
@@ -591,8 +498,8 @@ erDiagram
     }
     paddock_plans {
         uuid id PK
-        uuid stable_id "stables"
-        uuid horse_id "horses"
+        uuid stable_id FK "stables"
+        uuid horse_id FK "horses"
         uuid paddock_id FK
         smallint days_mask "bity: pn=1 ... nd=64"
         time start_local
@@ -603,43 +510,43 @@ erDiagram
     }
     paddock_plan_companions {
         uuid paddock_plan_id PK, FK
-        uuid horse_id PK "horses"
+        uuid horse_id PK, FK "horses"
     }
     health_events {
         uuid id PK
-        uuid stable_id "stables"
-        uuid horse_id "horses"
+        uuid stable_id FK "stables"
+        uuid horse_id FK "horses"
         text type "vet | farrier | dentist | deworming | vaccination"
         date occurred_on
         timestamptz scheduled_at
         timestamptz next_due_at
         text description
         text visibility "stable | owner_private"
-        uuid created_by "users"
+        uuid created_by FK "users"
         timestamptz deleted_at
     }
     health_attachments {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         uuid health_event_id FK
-        uuid file_id UK "files"
+        uuid file_id UK, FK "files"
         text file_name
-        uuid created_by "users"
+        uuid created_by FK "users"
         timestamptz deleted_at
     }
     arenas {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         text name
         int capacity
     }
     rides {
         uuid id PK
-        uuid stable_id "stables"
-        uuid horse_id "horses"
-        uuid rider_member_id "stable_members, opcjonalnie"
+        uuid stable_id FK "stables"
+        uuid horse_id FK "horses"
+        uuid rider_member_id FK "stable_members, opcjonalnie"
         text rider_name
-        uuid instructor_member_id "stable_members"
+        uuid instructor_member_id FK "stable_members"
         uuid arena_id FK
         timestamptz starts_at
         timestamptz ends_at
@@ -648,10 +555,10 @@ erDiagram
     }
     tasks {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         text title
-        uuid horse_id "horses, opcjonalnie"
-        uuid box_id "boxes, opcjonalnie"
+        uuid horse_id FK "horses, opcjonalnie"
+        uuid box_id FK "boxes, opcjonalnie"
         timestamptz due_at "zadanie jednorazowe"
         smallint days_mask "zadanie cykliczne; bity pn..nd"
         time local_time
@@ -661,58 +568,21 @@ erDiagram
     }
     task_occurrences {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         uuid task_id FK
         timestamptz due_at "unikalne z task_id"
         text status
         uuid completion_event_id UK "id zdarzenia z klienta"
-        uuid done_by_user_id "users"
-        uuid done_by_device_id "devices, NULL gdy z apki"
+        uuid done_by_user_id FK "users"
+        uuid done_by_device_id FK "devices, NULL gdy z apki"
         timestamptz occurred_at
         text time_quality "synced | unknown"
         timestamptz received_at
         text request_hash
     }
-    horses
-    boxes
-    files
-    meal_slots ||--o{ meal_slot_labels : "etykiety"
-    meal_slots ||--o{ feeding_plans : "posiłek"
-    feeding_plans ||--o{ feeding_plan_items : "pozycje"
-    feeds ||--o{ feeding_plan_items : "pasza"
-    meal_slots ||--o{ feeding_checks : "posiłek"
-    paddocks ||--o{ paddock_plans : "gdzie"
-    paddock_plans ||--o{ paddock_plan_companions : "z kim"
-    horses ||--o{ paddock_plan_companions : "towarzysz"
-    horses ||--o{ feeding_plans : "plan"
-    horses ||--o{ feeding_checks : "odhaczenia"
-    horses ||--o{ paddock_plans : "padok"
-    horses ||--o{ health_events : "zdrowie"
-    health_events ||--o{ health_attachments : "załączniki"
-    files ||--o| health_attachments : "plik w S3"
-    arenas |o--o{ rides : "miejsce"
-    horses ||--o{ rides : "jazdy"
-    tasks ||--o{ task_occurrences : "wystąpienia"
-    horses |o--o{ tasks : "dotyczy"
-    boxes |o--o{ tasks : "dotyczy"
-```
-
-</details>
-
-## 5. Pliki, wydania APK, powiadomienia i audit
-
-Serwisy: `files`, `releases`, `notifications`, `audit` (tabele `audit_log` i `audit_log_changes` w schemacie `audit`).
-
-![Pliki, wydania APK, powiadomienia i audit](erd/05-pliki-wydania-powiadomienia.png)
-
-<details>
-<summary>Źródło mermaid</summary>
-
-```mermaid
-erDiagram
     files {
         uuid id PK
-        uuid stable_id "stables, NULL dla APK"
+        uuid stable_id FK "stables, NULL dla APK"
         text s3_key UK "prefiks stable_id/"
         text owner_service "np. health, stable, releases"
         uuid owner_id
@@ -721,14 +591,14 @@ erDiagram
         bigint size_bytes
         text sha256
         text status "pending | attached | deleted"
-        uuid uploaded_by "users"
+        uuid uploaded_by FK "users"
         timestamptz deleted_at
     }
     app_releases {
         uuid id PK
         int version_code UK
         text version_name
-        uuid file_id UK "files"
+        uuid file_id UK, FK "files"
         text sha256
         text signing_cert_sha256
         int min_sdk
@@ -739,68 +609,26 @@ erDiagram
     app_release_targets {
         uuid id PK
         uuid release_id FK
-        uuid stable_id "stables, opcjonalnie"
-        uuid device_id "devices, opcjonalnie"
+        uuid stable_id FK "stables, opcjonalnie"
+        uuid device_id FK "devices, opcjonalnie"
     }
     notifications {
         uuid id PK
-        uuid stable_id "stables"
+        uuid stable_id FK "stables"
         text channel "sms | email"
-        uuid recipient_user_id "users, NULL dla zaproszeń"
+        uuid recipient_user_id FK "users, NULL dla zaproszeń"
         text recipient_address "E.164 albo e-mail w chwili wysyłki"
         text template
         text subject "wyrenderowane przy tworzeniu"
         text body
-        uuid related_flag_id "horse_flags"
-        uuid related_invitation_id "invitations"
+        uuid related_flag_id FK "horse_flags"
+        uuid related_invitation_id FK "invitations"
         text dedupe_key UK
         text status "pending | sent | failed | cancelled"
         text provider_message_id
         int attempts
         timestamptz sent_at
     }
-    audit_log {
-        uuid id PK "schemat audit"
-        uuid stable_id "stables"
-        text service
-        text actor_type "user | operator | system"
-        uuid actor_id
-        uuid device_id "devices, gdy z tabletu"
-        text action
-        text entity_type
-        uuid entity_id
-        timestamptz created_at
-    }
-    audit_log_changes {
-        uuid audit_log_id PK, FK "schemat audit"
-        text field PK
-        text old_value "bez sekretów"
-        text new_value
-    }
-    users
-    horse_flags
-    invitations
-    files ||--o| app_releases : "APK w S3"
-    app_releases ||--o{ app_release_targets : "do kogo"
-    audit_log ||--o{ audit_log_changes : "zmienione pola"
-    users |o--o{ notifications : "odbiorca"
-    horse_flags |o--o{ notifications : "dotyczy"
-    invitations |o--o{ notifications : "zaproszenie"
-```
-
-</details>
-
-## 6. Płatności
-
-Serwis: `billing`.
-
-![Płatności](erd/06-platnosci.png)
-
-<details>
-<summary>Źródło mermaid</summary>
-
-```mermaid
-erDiagram
     billing_accounts {
         uuid id PK
         uuid stable_id FK, UK "jedno konto na stajnię"
@@ -900,8 +728,67 @@ erDiagram
         timestamptz received_at
         timestamptz processed_at
     }
-    stables
-    files
+    stables ||--o{ stable_locales : "języki"
+    stables ||--|| stable_settings : "ustawienia"
+    stables ||--o{ boxes : "ma"
+    stables ||--o{ horses : "ma"
+    boxes |o--o| horses : "zajmuje (0..1 : 0..1)"
+    horses ||--o{ horse_box_history : "historia"
+    boxes ||--o{ horse_box_history : "historia"
+    users ||--o{ stable_members : "jest członkiem"
+    stables ||--o{ stable_members : "członkowie"
+    users ||--o{ horse_access : "ma dostęp"
+    horses ||--o{ horse_access : "dostęp"
+    stables ||--o{ invitations : "zaprasza"
+    horses |o--o{ invitations : "do konia"
+    boxes |o--o{ invitations : "do boksu"
+    boxes ||--o{ box_access : "udostępniony"
+    users ||--o{ box_access : "wynajmuje / widzi"
+    devices ||--o{ device_sessions : "sesje"
+    users ||--o{ device_sessions : "zalogowany na"
+    devices ||--o{ device_box_locks : "blokady"
+    boxes ||--o{ device_box_locks : "zablokowany na"
+    users ||--o{ device_box_locks : "blokuje"
+    devices ||--o{ device_commands : "komendy"
+    devices ||--o{ device_alerts : "alerty"
+    boxes ||--o| board_states : "stan tablicy"
+    board_states ||--o{ board_device_sync : "tablety boksu"
+    devices ||--o| board_device_sync : "co pobrał i wyświetlił"
+    flag_templates ||--o{ flag_template_labels : "etykiety"
+    flag_templates |o--o{ horse_flags : "szablon"
+    horse_flags |o--o| horse_flags : "zastępuje"
+    horse_flags ||--o{ flag_acknowledgements : "potwierdzenia"
+    horse_flags ||--o{ flag_displays : "wyświetlenia"
+    horse_flags ||--o{ flag_escalations : "eskalacje"
+    horses ||--o{ horse_flags : "flagi"
+    meal_slots |o--o{ horse_flags : "cel: posiłek"
+    users ||--o{ flag_acknowledgements : "kto potwierdził"
+    devices |o--o{ flag_acknowledgements : "z tabletu"
+    devices ||--o{ flag_displays : "na tablecie"
+    meal_slots ||--o{ meal_slot_labels : "etykiety"
+    meal_slots ||--o{ feeding_plans : "posiłek"
+    feeding_plans ||--o{ feeding_plan_items : "pozycje"
+    feeds ||--o{ feeding_plan_items : "pasza"
+    meal_slots ||--o{ feeding_checks : "posiłek"
+    paddocks ||--o{ paddock_plans : "gdzie"
+    paddock_plans ||--o{ paddock_plan_companions : "z kim"
+    horses ||--o{ paddock_plan_companions : "towarzysz"
+    horses ||--o{ feeding_plans : "plan"
+    horses ||--o{ feeding_checks : "odhaczenia"
+    horses ||--o{ paddock_plans : "padok"
+    horses ||--o{ health_events : "zdrowie"
+    health_events ||--o{ health_attachments : "załączniki"
+    files ||--o| health_attachments : "plik w S3"
+    arenas |o--o{ rides : "miejsce"
+    horses ||--o{ rides : "jazdy"
+    tasks ||--o{ task_occurrences : "wystąpienia"
+    horses |o--o{ tasks : "dotyczy"
+    boxes |o--o{ tasks : "dotyczy"
+    files ||--o| app_releases : "APK w S3"
+    app_releases ||--o{ app_release_targets : "do kogo"
+    users |o--o{ notifications : "odbiorca"
+    horse_flags |o--o{ notifications : "dotyczy"
+    invitations |o--o{ notifications : "zaproszenie"
     stables ||--o| billing_accounts : "płaci"
     billing_accounts ||--o{ subscriptions : "subskrypcje"
     billing_plans ||--o{ billing_plan_prices : "ceny"
@@ -912,9 +799,75 @@ erDiagram
     invoices ||--o{ invoice_lines : "pozycje"
     invoices ||--o{ payments : "płatności"
     files |o--o| invoices : "PDF"
+    classDef svc_stable fill:#dbeafe,stroke:#1d4ed8
+    classDef svc_access fill:#ede9fe,stroke:#6d28d9
+    classDef svc_identity fill:#fce7f3,stroke:#be185d
+    classDef svc_devices fill:#ccfbf1,stroke:#0f766e
+    classDef svc_board fill:#cffafe,stroke:#0e7490
+    classDef svc_flags fill:#fee2e2,stroke:#b91c1c
+    classDef svc_care fill:#dcfce7,stroke:#15803d
+    classDef svc_health fill:#ecfccb,stroke:#4d7c0f
+    classDef svc_rides fill:#fef3c7,stroke:#b45309
+    classDef svc_tasks fill:#ffedd5,stroke:#c2410c
+    classDef svc_billing fill:#fef9c3,stroke:#a16207
+    classDef svc_files fill:#e5e7eb,stroke:#374151
+    classDef svc_releases fill:#f1f5f9,stroke:#475569
+    classDef svc_notifications fill:#fae8ff,stroke:#a21caf
+    class stables,stable_locales,stable_settings,boxes,horses,horse_box_history svc_stable
+    class stable_members,horse_access,box_access,invitations svc_access
+    class users svc_identity
+    class devices,device_sessions,device_box_locks,device_commands,device_alerts svc_devices
+    class board_states,board_device_sync svc_board
+    class flag_templates,flag_template_labels,horse_flags,flag_acknowledgements,flag_displays,flag_escalations svc_flags
+    class meal_slots,meal_slot_labels,feeds,paddocks,feeding_plans,feeding_plan_items,feeding_checks,paddock_plans,paddock_plan_companions svc_care
+    class health_events,health_attachments svc_health
+    class arenas,rides svc_rides
+    class tasks,task_occurrences svc_tasks
+    class billing_accounts,billing_plans,billing_plan_prices,subscriptions,usage_snapshots,invoices,invoice_lines,payments,payment_provider_events svc_billing
+    class files svc_files
+    class app_releases,app_release_targets svc_releases
+    class notifications svc_notifications
 ```
 
 </details>
+
+## ERD audytu (schemat `audit`)
+
+![ERD audytu, schemat audit](erd/audit.png)
+
+<details>
+<summary>Źródło mermaid</summary>
+
+```mermaid
+erDiagram
+    audit_log {
+        uuid id PK "schemat audit"
+        uuid stable_id FK "stables"
+        text service
+        text actor_type "user | operator | system"
+        uuid actor_id
+        uuid device_id FK "devices, gdy z tabletu"
+        text action
+        text entity_type
+        uuid entity_id
+        timestamptz created_at
+    }
+    audit_log_changes {
+        uuid audit_log_id PK, FK "schemat audit"
+        text field PK
+        text old_value "bez sekretów"
+        text new_value
+    }
+    audit_log ||--o{ audit_log_changes : "zmienione pola"
+```
+
+</details>
+
+## Słowniki wartości
+
+- `device_alerts.kind`: `offline`, `power_lost`, `clock_drift`, `board_stale`, `flag_undisplayed`, `battery_full_long`, `firmware_changed`.
+- `device_commands.type`: `refresh_board`, `restart_app`, `sign_out`, `unlock_box`, `add_wifi_network`, `check_updates`, `wipe`.
+- `horse_flags.source`: `app` (właściciel w apce) albo flaga wpisana w imieniu właściciela: `on_behalf_phone`, `on_behalf_sms`, `on_behalf_in_person`.
 
 ## Zmiany względem modelu z analizy v3
 
