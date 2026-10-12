@@ -27,6 +27,7 @@
    - Blokada boksu to ustawienie samego tabletu, zapamiętane w apce. Użytkownik wybiera boks, blokuje go i tablet pokazuje tylko ten boks. Serwer o blokadzie nie wie, a jeden boks może być pokazywany na kilku tabletach.
    - Odblokowuje się na tablecie: ten, kto zablokował, admin albo serwisant. Apka sprawdza rolę zalogowanego użytkownika.
    - Wylogowanie użytkownika ze wszystkich urządzeń robi Cognito (global sign-out).
+   - Tablety są stale włączone i zalogowane, więc akcji z tabletu (przyjęcie flagi, „nakarmiony”, zdarzenie przy boksie, zadanie) nie przypisujemy zalogowanej osobie. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
    - Czy flaga dotarła na tablet, widać po `flag_displays` (wyświetlono przy boksie). Osobnego śledzenia, czy tablet działa, nie ma.
    - Bez tabeli urządzeń nie ma zdalnych komend, telemetrii (bateria, Wi-Fi) ani listy tabletów w panelu. Diagnostyka tabletów, jeśli będzie potrzebna, trafia do logów i metryk, nie do bazy.
    - Założenia do potwierdzenia:
@@ -329,7 +330,7 @@ erDiagram
         uuid id PK "id zdarzenia z klienta"
         uuid stable_id FK "stables"
         uuid flag_id FK
-        uuid user_id FK "users, zalogowany użytkownik"
+        uuid user_id FK "users; NULL, gdy z tabletu"
         uuid box_id FK "boxes, gdzie potwierdzono"
         text method "tablet | app"
         timestamptz occurred_at
@@ -418,7 +419,7 @@ erDiagram
         uuid box_id FK "boxes"
         uuid type_id FK "box_care_types"
         timestamptz occurred_at
-        uuid user_id FK "users"
+        uuid user_id FK "users; NULL, gdy z tabletu"
         text source "tablet | app"
         text note
         text time_quality "synced | unknown"
@@ -431,7 +432,7 @@ erDiagram
         uuid horse_id FK "horses"
         uuid meal_slot_id FK
         date service_date "unikalne z horse_id i meal_slot_id"
-        uuid user_id FK "users"
+        uuid user_id FK "users; NULL, gdy z tabletu"
         text source "tablet | app"
         uuid box_id FK "boxes"
         timestamptz occurred_at
@@ -517,7 +518,7 @@ erDiagram
         timestamptz due_at "unikalne z task_id"
         text status
         uuid completion_event_id UK "id zdarzenia z klienta"
-        uuid done_by_user_id FK "users"
+        uuid done_by_user_id FK "users; NULL, gdy z tabletu"
         text source "tablet | app"
         timestamptz occurred_at
         text time_quality "synced | unknown"
@@ -776,7 +777,7 @@ erDiagram
         uuid id PK "schemat audit"
         uuid stable_id FK "stables"
         text service
-        text actor_type "user | operator | system"
+        text actor_type "user | tablet | operator | system"
         uuid actor_id
         text client "tablet | app | web"
         text action
