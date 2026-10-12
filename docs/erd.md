@@ -9,9 +9,10 @@
 > - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
 > - użytkownik logowany na tabletach; boks wybiera się na tablecie przyciskiem „Zmień boks”, a wybór jest zapamiętany na tablecie (bez blokady i bez tabeli urządzeń);
 > - stajnia może mieć kilka hal z boksami (`buildings`), każda z własnym adresem;
-> - status flagi to tylko „potwierdzona” albo „niepotwierdzona”, bez śledzenia wyświetleń na tablecie;
+> - status flagi to tylko „potwierdzona” albo „niepotwierdzona” (w stajni, która wymaga potwierdzeń), bez śledzenia wyświetleń na tablecie;
 > - boks jako kontener: obsługa zapisuje „Ogarnięte” jednym tapnięciem, a posiłki i padok jedną akcją dla całej hali; klient widzi boks swojego konia;
-> - flagi mają godziny od–do i tylko one wymagają potwierdzenia obsługi;
+> - flagi mają godziny od–do i tylko one mogą wymagać potwierdzenia obsługi; czy wymagają, zależy od ustawień stajni;
+> - ustawienia per stajnia: usługi (np. derki, moczenie paszy, szybkie przyciski), potwierdzenia flag i widoczność per rola;
 > - role: Klient (właściciel albo dzierżawca konia), Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz;
 > - działalność → stajnie → hale → boksy (`businesses`);
 > - sesje tylko w Cognito, bez tabel sesji w bazie.
@@ -34,11 +35,11 @@
    - Tablica boksu nie pokazuje, kto jest zalogowany. Logowanie i wylogowanie są w ustawieniach tabletu.
    - Wylogowanie użytkownika ze wszystkich urządzeń robi Cognito (global sign-out).
    - Tablety są stale włączone i zalogowane, więc akcji z tabletu (potwierdzenie flagi, „Ogarnięte”, „Woda” przy poidle ręcznym, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu) nie przypisujemy zalogowanej osobie. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
-   - Status flagi to tylko „potwierdzona” (z godziną) albo „niepotwierdzona”. Tak pokazują go apka, panel, tablet i wyświetlacz. Nie śledzimy, czy flaga wyświetliła się na tablecie, ani tego, czy tablet działa. Skąd przyszło potwierdzenie (`flag_acknowledgements.method`, `box_id`), zostaje tylko w danych do audytu.
+   - Status flagi to tylko „potwierdzona” (z godziną) albo „niepotwierdzona”. Tak pokazują go apka, panel, tablet i wyświetlacz. Dotyczy to stajni, która wymaga potwierdzeń (pkt 16). W stajni bez potwierdzeń flaga obowiązuje od razu i nie ma statusu. Nie śledzimy, czy flaga wyświetliła się na tablecie, ani tego, czy tablet działa. Skąd przyszło potwierdzenie (`flag_acknowledgements.method`, `box_id`), zostaje tylko w danych do audytu.
    - **Blokada ekranu (dotyku).**
      - Ekran jest dotykowy, więc przycisk „Zablokuj ekran” (kłódka) włącza blokadę na czas mycia albo wycierania tabletu.
      - Zablokowana tablica dalej się odświeża i jest czytelna, ale dotyk nic nie zmienia. Pasek mówi: „przytrzymaj kłódkę 3 s, aby odblokować”.
-     - Pop-up nowej flagi pojawia się mimo blokady; żeby ją potwierdzić, trzeba odblokować ekran.
+     - Pop-up nowej flagi (tylko w stajni z potwierdzeniami) pojawia się mimo blokady; żeby ją potwierdzić, trzeba odblokować ekran.
      - Blokada sama zdejmuje się po 10 minutach (propozycja), żeby tablet nie został zablokowany na stałe.
      - Stan trzyma tylko tablet, bez tabel. To blokada dotyku, a nie blokada boksu (tej nie ma).
    - Bez tabeli urządzeń nie ma zdalnych komend, telemetrii (bateria, Wi-Fi) ani listy tabletów w panelu. Diagnostyka tabletów, jeśli będzie potrzebna, trafia do logów i metryk, nie do bazy.
@@ -58,14 +59,14 @@
      - Przy automatycznym poidle znacznik wody nie wyświetla się nigdzie, bo zawsze jest w porządku.
      - Boks z poidłem ręcznym (np. wiadro, gdy automat czeka na wymianę) pokazuje na tablecie, wyświetlaczu, w apce i panelu znacznik „Poidło ręczne” z godziną ostatniego dolania. Ma też szybką akcję „Woda” (`box_care_events.kind = water`), dostępną tylko dla takiego boksu.
    - Nie ma osobnych wpisów „siano” i „karma”.
-   - Pozycja planu karmienia może mieć informację „namoczyć” i ile (`feeding_plan_items.soak`, `soak_note`, np. „w 2 l wody”). To wersja prosta: model karmienia jest otwartą kwestią.
+   - Pozycja planu karmienia może mieć informację „namoczyć” i ile (`feeding_plan_items.soak`, `soak_note`, np. „w 2 l wody”), jeśli stajnia ma włączone moczenie paszy (pkt 16). To wersja prosta: model karmienia jest otwartą kwestią.
    - **Historia boksu** to flagi konia (utworzenie, potwierdzenie, odwołanie) i zdarzenia z przycisków obsługi. Widzi ją klient konia, który stoi w boksie (od dnia, w którym koń do niego trafił), obsługa i admin.
    - **Tablet nie pokazuje historii**, tylko „Ostatnie akcje”: 5 najnowszych wpisów boksu i konia, bez przewijania i bez przycisku „Cała historia”. Pełną historię widać w apce i panelu web.
    - **Klient** (rola `client`) to osoba, która przyprowadza konia do stajni: właściciel albo dzierżawca konia. Dla stajni to ten sam klient.
      - Dostęp ma przez `horse_access` (rola `client`), także przez zaproszenie (`invitations.horse_id`).
      - Widzi swojego konia i boks, w którym koń stoi, oraz ustawia i odwołuje jego flagi.
      - Osobnego najmu boksu bez konia nie ma, więc tabela `box_access` odpada.
-   - **Widok klienta jest maksymalnie prosty:** kafelki flag do kliknięcia, opcjonalna notatka i godziny podpowiedziane przez szablon, które można zmienić. Na ekranie „Mój boks” sekcje „Ostatnio” i „Historia” pokazują tylko flagi (z potwierdzeniami) i zdarzenia z przycisków obsługi.
+   - **Widok klienta jest maksymalnie prosty:** kafelki flag włączonych w ustawieniach stajni, opcjonalna notatka i godziny podpowiedziane przez szablon, które można zmienić. Na ekranie „Mój boks” sekcje „Ostatnio” i „Historia” pokazują tylko flagi (z potwierdzeniami) i zdarzenia z przycisków obsługi.
    - **Obsługa** (`staff`) może z apki i panelu web robić to samo co klient, ale dla wszystkich koni w stajni, oraz wykonuje szybkie akcje i zadania.
    - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. gdy koń opuszcza stajnię albo kończy się dzierżawa.
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
@@ -134,15 +135,18 @@
    - Hale widać na liście boksów w apce i panelu (grupy i filtr), przy wyborze boksu na tablecie (zakładki hal) i na wyświetlaczu centralnym (sekcje hal, każda z opcją pełnego ekranu).
    - Hale z boksami to co innego niż kryte ujeżdżalnie do jazd (`arenas` w serwisie `rides`).
 12. **Flagi: godziny i potwierdzenia.**
-   - Potwierdzenia obsługi wymagają wyłącznie flagi, czyli wyjątki od rutyny („Bez śniadania”, „Nie na padok”, „Derka”, „Leki” itd.). Przepływ zostaje: nowa flaga → pop-up na tablecie → potwierdzona.
+   - Potwierdzenia obsługi mogą wymagać wyłącznie flagi, czyli wyjątki od rutyny („Bez śniadania”, „Nie na padok”, „Derka”, „Leki” itd.). Czy wymagają, zależy od ustawień stajni: przełącznik „Flagi wymagają potwierdzenia” (`stable_settings.flags_require_ack`, pkt 16).
+     - Włączony (np. duża stajnia z wieloma stajennymi): przepływ nowa flaga → pop-up na tablecie → potwierdzona.
+     - Wyłączony (np. właściciel sam jest stajennym): flaga obowiązuje od razu. Nie ma pop-upu do potwierdzenia, statusu oczekiwania u klienta ani eskalacji. Flaga od razu stoi na tablicy boksu.
+     - Przy zapisie flagi kod kopiuje bieżące ustawienie do `horse_flags.requires_ack`, więc zmiana przełącznika nie zmienia flag, które już trwają.
    - **Godziny są obowiązkowe i działają naprawdę:**
      - każda flaga ma początek i koniec: `horse_flags.valid_from` i `valid_to`, oba wymagane, czas w strefie stajni. „Do odwołania” nie ma;
      - szablon podpowiada okno (`flag_templates.default_window`): „Bez śniadania” dziś 06:00–10:00, „Nie na padok” w godzinach padoku, „Derka” 16:00–08:00. Klient może je zmienić;
      - skutki liczy kod z godzin, przy każdym zapytaniu `board` i przy akcjach zbiorczych. `suspend_meal` wstrzymuje tylko posiłki, których godzina wypada w oknie flagi. `cancel_paddock` skraca albo odwołuje padok tylko w oknie flagi;
      - przykład: wet o 8:00 i kowal o 15:00, więc flagi „Bez śniadania 06:00–10:00” i „Nie na padok 14:30–16:00” pozwalają koniowi wyjść na padok między wizytami (10:00–14:30);
      - tablet, wyświetlacz i apka pokazują godziny przy fladze, a flagę, która zacznie się później, oznaczają „od 14:30”.
-   - **Flaga „Derka”** (szablon `derka`) ma wariant `horse_flags.variant`: `on` znaczy zakładać, `off` nie zakładać.
-   - Termin potwierdzenia i eskalacje (`ack_deadline_at`, `warn_at`, `notify_at`) liczy się od początku okna flagi.
+   - **Flaga „Derka”** (szablon `derka`) ma wariant `horse_flags.variant`: `on` znaczy zakładać, `off` nie zakładać. Jest tylko w stajni, która oferuje zakładanie derek (szablon aktywny, pkt 16).
+   - Termin potwierdzenia i eskalacje (`ack_deadline_at`, `warn_at`, `notify_at`) liczy się od początku okna flagi i tylko dla flag z `requires_ack`.
 13. **Zadania jednorazowe.**
    - Zadanie wpisuje admin, czyli zarządca albo właściciel stajni, np. „Poidło w boksie 5 do wymiany”. Może wskazać halę, boks albo konia.
    - Stajenny w apce sam wybiera zadanie z listy i bierze je na siebie („Biorę”: `taken_by`, `taken_at`), a potem oznacza jako zrobione (`done_by`, `done_at`). Tablet zadań nie obsługuje, bo potrzebna jest osoba.
@@ -153,6 +157,19 @@
 15. **Działalność → stajnie → hale → boksy.**
    - Jedna działalność (`businesses`) może mieć kilka stajni (`stables.business_id`). Tabela jest od razu, żeby nie migrować później.
    - Uprawnienia, dane i izolacja zostają na poziomie stajni (`stable_id`). Płatności też zostają przy stajni, bez rozbudowy (zob. „Otwarte kwestie”).
+16. **Ustawienia stajni (konfiguracja per stajnia).**
+   - Stajnie działają różnie: jedna nie oferuje derek ani moczenia paszy, inna ma pełną opcję. Właściciel, który sam jest stajennym, nie potwierdza flag, a stajnia ze 100 boksami i 10 stajennymi tego wymaga. Dlatego część zachowania aplikacji ustawia admin stajni (właściciel albo zarządca) na ekranie „Ustawienia stajni” w panelu web.
+   - Ustawienia są per stajnia (`stable_id`), a nie dla całej działalności. Na PoC są to przełączniki gotowych opcji, bez własnych reguł:
+     - **Potwierdzenia:** „Flagi wymagają potwierdzenia” (`stable_settings.flags_require_ack`), skutki w pkt 12;
+     - **Usługi:**
+       - zakładanie derek, czyli flaga „Derka” (`flag_templates.active` szablonu `derka`);
+       - moczenie paszy, czyli „namoczyć” i ile (`stable_settings.soak_enabled`);
+       - pozostałe flagi, każda osobno (`flag_templates.active`);
+       - szybkie przyciski obsługi: „Ogarnięte” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`). „Woda” zależy od poidła boksu (pkt 3);
+     - **Widoczność per rola** (`stable_role_features`): admin zaznacza, co pojawia się w panelu klienta, obsługi, instruktora, wsparcia IT i wyświetlacza. Funkcje to stała lista (sekcja „Słowniki”). Admin widzi wszystko.
+   - **Wyłączona opcja znika:** kafelek flagi, „namoczyć”, przycisk albo sekcja nie pokazują się klientowi, obsłudze, na tablecie ani na wyświetlaczu. Zgodnie z zasadą spójności z pkt 3 znika też stan tego, czego nie da się zapisać.
+   - Zmiana działa przy najbliższym odpytaniu (apka, tablet, wyświetlacz). Wpisy już zapisane zostają w historii.
+   - Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami.
 
 ## Otwarte kwestie
 
@@ -184,7 +201,7 @@
 |---|---|---|
 | `identity` | różowy | `users` |
 | `access` | fioletowy | `stable_members`, `horse_access`, `invitations` |
-| `stable` | niebieski | `businesses`, `stables`, `stable_locales`, `stable_settings`, `buildings`, `boxes`, `horses`, `horse_box_history` |
+| `stable` | niebieski | `businesses`, `stables`, `stable_locales`, `stable_settings`, `stable_role_features`, `buildings`, `boxes`, `horses`, `horse_box_history` |
 | `board` | — (bez tabel) | brak; składa stan tablicy z tabel innych serwisów przy każdym zapytaniu tabletu |
 | `flags` | czerwony | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_escalations` |
 | `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `building_routines`, `box_care_events`, `paddock_plans`, `paddock_plan_companions` |
@@ -201,7 +218,7 @@
 
 | Cron | Serwisy | Co robi |
 |---|---|---|
-| `escalation-scheduler` | `flags`, `notifications` | Znajduje flagi z minionym `warn_at` albo `notify_at` i bez potwierdzenia |
+| `escalation-scheduler` | `flags`, `notifications` | Znajduje flagi z `requires_ack`, minionym `warn_at` albo `notify_at` i bez potwierdzenia |
 | `health-due-reminders` | `health`, `notifications` | Przypomnienia o zbliżających się wizytach |
 | `files-gc` | `files` | Usuwa z S3 pliki `pending` starsze niż 24 h i pliki `deleted` po retencji |
 | `billing-usage-snapshot` | `billing` (czyta `horses`) | Raz w okresie zapisuje zużycie: boksy z koniem |
@@ -239,7 +256,7 @@
 
 ![ERD aplikacji, schemat app](erd/app.png)
 
-Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 45 tabel i 59 relacji.
+Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 46 tabel i 60 relacji.
 
 <details>
 <summary>Źródło mermaid</summary>
@@ -270,8 +287,19 @@ erDiagram
         text author_display "role | initial | name"
         boolean owner_edits_feeding
         boolean rides_enabled
+        boolean flags_require_ack "Flagi wymagają potwierdzenia"
+        boolean soak_enabled "moczenie paszy"
+        boolean tidy_enabled "przycisk Ogarnięte"
+        boolean meal_served_enabled "przycisk posiłku"
+        boolean paddock_out_enabled "przycisk padoku"
         time maintenance_from "okno instalacji APK"
         time maintenance_to
+    }
+    stable_role_features {
+        uuid stable_id PK, FK "stables"
+        text role PK "client | staff | instructor | it_support | display"
+        text feature PK "stała lista, np. feeding_plan, tasks"
+        boolean visible
     }
     buildings {
         uuid id PK
@@ -365,7 +393,6 @@ erDiagram
         text effect "suspend_meal | cancel_paddock | no_riding | rug | none"
         text meal_slot_code
         text default_window "np. 06:00-10:00, paddock, 16:00-08:00"
-        boolean requires_ack
         boolean active
         int sort_order
     }
@@ -382,6 +409,7 @@ erDiagram
         timestamptz valid_from "wymagane"
         timestamptz valid_to "wymagane, bez do odwołania"
         text variant "Derka: on | off"
+        boolean requires_ack "kopia ustawienia stajni przy zapisie"
         uuid meal_slot_id FK "meal_slots"
         date service_date
         timestamptz ack_deadline_at
@@ -719,6 +747,7 @@ erDiagram
     businesses ||--o{ stables : "stajnie"
     stables ||--o{ stable_locales : "języki"
     stables ||--|| stable_settings : "ustawienia"
+    stables ||--o{ stable_role_features : "widoczność per rola"
     stables ||--o{ buildings : "hale"
     buildings ||--o{ boxes : "boksy w hali"
     stables ||--o{ horses : "ma"
@@ -787,7 +816,7 @@ erDiagram
     classDef svc_files fill:#e5e7eb,stroke:#374151
     classDef svc_releases fill:#f1f5f9,stroke:#475569
     classDef svc_notifications fill:#fae8ff,stroke:#a21caf
-    class businesses,stables,stable_locales,stable_settings,buildings,boxes,horses,horse_box_history svc_stable
+    class businesses,stables,stable_locales,stable_settings,stable_role_features,buildings,boxes,horses,horse_box_history svc_stable
     class stable_members,horse_access,invitations svc_access
     class users svc_identity
     class flag_templates,flag_template_labels,horse_flags,flag_acknowledgements,flag_escalations svc_flags
@@ -840,6 +869,7 @@ erDiagram
 - `box_care_events.kind`: `tidy` („Ogarnięte”, czyli sprzątanie i ścielenie razem) i `water` („Woda”, tylko w boksie z poidłem ręcznym, `boxes.auto_waterer = false`). Siana i karmy nie odnotowujemy.
 - `building_routines.kind`: `meal_served` („Podano śniadanie / obiad / kolację”, z `meal_slot_id`), `paddock_out` („Wyprowadzono na padok”).
 - `flag_templates`: domyślne szablony wstawiane przez kod: `bez_sniadania`, `bez_kolacji`, `nie_na_padok`, `derka` (warianty `on` = zakładać, `off` = nie zakładać), `leki`, `wet`. Admin może dodać własne.
+- `stable_role_features.feature` (stała lista na PoC): `flags` (flagi i kafelki), `feeding_plan` (plan karmienia), `routine` (szybkie akcje i ich stan), `box_history` (historia boksu), `tasks` (zadania), `health` (wizyty i zdrowie), `rides` (jazdy), `device_diagnostics` (diagnostyka tabletów i wyświetlaczy).
 - `stable_members.role`: `admin` (Admin: zarządca albo właściciel stajni), `staff` (Obsługa), `instructor` (Instruktor), `it_support` (Wsparcie IT), `display` (Wyświetlacz), `client` (Klient).
 - `horse_flags.source`: `app` (właściciel w apce) albo flaga wpisana w imieniu właściciela: `on_behalf_phone`, `on_behalf_sms`, `on_behalf_in_person`.
 
@@ -855,8 +885,9 @@ erDiagram
   - flagi mają wymagane godziny od–do i wariant (`horse_flags.variant`, flaga „Derka”); `feeding_plan_items` dostaje „namoczyć” i ile;
   - jedna rola Klient zamiast właściciela konia i najemcy miejsca: odpada `box_access`, a `invitations` traci `box_id` i `access_role`; „serwisant” to teraz Wsparcie IT (`it_support`);
   - zadania są jednorazowe: odpadają `task_occurrences` i cron `task-occurrence-generator`;
-  - dochodzi `businesses` (działalność → stajnie → hale → boksy).
-- **Bez śledzenia wyświetleń flag:** odpadają `flag_displays` i cron `flag-display-check`. Status flagi to tylko potwierdzona albo niepotwierdzona, a brak potwierdzenia w terminie obsługuje `escalation-scheduler`.
+  - dochodzi `businesses` (działalność → stajnie → hale → boksy);
+  - ustawienia per stajnia: nowe kolumny w `stable_settings` (potwierdzenia, moczenie, szybkie przyciski), nowa tabela `stable_role_features` (widoczność per rola), `horse_flags.requires_ack` zamiast `flag_templates.requires_ack`.
+- **Bez śledzenia wyświetleń flag:** odpadają `flag_displays` i cron `flag-display-check`. Status flagi to tylko potwierdzona albo niepotwierdzona (w stajni, która wymaga potwierdzeń), a brak potwierdzenia w terminie obsługuje `escalation-scheduler`.
 - **Przejmuje S3:** `stored_files` i `stored_file_chunks`.
 - **Serwisy:** dochodzi `billing` (płatności). Każda tabela ma serwis-właściciela; wszystko jest w schemacie `app`, poza audytem w schemacie `audit`.
 - **Odpada razem z WebSocketami i monolitem:**
