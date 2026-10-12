@@ -7,7 +7,9 @@
 > - pliki w S3;
 > - koń i boks w relacji 0..1 do 0..1 (koń może stać bez boksu, boks bez konia);
 > - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
-> - użytkownik logowany na tabletach, który może zablokować na tablecie wybrany boks (blokada trzymana na tablecie, bez tabeli urządzeń);
+> - użytkownik logowany na tabletach; boks wybiera się na tablecie przyciskiem „Zmień boks”, a wybór jest zapamiętany na tablecie (bez blokady i bez tabeli urządzeń);
+> - stajnia może mieć kilka hal z boksami (`buildings`), każda z własnym adresem;
+> - status flagi to tylko „potwierdzona” albo „niepotwierdzona”, bez śledzenia wyświetleń na tablecie;
 > - boks jako kontener z podstawowymi danymi (ostatnie czyszczenie, ostatnio dorzucona karma itd.), z podglądem dla najemcy miejsca;
 > - sesje tylko w Cognito, bez tabel sesji w bazie.
 
@@ -21,25 +23,27 @@
    - Zamiana dwóch koni to jedna transakcja w kodzie: koń A na chwilę bez boksu, koń B do boksu A, koń A do boksu B.
    - Każda zmiana zamyka i otwiera wpisy w `horse_box_history`. Unikalne indeksy pilnują, żeby otwarty był najwyżej jeden wpis na konia i jeden na boks.
    - Relacji pilnuje baza kluczem obcym i unikalnością, bez logiki w bazie.
-2. **Tablet: logowanie użytkownika i blokada boksu, bez tabeli urządzeń.**
+2. **Tablet: logowanie użytkownika i wybór boksu, bez tabeli urządzeń.**
    - Tablet nie ma własnego konta ani wiersza w bazie. Loguje się na nim użytkownik tym samym kontem co w apce; sesja i tokeny są w Cognito.
    - Jeden użytkownik może być zalogowany na kilku tabletach naraz i wszędzie widzi te same dane, bo decydują jego uprawnienia.
-   - Blokada boksu to ustawienie samego tabletu, zapamiętane w apce. Użytkownik wybiera boks, blokuje go i tablet pokazuje tylko ten boks. Serwer o blokadzie nie wie, a jeden boks może być pokazywany na kilku tabletach.
-   - Odblokowuje się na tablecie: ten, kto zablokował, admin albo serwisant. Apka sprawdza rolę zalogowanego użytkownika.
+   - Tablet pokazuje jeden boks. Wybrany boks zapamiętuje apka na tablecie. Serwer o tym wyborze nie wie, a jeden boks może być pokazywany na kilku tabletach.
+   - Nie ma blokady boksu. Na tablicy jest przycisk „Zmień boks”, który otwiera listę boksów pogrupowaną po halach. Stuknięcie w boks od razu przełącza tablet. Bez wyboru tablet po 30 s wraca do poprzedniego boksu.
+   - Tablica boksu nie pokazuje, kto jest zalogowany. Logowanie i wylogowanie są w ustawieniach tabletu.
    - Wylogowanie użytkownika ze wszystkich urządzeń robi Cognito (global sign-out).
-   - Tablety są stale włączone i zalogowane, więc akcji z tabletu (przyjęcie flagi, „nakarmiony”, zdarzenie przy boksie, zadanie) nie przypisujemy zalogowanej osobie. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
-   - Czy flaga dotarła na tablet, widać po `flag_displays` (wyświetlono przy boksie). Osobnego śledzenia, czy tablet działa, nie ma.
+   - Tablety są stale włączone i zalogowane, więc akcji z tabletu (potwierdzenie flagi, „nakarmiony”, zdarzenie przy boksie, zadanie) nie przypisujemy zalogowanej osobie. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
+   - Status flagi to tylko „potwierdzona” (z godziną) albo „niepotwierdzona”. Tak pokazują go apka, panel, tablet i wyświetlacz. Nie śledzimy, czy flaga wyświetliła się na tablecie, ani tego, czy tablet działa. Skąd przyszło potwierdzenie (`flag_acknowledgements.method`, `box_id`), zostaje tylko w danych do audytu.
    - Bez tabeli urządzeń nie ma zdalnych komend, telemetrii (bateria, Wi-Fi) ani listy tabletów w panelu. Diagnostyka tabletów, jeśli będzie potrzebna, trafia do logów i metryk, nie do bazy.
    - Założenia do potwierdzenia:
      - na tablecie jest zalogowany jeden użytkownik naraz (pilnuje apka);
-     - zablokować boks na tablecie mogą tylko członkowie stajni z rolą `admin`, `staff` albo `technician`;
-     - po wylogowaniu blokada zostaje, a tablet czeka na kolejne logowanie i wraca do tego samego boksu.
+     - boks może zmienić każdy, kto stoi przy tablecie;
+     - ustawienia tabletu otwiera się dłuższym przytrzymaniem, żeby nikt nie trafił w nie przypadkiem;
+     - po wylogowaniu tablet pamięta wybrany boks i wraca do niego po kolejnym logowaniu.
 3. **Boks jako kontener i podgląd dla najemcy.**
    - Boks ma tylko podstawowe dane. To, co się z nim dzieje, zapisuje się jako zdarzenia w `box_care_events`.
    - Rodzaje zdarzeń to lista (słownik `box_care_types`) per stajnia, z etykietami w językach (`box_care_type_labels`). Na start kod wstawia domyślne: czyszczenie, ścielenie, siano, karma, woda. Admin może dodawać własne, zmieniać kolejność i wyłączać nieużywane.
    - Wpisy robi obsługa na tablecie (jedno stuknięcie) albo w apce.
    - „Ostatnie czyszczenie” czy „ostatnio dorzucona karma” to najnowsze zdarzenie danego rodzaju dla boksu (indeks po boksie, rodzaju i czasie). Nie trzymamy osobnych kolumn „ostatnio”, więc zostaje też historia.
-   - **Historia boksu** to zdarzenia przy boksie razem z flagami konia, który w nim stoi (utworzenie, przyjęcie przez obsługę, odwołanie). Widzi ją każdy, kto ma dostęp do boksu, co najmniej do odczytu: najemca, właściciel konia, obsługa i admin.
+   - **Historia boksu** to zdarzenia przy boksie razem z flagami konia, który w nim stoi (utworzenie, potwierdzenie, odwołanie). Widzi ją każdy, kto ma dostęp do boksu, co najmniej do odczytu: najemca, właściciel konia, obsługa i admin.
    - Najemca miejsca dostaje dostęp do boksu przez `box_access` z rolą `tenant`, także przez zaproszenie (`invitations.box_id`). Ta rola to podgląd boksu i jego historii. Najemca nie steruje boksem ani tabletem.
    - Flagi ustawia i odwołuje się przez dostęp do konia (`horse_access`). Zwykle najemca miejsca jest też właścicielem konia w tym boksie, więc jako klient ustawia i odwołuje jego flagi. Odwołana flaga znika z tablicy, a jej pop-up z tabletu przy najbliższym odpytaniu.
    - **Obsługa** (`staff`) może z apki i z panelu web robić to samo co klient, czyli ustawiać i odwoływać flagi, zmieniać plany karmienia i padoku oraz wpisywać zdarzenia, ale dla wszystkich koni w stajni.
@@ -51,6 +55,11 @@
    - Telewizor z Raspberry Pi otwiera w przeglądarce, w trybie kiosku, stronę panelu web z widokiem wszystkich boksów. Strona sama odpytuje serwer co kilka sekund, tak jak tablet.
    - Wyświetlacz loguje się raz na konto techniczne stajni z rolą `display` w `stable_members` (np. `wyswietlacz-korytarz`). Konto zakłada admin w ustawieniach; sesję podtrzymuje Cognito, a admin może konto zablokować.
    - Rola `display` daje tylko odczyt widoku wszystkich boksów: konie, flagi, posiłki, zdarzenia przy boksie. Bez danych osobowych (telefony, e-maile) i bez zapisu.
+   - Przy kilku halach strona pokazuje wszystkie hale, każdą w osobnej sekcji.
+   - Każda sekcja hali ma przycisk „Pełny ekran”. Hala zajmuje wtedy cały ekran, większymi kaflami, a w panelu bocznym jest skrót pozostałych hal (liczba koni, pilne flagi). Przycisk „Wszystkie hale” wraca do widoku wszystkich.
+   - Wybór widoku zapamiętuje przeglądarka na tym telewizorze, tak jak tablet pamięta wybrany boks. Telewizor w hali głównej ustawia się więc raz na pełny ekran tej hali (myszką przy instalacji albo pilotem przez HDMI-CEC). Serwer o tym nie wie i nie potrzeba tabeli wyświetlaczy.
+   - Jedno konto `display` może obsłużyć wszystkie telewizory. Admin może też założyć osobne konto na każdy telewizor, jeśli chce blokować je pojedynczo.
+   - Gdy boksów jest dużo, strona zmniejsza kafle do wersji skróconej (numer, koń, flaga, posiłki). Jeśli dalej się nie mieszczą, przełącza strony co 20 s. Pasek pilnych flag zostaje zawsze na górze i obejmuje wszystkie hale.
    - Nie potrzeba nowych tabel.
 5. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
@@ -68,14 +77,13 @@
    - Serwis `identity` tworzy wiersz `users` przy pierwszym uwierzytelnionym żądaniu (upsert po `cognito_sub`).
    - Usunięcie konta to pseudonimizacja w `users` i usunięcie konta w Cognito.
    - Zaproszenie nie ma własnego tokenu: po zalogowaniu przez Cognito serwis `access` dopasowuje zweryfikowany telefon albo e-mail z tokenu do `invitations.target`.
-   - Tablet wysyła token zalogowanego użytkownika i numer zablokowanego boksu.
+   - Tablet wysyła token zalogowanego użytkownika i numer wybranego boksu.
 7. **Pliki w S3.**
    - `files` trzyma metadane, `s3_key` (z prefiksem `stable_id/`) i właściciela (`owner_service`, `owner_id`).
    - Link do pobrania wydaje tylko serwis-właściciel po sprawdzeniu uprawnień. Na przykład `health` sprawdza widoczność wpisu i dostęp do konia, a dopiero potem prosi `files` o krótko ważny presigned URL.
 8. **Bez WebSocketów.**
-   - Tablet sam regularnie, co kilka sekund, pyta serwis `board` o stan zablokowanego boksu. Serwer nie trzyma żadnego stanu tablic.
+   - Tablet sam regularnie, co kilka sekund, pyta serwis `board` o stan wybranego boksu. Serwer nie trzyma żadnego stanu tablic.
    - `board` nie ma własnych tabel: przy każdym zapytaniu składa odpowiedź z danych w bazie. `ETag` to hash odpowiedzi, więc gdy nic się nie zmieniło, tablet dostaje `304`.
-   - Wyświetlenie flagi tablet zgłasza z numerem boksu (`flag_displays`).
    - Między serwisami: kolejki **SNS + SQS**, bez outboxów.
      - Serwis po zatwierdzeniu transakcji publikuje zdarzenie do tematu SNS (jeden temat na rodzaj zdarzenia).
      - Każdy konsument ma własną kolejkę SQS z kolejką błędów (DLQ).
@@ -92,6 +100,14 @@
    - Kwoty są w groszach (`bigint`).
    - Status subskrypcji steruje `stables.status`: brak płatności daje `suspended`.
    - Dostawca płatności i system faktur (KSeF) są do wyboru; w modelu są tylko identyfikatory zewnętrzne.
+11. **Hale, czyli budynki z boksami.**
+   - Stajnia może mieć kilka hal. Hala to wiersz w `buildings` (nazwa nadana przez admina, kolejność, aktywność). Każdy boks należy do jednej hali (`boxes.building_id`, wymagane).
+   - Hala ma własny adres (`address_line1`, `address_line2`, `postal_code`, `city`, `country_code`), bo hale jednej stajni mogą stać pod różnymi adresami. Adres widać w panelu przy hali i w szczegółach boksu.
+   - Nowa stajnia dostaje od kodu jedną halę. Dopóki stajnia ma jedną halę, apka, panel, tablet i wyświetlacz nie pokazują podziału na hale.
+   - Numer boksu (`boxes.label`) jest unikalny w całej stajni, a nie tylko w hali, więc „boks 12” zawsze oznacza jedno miejsce.
+   - Przeniesienie boksu do innej hali (np. po przebudowie) to zmiana `building_id`. Koń, historia i zdarzenia zostają przy boksie.
+   - Hale widać na liście boksów w apce i panelu (grupy i filtr), przy wyborze boksu na tablecie (zakładki hal) i na wyświetlaczu centralnym (sekcje hal, każda z opcją pełnego ekranu).
+   - Hale z boksami to co innego niż kryte ujeżdżalnie do jazd (`arenas` w serwisie `rides`).
 
 ## Zasady wspólne
 
@@ -117,9 +133,9 @@
 |---|---|---|
 | `identity` | różowy | `users` |
 | `access` | fioletowy | `stable_members`, `horse_access`, `box_access`, `invitations` |
-| `stable` | niebieski | `stables`, `stable_locales`, `stable_settings`, `boxes`, `horses`, `horse_box_history` |
+| `stable` | niebieski | `stables`, `stable_locales`, `stable_settings`, `buildings`, `boxes`, `horses`, `horse_box_history` |
 | `board` | — (bez tabel) | brak; składa stan tablicy z tabel innych serwisów przy każdym zapytaniu tabletu |
-| `flags` | czerwony | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_displays`, `flag_escalations` |
+| `flags` | czerwony | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_escalations` |
 | `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `box_care_types`, `box_care_type_labels`, `box_care_events`, `paddock_plans`, `paddock_plan_companions` |
 | `health` | limonkowy | `health_events`, `health_attachments` |
 | `rides` | bursztynowy | `arenas`, `rides` |
@@ -135,7 +151,6 @@
 | Cron | Serwisy | Co robi |
 |---|---|---|
 | `escalation-scheduler` | `flags`, `notifications` | Znajduje flagi z minionym `warn_at` albo `notify_at` i bez potwierdzenia |
-| `flag-display-check` | `flags`, `notifications` | Szuka krytycznych flag, które po N minutach nie zostały wyświetlone przy żadnym tablecie boksu, i powiadamia admina |
 | `task-occurrence-generator` | `tasks` | Tworzy wystąpienia zadań cyklicznych |
 | `health-due-reminders` | `health`, `notifications` | Przypomnienia o zbliżających się wizytach |
 | `files-gc` | `files` | Usuwa z S3 pliki `pending` starsze niż 24 h i pliki `deleted` po retencji |
@@ -174,7 +189,7 @@
 
 ![ERD aplikacji, schemat app](erd/app.png)
 
-Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 48 tabel i 64 relacji.
+Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 48 tabel i 63 relacji.
 
 <details>
 <summary>Źródło mermaid</summary>
@@ -203,11 +218,23 @@ erDiagram
         time maintenance_from "okno instalacji APK"
         time maintenance_to
     }
+    buildings {
+        uuid id PK
+        uuid stable_id FK
+        text name "unikalna w stajni"
+        text address_line1
+        text address_line2
+        text postal_code
+        text city
+        text country_code "PL"
+        int sort_order
+        boolean active
+    }
     boxes {
         uuid id PK
         uuid stable_id FK
+        uuid building_id FK "buildings, hala"
         text label "unikalny w stajni"
-        text building
         boolean active
     }
     horses {
@@ -343,14 +370,6 @@ erDiagram
         timestamptz received_at
         text conflict "none | flag_ended | flag_cancelled"
         text request_hash
-    }
-    flag_displays {
-        uuid id PK
-        uuid stable_id FK "stables"
-        uuid flag_id FK "unikalne z box_id"
-        uuid box_id FK "boxes"
-        timestamptz displayed_at
-        timestamptz received_at
     }
     flag_escalations {
         uuid id PK
@@ -679,7 +698,8 @@ erDiagram
     }
     stables ||--o{ stable_locales : "języki"
     stables ||--|| stable_settings : "ustawienia"
-    stables ||--o{ boxes : "ma"
+    stables ||--o{ buildings : "hale"
+    buildings ||--o{ boxes : "boksy w hali"
     stables ||--o{ horses : "ma"
     boxes |o--o| horses : "zajmuje (0..1 : 0..1)"
     horses ||--o{ horse_box_history : "historia"
@@ -694,7 +714,6 @@ erDiagram
     flag_templates |o--o{ horse_flags : "szablon"
     horse_flags |o--o| horse_flags : "zastępuje"
     horse_flags ||--o{ flag_acknowledgements : "potwierdzenia"
-    horse_flags ||--o{ flag_displays : "wyświetlenia"
     horse_flags ||--o{ flag_escalations : "eskalacje"
     horses ||--o{ horse_flags : "flagi"
     meal_slots |o--o{ horse_flags : "cel: posiłek"
@@ -739,7 +758,6 @@ erDiagram
     boxes ||--o{ box_care_events : "zdarzenia"
     box_care_types ||--o{ box_care_type_labels : "etykiety"
     box_care_types ||--o{ box_care_events : "rodzaj"
-    boxes ||--o{ flag_displays : "wyświetlono przy boksie"
     boxes |o--o{ flag_acknowledgements : "potwierdzono przy boksie"
     classDef svc_stable fill:#dbeafe,stroke:#1d4ed8
     classDef svc_access fill:#ede9fe,stroke:#6d28d9
@@ -753,10 +771,10 @@ erDiagram
     classDef svc_files fill:#e5e7eb,stroke:#374151
     classDef svc_releases fill:#f1f5f9,stroke:#475569
     classDef svc_notifications fill:#fae8ff,stroke:#a21caf
-    class stables,stable_locales,stable_settings,boxes,horses,horse_box_history svc_stable
+    class stables,stable_locales,stable_settings,buildings,boxes,horses,horse_box_history svc_stable
     class stable_members,horse_access,box_access,invitations svc_access
     class users svc_identity
-    class flag_templates,flag_template_labels,horse_flags,flag_acknowledgements,flag_displays,flag_escalations svc_flags
+    class flag_templates,flag_template_labels,horse_flags,flag_acknowledgements,flag_escalations svc_flags
     class meal_slots,meal_slot_labels,feeds,paddocks,feeding_plans,feeding_plan_items,feeding_checks,box_care_types,box_care_type_labels,box_care_events,paddock_plans,paddock_plan_companions svc_care
     class health_events,health_attachments svc_health
     class arenas,rides svc_rides
@@ -811,7 +829,9 @@ erDiagram
 - **Przejmuje Cognito:** `otp_challenges`, `auth_sessions`, `access_tokens`, `refresh_tokens`, `device_auth_challenges`, `rate_limit_buckets`, a także `invitations.token_hash` (zaproszenie dopasowuje się do zweryfikowanego telefonu albo e-maila).
 - **Tablety:**
   - nie ma parowania (`device_pairing_requests`) ani PIN-ów obsługi (`stable_members.pin_verifier`, `stables.service_pin_verifier`): na tablecie zawsze jest zalogowany konkretny użytkownik;
-  - nie ma tabel urządzeń (`devices`, `device_boxes`, `device_presence`, komendy, alerty): blokada boksu jest trzymana na tablecie, sesje w Cognito;
+  - nie ma tabel urządzeń (`devices`, `device_boxes`, `device_presence`, komendy, alerty): wybrany boks jest zapamiętany na tablecie, bez blokady, a sesje są w Cognito;
+- **Hale:** tekstowe `boxes.building` zastępuje tabela `buildings` (z adresem hali) i klucz `boxes.building_id`.
+- **Bez śledzenia wyświetleń flag:** odpadają `flag_displays` i cron `flag-display-check`. Status flagi to tylko potwierdzona albo niepotwierdzona, a brak potwierdzenia w terminie obsługuje `escalation-scheduler`.
 - **Przejmuje S3:** `stored_files` i `stored_file_chunks`.
 - **Serwisy:** dochodzi `billing` (płatności). Każda tabela ma serwis-właściciela; wszystko jest w schemacie `app`, poza audytem w schemacie `audit`.
 - **Odpada razem z WebSocketami i monolitem:**
