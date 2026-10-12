@@ -1,0 +1,2081 @@
+# eKoniuszy: development, testy i zakupy przed wdrożeniem
+
+> Stan na 2026-10-12. Model danych i decyzje: [docs/erd.md](erd.md) (v3), paleta kolorów: [docs/paleta.md](paleta.md), wersja zwięzła: [docs/development.md](development.md). Z [docs/analiza.md](analiza.md) (nieaktualna v3) bierzemy tylko szczegóły tabletu. Dokument opisuje, co kupić, jakie konta założyć, co zbudować i jak przetestować system przed wdrożeniem. Nie podaje cen i nie wskazuje, gdzie ani u kogo stoją klaster i baza; o tym decyduje Dawid.
+
+**Oznaczenia**
+- **[niepotwierdzone]**: weryfikacja nie znalazła potwierdzenia w źródłach. Rozstrzyga test albo karta produktu sprawdzona przed zakupem.
+- **[erd]**: wprost z `docs/erd.md`. **(propozycja)**: rozwiązanie developerskie, którego erd.md nie przesądza.
+- **(B)**: punkt bramki sprzętowej. Dopóki nie przejdzie, nie kupujemy kolejnych tabletów.
+- T-xx (tablet), K-xx (kolor na tablecie e-ink), W-xx (wyświetlacz), N-xx (sieć) i A-xx (scenariusze akceptacyjne) to identyfikatory testów z sekcji 4.
+
+**Terminy, które już teraz wpływają na plan**
+- Zmiana czasu z CEST na CET wypada w niedzielę 25.10.2026, czyli za 13 dni. Test ciągły obejmie ją tylko wtedy, gdy ruszy najpóźniej 24.10.2026, łącznie z dostawą i provisioningiem. Dlatego symulacja jest obowiązkowa: podstawiony zegar w backendzie i w `packages/rules`, `timedatectl` na Pi, ręcznie ustawiona strefa na tablecie. Najbliższa prawdziwa zmiana to 28.03.2027.
+- Na konta sklepów (Apple, Google) i wyjście z sandboxów AWS czeka się dniami. Te sprawy trzeba zacząć pierwszego dnia (2.1).
+- Weryfikacja deweloperów Androida obejmie certyfikowane urządzenia globalnie od 2027 r. (2.8, T-27).
+
+## 1. Co kupić do prawdziwych testów
+
+Zakupy idą w trzech etapach:
+1. **Etap 0, bramka sprzętowa (1–2 tygodnie).** Zaczynamy od zestawu minimalnego do domu (1.0): jeden kolorowy tablet Boox Note Air6 C i jeden zestaw wyświetlacza na własnym telewizorze albo monitorze. Potem dochodzą kanarek wyświetlacza, telefony z kartami SIM i przyrządy. Drugi model tabletu dokupujemy tylko wtedy, gdy na Air6 C coś nie zadziała. Wynikiem są przejścia punktów (B) z 4.3 oraz testów koloru K-01 i K-05.
+2. **Etap 1, stanowisko testowe (co najmniej 28 dni pracy ciągłej).** Dochodzą pozostałe tablety wybranego modelu, drugi zestaw wyświetlacza, prototypy obudów i sieć testowa.
+3. **Etap 2, stajnia pilotażowa (4–6 tygodni, najlepiej z przymrozkami).** Tablety wybranego modelu na boksy jednej hali (albo jej części) i 2 zapasowe. Zasilanie i Wi-Fi zapewnia stajnia, a my je mierzymy.
+
+Pełnych ilości nie kupujemy, dopóki wybrany model nie przejdzie T-01 i T-02, czyli Device Owner i Lock Task bez możliwości ucieczki. Przy panelu kolorowym musi też przejść K-01 (czytelność pól statusu) i K-05 (tryby odświeżania gubiące kolor).
+
+### 1.0 Zestaw minimalny do domu
+
+Pierwszy zakup, przed stanowiskiem testowym i bez stajni. Wystarcza na start etapu 0:
+- development tabletu i provisioning (T-01…T-04);
+- 72 h pracy ciągłej tabletu (T-11);
+- pierwsze testy palety na Air6 C: K-06 na zrzutach ekranu bez dodatkowego sprzętu; pomiary K-01…K-04 i K-07 wymagają przyrządów z 1.5;
+- wyświetlacz centralny na własnym ekranie.
+
+Pozycje z 1.0 wliczają się w ilości z 1.1–1.4; nie kupujemy ich drugi raz.
+
+| Pozycja | Ile | Po co | Uwagi |
+|---|---|---|---|
+| **Kupić** | | | |
+| Boox Note Air6 C (kolorowy 10,3″, Kaleido 3, Android 16) | 1 | Biurko developera (ADB, build debug), provisioning z wielokrotnymi resetami i próby DPC (T-01, T-02), 72 h pracy (T-11), testy palety K-01…K-07. | Kandydat nr 1 (1.1). Numer firmware zapisać przed pierwszym połączeniem z Wi-Fi. Przed T-01 nie logować się ani do Google, ani do konta BOOX. Do ADB potrzebny kabel USB-C z transmisją danych (czy jest w pudełku: [niepotwierdzone]). |
+| Zasilacz USB-C PD 20–30 W | 1 | Stałe zasilanie tabletu w pracy ciągłej, limit ładowania 80% (T-10). | Ładowarki w pudełku Boox nie zakładamy [niepotwierdzone]. Znak CE. Ten sam model co zasilacze na stanowisko (1.2) (propozycja). |
+| Raspberry Pi 5, 4 GB | 1 | Wyświetlacz centralny: Chromium w kiosku, widok wszystkich hal (sekcje) i „Pełny ekran” jednej hali z przełącznikiem hal i przyciskiem „Wszystkie hale”. | To zestaw „korytarz” z 1.3, na razie na microSD. NVMe można dołożyć później. Wybór widoku i hali pamięta przeglądarka (trwały profil Chromium, 1.3). |
+| Oficjalny zasilacz 27 W USB-C PD (5,1 V/5 A), wtyczka EU | 1 | Zasilanie Pi z profilem 5 A. | Nie zasilać z USB telewizora (1.3). |
+| Oficjalna obudowa z wentylatorem | 1 | Chłodzenie Pi w pracy ciągłej. | — |
+| Karta microSD 64 GB A2 | 1 | System Pi. | Najlepiej oficjalna karta Raspberry Pi (1.3). Po dołożeniu NVMe zostaje kartą ratunkową. |
+| Kabel micro-HDMI → HDMI | 1 | Port HDMI0. | Jednoczęściowy, bez przejściówek i adapterów kątowych. |
+| **Wykorzystać własne** | | | |
+| Telewizor albo monitor z HDMI | 1 | Ekran wyświetlacza centralnego. | Auto-off po 4 h bez interakcji wyłączyć, jeśli się da (1.3). Jeśli to OLED, nie zostawiać statycznego obrazu na noc (wypalenie). Telewizora nie podłączać do internetu. |
+| Domowe Wi-Fi | — | Sieć dla tabletu i Pi. | Bez portalu logowania. Pasma 2,4 i 5 GHz na Air6 C: [niepotwierdzone] (T-13). Osobny SSID i drugi AP do testów awarii sieci dopiero na stanowisku (1.2). |
+| Własny telefon | 1 | Logowanie SMS-em (OTP z Cognito) w apce i na koncie `display`, SMS-y eskalacji. | Numer trzeba zweryfikować w SMS sandbox AWS (limit 10 numerów, 1.4). |
+| Klawiatura i mysz USB | 1 + 1 | Konfiguracja Pi: logowanie na konto `display`, wybór hali, „Pełny ekran”, „Wszystkie hale”. | Bezprzewodowa klawiatura z 1.3 dopiero na stanowisko. |
+| **Dokupić tylko, jeśli coś nie zadziała** | | | |
+| Samsung Galaxy Tab Active5 (SM-X300, Wi-Fi) | 0 (warunkowo 1) | Wzorzec Device Owner i plan B. Odróżnia błąd naszego DPC od blokady w firmware Boox. | Dokupić, gdy T-01 albo T-02 nie przejdą na Air6 C (1.1). |
+| Boox Go 10.3 Gen II Lumi | 0 (warunkowo 1) | Test prawdziwego czarno-białego ekranu (Carta) na tym samym firmware co Air6 C (K-06). | Warunki dokupienia w 1.1 (rekomendacja, pkt 2). |
+
+### 1.1 Tablety e-ink
+
+**Najważniejsze fakty (stan na 12.10.2026)**
+- **Device Owner na e-ink nie jest publicznie potwierdzony u żadnego producenta** (Boox, Bigme, Meebook, PocketBook) [niepotwierdzone]. Strona [BOOX for Business](https://shop.boox.com/pages/business) nie wspomina o kiosku ani o MDM. Projekty społeczności na Boox, np. [BooxUltimatum](https://github.com/huuunleashed/BooxUltimatum), używają ADB i Shizuku, a nie DO. Rozstrzygnie to dopiero T-01 na sprzęcie.
+- **Lock Task, apka jako HOME i cicha instalacja to standard AOSP.** Lock Task działa od Androida 5.0, a `setLockTaskFeatures` od 9 ([lock task](https://developer.android.com/work/dpc/dedicated-devices/lock-task-mode), [cookbook](https://developer.android.com/work/dpc/dedicated-devices/cookbook)). Wszyscy kandydaci mają Androida 13 lub nowszego. Niewiadomą są nakładki producenta.
+- **Własny DPC da się w praktyce zainstalować tylko przez ADB.**
+  - QR wymaga aparatu.
+  - Ścieżka `afw#` pobiera DPC z managed Google Play, a Google nie przyjmuje już nowych rejestracji własnych DPC ([build DPC](https://developer.android.com/work/dpc/build-dpc)).
+  - NFC na kandydatach: [niepotwierdzone]. Aparat w Note Air6 C: [niepotwierdzone]. Brak aparatu w Go 10.3 Gen II: [niepotwierdzone].
+  - DO przez ADB wymaga tylko tego, żeby na urządzeniu nie było kont. Reset fabryczny nie jest konieczny ([cookbook](https://developer.android.com/work/dpc/dedicated-devices/cookbook)).
+- **GMS nie jest potrzebne.** Tablet odpytuje REST, loguje się przez Cognito, a APK dostaje z serwisu `releases`. Android Management API i zero-touch odpadają, zostaje własny DPC w module Kotlin.
+- **ADB na Boox z firmware 4.3** włącza się w Boox Settings › More Settings › USB Debug Mode, a nie przez numer kompilacji ([BooxUltimatum](https://github.com/huuunleashed/BooxUltimatum), [etutor-server](https://github.com/scottcowan/etutor-server/blob/main/docs/hardware-boox.md)). Procedurę trzeba spisać osobno dla każdego modelu.
+- **Limit ładowania.**
+  - Boox ma „Charging protection” ze stałym progiem 80%. Sprawdzono to na Note Air6 C (FW 4.3, Android 16): ustawienie zapisuje `charge_control_end_threshold`, a przełącznikiem jest `/sys/class/qcom-battery/charge_control_en` ([eksperymenty BooxUltimatum](https://github.com/huuunleashed/BooxUltimatum/blob/main/knowledge/experiments.md)).
+  - Dla Go 10.3 Gen II, Meebook i Bigme: [niepotwierdzone], sprawdza to T-10.
+- **Firmware Boox zabija aplikacje w tle.**
+  - Przyczyny: App Freeze, ograniczone domyślnie „Stay active in the background”, zabijanie ok. 10 s po starcie, force-stop z `system_server`, wyłączanie pakietu przez `com.onyx` ([Palma 2 Pro tips](https://github.com/Kisuke-CZE/Palma_2_Pro-tips), [boox-tracker](https://github.com/otherguy/boox-tracker/blob/main/agents/verification.md)).
+  - Zatrzymane odpytywanie oznacza, że flaga nie dotrze na tablet. Sprawdza to T-04.
+- **Firmware Boox nie da się cofnąć** ([Good e-Reader](https://goodereader.com/blog/onyx-boox/some-older-boox-models-launched-years-back-still-getting-latest-update)). Dlatego:
+  - zatwierdzamy pary model + firmware;
+  - numer firmware zapisujemy przed pierwszym połączeniem z Wi-Fi;
+  - blokujemy aktualizator OTA producenta (nazwa jego pakietu: [niepotwierdzone]).
+- **Odświeżanie EPD.**
+  - Boox: przez Onyx SDK (`onyxsdk-device` 1.1.11, `EpdController`, repozytorium Maven dostępne tylko po HTTP, [OnyxAndroidDemo](https://github.com/onyx-intl/OnyxAndroidDemo)) albo przez kontroler Onyx/Qualcomm, jak robi to KOReader ([DeviceInfo.kt](https://github.com/koreader/android-luajit-launcher/blob/master/app/src/main/java/org/koreader/launcher/device/DeviceInfo.kt)).
+  - Meebook na RK3566 i Bigme nie mają oficjalnego SDK, ale da się to zrobić bez niego:
+    - Meebook: refleksja wzorem KOReader;
+    - Bigme: `XrzEinkManager` z [inżynierii wstecznej](https://github.com/imedwei/inksdk/blob/main/docs/bigme-sdk-reverse-engineered.md); aktualizacja OTA może to zepsuć.
+  - Przy stałym obrazie pełne odświeżenie co najmniej raz na dobę ([Crystalfontz](https://www.crystalfontz.com/blog/?p=2698)).
+  - Na panelu kolorowym pełne odświeżenie musi iść w trybie z kolorem, a szybkie tryby gubią kolor (niżej, K-04 i K-05).
+
+**Kolorowe tablety e-ink (stan na 12.10.2026)**
+
+- **Makiety tabletu są kolorowe** (paleta `t-*` w `docs/paleta.md`): kolor tylko w dużych polach, na kolorze tylko pogrubiony czarny albo biały tekst, a drabina jasności (papier 255, OK 204, uwaga 146, krytyczna 66, atrament 0) jest czytelna w szarości. Ekran musi działać także na czarno-białym e-inku. Kolorowe (Kaleido 3, Gallery 3) i czarno-białe (Carta) panele są równorzędnymi kandydatami.
+- **Kaleido 3 to filtr barwny nałożony na czarno-białą folię Carta.**
+  - 16 poziomów szarości i 4096 kolorów, 300 ppi w czerni i bieli, 150 ppi w kolorze ([E Ink](https://www.eink.com/brand/detail/Kaleido3)), czyli w kolorze połowa rozdzielczości ([zestawienie urządzeń PocketBook](https://github.com/dgalli1/EinkHome/blob/main/resources/pocketbook-devices.md)).
+  - Kolor powstaje z poziomów szarości pod filtrem RGB: 16 poziomów na kanał, stąd 4096 kolorów ([Good e-Reader](https://goodereader.com/blog/?p=348641)).
+  - Ekran jest ciemniejszy i bardziej szary niż mono, z lekko zielonym odcieniem. W większości warunków trzeba włączyć podświetlenie ([myereader](https://myereader.substack.com/p/kobo-libra-colour-review-e-ink-colour), [eWritable](https://ewritable.net/guides/color-vs-monochrome-eink-screens/), [Android Authority](https://www.androidauthority.com/color-e-ink-not-ready-yet-3624449)).
+  - E Ink nie publikuje czasów odświeżania koloru dla Kaleido 3 ([myereader](https://myereader.substack.com/p/differences-between-e-ink-kaleido)). Czas pełnego odświeżenia z kolorem mierzymy sami (K-04).
+- **Skala makiety (wyliczenie).** Makieta to pion 702×936, proporcje 3:4 jak 1404×1872. Ma dokładnie rozdzielczość koloru Kaleido 3 7,8″.
+  - Note Air6 C (10,3″): 1 px makiety ≈ 2,65 px cz-b ≈ 1,32 px koloru ≈ 0,22 mm. Kafel 44 px ma ok. 9,8 mm, tekst 19 px ok. 4,2 mm, lewy pasek 10 px ok. 2,2 mm.
+  - Note Mini C (8,52″): 1 px makiety ≈ 0,19 mm.
+  - Go Color 7 Gen II (7″): 1 px makiety ≈ 0,15 mm. Siatka koloru 632×840 jest tu rzadsza niż siatka makiety.
+- **Gallery 3 (ACeP, bez filtra barwnego).**
+  - 300 ppi także w kolorze, ale wolniejsze odświeżanie: 350 ms w czerni i bieli, 500 ms w szybkim trybie koloru, 750–1000 ms w standardowym, 1500 ms w najlepszym. Praca w zakresie 0–50 °C ([E Ink](https://www.eink.com/brand/detail/Gallery_3)).
+  - Recenzenci opisują kolory jako blade ([myereader](https://myereader.substack.com/p/differences-between-e-ink-kaleido)).
+  - Jedyny znaleziony tablet z Androidem i Gallery 3 to Bigme Galy z Androidem 11, z 2023 r. ([Notebookcheck](https://www.notebookcheck.net/Bigme-Galy-8-inch-eReader-launches-with-colour-display-and-Google-Play-Store-access.669163.0.html)). Nowszego nie znaleziono [niepotwierdzone].
+  - Profil Gallery 3 z palety nie ma więc na czym się sprawdzić.
+- **Szybkie tryby gubią kolor.**
+  - Według dokumentacji E Ink tryby DU i A2 przeprowadzają piksel tylko do czerni albo bieli ([Advantech, EPD](https://ess-wiki.advantech.com.tw/view/EPD-130_application_tech), [instrukcja E Ink](https://shopkits.eink.com/en/download/0223011714sy884942/User%20Manual%20-%207.8''ePaper%20Display%20%28VB3300-GHA%29.pdf)).
+  - Pole koloru na Kaleido 3 wymaga pośrednich poziomów szarości, więc w A2 i DU kolor zniknie. To wniosek z zasady działania; zachowanie Note Air6 C: [niepotwierdzone], sprawdza to K-05.
+  - Boox ustawia tryb odświeżania (HD, Balanced, Fast, Ultrafast, Regal) i wzmocnienie ciemnych kolorów osobno dla każdej aplikacji w E-Ink Center ([YesPress](https://yespress.io/products/boox-go-color-7-gen-ii)).
+  - „Smooth Mode” z BSR na Note Air6 C działa także w aplikacjach zewnętrznych ([BOOX](https://shop.boox.com/blogs/news/introducing-boox-note-air6-c-a-refined-10-3-color-epaper-notebook-for-knowledge-workers)).
+  - Dla naszej apki te ustawienia trzeba zamrozić. Czy da się to zrobić bez ręcznego klikania: [niepotwierdzone].
+- **Device Owner i Lock Task na kolorowych Boox: to samo ryzyko co na mono.**
+  - Jedyna znaleziona publiczna próba `dpm set-device-owner` na Boox ([r/Onyx_Boox, 02.2025](https://www.reddit.com/r/Onyx_Boox/comments/1ihrbpy/using_adb_to_setdeviceowner/)) skończyła się błędem. Autor podejrzewał blokadę Boox, ale przyczyny nie ustalono [niepotwierdzone].
+  - Najczęstsza przyczyna takiego błędu to konto na urządzeniu ([OwnDroid](https://github.com/BinTianqi/OwnDroid)). Przed T-01 nie logujemy się więc ani do Google, ani do konta BOOX. Czy konto BOOX jest kontem Androida blokującym DO: [niepotwierdzone].
+- **Aktualizacje Androida.**
+  - Boox zwykle nie podnosi głównej wersji Androida. Wyjątkiem jest Go 6 Gen II, który w 09.2026 dostał Androida 13 ([Notebookcheck](https://www.notebookcheck.net/Onyx-rolls-out-Android-13-update-for-Boox-Go-6-Gen-II.1407708.0.html)).
+  - Zakładamy, że Note Air6 C zostanie na Androidzie 16. Harmonogram poprawek bezpieczeństwa: [niepotwierdzone].
+- **Zimno.**
+  - Zakres pracy tabletów z Kaleido 3: [niepotwierdzone].
+  - Kaleido 3 Outdoor (−15…65 °C) to panele do digital signage bez dotyku, a nie tablety ([E Ink](https://www.eink.com/news/detail/E-Ink-Launches-E-Ink-Kaleido-3-Outdoor-ePaper-Technology)).
+  - T-22 obejmuje też pełne odświeżenie koloru i ghosting w zimnie.
+
+**Kolorowi kandydaci**
+
+| Model | Ekran | Android i aktualizacje | ADB, DO, Lock Task | Limit ładowania, praca 24/7 | Wi-Fi | Dostępność PL/UE | Rola |
+|---|---|---|---|---|---|---|---|
+| **Boox Note Air6 C**, 10,3″ (globalnie 15.09.2026, [BOOX](https://shop.boox.com/blogs/news/introducing-boox-note-air6-c-a-refined-10-3-color-epaper-notebook-for-knowledge-workers); w Japonii 21.09.2026, [smartwatchlife](https://www.smartwatchlife.jp/81239/)) | Kaleido 3, 2480×1860 (300 ppi) cz-b, 1240×930 (150 ppi) kolor ([Android Authority](https://www.androidauthority.com/boox-note-air6-c-3711609/)). Podświetlenie z regulacją barwy (CTM) ([Inet](https://www.inet.se/produkt/6613387/onyx-boox-note-air6-c)). BSR i „Smooth Mode”. Producent mówi tylko o „najszybszym ekranie BOOX” i o 40% szybszym otwieraniu i przewracaniu stron niż w Air5 C; czasu odświeżenia koloru nie podaje [niepotwierdzone]. | Android 16 ([BOOX](https://shop.boox.com/products/noteair6c)). Firmware nie da się cofnąć ([Good e-Reader](https://goodereader.com/blog/onyx-boox/some-older-boox-models-launched-years-back-still-getting-latest-update)); skok wersji Androida mało prawdopodobny. | ADB w FW 4.3: Boox Settings › More Settings › USB Debug Mode ([BooxUltimatum](https://github.com/huuunleashed/BooxUltimatum)). DO i Lock Task: [niepotwierdzone]. Aparat do provisioningu QR: [niepotwierdzone]. | Charging protection 80% potwierdzona na FW 4.3 ([eksperymenty](https://github.com/huuunleashed/BooxUltimatum/blob/main/knowledge/experiments.md)). Według BOOX ciągłe, jasne podświetlenie skraca czas pracy na baterii ([The Gadgeteer](https://the-gadgeteer.com/?p=527166)). 24/7: [niepotwierdzone] (T-11). | „Wi-Fi + BT 6.0” ([BOOX](https://shop.boox.com/products/noteair6c)); Wi-Fi 6 według [Komputronik](https://www.komputronik.pl/product/1032275/czytnik-e-book-onyx-boox-note-air-6-c-szary.html) i [Mobile-review](https://mobile-review.com/all/news/onyx-boox-privezla-v-rossiyu-note-air-6-c-i-palma-3/). Pasma 2,4 i 5 GHz: [niepotwierdzone] (T-13). | PL: [Komputronik](https://www.komputronik.pl/product/1032275/czytnik-e-book-onyx-boox-note-air-6-c-szary.html) (dostawa z oczekiwaniem). UE: [LDLC](https://www.ldlc.com/en/product/PB00754914.html), [Inet](https://www.inet.se/produkt/6613387/onyx-boox-note-air6-c). | **Kandydat nr 1: tablet do domu, etap 0 i dalej.** |
+| **Boox Note Air5 C**, 10,3″ (10.2025, [The eBook Reader](https://blog.the-ebook-reader.com/2025/10/20/new-boox-note-air5-c-runs-android-15-and-supports-emr-stylus/)) | Kaleido 3, 300 i 150 ppi, CTM, BSR ([Parkablogs](https://parkablogs.com/content/boox-note-air5-c-tablet-review)). W biurze podświetlenie na ok. 50% ([Android Authority](https://www.androidauthority.com/color-e-ink-not-ready-yet-3624449)). „Duchy” przy obrazach ([TechRadar](https://www.techradar.com/tablets/ereaders/onyx-boox-note-air5-c-review)). | Android 15 | Ta sama rodzina firmware co Air6 C. DO: [niepotwierdzone]. | [niepotwierdzone] | 2,4 i 5 GHz, 802.11ac ([TechRadar](https://www.techradar.com/tablets/ereaders/onyx-boox-note-air5-c-review)) | PL: [x-kom](https://www.x-kom.pl/p/1542740-czytnik-ebook-onyx-boox-note-air-5-c-64gb-szary.html). UE: [Galaxus](https://www.galaxus.de/en/s1/product/onyx-boox-note-air5-c-1030-64-gb-ereader-64701965). | Rezerwa, gdyby Air6 C był niedostępny. Ten sam panel, starszy Android. |
+| **Boox Note Mini C**, 8,52″ (zapowiedź 15.09.2026; w sprzedaży „wkrótce” według [Diario Estrategia](https://www.diarioestrategia.cl/texto-diario/mostrar/6017173/boox-actualiza-cuadernos-digitales-tinta-electronica-note-air6-c-note-mini-c-palma-3)) | Kaleido 3, 2048×1536 (300 ppi) cz-b, 1024×768 (150 ppi) kolor ([BOOX](https://shop.boox.com/products/noteminic)). Podświetlenie: [niepotwierdzone]. | Android 16 ([BOOX](https://shop.boox.com/products/noteminic)) | Jak Air6 C: [niepotwierdzone]. | [niepotwierdzone] | „Wi-Fi + BT 6.0” ([BOOX](https://shop.boox.com/products/noteminic)); pasma: [niepotwierdzone]. | [niepotwierdzone] | Rezerwa, gdyby 10,3″ nie mieścił się w obudowie przy boksie. Mniejsze pola, więc decyduje T-20. |
+| **Boox Go Color 7 Gen II**, 7″ (04.2025, [BOOX przez Barchart](https://www.barchart.com/story/news/32065972/boox-unveils-go-7-series-portable-ereaders-for-immersive-reading-and-instant-idea-capture)); Gen III nie znaleziono [niepotwierdzone] | Kaleido 3, 1680×1264 cz-b, 840×632 kolor ([x-kom](https://www.x-kom.pl/p/1542815-czytnik-ebook-onyx-boox-go-7-color-ii-gen-64gb-czarny.html)). MOON Light 2 z CTM ([BOOX](https://onyxboox.com/boox_gocolor7g2)). Według TechRadar ekran jest żółtawy, podświetlenie słabsze, a „duchy” stałe ([TechRadar](https://www.techradar.com/tablets/ereaders/onyx-boox-go-color-7-gen-ii-review)). | Android 13 | Firmware Boox. DO: [niepotwierdzone]. | [niepotwierdzone] | dwa pasma ([BOOX](https://onyxboox.com/boox_gocolor7g2)) | PL: [x-kom](https://www.x-kom.pl/p/1542815-czytnik-ebook-onyx-boox-go-7-color-ii-gen-64gb-czarny.html), [Komputronik](https://www.komputronik.pl/product/968931/czytnik-e-book-onyx-boox-go-7-color-ii-gen-czarny.html). UE: [LDLC](https://www.ldlc.com/en/product/PB00684465.html). | Tylko gdy T-20 pokaże, że 7″ wystarcza. Siatka koloru jest rzadsza niż makieta. |
+| **Boox Tab Mini C**, 7,8″ (2023) | Kaleido 3, 1872×1404 cz-b, 936×702 kolor ([Good e-Reader](https://goodereader.com/blog/?p=365481)) | Android 11 | — | — | — | Wycofany ze sprzedaży ([Notebookcheck](https://www.notebookcheck.net/Boox-planning-four-new-devices-including-Palma-3-and-a-likely-successor-to-the-Tab-Mini-C.1370054.0.html)) | Odrzucony. |
+| **Bigme Galy**, 8″ (Kickstarter 2022, wysyłka 2023) | Gallery 3, 1920×1440, 300 ppi także w kolorze ([Notebookcheck](https://www.notebookcheck.net/Bigme-Galy-8-inch-eReader-launches-with-colour-display-and-Google-Play-Store-access.669163.0.html)). Czasy odświeżania i 0–50 °C według [E Ink](https://www.eink.com/brand/detail/Gallery_3). Podświetlenie z regulacją barwy ([Parkablogs](https://www.parkablogs.com/content/review-bigme-galy-worlds-first-e-ink-gallery-3-tablet)). | Android 11 | DO: [niepotwierdzone]. EPD tylko przez API z [inżynierii wstecznej](https://github.com/imedwei/inksdk/blob/main/docs/bigme-sdk-reverse-engineered.md). | [niepotwierdzone] | 2,4 i 5 GHz ([Parkablogs](https://www.parkablogs.com/content/review-bigme-galy-worlds-first-e-ink-gallery-3-tablet)) | [niepotwierdzone] | Jedyny Android z Gallery 3. Odrzucony: Android 11, wiek, niepewna dostępność. |
+| **Bigme B10**, 10,3″ (01–02.2026, [Notebookcheck](https://www.notebookcheck.net/Bigme-B10-color-E-Ink-tablet-gets-a-12GB-RAM-version-in-China.1330521.0.html)) | Kaleido 3, podświetlenie z regulacją barwy. Rozdzielczość koloru podawana rozbieżnie ([Android Authority](https://www.androidauthority.com/bigme-b10-tablet-launch-3637013/), [Parkablogs](https://parkablogs.com/content/bigme-b10-e-paper-tablet-review)). | Android 14 ([Android Authority](https://www.androidauthority.com/bigme-b10-tablet-launch-3637013/)) | Aparat 20 MP ([Parkablogs](https://parkablogs.com/content/bigme-b10-e-paper-tablet-review), [Liliputing](https://liliputing.com/?p=196870)), więc provisioning QR jest teoretycznie możliwy [niepotwierdzone]. DO: [niepotwierdzone]. Mocno przerobiony firmware ([eWritable](https://ewritable.net/brands/bigme/firmware/4-6/)). | [niepotwierdzone] | Wi-Fi 6 i LTE ([Parkablogs](https://parkablogs.com/content/bigme-b10-e-paper-tablet-review), [Mezha](https://mezha.ua/en/news/bigme-b10-e-ink-tablet-308192/)) | [niepotwierdzone] | Warunkowo: inna rodzina firmware w 10,3″, gdyby Air6 C odpadł na DO. LTE jest zbędne. |
+| **Bigme B1051C**, 10,3″ (2024/2025) | Kaleido 3, 300 i 150 ppi. Według recenzji ekran jest wyraźnie ciemniejszy od mono, a podświetlenie pomaga ([Parkablogs](https://www.parkablogs.com/index.php/content/review-bigme-b1051c-ereader-with-keyboard-case)). | Android 14 ([Notebookcheck](https://www.notebookcheck.net/Bigme-B1051C-Tablet-comes-with-Android-14-a-color-E-Ink-display-an-EMR-pencil-and-keyboard-support.904799.0.html)) | DO: [niepotwierdzone]. Aparat: [niepotwierdzone]. EPD przez API z inżynierii wstecznej. | [niepotwierdzone] | [niepotwierdzone] | [niepotwierdzone] | Zamiennik B10 bez LTE. |
+| **Bigme B751C-S**, 7″ | Kaleido 3, 300 i 150 ppi, CTM ([Parkablogs](https://www.parkablogs.com/content/bigme-b751c-s-colour-e-ink-tablet-review)) | Android 14 | EPD przez API z inżynierii wstecznej. DO: [niepotwierdzone]. | [niepotwierdzone] | dwa pasma ([Parkablogs](https://www.parkablogs.com/content/bigme-b751c-s-colour-e-ink-tablet-review)) | Premiera w Chinach ([Notebookcheck](https://www.notebookcheck.net/Bigme-B751C-S-color-e-reader-with-stylus-support-launched-in-China.1190990.0.html)). UE: [niepotwierdzone]. | Tylko jako drugi producent w 7″. |
+| **PocketBook InkPad Eo 2**, 10,3″ (zapowiedź 09.2026, [PocketBook](https://pocketbook.ch/en-ch/news/pocketbook-inkpad-eo-2-news-ch); targi we Frankfurcie według [ifeng](https://tech.ifeng.com/c/8x4yRMDUT2O)) | Kaleido 3, podświetlenie SMARTlight ([PocketBook](https://pocketbook.ch/en-ch/news/pocketbook-inkpad-eo-2-news-ch)) | Android 14 ([PocketBook](https://pocketbook.ch/en-ch/news/pocketbook-inkpad-eo-2-news-ch)). Poprzednik miał Androida 11 i „duchy” ([ComputerBase](https://www.computerbase.de/artikel/tablets/pocketbook-inkpad-eo-e-book-reader-test.88903/seite-3)). | ADB, DO, SDK do EPD: [niepotwierdzone] | [niepotwierdzone] | Wi-Fi 5, tylko według [comparisontabl.es](https://comparisontabl.es/e-readers/pocketbook-inkpad-eo-2/) [niepotwierdzone] | Data i sklepy w PL: [niepotwierdzone] | Obserwować po premierze jako trzecią rodzinę firmware. |
+
+**Co kupujemy**
+
+| Pozycja | Ile | Po co | Na co uważać / rekomendacja |
+|---|---|---|---|
+| **Boox Note Air6 C** (kandydat nr 1), etap 0 | 1 (z zestawu minimalnego, 1.0) | Biurko developera (ADB, build debug, wielokrotne resety, próby DPC), provisioning, kiosk, 72 h pracy, testy palety K-01…K-07. Po etapie 0 zostaje na biurku. | Kolorowy Kaleido 3 10,3″, Android 16, szybszy SoC niż Go 10.3 Gen II ([Notebookcheck](https://www.notebookcheck.net/Boox-Note-Air6-C-tablet-debuts-with-10-3-color-E-Ink-display-Android-16-faster-CPU-pen-and-AI-voice-transcription.1374349.0.html)). Ten sam firmware Boox i Onyx SDK co modele mono. Charging protection 80% potwierdzona na FW 4.3. Przed zamówieniem sprawdzić w ofercie: pasma Wi-Fi (pewne jest tylko „Wi-Fi + BT 6.0”; 2,4 i 5 GHz [niepotwierdzone], T-13) oraz sprzedaż i gwarancję w UE (w Polsce Komputronik, dostawa z oczekiwaniem). Ładowarki w pudełku nie zakładamy [niepotwierdzone]. Wszystkie sztuki z jednego źródła. Jedna relacja mówi, że po restarcie procesu systemowego ekran przestał usypiać (sprawdza to T-09). |
+| Boox Note Air6 C, etap 1 | +6 (propozycja) | 4 sztuki do konfiguracji produkcyjnej: „Hala główna”, boks 4 (Sonata) i boks 7 (Kasztan); „Hala nowa”, boks 4 (Bella) i boks 6 (wolny). Tablet zapisuje id boksu, a ekran pokazuje halę razem z numerem. 1 sztuka do testów niszczących: komora zimna, rozładowanie do zera, setki cykli zasilania, przerwane aktualizacje. 1 sztuka referencyjna z zamrożonym firmware, zarazem zapas. | Kupić dopiero po zaliczeniu bramki (B) oraz K-01 i K-05. Firmware nowych sztuk może być nowszy niż zatwierdzony, a cofnąć go się nie da: numer sprawdzić przed pierwszym Wi-Fi. Wymiary, masę, pojemność baterii i moc ładowania wziąć z karty produktu przed zamówieniem ramek (1.2) [niepotwierdzone]. Boks 4 jest w obu halach, więc dwa tablety z tym samym numerem sprawdzają, że tablet wysyła id boksu, a nie numer (T-28, A-10). |
+| Boox Go 10.3 Gen II Lumi (porównanie z mono, wariant czarno-biały) | 0 (warunkowo 1) | Prawdziwy panel Carta na tym samym firmware co Air6 C: K-06 oraz K-01…K-04 w tej samej formie. Dokupić tylko wtedy, gdy coś nie zadziała (rekomendacja, pkt 2). | Najnowszy monochromatyczny tablet Boox 10,3″ z podświetleniem i Androidem 15 (premiera 03.2026), proporcje 3:4 zgodne z makietami. Ryzyka: Device Owner, nakładki Boox, zabijanie aplikacji, pasmo 2,4 GHz, zawodny dotyk według recenzji [niepotwierdzone]. Przed zamówieniem sprawdzić w ofercie: podświetlenie (KOReader zna dla Gen II tylko `go103_2lumi`; czy jest wariant bez podświetlenia, [niepotwierdzone]); oba pasma Wi-Fi (pewne jest tylko „Wi-Fi 5”, [comparisontabl.es](https://comparisontabl.es/e-readers/boox-go-10-3-gen-ii/)); sprzedaż i gwarancja w UE (Gen II jest w [Galaxus DE](https://www.galaxus.de/en/s1/product/onyx-boox-go-103-gen-2-1030-64-gb-ereaders-69696534); Lumi w UE i w Polsce [niepotwierdzone]; Szwajcaria nie jest w UE). W zestawie nie ma ładowarki. Specyfikacje ze sklepów traktować jako orientacyjne: 235 × 183 × 4,6–4,8 mm, ok. 360 g, 3700 mAh, Android 15, ładowanie 5–18 W, a dla Lumi według części sklepów 5–15 W ([JB Hi-Fi](https://www.jbhifi.com.au/products/boox-go-10-3-gen-2-ereader-300ppi-monochrome-e-ink), [digitec Gen II](https://www.digitec.ch/en/s1/product/onyx-boox-go-103-gen-ii-1030-64-gb-ereaders-69696534), [digitec Lumi](https://www.digitec.ch/en/s1/product/onyx-boox-go-103-2nd-gen-lumi-1030-64-gb-ereaders-69291196)). |
+| Meebook M8 | 0 (warunkowo 1) | Inny producent i firmware w czerni i bieli: sprawdza, czy DPC i apka nie są przywiązane do Onyx, oraz dolną granicę czytelności przy 7,8″. Nie służy do porównania panelu z Air6 C, bo różni się producentem, firmware i SoC. Poza zestawem minimalnym; dokupić, gdy Air6 C odpadnie na DO albo Lock Task przez firmware Boox (rekomendacja, pkt 4). | 7,8″ Carta HD mono, 300 ppi, podświetlenie, Android 14 z Play ([Notebookcheck](https://www.notebookcheck.net/M8-New-e-book-reader-comes-with-Android-and-stylus-support.1019867.0.html), [lx-music-eink](https://github.com/shellsec/lx-music-eink/blob/main/README.en.md)). Dostępność w UE: [niepotwierdzone]. SoC nieznany, więc pierwszy krok to `getprop ro.board.platform`. Zamiennik: Bigme B751C-S z Androidem 14 ([Parkablogs](https://www.parkablogs.com/content/bigme-b751c-s-colour-e-ink-tablet-review)), kolorowy 7″ Kaleido 3, ale odświeżanie działa tylko przez API z inżynierii wstecznej. |
+| Wzorzec Device Owner i plan B: Samsung Galaxy Tab Active5 (SM-X300, Wi-Fi), do tego emulator AOSP | emulator; Tab Active5: 0 (warunkowo 1) | Pozwala odróżnić błąd naszego DPC od blokady w firmware e-ink (T-01, T-02, T-24). Plan B, gdy Air6 C nie przejdzie bramki (B), obok innej rodziny firmware e-ink (rekomendacja, pkt 4). | Najpierw emulator Androida 15/16 bez Play; dokumentacja [dedicated devices](https://developer.android.com/work/dpc/dedicated-devices) opisuje ADB jako ścieżkę developerską. Tab Active5 dokupić, gdy T-01 albo T-02 nie przejdą na Air6 C. Jako plan B przy boksie to ekran LCD, a nie e-ink: czytelność (T-20) i pracę 24/7 na zasilaczu (T-10, T-11) trzeba sprawdzić osobno. Jego No Battery Mode wymaga Knox Manage z KSP i licencją Knox ([KBA-489](https://docs.samsungknox.com/admin/knox-manage/kbas/kba-489-enable-no-battery-mode/)), więc w roli wzorca DO go nie testujemy. Poprawki bezpieczeństwa kończą się 01.2029 ([endoflife.date](https://github.com/endoflife-date/endoflife.date/blob/master/products/samsung-galaxy-tab.md)). |
+| Tablety do stajni pilotażowej | po jednym na boks wybranej hali (albo jej części) + 2 | Etap 2. | Note Air6 C albo model, który go zastąpił po porównaniu, z tą samą zatwierdzoną wersją firmware. |
+
+**Odrzucone i poza zakresem**
+- Tab Mini C (7,8″, Kaleido 3): Android 11, wycofany ze sprzedaży.
+- Tab Ultra C Pro (10,3″, Kaleido 3, Android 12, aparat 16 MP, 2023; [BOOX](https://onyxboox.com/boox_tabultracpro)): stary Android.
+- Note Air4 C: poprzednia generacja z Androidem 13 ([Parkablogs](https://parkablogs.com/content/boox-note-air5-c-tablet-review)).
+- Tab X C ([BOOX](https://onyxboox.com/boox_tabxc)): 13,3″, za duży i za ciężki.
+- Note Max: bez podświetlenia.
+- Bigme Galy (Gallery 3): Android 11, wiek, niepewna dostępność (rekomendacja, pkt 5).
+- PocketBook InkPad Eo: Android 11. Następcę, InkPad Eo 2 z Androidem 14, obserwujemy po premierze (tabela kolorowych kandydatów).
+- reMarkable Paper Pro (Gallery 3): system na Linuksie, bez Androida ([XP-Pen](https://www.xp-pen.com/blog/color-e-ink-tablet.html)).
+- PocketBook Viva (Gallery 3, [Root Nation](https://root-nation.com/pl/news-pl/pl-pocketbook-viva/)): system PocketBook, a nie Android [niepotwierdzone].
+- Hisense: brak aktualnego tabletu e-ink z Androidem.
+- Panele e-paper do digital signage, także Kaleido 3 Outdoor: bez dotyku, więc nie da się potwierdzić flagi.
+- Palma 3, Palma 2 Pro (6,13″, [Notebookcheck](https://www.notebookcheck.net/Boox-Palma-2-Pro-hands-on-review-Colorful-5G-e-reader-with-Android.1253300.0.html)), Viwoods AiPaper Reader C (6,13″, Kaleido 3, Android 16; [heyupnow](https://heyupnow.com/en-de/products/viwoods-aipaper-reader-c)), Go 6 Gen II, Picco: za małe ekrany.
+- Boox Go 7 (7″ mono, Android 13) zostaje w rezerwie na wypadek, gdyby M8 był niedostępny, a 7″ okazało się wystarczające w T-20. W kolorze tę rolę ma Go Color 7 Gen II (tabela kolorowych kandydatów).
+
+**Rekomendacja: kolorowy Note Air6 C jako kandydat nr 1, mono i wzorzec DO warunkowo**
+1. **Boox Note Air6 C: tablet do domu, etap 0 i dalej.**
+   - Etap 0: 1 sztuka z zestawu minimalnego (1.0). Służy jako biurko developera, do provisioningu (wielokrotne resety) i do 72 h pracy, a także do testów palety K-01…K-07. Numer firmware zapisujemy przed pierwszym Wi-Fi, a przed T-01 nie zakładamy żadnych kont.
+   - Za: Android 16; Kaleido 3 w 10,3″ i proporcjach 3:4 jak makiety; potwierdzony limit ładowania 80% i procedura ADB w FW 4.3; ten sam Onyx SDK co w modelach mono, przewidziany w module Kotlin; dostępny w Polsce.
+   - Ryzyka:
+     - DO i Lock Task [niepotwierdzone];
+     - firmware zabija aplikacje w tle;
+     - firmware nie da się cofnąć;
+     - ciemniejszy ekran wymaga stałego podświetlenia;
+     - pasma Wi-Fi [niepotwierdzone];
+     - szybkie tryby i „Smooth Mode” mogą zgubić kolor.
+   - Etap 1, po bramce (B) i po K-01 i K-05: +6 sztuk (propozycja).
+     - 4 do konfiguracji produkcyjnej: Hala główna, boks 4 (Sonata) i boks 7 (Kasztan); Hala nowa, boks 4 (Bella) i boks 6 (wolny). Tablet zapisuje id boksu, a ekran pokazuje halę razem z numerem.
+     - 1 do testów niszczących.
+     - 1 referencyjna z zamrożonym firmware, zarazem zapas.
+     - Sztuka z etapu 0 zostaje na biurku.
+   - Etap 2: tablety tej samej pary model + firmware na boksy jednej hali stajni pilotażowej (albo jej części) i 2 zapasowe.
+2. **Porównanie z mono: Boox Go 10.3 Gen II Lumi**, dokupowany tylko wtedy, gdy coś nie zadziała.
+   - Dlaczego ten model: ten sam producent i rodzina firmware, 10,3″, Carta 300 ppi z podświetleniem, Android 15 ([digitec](https://www.digitec.ch/en/s1/product/onyx-boox-go-103-2nd-gen-lumi-1030-64-gb-ereaders-69291196), [JB Hi-Fi](https://www.jbhifi.com.au/products/boox-go-10-3-gen-2-ereader-300ppi-monochrome-e-ink)). Różni się od Air6 C głównie panelem, więc K-01…K-06 porównują kolor z czernią i bielą bez zmiany reszty.
+   - Dokupić, gdy:
+     - K-01 pokaże, że pola koloru są gorzej czytelne niż te same pola w szarości;
+     - K-05 pokaże, że firmware wymusza tryb gubiący kolor;
+     - K-06 na emulacji wypadnie na granicy progu;
+     - albo przed etapem 2 trzeba potwierdzić wariant czarno-biały na prawdziwym panelu.
+   - Meebook M8 nie służy do porównania panelu, bo różni się producentem, firmware i SoC. Zostaje poza zestawem minimalnym (pkt 4).
+3. **Samsung Galaxy Tab Active5 jako wzorzec Device Owner i plan B.** Dokupić tylko wtedy, gdy T-01 albo T-02 nie przejdą na Air6 C. Pozwala odróżnić błąd naszego DPC od blokady w firmware.
+4. **Gdy Air6 C odpadnie:**
+   - na DO albo Lock Task przez firmware Boox: inne modele Boox (Air5 C, Note Mini C, Go Color 7 Gen II, Go 10.3 Gen II) mają prawdopodobnie ten sam problem [niepotwierdzone]. Dalej idą Tab Active5 jako plan B albo inna rodzina firmware: Bigme B10 lub B1051C, a po premierze PocketBook InkPad Eo 2; w czerni i bieli Meebook M8 (zamiennik: Bigme B751C-S);
+   - na czytelności koloru (K-01) albo trybach odświeżania (K-05): Go 10.3 Gen II Lumi (ten sam firmware, panel Carta);
+   - na wymiarach obudowy: Note Mini C, gdy wejdzie do sprzedaży.
+5. **Gallery 3 nie kupujemy.** Bigme Galy ma Androida 11, a jego dostępność jest [niepotwierdzone]. Profil Gallery 3 w `packages/theme` zostaje nieprzetestowany na sprzęcie. Czy go utrzymywać, rozstrzyga sekcja 5.
+
+Uwagi do wyboru:
+- **Plan B to tablet z działającym Device Ownerem (Tab Active5 albo e-ink innej rodziny firmware), a nie rezygnacja z DO.** Cicha instalacja APK, autostart, blokada OTA i Lock Task wymagają DO.
+- Równolegle zapytać Onyx na piśmie, przez kanał BOOX for Business, o Note Air6 C (i Go 10.3 Gen II):
+  - obsługę DO i Lock Task;
+  - czy konto BOOX blokuje ustawienie DO;
+  - nazwę pakietu aktualizatora OTA i sposób jego blokady;
+  - czy ustawienia E-Ink Center (tryb odświeżania, „Smooth Mode”, wzmocnienie ciemnych kolorów) da się ustawić z ADB albo DPC;
+  - harmonogram firmware i poprawek bezpieczeństwa.
+
+**Testy rozstrzygające wybór** (szczegóły w 4.3; progi liczbowe ustalić przed testem, sekcja 5):
+- **Bramka (B), wszystkie punkty muszą przejść:**
+  - T-01: Device Owner;
+  - T-02: Lock Task bez możliwości ucieczki;
+  - T-03: apka jako HOME i autostart;
+  - T-04: ustawienia producenta i zabijanie apki;
+  - T-08: autostart po rozładowaniu do zera (50 cykli, 100% udanych);
+  - T-13: Wi-Fi w obu pasmach, bez usypiania;
+  - T-24: cicha instalacja APK;
+  - T-25: przerwana aktualizacja.
+- **Kolor, przed zakupem etapu 1** (szczegóły w 4.3.1 D, testy K-01…K-07; rozszerzają T-20, T-21 i T-22):
+  - K-01: czytelność pól statusu i drabina jasności;
+  - K-05: tryby A2 i DU gubiące kolor.
+- **Porównanie modeli, które przeszły bramkę** (Air6 C, a jeśli zostaną dokupione, także Go 10.3 Gen II Lumi albo zamiennik z pkt 4 rekomendacji):
+  - T-10: limit ładowania;
+  - T-11: praca ciągła (najpierw 72 h, potem 28 dni);
+  - T-18: opóźnienie flagi w p95;
+  - T-19: trafność dotyku w rękawicach i przez obudowę;
+  - T-20: czytelność z 1,5–2 m;
+  - T-21: „duchy” obrazu i odświeżanie;
+  - T-22: praca w zimnie w komorze, także pełne odświeżenie koloru i ghosting w zimnie;
+  - K-02: ditherowanie i ziarno;
+  - K-03: ghosting koloru;
+  - K-04: pełne odświeżenie przy zmianie statusu;
+  - K-06: wariant czarno-biały;
+  - K-07: podświetlenie w pracy ciągłej.
+- **Wynik:** zatwierdzona para model + firmware, zablokowany aktualizator producenta i zamrożone ustawienia E-Ink Center dla naszej apki (K-02, K-05).
+
+### 1.2 Montaż, zasilanie i sieć przy boksie
+
+Zasilanie przy boksie i Wi-Fi zapewnia stajnia. Kupujemy więc tylko to, czego stanowisko testowe potrzebuje do ustalenia wymagań wobec stajni (lista w 4.5), oraz prototypy obudów i przyrządy. W stajni pilotażowej mierzymy jej zasilanie i sieć, zamiast budować własne.
+
+**Założenia**
+- **Montaż:**
+  - od strony korytarza;
+  - poza zasięgiem głowy konia (mierzymy go z atrapą obudowy);
+  - nie na skrzydle drzwi;
+  - kabel bez pętli, wprowadzony od dołu.
+- **Obudowa:** prototyp w dwóch wersjach, bo od tego zależy, czy dotyk w ogóle działa: otwarty front z matową folią albo przednia szyba. Wybór po T-19.
+- **Materiał: założenie ostrożne, do sprawdzenia próbkami w stajni pilotażowej.** Wszystkie źródła poniżej są [niepotwierdzone], bo przy weryfikacji ich nie otwarto.
+  - Zwykły poliwęglan prawdopodobnie nie nadaje się do pracy w amoniaku ([tabela odporności PC](https://www.foxxlifesciences.in/pages/polycarbonate-chemical-compatibility-chart)).
+  - HDPE i PP mają w tabelach wysokie oceny ([tabela odporności](https://www.globescientific.com//media/PDF/Library_PDF/Chemical%20Resistance%20Chart.pdf)).
+  - Obudowy Spelsberg mają test DLG ([TK PC](https://www.dlg.org/en/tests/agricultural-technology-and-farm-inputs/test-reports/test-g-spelsberg-leergehaeuse-der-tk-pc-serie-mit-zubehoer), [Abox](https://pruefberichte.dlg.org/filestorage/7458.pdf)).
+  - Przy podłodze amoniaku jest więcej niż wyżej ([TheHorse](https://thehorse.com/129872/ammonia-is-the-enemy/)), więc montujemy wysoko.
+- **Odporność na uderzenie:** co najmniej IK08 (5 J), lepiej IK10 (20 J) ([EN 62262](https://en.wikipedia.org/wiki/EN_62262)) [niepotwierdzone].
+- **Zimno:**
+  - Akumulatora Li-ion nie należy ładować poniżej 0 °C ([REDARC](https://us.support.redarcelectronics.com/hc/en-us/articles/13856244101007-Why-you-should-not-charge-a-lithium-battery-below-0-C-or-32-F)) [niepotwierdzone]. Tablet, który w nieogrzewanej hali stale wisi na zasilaczu, to ryzyko do sprawdzenia w T-22.
+  - Konsumencka elektronika przy boksie zwykle pracuje dopiero od 0 °C (np. [splitter U6115: 0–40 °C](https://www.welectron.com/mediafiles/productimg/arducam/Amazon/U6115_Manual.pdf)).
+
+| Pozycja | Ile | Po co | Na co uważać / rekomendacja |
+|---|---|---|---|
+| Zasilacz USB-C PD 20–30 W | 1 na tablet + 2 (pierwszy z zestawu minimalnego, 1.0) | Stała praca tabletu; ładowarki w zestawie Boox nie zakładamy (Go 10.3 Gen II jej nie ma; Air6 C: [niepotwierdzone]). | Zakres temperatur pracy w karcie katalogowej, znak CE. Przy boksie trzymać w puszce, nie na wierzchu, bo kurz z siana osiada na ciepłym zasilaczu. |
+| Zasilacz USB-C 5 V bez PD (np. 5 V/2,4 A) | 2 | Bilans ładowania bez PD (T-12). | Tylko na biurku albo powyżej 0 °C. |
+| Kabel USB-C kątowy, 0,3–0,5 m, 3 A | 10 | Połączenie wewnątrz ramki. | Odciążenie w ramce. |
+| Długie kable USB-C (długości jak przy boksie) i osłony (korytka, peszle) | według stanowiska | Odwzorowanie trasy kabla przy boksie. | Poza zasięgiem konia i gryzoni. |
+| Ramka ścienna z zamkiem, otwarty front (Brateck PAD34-01) | 1 | Przymiarka wariantu A. | Zacisk 228–262 mm mieści długość 235 mm ([karta](https://www.computeralliance.com.au/brateck-anti-theft-wall-mounted-tablet-enclosure/)). Wymiary liczono dla Go 10.3 Gen II (235 × 183 mm); wymiary Note Air6 C: [niepotwierdzone], sprawdzić w karcie produktu przed zamówieniem ramki. Szerokość wnęki dla 183 mm, okno ekranu, materiał i dostępność w UE: [niepotwierdzone]. Jeśli tablet nie pasuje, wziąć inną ramkę 11″ z szerszą wnęką albo ramkę własną, nie 12,9″. |
+| Prototyp ramki własnej z płyty HDPE albo PP: wersja z otwartym frontem i wersja z przednią szybą | 2 + 2 | T-19, T-29. | Szyba może zablokować dotyk pojemnościowy. Druk 3D tylko do przymiarek, bo odporność PETG i ASA na amoniak jest [niepotwierdzone]. |
+| Matowa folia ochronna na ekran | 10 | Ochrona ekranu przy otwartym froncie. | Czułość dotyku przez folię, także w rękawicach. Na Kaleido 3 sprawdzić, czy folia nie obniża kontrastu pól koloru i odstępów drabiny jasności (K-01). |
+| Wkręty zabezpieczające pin-in Torx, nierdzewne, z bitem i kotwami | komplet + zapas | Ochrona przed kradzieżą ([przykłady](https://www.albanycountyfasteners.com/screws-bolts/machine-screws/tamper-resistant-security-machine-screws)). | Bit tylko u serwisu; kotwy dobrane do ściany. |
+| Puszka z testem DLG (np. Spelsberg TK PC) z membraną ePTFE i dławnicami od dołu | 2 | Zasilacz przy boksie w wariancie zamkniętym. | Membrana ogranicza kondensację ([Gore](https://gore.com/node/24906)). |
+| Atrapa obudowy | 2 | 1–2 tygodnie przy boksie przed montażem tabletów: zasięg głowy, lizanie, gryzienie. | Może to być zapasowa ramka bez tabletu. |
+| Próbki materiałów: zwykły PC, HDPE, PP, aluminium malowane proszkowo, stal nierdzewna | po 1 | Ekspozycja przy boksie przez cały pilotaż. | Ocena zmętnienia, pęknięć i korozji. |
+| Opcjonalnie: zarządzalny switch PoE+ Teltonika TSW202 z zasilaczem DC na szynę DIN oraz splittery PoE+ na USB-C PD (PoE Texas GAT-USBC) | 1 + 2 | Tylko jeśli stajnia rozważa PoE zamiast gniazd przy boksie. Porównanie wariantów i test zaniku zasilania przez wyłączenie portu. | TSW202 potwierdzony: 8× PoE+, 30 W na port, 240 W łącznie, −40…75 °C, PoE włączane per port ([karta](https://teltonika-networks.com/cdn/products/2023/08/64e896612f9829-30532758/datasheet-pdf/tsw202-datasheet-v13.pdf)). GAT-USBC: PD 5–20 V, do 25,5 W ([oferta](https://reach.dog/shop/poe-texas/products/gat-usbc)); rewizja, temperatura pracy i dostawa do UE [niepotwierdzone]. Nie TL-SG1008P (PoE+ tylko na 4 portach, niezarządzalny). Nie U6115 do testu zimowego (0–40 °C). |
+
+**Sieć stanowiska testowego**
+
+| Pozycja | Ile | Po co | Na co uważać / rekomendacja |
+|---|---|---|---|
+| Router albo AP tylko dla stanowiska, 2,4 i 5 GHz | 1 | Osobny SSID. Wyłączanie radia i pasm, zmiana hasła, odcięcie WAN przy działającym Wi-Fi, ograniczenie mocy nadawania. | WPA2 i WPA3, 802.11k/v/r do włączania i wyłączania, bez portalu logowania. |
+| Drugi AP (innego producenta albo zestaw mesh) | 1 | Roaming, „przyklejanie się” tabletu do dalszego AP po restarcie, limit klientów na AP. | Na stanowisku jeden kontroler. |
+| Mały komputer z Linuxem (może to być dodatkowe Raspberry Pi) jako most z `tc netem` | 1 | Powtarzalne straty pakietów, opóźnienia i zerwania sterowane skryptem. | — |
+| Oprogramowanie pomiarowe: [WiFiAnalyzer](https://apkmirror.com/apk/vrem-software-development/wifianalyzer-open-source/wifianalyzer-open-source-2-0-4-release), [NetSpot](https://netspotapp.com/android) ([pomiar na Androidzie](https://netspotapp.com/help/wifi-site-survey-on-android)), [iperf3](https://software.es.net/iperf) | — | RSSI i kanały na telefonie i na samym tablecie (przed włączeniem kiosku), mapa hali, przepustowość. | Od Androida 9 system dławi skany Wi-Fi; wyłączyć to w opcjach programisty. Orientacyjny cel w miejscu tabletu: RSSI ≥ −67 dBm i SNR ≥ 25 dB ([York University](https://facilities.info.yorku.ca/files/2018/11/27-21-33-Data-Comm-WIFI-AP-v3.2-20180726.pdf?x18178)) [niepotwierdzone]. |
+
+### 1.3 Wyświetlacz centralny
+
+**Najważniejsze fakty**
+- **Raspberry Pi 5, nie Pi 4.** Ma RTC (podtrzymywany baterią), przycisk zasilania, PCIe 2.0 x1 na dysk NVMe i dwa wyjścia micro-HDMI 4Kp60 ([Raspberry Pi](https://www.raspberrypi.com/news/introducing-raspberry-pi-5/)).
+- **Zasilanie:** zasilacz 27 W USB-C PD (5,1 V/5 A, [Core Electronics](https://core-electronics.com.au/raspberry-pi-5-power-supply-usb-c-pd-27w-black.html)). Bez profilu 5 A Pi ogranicza prąd portów USB do 600 mA i wyświetla ostrzeżenie ([whitepaper](https://pip-assets.raspberrypi.com/categories/685-app-notes-guides-whitepapers/documents/RP-009856-WP-1-USB%20Power%20delivery%20on%20Raspberry%20Pi%205.pdf)). Port USB telewizora się nie nadaje.
+- **Trwały profil Chromium.** Wybór hali leży w localStorage, a sesja w profilu przeglądarki, więc odpadają overlay FS ([Adafruit](https://learn.adafruit.com/read-only-raspberry-pi)) i flaga `--incognito`.
+- **Tylko LCD/LED, nie OLED**, bo OLED wypala się przy statycznym obrazie ([invidis](https://invidis.com/sixteen-nine/2018/10/16/long-term-tests-confirm-oleds-have-burn-in-issues-but-is-the-risk-real-in-digital-signage/)).
+- **Automatyczne wyłączanie.** Telewizory w UE domyślnie przechodzą w standby po 4 h bez interakcji ([rozporządzenie 2019/2021](https://eur-lex.europa.eu/eli/reg/2019/2021/oj)); monitor signage bez tunera prawdopodobnie tej regule nie podlega [niepotwierdzone]. Monitory signage mają jawne ustawienie stanu po zaniku zasilania, np. „Power On Status” ([LG](https://manualslib.mx/manual/563119/Lg-49Xs2B.html?page=38)).
+- **Czytelność:** ok. 25 mm wysokości liter na każde 3 m odległości ([WMU](https://wmich.edu/digital-accessibility/digital-signage)).
+  - Na 50″ przy 1080p 1 px to ok. 0,58 mm.
+  - Nazwa flagi czytana z 6 m potrzebuje więc wersalików ok. 85 px, czyli fontu ok. 120 px.
+  - Pełny ekran hali musi mieć dużo większą typografię niż widok wszystkich hal.
+
+| Pozycja | Ile | Po co | Na co uważać / rekomendacja |
+|---|---|---|---|
+| Raspberry Pi 5, 4 GB | 2 | Zestaw „korytarz” (wszystkie hale) i zestaw „hala” (pełny ekran jednej hali). | Etap 0: korytarz (Pi z zestawu minimalnego, 1.0, w domu na microSD i własnym telewizorze albo monitorze). Etap 1: hala. |
+| Raspberry Pi 5, 2 GB | 1 | Kanarek na stanowisku: aktualizacje systemu i Chromium, test minimalnej pamięci (W-15). | Jeśli 2 GB nie wystarczy, kanarek nie zastąpi zestawu 4 GB jako zapas. Wersji 1 GB nie kupować. |
+| Oficjalny zasilacz 27 W USB-C PD, wtyczka EU | 3 | Zasilanie z profilem 5 A. | Nie zasilać z USB telewizora ani zasilaczem bez profilu 5 A. |
+| Oficjalna obudowa z wentylatorem | 2 | Zestaw „korytarz” (z NVMe) i kanarek. | Progi wentylatora odczytać na działającym systemie ([Raspberry Pi](https://www.raspberrypi.com/news/heating-and-cooling-raspberry-pi-5/)); wartości ze źródeł [niepotwierdzone]. |
+| Pasywna obudowa aluminiowa (np. Flirc) | 1 | Zestaw „hala”; porównanie z wentylatorem na stanowisku. | Przy pełnym obciążeniu tylko opóźnia throttling ([bret.dk](https://bret.dk/flirc-raspberry-pi-5-case-review/)). Brak miejsca na M.2: [niepotwierdzone]. Porównanie tylko na stanowisku, bo w pilotażu zestawy wiszą w różnych miejscach. |
+| M.2 HAT+ Compact | 1 | Dysk NVMe w zestawie „korytarz”. | Przed zamówieniem sprawdzić w product brief: czy mieści się w oficjalnej obudowie razem z jej wentylatorem przy zamkniętej pokrywie, czy przyjmuje tylko dyski 2230 i czy jest niezgodny z Active Cooler ([The Pi Hut](https://thepihut.com/products/raspberry-pi-m-2-hat-compact)) [niepotwierdzone]. Jeśli się nie mieści, nośniki porównujemy tylko na stanowisku. |
+| SSD NVMe M.2 2230 z potwierdzoną zgodnością z Pi 5, najlepiej Raspberry Pi SSD | 1 | Nośnik zestawu „korytarz”. | Bez przypadkowych dysków bez raportów zgodności ([SSD Kit](https://www.raspberrypi.com/products/ssd-kit/)). |
+| Oficjalna karta microSD A2, 32 lub 64 GB | 5 | System zestawu „hala” i kanarka, karta ratunkowa dla zestawu z NVMe, 2 zapasowe z gotowym obrazem (W-18). | ([Adafruit](https://www.adafruit.com/product/6011)). |
+| Bateria RTC: akumulatorek ML-2020 z wtykiem JST | 3 | Poprawny zegar po zaniku prądu, także bez sieci. | Ładowanie włączyć wpisem `dtparam=rtc_bbat_vchg=3000000` ([dokumentacja](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html)). Nie CR2032. Numer katalogowy SC1163: [niepotwierdzone] ([The Pi Hut](https://thepihut.com/products/rtc-battery-for-raspberry-pi-5)). |
+| Oficjalny kabel micro-HDMI–HDMI: 3 × 1 m i 1 × 2 m | 4 | Port HDMI0. | Jednoczęściowy, bez przejściówek i adapterów kątowych, z odciążeniem ([Raspberry Pi](https://www.raspberrypi.com/products/micro-hdmi-to-standard-hdmi-a-cable/)). |
+| Telewizor konsumencki LCD/LED 43–50″ | 1 | Zestaw „korytarz” na stanowisku testowym. W etapie 0 wystarcza własny telewizor albo monitor (1.0). | Sprawdzić w instrukcji modelu (wersja EU): stan po zaniku zasilania „On” albo „Last”; czy da się wyłączyć auto-off po 4 h i wyłączanie przy braku sygnału; HDMI-CEC z przekazywaniem klawiszy pilota; tryb bez overscanu; zakres temperatur i wilgotności; VESA; blokadę pilota; matową powłokę. Telewizora nie podłączać do internetu. |
+| Monitor signage LCD 55″ lub większy, najlepiej do pracy 24/7 | 1 | Zestaw „hala”. | Power On Status, blokada przycisków, praca 24/7 i warunki pracy w europejskiej karcie produktu. CEC bywa tu okrojone; wtedy halę ustawiamy klawiaturą. Klasa 16/7 nie wystarczy, jeśli ekran ma działać całą dobę (sekcja 5). |
+| Uchwyt ścienny VESA (stały albo uchylny) i mocowanie Pi z tyłu telewizora | 2 + 2 kpl. | Montaż zestawów. | Dostęp do przycisku Pi i slotu karty bez zdejmowania telewizora. Metalowe plecy telewizora mogą tłumić Wi-Fi (W-19). |
+| Listwa z ochroną przeciwprzepięciową | 2 | Telewizor i zasilacz Pi z jednego miejsca. | — |
+| Bezprzewodowa klawiatura z touchpadem (odbiornik USB 2,4 GHz) | 1 | Instalacja: logowanie na konto `display`, wybór hali, „Pełny ekran”, „Wszystkie hale”. | Zostaje u osoby wdrażającej. W domu wystarczą własna klawiatura i mysz USB (1.0). |
+| Czytnik kart microSD na USB i patchcordy Ethernet | 1 + 2 | Nagrywanie obrazów; porównanie LAN z Wi-Fi. | — |
+| Emulator EDID | 0 | Dopiero gdy W-02 albo W-05 wykażą problem z HPD/EDID. | Sprawdzić, czy przepuszcza CEC. |
+| Obudowa ochronna TV IP54+ z filtrowaną wentylacją | 0–1 | Tylko jeśli W-28 wypadnie źle. | IP54 nie chroni przed myciem ciśnieniowym. |
+
+### 1.4 Telefony i karty SIM
+
+| Pozycja | Ile | Po co | Na co uważać / rekomendacja |
+|---|---|---|---|
+| iPhone z najstarszą wersją iOS wspieraną przez wybrane Expo SDK, mały ekran | 1 | Dolna granica wydajności i układu ekranu. | — |
+| iPhone najnowszy | 1 | TestFlight, Universal Links, autouzupełnianie kodu (`one-time-code`). | Każdego iPhone'a do dystrybucji ad hoc trzeba zarejestrować w EAS. |
+| Android z najstarszą wspieraną wersją i małą ilością RAM | 1 | Dolna granica. | — |
+| Samsung, aktualny | 1 | Najpopularniejsza nakładka systemowa. | — |
+| Xiaomi albo Redmi | 1 | Agresywnie zamyka aplikacje w tle i inaczej uzupełnia kod z SMS. | — |
+| Pixel, najnowszy | 1 | Czysty Android i najnowsze API. | Android 10 lub nowszy jest też potrzebny do weryfikacji urządzenia w Play Console, jeśli konto okaże się osobiste. |
+| Karty SIM na kartę, z pakietem danych | ok. 9 + 2 zapasowe | Po jednej na rolę z danych przykładowych: admin, dwie osoby z obsługi, właściciele, najemca, zaproszony; do tego konto `display`, jeśli loguje się SMS-em. | Sieci: Orange, Play, Plus i T-Mobile oraz 2–3 podmarki albo MVNO (np. nju mobile, Heyah, Virgin Mobile); jeden numer przeniesiony; opcjonalnie numer +380 (sekcja 5). Rejestracja na kartę wymaga danych osoby ([Antyweb](https://antyweb.pl/rejestracja-kart-sim-jak-to-zrobic)). Pilnować ważności kont. Nie używać tych numerów do 2FA kont Apple, Google i AWS. W SMS sandbox AWS mieści się tylko 10 zweryfikowanych numerów. |
+| Modem USB LTE z kartą SIM albo telefon z Androidem przekazujący SMS-y do API testów | 1–2 | Automatyczny odczyt prawdziwych SMS-ów (OTP z Cognito, eskalacje) w przebiegu nocnym. | Custom SMS sender omija polskie sieci, więc tego testu nie zastąpi. |
+
+### 1.5 Przyrządy na stanowisko testowe
+
+| Pozycja | Ile | Po co | Na co uważać / rekomendacja |
+|---|---|---|---|
+| Gniazda albo listwa z przekaźnikami, sterowane skryptem przez lokalne API (bez chmury) | 6–8 | Cykle zaniku zasilania tabletów, AP, Pi i telewizorów (losowe przerwy 5 s–10 min, 100 cykli, log), mrugnięcia zasilania poniżej 1 s, ładowanie cykliczne modeli bez limitu ładowania. | Programowalny timer nie wystarczy (nie losuje przerw i nie prowadzi logu). Sprawdzić minimalny czas wyłączenia. Dla Shelly Plug S Gen3 ([dokumentacja](https://www.shelly.com/pl/blogs/documentation/shelly-plug-s-gen-3-device-smart-control)) wtyk typu E, zakres temperatur i 2,4 GHz są [niepotwierdzone]. |
+| Tester USB-C PD z rejestracją (np. FNIRSI FNB58) | 1 | Pobór tabletu w spoczynku, przy odświeżaniu i z podświetleniem (T-12, K-07), negocjacja PD. | ([Elektor](https://www.elektor.com/products/fnirsi-fnb58-usb-tester-with-bluetooth)). |
+| Komora klimatyczna albo zamrażarka z termostatem | 1 | Kontrolowany test w 0 °C i niżej przed wyborem modelu (T-22). Październik w stajni mrozu nie da. | Rejestrator w środku; po wyjęciu obserwować kondensację. |
+| Rejestratory temperatury i wilgotności z pamięcią | 8 | Komora, stanowisko, nieogrzewane pomieszczenie, przy tabletach i telewizorach w stajni pilotażowej, na zewnątrz. | Zapis działa także bez Wi-Fi. |
+| Elektrochemiczny miernik NH3, 0–100 ppm | 1 | Stężenie na wysokości montażu i przy podłodze, rano przed sprzątaniem i po nim. | Kalibracja. Model, np. [Forensics Detectors](https://forensicsdetectors.com/products/basic-ammonia-detector), [niepotwierdzone]. |
+| Termometr na podczerwień (opcjonalnie kamera termowizyjna) | 1 | Temperatura tabletu i zasilacza w obudowie. | — |
+| Luksomierz, ściemniana lampa i latarka czołowa | 1 + 1 + 1 | Czytelność przy zmierzonym oświetleniu (T-20, W-23), pola koloru i podświetlenie (K-01, K-07): półmrok hali, ciepłe światło sztuczne, światło dzienne z bramy, latarka czołowa. | Lampa o ciepłej barwie światła, jak sztuczne oświetlenie w hali. |
+| Szara karta fotograficzna i aparat (może to być telefon) z ręczną ekspozycją i trybem makro | 1 | Pomiar jasności pól statusu na zdjęciach (K-01), zdjęcia makro ditherowania i ghostingu koloru (K-02, K-03). | Te same ustawienia ekspozycji w każdej serii. |
+| Suwmiarka | 1 | Cotygodniowy pomiar grubości tabletów (puchnięcie baterii). | — |
+| Kamera z lokalnym zapisem, do timelapse i zwolnionego tempa (może to być stary telefon) | 2 | Opóźnienie flagi (T-18), „duchy” obrazu, zawieszenia, moment pojawienia się pop-upu, pełne odświeżenie z kolorem i jego czas (K-04). | — |
+| Rękawice: robocze skórzane, zimowe ocieplane, gumowe lub nitrylowe, z palcami dotykowymi; spryskiwacz | po 2 pary | T-19. | — |
+| Płyta montażowa udająca korytarz, ze znacznikami 1,5 m i 2 m | 1 | Ściana z tabletami na wysokości wzroku. | — |
+
+### 1.6 Komputery, provisioning i bezpieczeństwo kont
+
+| Pozycja | Ile | Po co | Na co uważać / rekomendacja |
+|---|---|---|---|
+| Komputer z platform-tools (ADB) | 1 | Provisioning i diagnostyka tabletów. | — |
+| Koncentrator USB z zasilaniem i kable USB-C z transmisją danych | 1 + 4 | Provisioning kilku tabletów naraz. | Kable tylko do ładowania nie przenoszą danych. |
+| Komputer z macOS (Xcode, symulator iOS) albo runner macOS w CI | 1 | E2E na iOS: Detox działa na iOS tylko w symulatorze, a Maestro na iOS wymaga macOS. Do tego `eas build --local` dla iOS. | Runner w CI: decyzja Dawida. |
+| Runner CI z wirtualizacją (KVM) | — | Emulator Androida do testów instrumentowanych modułu Kotlin. | Decyzja Dawida. |
+| Klucze sprzętowe FIDO2 | 2 (główny i zapasowy) | Konto root AWS, Apple Account i konto Google właściciela kont. | — |
+
+## 2. Konta i usługi do założenia
+
+Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie nie ma potwierdzenia, punkt ma oznaczenie [niepotwierdzone]. Twierdzenia o Cognito i SMS opierają się na podlinkowanej dokumentacji AWS, ale nie przeszły niezależnej weryfikacji, więc potwierdza je spike Cognito w etapie 0 (3.6).
+
+### 2.1 Najpierw (najdłuższe oczekiwanie)
+- [ ] **Konta Apple Developer i Google Play.** Wybór rodzaju konta (organizacja czy osoba) nie należy do tego dokumentu, ale zmienia harmonogram:
+  - konto organizacji wymaga numeru D-U-N-S. Według Apple jego nadanie trwa do 5 dni roboczych, a kolejne do 2 dni roboczych mijają, zanim Apple zobaczy dane ([Apple D-U-N-S](https://apple.co/308Ikbq), [wymagania](https://developer.apple.com/programs/enroll/)). Google uprzedzał, że może to trwać do 30 dni ([Android Developers Blog](https://android-developers.googleblog.com/2023/07/boosting-trust-and-transparency-in-google-play.html?hl=fr));
+  - konto osobiste w Google założone po 13.11.2023 musi przed produkcją przejść test zamknięty: co najmniej 12 testerów zapisanych nieprzerwanie przez 14 dni ([wymagania](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en)). Musi też potwierdzić dostęp do fizycznego urządzenia z Androidem 10 lub nowszym ([urządzenie](https://support.google.com/googleplay/android-developer/answer/14316361?hl=en)); w zestawie domowym najlepiej własny telefon z Androidem. Boox Note Air6 C (Android 16) nadaje się dopiero po testach Device Ownera, bo konto Google na urządzeniu blokuje `dpm set-device-owner` (1.1), a to, czy Google uzna Boox, jest [niepotwierdzone]. Że konta organizacji są z tego zwolnione, podają tylko źródła pośrednie [niepotwierdzone];
+  - czas samej weryfikacji zgłoszenia w Apple i w Google: [niepotwierdzone].
+- [ ] **Domena, DNS, strona www, skrzynki funkcyjne.**
+  - Apple przy koncie organizacji wymaga publicznej strony i e-maila w domenie organizacji.
+  - Ta sama domena posłuży do SES, Universal Links i App Links, polityki prywatności oraz strony usuwania konta.
+  - Czas: godziny.
+- [ ] **Wnioski w AWS, które czekają w kolejce:** wyjście z SMS sandbox, podniesienie miesięcznego limitu SMS, dostęp produkcyjny do SES. Pierwsza odpowiedź przychodzi do 24 h, decyzja bywa później ([SMS sandbox](https://docs.aws.amazon.com/sns/latest/dg/sns-sms-sandbox-moving-to-production.html), [SES FAQ](https://repost.aws/knowledge-center/ses-production-access-request-faq)).
+- [ ] **Identyfikatory od nazwy produktu przed założeniem rekordów w sklepach.** Nazwa jest ustalona: eKoniuszy. Repozytorium nadal nazywa się KonskaAppka, ale ta nazwa nie musi trafiać do identyfikatorów.
+  - Z nazwy eKoniuszy wywodzimy scope pakietów, bundle ID, `applicationId` (apka mobilna i APK tabletu) oraz nazwy w App Store i Google Play.
+  - Bundle ID i `applicationId` są nieodwracalne, więc ich dokładną postać zapisujemy przed założeniem rekordów (sekcja 5).
+
+### 2.2 Wspólne dla wszystkich kont
+- [ ] Skrzynki funkcyjne w domenie (AWS root, Apple, Google), nie prywatne skrzynki jednej osoby.
+- [ ] Stały numer telefonu do 2FA i kontaktów weryfikacyjnych, osobny od kart testowych.
+  - W UE Apple pokazuje telefon i e-mail na stronie apki zgodnie z deklaracją DSA w App Store Connect ([pomoc](https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-eu-digital-services-act-compliance-information)).
+  - Według źródła pośredniego weryfikacja trwa ok. 5 dni roboczych.
+- [ ] Klucze FIDO2 (1.6) na konto root AWS, Apple Account i konto Google.
+- [ ] Sejf na sekrety (narzędzie wybiera Dawid). Trafiają do niego:
+  - klucz App Store Connect API;
+  - klucz JSON konta usługi Google;
+  - token CI do Expo;
+  - keystore APK tabletu i jego kopia.
+
+### 2.3 AWS: konto i środowiska
+- [ ] Konto root z MFA i FIDO2. Ludzie pracują przez IAM Identity Center albo role. CloudTrail włączony od pierwszego dnia, alarm na nietypowy wolumen SMS. Czas: godziny.
+- [ ] Osobne środowiska dev, test i prod.
+  - SMS sandbox, limity SMS i sandbox SES działają per konto i per region, więc podział na konta i wybór regionu (decyzja Dawida) wyznaczają liczbę wniosków.
+  - Cognito, SES i SMS mają działać w jednym regionie albo w regionie, który Cognito obsługuje.
+- [ ] Dostęp serwisów i cronów z klastra do AWS bez kluczy statycznych. Mechanizm wybiera Dawid, np. [IAM Roles Anywhere](https://docs.aws.amazon.com/sdkref/latest/guide/access-rolesanywhere.html) albo federacja OIDC kont serwisowych. Każdy serwis i cron dostaje rolę z minimalnymi uprawnieniami:
+  - `files`: S3;
+  - `notifications`: SES i SMS;
+  - konsument zdarzeń: tylko własna kolejka SQS.
+
+### 2.4 Cognito
+- [ ] Pula na każde środowisko, w planie Essentials albo Plus, bo `SMS_OTP` nie działa w planie Lite ([plany funkcji](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html)). W klientach aplikacji włączony `ALLOW_USER_AUTH` ([przepływy](https://docs.aws.amazon.com/cognito/latest/developerguide/authentication-flows-selection-sdk.html)). Czas: godziny.
+- [ ] Osobne klienty aplikacji: mobile, tablet, web i display. Każdy ma własne ustawienia:
+  - czas życia refresh tokenu: od 60 minut do 10 lat, domyślnie 30 dni; bez rotacji ważność liczy się od zalogowania ([refresh tokens](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-the-refresh-token.html));
+  - decyzję o rotacji refresh tokenu (okno łaski do 60 s). Czy obsługuje ją Amplify albo SDK w React Native, trzeba sprawdzić.
+- [ ] Klient tablet [erd]:
+  - tablet nie ma własnego konta: loguje się na nim użytkownik tym samym kontem co w apce, a tablet zostaje zalogowany na stałe. Dlatego ten klient potrzebuje długiego refresh tokenu (wartość: sekcja 5);
+  - token wskazuje użytkownika, ale akcje z tabletu (potwierdzenie flagi, „nakarmiony”, zdarzenie przy boksie, zadanie) zapisujemy bez autora: `source = tablet`, `user_id` NULL, `id` boksu i czas. Serwisy rozpoznają tablet po kliencie Cognito, nie po treści żądania (propozycja);
+  - tablet wysyła `id` wybranego boksu, nie numer, bo numer (`boxes.label`) powtarza się w halach.
+- [ ] Klient display: konto techniczne stajni z rolą `display` w `stable_members`, jedno na wszystkie telewizory albo osobne na każdy telewizor [erd]. Tylko odczyt, długi refresh token jak dla tabletu.
+- [ ] Wysyłka SMS jedną z dwóch ścieżek ([ustawienia SMS](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-sms-settings.html)):
+  - przez SNS: rola z `sns:Publish` i warunkiem `sts:ExternalId`;
+  - bezpośrednio przez AWS End User Messaging SMS (`EumsSms`): rola z `sms-voice:SendTextMessage`, origination identity i configuration set.
+
+  Ścieżki EUMS nie ma jeszcze w providerze Terraform ([#50066](https://github.com/hashicorp/terraform-provider-aws/issues/50066)).
+- [ ] E-maile z Cognito przez SES w trybie `DEVELOPER` ([EmailConfiguration](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cognito-userpool-emailconfiguration.html)).
+- [ ] TOTP to w Cognito MFA typu software token. Logowanie bez hasła i MFA wykluczają się dla tego samego użytkownika ([MFA](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html)). Decyzja przed etapem 1 (sekcja 5).
+- [ ] Atrybutów logowania nie da się zmienić po utworzeniu puli ([atrybuty](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html)), więc pule dev i test muszą dać się odtworzyć z kodu.
+- [ ] Sesje i blokada konta:
+  - global sign-out unieważnia wszystkie refresh tokeny użytkownika ([unieważnianie tokenów](https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html)); wylogowuje więc także tablety, na których ten użytkownik jest zalogowany, bo sesja tabletu to sesja użytkownika [erd];
+  - access token sprawdzany lokalnie działa aż do wygaśnięcia;
+  - `AdminDisableUser` unieważnia access tokeny tylko dla wywołań do Cognito ([API](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminDisableUser.html)), dlatego blokadę sprawdzamy też w `stable_members`.
+- [ ] Tylko dla pul dev i test, na decyzję Dawida: wyzwalacz custom SMS sender (Lambda + KMS, [dokumentacja](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-custom-sms-sender.html), [przykład AWS](https://github.com/aws-samples/amazon-cognito-user-pool-development-and-testing-with-sms-redirected-to-email)), który przekierowuje kody do skrzynki testowej. W produkcji nigdy, bo to logika poza mikroserwisami.
+
+### 2.5 SMS do Polski
+- [ ] Do 10 zweryfikowanych numerów testowych w sandboxie ([weryfikacja](https://docs.aws.amazon.com/sms-voice/latest/userguide/verify-destination-phone-number.html)), kilka minut na numer. Numery symulatora AWS działają tylko w USA ([symulator](https://docs.aws.amazon.com/sms-voice/latest/userguide/test-phone-numbers.html)).
+  - W zestawie domowym pierwszym zweryfikowanym numerem jest własny telefon; kolejne karty testowe dochodzą w miarę potrzeby.
+- [ ] Sender ID dla Polski.
+  - Czy AWS obsługuje alfanumeryczny nadpis bez rejestracji: [niepotwierdzone]. Sprawdzić w [tabeli krajów](https://docs.aws.amazon.com/sms-voice/latest/userguide/phone-numbers-sms-by-country.html), przez `DescribeRegistrationTypeDefinitions` albo zgłoszeniem do Support ([Sender ID](https://docs.aws.amazon.com/sms-voice/latest/userguide/sender-id.html), [rejestracje](https://docs.aws.amazon.com/sms-voice/latest/userguide/registrations.html)).
+  - Od 04.2025 AWS ma samoobsługową rejestrację numerów długich dla Polski ([AWS](https://aws.amazon.com/about-aws/whats-new/2025/04/aws-end-user-messaging-self-service-phone-number-registration)); to osobna ścieżka niż Sender ID.
+  - Według Twilio w Polsce rejestracja nadpisu nie jest wymagana ([Twilio](https://www.twilio.com/en-us/guidelines/pl/sms)).
+  - Nazwę marki trzeba przetestować w każdej sieci. Operatorzy filtrują nazwy ogólne oraz nadpisy z wykazu podmiotów publicznych ([NASK](https://cyberpolicy.nask.pl/ustawa-o-zwalczaniu-naduzyc-w-komunikacji-elektronicznej/)).
+  - Czas: od razu albo do kilku tygodni, jeśli potrzebna jest rejestracja [niepotwierdzone].
+- [ ] Protect configuration ustawiona jako domyślna dla konta, bo tylko wtedy obejmuje Cognito i SNS. Blokada krajów poza Polską ([protect configuration](https://docs.aws.amazon.com/sms-voice/latest/userguide/protect-configuration.html)).
+- [ ] Limit wymuszony ustawiony nisko na dev i test. Limit konta podnosi się wnioskiem do Support ([limit](https://docs.aws.amazon.com/sms-voice/latest/userguide/spend-limit.html), [Support](https://docs.aws.amazon.com/sms-voice/latest/userguide/awssupport.html)).
+- [ ] Wyjście z sandboxu osobno dla każdego konta i regionu, **przed stajnią pilotażową**.
+- [ ] Treść SMS.
+  - Polskie znaki skracają segment do 70 znaków ([limity znaków](https://docs.aws.amazon.com/sms-voice/latest/userguide/sms-limitations-character.html)).
+  - Linki tylko pełne, w naszej domenie. SMS z adresem URL przetestować w każdej sieci.
+  - Osobny configuration set dla Cognito i dla `notifications`.
+
+### 2.6 SES, S3, SNS i SQS
+- [ ] **SES.**
+  - Domena: Easy DKIM, MAIL FROM i DMARC, osobno w każdym regionie.
+  - Sandbox: wysyłka tylko na zweryfikowane adresy, 200 e-maili na dobę, 1 na sekundę. Odbicia i skargi testuje mailbox simulator.
+  - Wniosek o dostęp produkcyjny składamy po wdrożeniu obsługi odbić i skarg. Odpowiedź do 24 h, bywa kilka dni, zdarzają się odmowy ([FAQ](https://repost.aws/knowledge-center/ses-production-access-request-faq)).
+- [ ] **S3.**
+  - Bucket na każde środowisko, Block Public Access, szyfrowanie, CORS dla uploadów.
+  - Presigned URL podpisany rolą wygasa razem z jej sesją ([presigned URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url)). Przy pobieraniu APK przez słabe Wi-Fi trzeba dobrać ważność albo wznawiać pobieranie z nowym URL.
+- [ ] **SNS i SQS** z manifestu (3.1.5).
+  - Temat na każdy typ zdarzenia, kolejka na każdego konsumenta z DLQ, raw message delivery.
+  - Szyfrowana kolejka wymaga klucza KMS zarządzanego przez klienta, z uprawnieniem dla `sns.amazonaws.com`; klucz `aws/sqs` nie zadziała ([dokumentacja](https://docs.aws.amazon.com/sns/latest/dg/sns-enable-encryption-for-topic-sqs-queue-subscriptions.html)).
+
+### 2.7 Apple
+- [ ] Apple Developer Program ([pomoc](https://developer.apple.com/support/enrollment/)). Następnie App Store Connect: rekord apki, bundle ID, klucz API dla EAS Submit, role zespołu.
+- [ ] TestFlight ([Expo](https://docs.expo.dev/submit/testflight.md)):
+  - testerzy wewnętrzni: do 100 osób, bez recenzji;
+  - testerzy zewnętrzni: do 10 000, po Beta App Review pierwszego buildu każdej wersji;
+  - buildy wygasają po 90 dniach.
+- [ ] Dystrybucja ad hoc przez EAS: każdego iPhone'a trzeba zarejestrować (`eas device:create`) i odświeżyć profil ([dystrybucja wewnętrzna](https://docs.expo.dev/build/internal-distribution/)).
+- [ ] Universal Links ([Expo](https://docs.expo.dev/linking/ios-universal-links/)):
+  - plik AASA z `appID` w postaci `<TEAM_ID>.<bundle>`;
+  - Apple pobiera go przez własny CDN, więc zmiany dochodzą z opóźnieniem;
+  - nie działają w Expo Go.
+- [ ] Do recenzji ([wytyczne](https://developer.apple.com/app-store/review/guidelines/)):
+  - działające konto demo (wytyczna 2.1); recenzent nie odbierze SMS, sposób logowania rozstrzyga sekcja 5;
+  - usuwanie konta w apce (5.1.1(v));
+  - URL polityki prywatności i strony wsparcia.
+
+  Klucz APNs nie jest potrzebny, bo push jest poza v1.
+
+### 2.8 Google Play i weryfikacja deweloperów Androida
+- [ ] Play Console. Dane i kontakt potwierdza się kodami, Google może zażądać dokumentów. Czas weryfikacji: [niepotwierdzone].
+- [ ] Docelowe API: od 31.08.2026 nowe apki i aktualizacje muszą celować w Androida 16 (API 36); przedłużenie można dostać na wniosek do 1.11.2026 ([wymagania](https://developer.android.com/google/play/requirements/target-sdk)) [niepotwierdzone]. Pod to dobrać wersję Expo SDK.
+  - APK tabletu idzie poza Play i tego wymogu nie ma, ale Boox Note Air6 C z zestawu domowego działa na Androidzie 16, więc ten sam `targetSdk` (API 36) w obu projektach upraszcza testy (propozycja).
+- [ ] Play App Signing: klucz uploadu (EAS) i klucz podpisu Google. W `assetlinks.json` odciski SHA-256 obu kluczy i kluczy buildów testowych.
+- [ ] EAS Submit z kontem usługi i kluczem JSON ([Expo](https://docs.expo.dev/submit/introduction)). Pierwszy build wgrać ręcznie na ścieżkę testów wewnętrznych.
+- [ ] Do recenzji: formularz Data safety, link www do usuwania konta ([wymagania](https://support.google.com/googleplay/android-developer/answer/13327111)), instrukcje dostępu dla recenzentów.
+- [ ] APK tabletu poza Play.
+  - Weryfikacja deweloperów obowiązuje od 30.09.2026 w Brazylii, Indonezji, Singapurze i Tajlandii, a globalnie od 2027 na certyfikowanych urządzeniach.
+  - Instalacje przez ADB są zwolnione ([FAQ](https://developer.android.com/developer-verification/guides/faq), [przewodniki](https://developer.android.com/developer-verification/guides?hl=en), [Android Developer Console](https://support.google.com/android-developer-console/answer/16561738?hl=en)).
+  - Cicha instalacja przez Device Ownera nie jest wymieniona [niepotwierdzone].
+  - Pakiet rejestrujemy po bramce, jeśli wybrany model ma certyfikację Play Protect (T-27).
+  - Kandydatami są modele kolorowe i czarno-białe. Status certyfikacji Play Protect dla Boox Note Air6 C (zestaw domowy) i Boox Go 10.3 Gen II Lumi: [niepotwierdzone], sprawdza T-27. Samsung Galaxy Tab Active5, dokupiony tylko wtedy, gdy coś nie zadziała, służy jako wzorzec Device Owner i plan B.
+
+### 2.9 Expo EAS
+- [ ] Organizacja w Expo i token robota dla CI. Czas: godziny.
+- [ ] Dwa projekty: mobile (iOS i Android) oraz tablet (tylko APK na Androida, z modułem Kotlin). Obowiązkowo development builds, bo moduł natywny i Universal Links nie działają w Expo Go.
+- [ ] Profile `development`, `preview` i `production`; zmienne per środowisko: adres API, ID puli i klientów Cognito.
+- [ ] Credentials:
+  - iOS: przez klucz App Store Connect API;
+  - Android, apka mobilna: klucz uploadu;
+  - tablet: osobny keystore. Bez niego zainstalowanych tabletów nie da się zaktualizować. Gdzie go trzymać i czy budować w EAS, czy lokalnie, decyduje Dawid.
+    - Instalacja APK z innym kluczem wymaga odinstalowania, a to kasuje dane apki na tablecie: logowanie i zapamiętany wybór boksu. Każdy tablet trzeba wtedy ustawić od nowa („Zmień boks”).
+- [ ] EAS Update tylko dla apki mobilnej: kanały i runtime version ([wdrażanie](https://docs.expo.dev/eas-update/deployment), [expo-updates](https://docs.expo.dev/versions/latest/sdk/updates)).
+  - Polityka fingerprint jest według dokumentacji w becie.
+  - Przed intensywnymi testami sprawdzić, czy konto ma podpisywanie aktualizacji, i jakie ma limity buildów.
+  - Tablet dostaje wyłącznie APK z serwisu `releases`.
+
+### 2.10 Domena i TLS
+- [ ] Subdomeny na każde środowisko:
+  - API;
+  - panel razem z `/wyswietlacz`. Wybór widoku na telewizorze (wszystkie hale albo pełny ekran jednej hali) pamięta przeglądarka dla tej domeny, bez tabeli w bazie [erd]. Zmiana subdomeny panelu kasuje ten wybór na każdym telewizorze, więc subdomena musi być stała;
+  - `.well-known` (AASA i `assetlinks.json`);
+  - MAIL FROM.
+- [ ] TLS przez ACME z automatycznym odnawianiem. Maksymalna ważność certyfikatu: 200 dni od 15.03.2026, 100 dni od 15.03.2027, 47 dni od 15.03.2029 ([SC-081](https://sslinsights.com/200-day-ssl-certificate-validity/)). Łańcuch sprawdzić na tabletach (Boox Note Air6 C, Android 16; po dokupieniu także Go 10.3 Gen II Lumi i Galaxy Tab Active5) i w Chromium na Raspberry Pi 5.
+- [ ] Dostęp z internetu do środowiska testowego dla tabletów, telefonów w sieci komórkowej, Pi i webhooków. Sposób wybiera Dawid.
+  - W zestawie domowym tablet i Pi łączą się przez domowe Wi-Fi, a telefon także przez sieć komórkową, więc środowisko testowe musi być osiągalne zarówno z domowego Wi-Fi, jak i z sieci komórkowej.
+
+### 2.11 Płatności i faktury
+- [ ] Dopóki dostawca nie jest wybrany, development pracuje na fałszywych adapterach `PaymentProvider` i `InvoiceSystem`. Sandbox dostawcy zakładamy dopiero po wyborze. Wymagania techniczne wobec sandboxu:
+  - samoobsługowy;
+  - webhooki z podpisem, ponowieniami i ręcznym ponownym wysłaniem, przez publiczny HTTPS;
+  - klucze idempotencji;
+  - zwroty, także częściowe, z mapowaniem statusów na `payments`;
+  - dane testowe dla błędów: odmowa, timeout, 3DS;
+  - osobne klucze na każde środowisko.
+- [ ] Środowisko testowe KSeF 2.0 tylko wtedy, gdy `InvoiceSystem` w v1 ma prawdziwą integrację. API 2.0 nie jest zgodne z 1.0 ([KSeF](https://ksef.podatki.gov.pl/wyjasnienia/we-wrzesniu-zamiana-srodowisk-testowych-z-ksef-10-na-ksef-20/)).
+
+### 2.12 Narzędzie do błędów i logów (wybiera Dawid; tu tylko potrzeby)
+- [ ] Crashe JS i natywne (Kotlin, iOS) z source maps i symbolami wgrywanymi przy każdym buildzie. W każdym zdarzeniu wersja apki albo `versionCode`.
+- [ ] Diagnostyka tabletu i Pi z buforem offline: Wi-Fi, RSSI, BSSID, bateria, temperatura, pamięć, restarty, wybrany boks, wersja. Bez tabeli urządzeń trafia tylko do logów i metryk [erd].
+  - Wybrany boks logujemy jako `id` boksu, a dla czytelności z halą i numerem („Hala nowa · boks 4”). Sam numer nie wystarcza, bo każda hala numeruje boksy od 1.
+  - Wyświetlacz loguje wybrany widok: wszystkie hale albo pełny ekran hali (`id` hali). Ścieżka wysyłki do decyzji (sekcja 5).
+- [ ] Logi JSON wszystkich serwisów i cronów, identyfikator korelacji przenoszony przez SNS i SQS, metryki. Alerty: niepusta DLQ, nieudany cron, opóźniona eskalacja, błędy 5xx w `board`.
+- [ ] Błędy JS z panelu web i z wyświetlacza.
+- [ ] Maskowanie telefonów, e-maili, kodów OTP i tokenów; ustalona retencja; osobne projekty dla dev, test i prod.
+
+## 3. Development
+
+Zasady wspólne:
+- Ścieżki API (propozycja):
+  - każdy serwis ma własny prefiks `/<serwis>/v1/...`;
+  - `…` oznacza `/stables/{stableId}`;
+  - `/internal/...` działa tylko wewnątrz klastra.
+- Development dostarcza Dawidowi obrazy, manifest zasobów AWS i listę wymagań (3.1.13).
+- Żaden punkt nie dodaje tabel.
+
+### 3.1 Fundament
+
+#### 3.1.1 Monorepo i narzędzia
+- [ ] pnpm workspaces i Turborepo. Przypięte `packageManager` (corepack) i wersja Node (`.nvmrc`, `engines`). Każda zależność w jednej wersji (pnpm catalogs albo syncpack).
+- [ ] Układ katalogów:
+  - `apps/{mobile,tablet,web}`: `tablet` z `modules/kiosk` w Kotlinie, `web` to panel i `/wyswietlacz`;
+  - `services/{identity,access,stable,flags,care,health,rides,tasks,board,billing,files,releases,notifications,audit}`;
+  - `crons/{escalation-scheduler,task-occurrence-generator,health-due-reminders,files-gc,billing-usage-snapshot,billing-invoicing,billing-dunning,horse-left-reconciler,retention-pruner}`;
+  - `packages/{db,contracts,api-client,service-kit,cron-kit,messaging,auth,authz,tenancy,audit,rules,i18n,theme,testing,eslint-config,tsconfig}`; `theme` to tokeny palety z `docs/paleta.md` (3.1.12);
+  - `tools/{sql-gate,migrate,seed,synth-data,local,fake-sms,provision-tablet,display-kiosk,opctl}`.
+- [ ] Generatory `turbo gen service` i `turbo gen cron` oparte na szablonach z 3.1.6 i 3.1.7.
+- [ ] TypeScript w trybie `strict` z `noUncheckedIndexedAccess`; ESLint (flat config, reguły type-aware z typescript-eslint); Prettier.
+- [ ] Reguły granic w lincie:
+  - serwis nie importuje kodu innego serwisu, tylko `packages/*`;
+  - aplikacje importują wyłącznie `contracts`, `api-client`, `rules`, `i18n` i `theme`;
+  - kolory w kodzie apek tylko z `theme`: lint odrzuca literały kolorów (`#…`, `rgb()`) poza tym pakietem (propozycja);
+  - klient bazy jest dostępny tylko w repozytoriach serwisu;
+  - insert, update i delete tylko na tabelach tego serwisu, według `owners.ts`.
+
+#### 3.1.2 CI (tu tylko kroki; system CI i runnery wybiera Dawid)
+- [ ] Kroki przy każdym PR:
+  1. `pnpm install --frozen-lockfile`;
+  2. lint, sprawdzenie formatu, typecheck;
+  3. testy jednostkowe;
+  4. testy integracyjne (Testcontainers: Postgres i LocalStack);
+  5. `sql-gate`;
+  6. `drizzle-kit check` i test, że w schemacie nie ma niewygenerowanych migracji;
+  7. porównanie kontraktów z migawkami;
+  8. build obrazów tylko zmienionych serwisów (`turbo --filter=...[origin/main]`);
+  9. SBOM i skan podatności;
+  10. build APK tabletu i buildów mobilnych.
+- [ ] Zgodność wstecz: testy integracyjne poprzedniego wydania puszczone na bazie po nowych migracjach.
+- [ ] Meta-testy: każda trasa ma politykę dostępu, deklarację audytu i przypadek w macierzy izolacji.
+- [ ] Testy instrumentowane modułu Kotlin na emulatorze Androida 15/16 bez Play: `dpm set-device-owner`, Lock Task, `PackageInstaller`, `SystemUpdatePolicy`. Wymagają runnera z KVM.
+- [ ] Przebieg nocny:
+  - klaster testowy z 2–3 replikami każdego serwisu (kind albo k3d);
+  - prawdziwa pula Cognito;
+  - prawdziwe SMS przez modem (1.4);
+  - k6;
+  - migracje na danych syntetycznych w skali.
+
+#### 3.1.3 Bramka zakazanych obiektów w bazie
+- [ ] **Warstwa 1: lint schematu Drizzle** (`no-restricted-syntax`). Zakazane:
+  - wartości domyślne: `.default()`, `.defaultNow()`, `.defaultRandom()`;
+  - sekwencje: `serial`, `bigserial`;
+  - typy: `pgEnum`, `json`, `jsonb`, `.array()`;
+  - ograniczenia i akcje: `check()`, `onDelete`, `onUpdate`, `generatedAlwaysAs*`;
+  - `timestamp` bez strefy;
+  - RLS: `pgPolicy`, `.enableRLS()`.
+- [ ] **Warstwa 2: `tools/sql-gate`**, prawdziwy parser PostgreSQL (`libpg-query`), nie wyrażenia regularne. Odrzuca:
+  - `CREATE FUNCTION`, `CREATE PROCEDURE`, `CREATE TRIGGER`, `CREATE RULE`, `CREATE POLICY` i `ENABLE ROW LEVEL SECURITY`;
+  - `CHECK` i `DEFAULT`, także `SET DEFAULT`;
+  - `CREATE SEQUENCE`, `serial`, `GENERATED … AS IDENTITY` i kolumny generowane;
+  - `CREATE TYPE … AS ENUM` i `CREATE DOMAIN`;
+  - typy `json`, `jsonb` i tablicowe;
+  - akcje kluczy obcych inne niż domyślne;
+  - `DO $$…$$`, `CREATE EXTENSION`, `LISTEN` i `NOTIFY`.
+- [ ] **Warstwa 3: katalog bazy po migracjach** (Testcontainers, schematy `app` i `audit`). Każde trafienie zatrzymuje CI:
+  - funkcje i procedury: `pg_proc`;
+  - triggery: `pg_trigger` z `NOT tgisinternal`;
+  - RLS: `pg_policy` i `relrowsecurity`;
+  - reguły i widoki: `pg_rewrite` (czy widoki są zakazane, rozstrzyga sekcja 5);
+  - `CHECK`: `pg_constraint.contype = 'c'`;
+  - `DEFAULT`: `pg_attrdef`;
+  - sekwencje: `relkind = 'S'`; identity i kolumny generowane: `attidentity`, `attgenerated`;
+  - enumy i domeny: `pg_type.typtype IN ('e','d')`;
+  - kolumny `json`, `jsonb` i tablicowe; kolumny `timestamp without time zone`;
+  - akcje kluczy obcych: `confdeltype` albo `confupdtype` różne od `'a'`;
+  - schematy aplikacji inne niż `app` i `audit`.
+
+  Do tego testy pozytywne:
+  - klucze obce do tabel stajni są wielokolumnowe, a tabele-rodzice mają `UNIQUE (stable_id, id)`;
+  - role serwisów mają w `audit` wyłącznie `INSERT`.
+- [ ] **Stan migracji:** własny migrator (`tools/migrate`) z tabelą stanu w schemacie `app`, bez sekwencji; kluczem jest nazwa pliku i hash. Domyślna tabela Drizzle leży w schemacie `drizzle` i ma `SERIAL`, więc bramka zablokowałaby już pierwsze wdrożenie. Bez listy wyjątków.
+- [ ] squawk na każdej nowej migracji: blokady, indeksy bez `CONCURRENTLY`, `NOT NULL` bez uzupełnienia danych.
+
+#### 3.1.4 `packages/db` (Drizzle)
+- [ ] `pgSchema('app')` i `pgSchema('audit')`: 48 tabel w `app` i 2 w `audit` [erd], pliki pogrupowane według serwisu-właściciela.
+- [ ] `owners.ts` (tabela → serwis) to jedno źródło dla reguły lint o zapisie, generatora grantów i README serwisów.
+- [ ] Konwencje [erd]:
+  - identyfikatory UUIDv7 nadawane w kodzie;
+  - czas w `timestamptz` (UTC), godziny lokalne w `time` ze strefą stajni;
+  - statusy jako `text` walidowany zod;
+  - `version` (`bigint`) i `updated_at` w tabelach edytowalnych;
+  - `days_mask` jako `smallint`.
+- [ ] Izolacja w schemacie [erd]: `UNIQUE (stable_id, id)` w tabelach-rodzicach i wielokolumnowe klucze obce `(stable_id, x_id)`, bez akcji kaskadowych.
+- [ ] Spisana lista tabel bez `stable_id` i zasada dostępu do nich:
+  - **tabele podrzędne:** `flag_template_labels`, `meal_slot_labels`, `box_care_type_labels`, `feeding_plan_items`, `paddock_plan_companions`, `invoice_lines`. Dostęp tylko przez wiersz-rodzica, czyli złączenie z rodzicem w zakresie stajni;
+  - **tabele globalne:** `users`, `stables` (kluczem jest samo `id`), `billing_plans`, `billing_plan_prices`, `app_releases`, `payment_provider_events`. Dostęp tylko przez jawne `crossTenant()`;
+  - `audit.audit_log_changes`: tylko przez `audit_log`.
+- [ ] Unikalności i indeksy [erd]:
+  - `horses.box_id` (unikalne, dopuszcza `NULL`);
+  - częściowe unikalne otwarte wpisy `horse_box_history` na konia i na boks;
+  - `buildings (stable_id, name)`, `flag_templates (stable_id, code)`, `box_care_types (stable_id, code)`, `stable_members (stable_id, user_id)`;
+  - `flag_escalations (flag_id, level)`;
+  - `feeding_checks (horse_id, meal_slot_id, service_date)`;
+  - `task_occurrences (task_id, due_at)` i `completion_event_id`;
+  - `notifications.dedupe_key`, `payment_provider_events.provider_event_id`;
+  - `usage_snapshots (subscription_id, period_start, metric)`;
+  - indeks `box_care_events (stable_id, box_id, type_id, occurred_at)`;
+  - celowo **bez** unikalności numeru boksu: ani `(stable_id, label)`, ani `(building_id, label)` [erd]. Boksy numeruje się w obrębie hali, więc każda hala może mieć swój boks 1, a boks identyfikuje wyłącznie `boxes.id`. Test katalogu sprawdza, że na `boxes.label` nie ma unikalnego indeksu; zwykły indeks `boxes (stable_id, building_id)` do listy boksów hali (propozycja).
+- [ ] `audit.audit_log.stable_id` bez klucza obcego. Diagram w erd.md ma przy tej kolumnie dopisek „FK” i trzeba go poprawić.
+- [ ] Przepływ migracji:
+  - `drizzle-kit generate`, potem review, squawk i `sql-gate`;
+  - plików po scaleniu nie edytujemy;
+  - `migrate` blokuje równoległe przebiegi, np. przez `pg_advisory_lock`;
+  - `CREATE INDEX CONCURRENTLY` w osobnej fazie, poza transakcją;
+  - gdzie i jak uruchamiać `migrate`, decyduje Dawid.
+- [ ] Expand/contract, w tej kolejności:
+  1. kolumna dodana jako `NULL`;
+  2. kod zapisuje nową kolumnę;
+  3. uzupełnienie danych kodem;
+  4. `SET NOT NULL`;
+  5. przełączenie odczytów we wszystkich serwisach;
+  6. usunięcie starej kolumny w następnym wydaniu.
+
+  Bez `RENAME` i bez zmiany typu w miejscu. Bez `DEFAULT` nie da się dodać kolumny `NOT NULL` do zapełnionej tabeli jednym krokiem, więc ta kolejność jest obowiązkowa.
+- [ ] Generator grantów z `owners.ts`:
+  - rola serwisu: `SELECT` na `app`, `INSERT`, `UPDATE` i `DELETE` tylko na własnych tabelach, w `audit` wyłącznie `INSERT` [erd];
+  - rola `audit`: `SELECT` i `DELETE` na `audit`;
+  - crony i `board`: tylko `SELECT`.
+
+  Role i hasła zakłada Dawid, a development dostarcza ich listę i skrypt grantów.
+- [ ] `/readyz` zwraca 503, gdy w bazie brakuje migracji wymaganej przez kod. Migracje nowsze, niż zna kod, są dopuszczalne (rolling update).
+
+#### 3.1.5 Kontrakty API i zdarzeń (`packages/contracts`)
+- [ ] Deskryptory tras w zod: metoda, ścieżka, parametry, body, odpowiedzi, polityka dostępu, dozwoleni klienci, deklaracja audytu.
+- [ ] Z deskryptorów powstają OpenAPI 3.1 dla każdego serwisu oraz typowany `packages/api-client`.
+- [ ] Błędy w `application/problem+json` z polem `code`:
+  - `version_conflict` (412), `precondition_required` (428);
+  - `id_conflict` (409);
+  - `target_passed` (422);
+  - `profile_missing`;
+  - `client_upgrade_required`;
+  - 404 dla obiektów innej stajni.
+- [ ] Konwencje:
+  - `/v1` w ścieżce, w obrębie wersji tylko zmiany addytywne;
+  - klienci ignorują nieznane pola, a nieznane wartości mapują na `unknown`;
+  - `If-Match` z `version` przy edycji; `ETag` i `If-None-Match` przy odpytywaniu;
+  - id nadane przez klienta i `request_hash` (SHA-256 kanonicznej treści) dla flag, potwierdzeń, odhaczeń, zdarzeń przy boksie i wykonań zadań.
+- [ ] Nagłówki `X-Client` i `X-Client-Version`. Bramka minimalnej wersji nie obejmuje tras `releases`, żeby stary tablet zawsze mógł się zaktualizować.
+- [ ] Zdarzenia:
+  - koperta `{id, type, version, occurredAt, stableId, producer, payload}`;
+  - payload niesie same identyfikatory [erd];
+  - katalog zdarzeń z wersjami; konsument wersji N czyta zdarzenia N-1.
+- [ ] Migawki OpenAPI każdej wydanej wersji apki, tabletu, panelu i wyświetlacza. CI odrzuca zmianę łamiącą zgodność: usunięte pole, zmieniony typ, nowe pole wymagane w żądaniu.
+- [ ] Z katalogu zdarzeń powstaje manifest dla Dawida i dla LocalStack: tematy, kolejki z DLQ, subskrypcje i uprawnienia każdego serwisu.
+
+#### 3.1.6 Szablon serwisu (`packages/service-kit`)
+- [ ] HTTP na Fastify (propozycja): walidacja zod, limity rozmiaru body, CORS dla originu panelu.
+- [ ] Konfiguracja z env walidowana zod. Przy brakach serwis nie startuje. Adaptery fałszywe i `console` blokują start w produkcji.
+- [ ] Obserwowalność:
+  - logi JSON (pino) z `request_id`, `trace_id`, `stable_id` i `user_id`, bez tokenów i kodów;
+  - OpenTelemetry dla HTTP, pg oraz SNS/SQS (`traceparent` w atrybutach wiadomości);
+  - metryki Prometheus.
+- [ ] Sondy `/livez` i `/readyz`.
+- [ ] Graceful shutdown po SIGTERM, w tej kolejności:
+  1. zatrzymanie konsumentów SQS;
+  2. dokończenie bieżących wiadomości;
+  3. drenaż HTTP;
+  4. zamknięcie puli połączeń.
+- [ ] `unitOfWork(scope, tx => …)` łączy transakcję, audyt i bufor zdarzeń publikowanych po COMMIT.
+- [ ] Wspólne wtyczki: auth, zakres stajni, błędy, `/internal/*` z uwierzytelnianiem serwis→serwis, `POST /internal/prune`.
+- [ ] Obraz:
+  - Dockerfile multi-stage (`pnpm deploy --filter <serwis> --prod`);
+  - użytkownik inny niż root;
+  - system plików tylko do odczytu.
+- [ ] Harness testowy: Postgres po migracjach i grantach, LocalStack, fabryki danych, fałszywy zegar, `app.inject()`.
+- [ ] Generowany README serwisu: tabele, trasy, zdarzenia, zmienne env, rola bazy, uprawnienia do S3, SNS i SQS.
+
+#### 3.1.7 Szablon crona (`packages/cron-kit`)
+- [ ] Jeden przebieg to jeden proces: start, praca z limitem czasu, kod wyjścia, podsumowanie w logu.
+- [ ] Rola bazy tylko do odczytu. Zmiany cron zleca przez `/internal/...` albo kolejkę serwisu-właściciela [erd].
+- [ ] Idempotencję zapewniają unikalności po stronie właściciela.
+- [ ] Przełącznik `--now` i fałszywy zegar; lokalnie `pnpm cron <nazwa>`.
+- [ ] Test szablonowy: dwa przebiegi po kolei i dwa równolegle dają ten sam stan.
+
+#### 3.1.8 Zdarzenia: SNS, SQS, idempotencja, DLQ (`packages/messaging`)
+- [ ] `publishAfterCommit`:
+  - publikacja po COMMIT z ponowieniami i backoffem;
+  - po wyczerpaniu prób log i metryka `events_publish_failed_total`;
+  - bez outboxu zdarzenie może zginąć, dlatego ścieżki krytyczne domykają crony [erd].
+- [ ] Temat SNS na każdy typ zdarzenia, nazwy z prefiksem środowiska, raw message delivery.
+- [ ] Konsument:
+  - kolejka na parę (serwis, zdarzenie), DLQ z `maxReceiveCount`;
+  - long polling, partie do 10 wiadomości;
+  - visibility timeout dłuższy niż obsługa i przedłużany w trakcie;
+  - usunięcie wiadomości dopiero po sukcesie.
+- [ ] Idempotencja bez tabeli `inbox` [erd]: unikalności i warunkowe aktualizacje. Handler jest wspólny z endpointem `/internal/...`, który woła cron uzgadniający.
+- [ ] Nieznany typ albo wersja zdarzenia trafia do DLQ i wywołuje alert.
+- [ ] Narzędzie `pnpm events dlq list|show|redrive`.
+
+#### 3.1.9 Uwierzytelnianie i role (`packages/auth`, `packages/authz`)
+- [ ] Weryfikacja access tokenu (`aws-jwt-verify` albo równoważna biblioteka):
+  - sprawdza `iss`, `token_use = access`, `client_id` z listy klientów i `exp`;
+  - JWKS w cache;
+  - issuer i JWKS z konfiguracji, żeby lokalnie działał stub (3.2).
+- [ ] Rodzaj klienta wynika z `client_id`, nie z nagłówka:
+  - tablet: `source = tablet` i `user_id = NULL` w potwierdzeniach, odhaczeniach i zdarzeniach [erd];
+  - `display`: tylko odczyt.
+- [ ] `sub` mapuje się na `users.id`. Gdy wiersza brak, serwis zwraca `409 profile_missing`, a klient woła `identity GET /me` [erd].
+- [ ] Uprawnienia czytane z bazy przy każdym żądaniu: `stable_members` oraz `horse_access` i `box_access` z `valid_from`, `valid_to` i `revoked_at`. Dzięki temu blokada działa od razu, bez czekania na wygaśnięcie tokenu.
+- [ ] Polityki jako czyste funkcje: rola w stajni × dostęp do konia lub boksu. Macierz testów rola × akcja. Dla `display` DTO z listą dozwolonych pól.
+- [ ] `X-Box-Id` z tabletu walidowany: boks tej stajni, do którego użytkownik ma dostęp. Nagłówek niesie `boxes.id` (UUID), nigdy numer boksu, bo numer nie jest unikalny. Trafia do `box_id` w potwierdzeniach, odhaczeniach i zdarzeniach.
+- [ ] Krótki czas życia access tokenu, długi refresh token dla tabletu i wyświetlacza (wartości: sekcja 5).
+
+#### 3.1.10 Izolacja stajni (`packages/tenancy`)
+- [ ] `TenantScope` powstaje dopiero po sprawdzeniu członkostwa albo dostępu.
+- [ ] `scoped(table)` dokłada `stable_id = $scope`; `joinScoped` dokłada równość `stable_id` po obu stronach złączenia; tabele podrzędne dostępne tylko przez rodzica.
+- [ ] Obiekt innej stajni daje 404, nie 403.
+- [ ] Zapytania przekrojowe (crony, billing, releases) tylko przez `crossTenant()`, każde z testem.
+- [ ] Strażnik w testach: parser SQL wymaga predykatu `stable_id` w każdym zapytaniu do tabeli stajni, zgodnie z listą z 3.1.4.
+- [ ] Klucze S3 z prefiksem `stable_id/` [erd]. Presigned URL wydaje dopiero serwis-właściciel po sprawdzeniu uprawnień.
+
+#### 3.1.11 Audyt (`packages/audit`)
+- [ ] `audit.record(tx, …)` w tej samej transakcji co zmiana [erd]. Zapisuje:
+  - `service`;
+  - `actor_type` (`user`, `tablet`, `operator` albo `system`), `actor_id`, `client`;
+  - `action`, `entity_type`, `entity_id`;
+  - zmiany w `audit_log_changes`, z maskowaniem pól.
+- [ ] Każda trasa zapisująca deklaruje akcję audytu (meta-test). Crony zapisują `actor_type = system`.
+- [ ] Test: rola serwisu nie czyta, nie zmienia i nie usuwa wpisów w `audit`.
+
+#### 3.1.12 Pakiety domenowe i dane testowe
+- [ ] `packages/rules`: czyste funkcje czasu.
+  - Wystąpienia posiłków w strefie stajni i według `days_mask`.
+  - Cel flagi, np. „najbliższe śniadanie”.
+  - `ack_deadline_at`, `warn_at` i `notify_at`.
+  - `suspend_meal` i `cancel_paddock`.
+  - Testy właściwości (fast-check) oraz nocy 25.10.2026 i 28.03.2027.
+- [ ] `packages/i18n`: polski, ukraiński i angielski. Etykiety słowników pochodzą z tabel `*_labels`.
+- [ ] `packages/theme`: tokeny palety z `docs/paleta.md`, jedno źródło dla apki, panelu, wyświetlacza TV i tabletu.
+  - **Tokeny LCD** (apka, panel, TV): `bg`, `surface`, `sand`, `accent-soft`, `line`, `line-strong`, `line-input`, `ink`, `ink-2`, `accent`, `accent-strong`, `on-accent`, rodziny statusów `ok-*` (text, tint, line), `warn-*` (text, tint, tint-weak, line) i `crit-*` (text, tint, line), `crit-solid` z `on-crit`, `e-on-dark`; do tego nakładka pod modalem i cień karty (cień tylko apka i panel).
+  - **Tokeny tabletu** `t-*`: `t-paper`, `t-ok`, `t-line`, `t-warn`, `t-scrim`, `t-crit`, `t-ink-2`, `t-ink`, z wartością szarości przy każdym. Profil domyślny (Kaleido 3) i profil Gallery 3, który podmienia tylko `t-ok`, `t-warn` i `t-crit`.
+  - Wyjścia: zmienne CSS (`:root`) dla panelu i `/wyswietlacz`, obiekt TS dla React Native (apka i tablet).
+  - Znak słowny „eKoniuszy”, nigdy wielkimi literami: samo „e” w akcencie (waga 600), reszta nazwy w `ink`; na ciemnym tle „e” w `e-on-dark`, reszta w `#FFFCF7`. Domyślny akcent to Koniak; pozostałe opcje akcentu z `docs/paleta.md` tylko jako warianty do decyzji.
+  - Testy (CI):
+    - wartości zgodne z tabelami w `docs/paleta.md` (test parsuje tabele, więc zmiana palety bez zmiany pakietu, albo odwrotnie, zatrzymuje CI) (propozycja);
+    - kontrasty WCAG: tekst ≥ 4,5:1, duże elementy i obrysy kontrolek ≥ 3:1, dla każdej pary tekst–tło używanej w komponentach;
+    - tablet: neutralne tokeny achromatyczne (R = G = B); drabina jasności papier 255, OK 204, uwaga 146, krytyczna 66, atrament 0, z odstępem co najmniej 3 poziomów na 16, w obu profilach;
+    - tablet: tekst na kolorze tylko czarny (`t-ok`, `t-warn`) albo biały (`t-crit`).
+- [ ] `packages/testing`: kontenery, fabryki, seed, fałszywy zegar, klienci HTTP z tokenami ze stuba.
+- [ ] `tools/synth-data`: generator danych syntetycznych w skali (wiele stajni, setki boksów) do testów obciążenia i migracji.
+
+#### 3.1.13 Wymagania wobec platformy (dla Dawida, bez wskazywania dostawcy)
+- [ ] Development dostarcza:
+  - obrazy;
+  - manifest zasobów AWS (tematy, kolejki, DLQ, subskrypcje, bucket, role IAM);
+  - listę ról bazy i skrypt grantów.
+- [ ] Manifesty workloadów (kto je pisze i w jakim formacie: decyzja). Potrzebne:
+  - **serwisy:** Deployment z co najmniej 2 replikami, sondy, PDB i limity zasobów;
+  - **crony:** CronJob z `timeZone`, `concurrencyPolicy: Forbid` i `startingDeadlineSeconds`, z harmonogramem w pliku obok kodu;
+  - **migracje:** Job uruchamiający `migrate`.
+- [ ] PostgreSQL:
+  - ta sama wersja główna lokalnie, w CI, na teście i w produkcji;
+  - pooler i limit `max_connections` dla ok. 14 serwisów i 9 cronów razy liczba replik (tryb poolera wpływa na prepared statements w sterowniku);
+  - kopie z PITR i próbne odtworzenie bazy przed pilotażem.
+- [ ] Sieć klastra:
+  - NetworkPolicy, np. `files` dostępny tylko dla serwisów-właścicieli;
+  - ingress z routingiem po prefiksie `/<serwis>/` i limitami żądań na publicznych trasach odpytywania;
+  - `/internal` niewystawione na zewnątrz.
+- [ ] Uwierzytelnianie serwis→serwis dla `/internal` (mechanizm: decyzja).
+- [ ] Środowisko testowe dostępne po HTTPS z sieci stanowiska i z sieci komórkowej; miejsce na generator k6 blisko klastra.
+- [ ] Zgoda na wstrzykiwanie awarii: zabijanie podów, zmiana liczby replik, wstrzymanie CronJoba, odcięcie SNS.
+- [ ] Logi, metryki i alerty (2.12); runnery CI: macOS i KVM (1.6).
+
+### 3.2 Środowisko lokalne
+- [ ] docker compose (`tools/local`):
+  - **PostgreSQL** w wersji głównej docelowej, ze schematami `app` i `audit` oraz rolami i grantami jak w produkcji;
+  - **LocalStack** z S3, SNS, SQS i SES. Przypiąć wersję i sprawdzić warunki obrazu, bo zasady wersji community zmieniały się w 2026. Skrypt startowy tworzy zasoby z manifestu (3.1.5);
+  - **S3** w trybie path-style, z osobnym `S3_PUBLIC_ENDPOINT` w LAN, żeby presigned URL działał z telefonu i tabletu;
+  - **reverse proxy** z prefiksami `/<serwis>/`, dostępny z LAN;
+  - `fake-sms` i stub tokenów.
+- [ ] **Cognito lokalnie, trzy warianty:**
+  - **C, stub wystawcy tokenów** (propozycja): JWT w kształcie access tokenu Cognito, z własnym JWKS (`pnpm dev:token anna`).
+    - Zastosowanie: CI i praca nad backendem.
+    - Test porównuje jego claimy z prawdziwym tokenem z puli dev.
+    - Nie startuje przy `NODE_ENV=production`.
+  - **A, deweloperska pula Cognito:** do pracy nad apkami i do E2E. Kody SMS idą tylko na zweryfikowane numery. Opcjonalnie osobny klient „e2e” z hasłem, wyłącznie w puli dev.
+  - **B, emulator** (cognito-local, moto, LocalStack): tylko jeśli spike pokaże wystarczającą zgodność. Wierne odwzorowanie `USER_AUTH`/`SMS_OTP`, TOTP i global sign-out jest [niepotwierdzone].
+- [ ] **Spike Cognito (etap 0):**
+  - logowanie SMS OTP;
+  - TOTP obok logowania bez hasła;
+  - global sign-out;
+  - refresh token tabletu i wyświetlacza ważny tygodniami, z rotacją i bez, przy zrywanym Wi-Fi;
+  - logowanie konta `display`;
+  - logowanie recenzentów sklepów;
+  - kod SMS w formacie SMS Retriever na Androidzie (z zapasem: SMS User Consent API).
+- [ ] **`fake-sms`:**
+  - adaptery `SmsSender` (`console`, `dev-inbox`) w `notifications`;
+  - strona z wiadomościami pogrupowanymi według numeru;
+  - `GET /messages?to=` dla E2E;
+  - liczenie segmentów UCS-2 z ostrzeżeniem o zbyt długim szablonie.
+
+  Obejmuje eskalacje, zaproszenia i przypomnienia; kody logowania wysyła Cognito. E-mail idzie przez SES w LocalStack.
+- [ ] Fałszywe adaptery `PaymentProvider` i `InvoiceSystem`; ręczne wywołanie webhooka (`pnpm dev:webhook …`).
+- [ ] **Seed z makiet** (`pnpm db:seed`).
+  - Przechodzi przez API albo repozytoria właścicieli, razem z audytem.
+  - Czas jest liczony względem „dziś” w strefie Europe/Warsaw. Tryb stałej daty (wt 13.10.2026, jak na makietach) służy do zrzutów ekranu.
+  - **Stajnia:** Stajnia Pod Lipami, języki pl i uk, `warn_offset_min = 30`, `notify_offset_min = 15`.
+  - **Hale** (każda z własnym adresem, boksy numerowane w obrębie hali od 1):
+    - Hala główna (ul. Lipowa 12), boksy 1–8;
+    - Hala nowa (ul. Polna 3), boksy 1–6.
+
+    Numery 1–6 występują w obu halach, więc seed od razu sprawdza brak unikalności `boxes.label`. Seed, testy i fixture'y odwołują się do boksów po `id` (stałe UUID w seedzie), a nie po numerze.
+  - **Konie, 13:**
+    - Hala główna: Iskra 1, Dukat 2, Sonata 4, Wicher 5, Fala 6, Kasztan 7, Hetman 8;
+    - Hala nowa: Grom 1, Mgła 2, Rumba 3, Bella 4, Bursztyn 5;
+    - Luna bez boksu;
+    - wolne boksy: Hala główna · boks 3 i Hala nowa · boks 6. W historii boksu 6 w Hali nowej Wicher stał do 01.10, potem został przeniesiony do boksu 5 w Hali głównej.
+  - **Ludzie:**
+    - Damian: admin;
+    - Ola i Piotr: obsługa;
+    - Anna: właścicielka Kasztana i Belli oraz najemczyni boksu 7 w Hali głównej do 31.12.2026;
+    - Karolina W. (Iskra), Tomasz L. (Grom);
+    - Marek Nowak: oczekujące zaproszenie SMS jako najemca boksu 3 w Hali głównej (wolnego);
+    - wygasłe zaproszenie dla obsługi;
+    - konto `wyswietlacz-korytarz` z rolą `display`.
+
+    Numery są fikcyjne; numery do puli dev leżą w lokalnym `.env`, poza repo.
+  - **Słowniki:**
+    - posiłki 06:30, 12:00 i 18:00;
+    - pasze;
+    - padoki A i B;
+    - ujeżdżalnia kryta;
+    - szablony flag z makiet;
+    - rodzaje zdarzeń przy boksie: czyszczenie, ścielenie, siano, karma, woda.
+  - **Flagi:**
+    - Kasztan, „Bez śniadania”: krytyczna, `suspend_meal`, do 10:00, notatka „Wet o 8:00, koń na czczo”. Utworzona o 03:14 przez Annę, potwierdzona o 06:02 na tablecie (`method = tablet`, `box_id` boksu 7 w Hali głównej, `user_id = NULL`);
+    - Bella, „Nie na padok”: krytyczna, `cancel_paddock`, utworzona o 01:20, niepotwierdzona, z eskalacjami `board_warning` i `admin_notify` oraz wpisem w `notifications`;
+    - Hetman, „Leki rano”: potwierdzona o 06:20.
+  - **Odhaczenia, zdarzenia, zdrowie, zadania, jazdy i billing** jak na makietach. Kwoty to wartości testowe.
+  - **Druga, mała stajnia** z jedną halą, takimi samymi numerami boksów i imionami koni, do testów izolacji (także interfejsu bez podziału na hale).
+- [ ] `pnpm setup` (compose, migracje, granty, LocalStack, seed) i `pnpm reset`; `.env.example` dla każdego serwisu; opis, jak podłączyć telefon i tablet z LAN.
+
+### 3.3 Serwisy
+
+**Katalog zdarzeń**
+- `horse.left` [erd]: publikuje `stable`; konsumują `access`, `flags`, `care`, `tasks` i `rides`.
+- `subscription.status_changed` [erd]: publikuje `billing`; konsumuje `stable`, które ustawia `stables.status`.
+- `stable.created` (propozycja): publikuje `stable`; konsumują `flags` (szablony), `care` (słowniki) i `billing`.
+- `invitation.created` (propozycja): publikuje `access`; konsumuje `notifications`.
+- `user.deleted` (propozycja): publikuje `identity`; konsumują `access` i `notifications`.
+- Eskalacji, przypomnień ani zmian widocznych na tablicy nie przekazujemy zdarzeniami. Crony wołają API właścicieli, a `board` czyta bazę przy każdym zapytaniu [erd].
+
+**identity** (`users`)
+- [ ] `GET /me`: upsert po `cognito_sub` i odświeżenie kopii telefonu i e-maila (`contact_synced_at`).
+- [ ] `PATCH /me`: nazwa wyświetlana i język.
+- [ ] `DELETE /me`: pseudonimizacja i usunięcie konta w Cognito. Blokada, gdy użytkownik jest jedynym adminem stajni.
+- [ ] `POST /me/sign-out-everywhere`.
+- [ ] `POST /internal/users`: konto techniczne, np. `display`.
+
+**access** (`stable_members`, `horse_access`, `box_access`, `invitations`)
+- [ ] `GET /me/memberships`: stajnie, role i dostępy.
+- [ ] Zarządzanie członkami: zmiana roli, `active`.
+- [ ] `POST …/display-accounts`: konta wyświetlaczy.
+- [ ] Zaproszenia.
+  - Wymagane `expires_at`, domyślnie 7 dni.
+  - „Wyślij ponownie” tworzy nowe zaproszenie.
+  - Zaakceptowanie zaproszenia dopasowuje się wyłącznie do zweryfikowanego telefonu albo e-maila z tokenu. Członkostwo i dostęp powstają w jednej transakcji.
+- [ ] Dostępy do koni i boksów: rola `tenant`, `valid_to` równe końcowi najmu.
+- [ ] `/internal/stables/{id}/admins` (idempotentne), `/internal/horses/{id}/left`, `/internal/prune`.
+
+**stable** (`stables`, `stable_locales`, `stable_settings`, `buildings`, `boxes`, `horses`, `horse_box_history`)
+- [ ] `POST /stables`: stajnia, ustawienia i pierwsza hala z adresem stajni; po COMMIT wywołanie `access` i zdarzenie `stable.created`.
+- [ ] Ustawienia z `If-Match`: progi eskalacji, `author_display`, `owner_edits_feeding`, `rides_enabled`, okno instalacji APK.
+- [ ] Hale (`buildings`) [erd]:
+  - każda hala ma nazwę (unikalną w stajni), własny adres (`address_line1`, `address_line2`, `postal_code`, `city`, `country_code`), `sort_order` i `active`; adres pierwszej hali to adres podany przy zakładaniu stajni;
+  - lista i edycja hal (nazwa, adres, kolejność) z `If-Match`;
+  - dodanie hali przez admina w panelu web (Boksy i konie → „Dodaj halę”): nazwa i adres (z opcją skopiowania adresu innej hali), a potem jedno z trzech:
+    - nowe boksy z zakresu numerów od–do, numerowane w obrębie tej hali (domyślnie od 1), niezależnie od numerów w innych halach;
+    - przeniesienie istniejących boksów;
+    - pusta hala;
+  - hala i boksy w jednej transakcji z audytem; innym serwisom nic nie wysyłamy, bo tablet i wyświetlacz widzą nową halę przy najbliższym odpytaniu;
+  - usunąć można tylko pustą halę (inaczej 409);
+  - wyłączenie przez `active = false`.
+- [ ] Boksy:
+  - boks identyfikuje `id`; numer (`label`) nie jest unikalny ani w bazie, ani w kodzie: serwis nie sprawdza powtórzeń w hali ani w stajni;
+  - `building_id` wymagane; zmiana `building_id` to przeniesienie boksu, a koń, historia i zdarzenia zostają przy boksie;
+  - DTO boksu zawsze niesie `id`, `label` i halę (`buildingId`, nazwa), żeby klienci przy kilku halach pokazywali „Hala nowa · boks 4”.
+- [ ] Konie: przypisanie, przeniesienie, zamiana (jedna transakcja z zamknięciem i otwarciem wpisów historii), wyjazd (`left`, zwolnienie boksu, `horse.left`). Przypisanie i przeniesienie przyjmują `boxId`, nie numer.
+- [ ] Testy:
+  - dwa równoległe przypisania do jednego boksu dają jedno 409;
+  - zamiana koni przy współbieżnych zapisach;
+  - dodanie hali z boksami 1–6 obok hali z boksami 1–8 przechodzi, a każdy boks dostaje własne `id`;
+  - dwa boksy o tym samym numerze w jednej hali też przechodzą (kod nie blokuje powtórzeń);
+  - przeniesienie boksu do innej hali zachowuje konia, historię i zdarzenia;
+  - usunięcie hali z boksami daje 409;
+  - przy jednej hali interfejs nie pokazuje podziału na hale.
+
+**flags** (`flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_escalations`)
+- [ ] Szablony flag. `flag-preview` (propozycja) zwraca tekst typu „Najbliższe śniadanie: jutro 06:30”, liczony na serwerze.
+- [ ] Utworzenie flagi.
+  - Id nadane przez klienta i `request_hash`.
+  - Szablon albo `custom_text`.
+  - Cel: posiłek i dzień albo zakres od–do.
+  - `source` (`app` albo `on_behalf_*`).
+  - Przy zapisie wyliczane `ack_deadline_at`, `warn_at` i `notify_at`.
+  - Gdy cel już minął: `422 target_passed`.
+- [ ] Odwołanie i zastąpienie (`replaces_flag_id`). Status flagi to tylko „potwierdzona HH:MM” albo „niepotwierdzona” [erd].
+- [ ] Potwierdzenie: `method` wynika z klienta tokenu, a `box_id` z nagłówka. Flaga zakończona albo odwołana daje `conflict` i nie wraca.
+- [ ] `/internal/flags/{id}/escalations`: w transakcji z blokadą wiersza flagi sprawdza, czy nadal nie ma potwierdzenia.
+- [ ] Konsumuje `horse.left`: odwołuje flagi konia.
+- [ ] Testy:
+  - wyścig potwierdzenia z eskalacją;
+  - ten sam id z inną treścią daje `409 id_conflict`;
+  - noc zmiany czasu;
+  - macierz uprawnień.
+
+**care** (12 tabel karmienia, padoków i zdarzeń przy boksie)
+- [ ] Sloty posiłków, harmonogram dnia, pasze, padoki.
+- [ ] Plan karmienia (właściciel edytuje tylko przy włączonym `owner_edits_feeding`) i plan padoku z towarzyszami.
+- [ ] Odhaczenie posiłku (`feeding-checks`): powtórzenie daje `already_done`, posiłek wstrzymany flagą daje `conflict = meal_suspended`.
+- [ ] Rodzaje zdarzeń przy boksie: kolejność, wyłączanie, `show_on_board`, etykiety.
+- [ ] Zdarzenie przy boksie jednym stuknięciem; „ostatnio” liczone osobno dla każdego rodzaju.
+- [ ] `/internal/stables/{id}/defaults` (idempotentne).
+- [ ] Konsumuje `horse.left` (zamyka plany, usuwa konia z towarzyszy) i `stable.created`.
+
+**health** (`health_events`, `health_attachments`)
+- [ ] Wpisy zdrowia z `visibility` (`stable` albo `owner_private`) i miękkim usuwaniem; lista wizyt według terminu.
+- [ ] Załączniki przez `files`. Link do pobrania tylko po sprawdzeniu widoczności wpisu i dostępu do konia [erd].
+
+**rides** (`arenas`, `rides`)
+- [ ] Ujeżdżalnie i jazdy.
+  - Kolizja konia, areny albo przekroczona pojemność daje 409.
+  - Flaga `no_riding` daje ostrzeżenie.
+  - Całość wyłącza `rides_enabled`.
+- [ ] Konsumuje `horse.left`: anuluje przyszłe jazdy.
+
+**tasks** (`tasks`, `task_occurrences`)
+- [ ] Zadania jednorazowe (`due_at`) i cykliczne (`days_mask` z `local_time`).
+- [ ] Wykonanie zadania z `completion_event_id`, `source` i `time_quality`.
+- [ ] `/internal/occurrences/generate`. Zadanie jednorazowe dostaje wystąpienie od razu przy zapisie (propozycja).
+
+**board** (bez tabel, rola tylko `SELECT`)
+- [ ] `GET /boxes/{boxId}` (tablet). `boxId` to `boxes.id` (UUID) zapamiętany na tablecie, nigdy numer boksu, bo numer nie jest unikalny. Odpowiedź:
+  - halę (nazwa, liczba hal w stajni, żeby tablet wiedział, czy pokazać halę przy numerze), numer boksu i konia;
+  - flagi z notatką, autorem flagi (według `author_display`) i statusem: tylko „potwierdzona HH:MM” albo „niepotwierdzona”;
+  - bez danych zalogowanego użytkownika: tablica nie pokazuje, kto jest zalogowany;
+  - znacznik pop-upu dla flag `requires_ack` bez potwierdzenia;
+  - posiłki dnia ze stanem;
+  - padok;
+  - „dziś”, czyli wizyty bez opisu i zadania;
+  - „ostatnio” według `show_on_board`;
+  - historię boksu; akcje z tabletu bez autora (`source = tablet`);
+  - dla stajni zawieszonej: odpowiedź bez flag, z komunikatem.
+- [ ] `GET …/boxes`: lista do „Zmień boks”, pogrupowana po halach (aktywne hale według `sort_order`), w każdej hali boksy z `id`, numerem i koniem. Sortowanie numerów naturalne, czyli 2 przed 10 (propozycja).
+- [ ] `GET …/display?buildingId=`: bez parametru wszystkie hale w sekcjach, z parametrem jedna hala (pełny ekran); DTO bez danych osobowych. Każdy kafel niesie halę razem z numerem boksu.
+  - Na pełnym ekranie hali tylko flagi tej hali, w pasku pilnych także.
+  - Skrót pozostałych hal pokazuje wyłącznie liczby, bez treści flag.
+- [ ] Lista dnia obsługi i historia boksu (propozycja).
+- [ ] `ETag` to hash treści.
+  - Czas serwera idzie w nagłówku, nie w treści.
+  - Treść zależy od upływu czasu, więc na start składamy całą odpowiedź przy każdym zapytaniu.
+
+**billing** (9 tabel)
+- [ ] Subskrypcja i zużycie, dane do faktury, faktury z `pdf-url`, sesja metody płatności przez adapter.
+- [ ] Webhook dostawcy:
+  - weryfikacja podpisu;
+  - surowe body do S3;
+  - unikalny `provider_event_id`;
+  - `processed_at`.
+- [ ] Endpointy wewnętrzne: `/internal/usage-snapshots`, `/internal/invoices/issue`, `/internal/dunning/run`.
+- [ ] Adaptery `PaymentProvider`, `InvoiceSystem` i generator PDF, każdy z implementacją fałszywą.
+- [ ] Numer faktury nadaje kod, bez sekwencji. Cron wystawia faktury po kolei; unikalne `invoices.number` chroni przed duplikatem, a przy konflikcie cron ponawia.
+- [ ] Publikuje `subscription.status_changed`.
+
+**files** (`files`, tylko `/internal`)
+- [ ] Plik `pending` z kluczem `stable_id/…` i presigned upload z warunkami typu i rozmiaru.
+- [ ] `attach` sprawdza przez HeadObject rozmiar, typ i `sha256`.
+- [ ] `download-url` z krótką ważnością; `delete`, `gc`.
+- [ ] APK ma `stable_id = NULL`, więc trafia pod osobny prefiks. To wyjątek opisany w README serwisu.
+
+**releases** (`app_releases`, `app_release_targets`)
+- [ ] Endpointy operatora:
+  - wydanie jako `draft` z `sha256`, `signing_cert_sha256`, `min_sdk` i `min_required_version_code`;
+  - statusy `rolling` (z `rollout_percent`), `complete` i `halted`;
+  - lista stajni docelowych.
+- [ ] `GET /tablet/latest?versionCode=&stableId=&installId=`:
+  - procent wdrożenia liczony z hasha lokalnego `installId`, bez tabeli urządzeń;
+  - okno instalacji z ustawień stajni;
+  - wymuszenie aktualizacji poniżej `min_required_version_code`;
+  - presigned URL z obsługą `Range`.
+- [ ] Klient operatora `tools/opctl` (CLI) dla wydań APK i planów billingu. Uwierzytelnianie operatora: sekcja 5.
+
+**notifications** (`notifications`)
+- [ ] `POST /internal/notifications`:
+  - szablon i język;
+  - odbiorca jako użytkownik albo adres;
+  - `related_flag_id` i `related_invitation_id`;
+  - unikalny `dedupe_key`;
+  - treść renderowana przy tworzeniu.
+- [ ] Wysyłka asynchroniczna (propozycja: własna kolejka SQS), z licznikiem prób. Przed wysyłką sprawdza, czy wiadomość ma jeszcze sens: dla flagi już potwierdzonej ustawia `cancelled`.
+- [ ] Adaptery `SmsSender` (dostawca: sekcja 5) i `EmailSender` (SES).
+- [ ] Konsumuje `invitation.created` i `user.deleted`.
+
+**audit** (schemat `audit`)
+- [ ] Odczyt historii obiektu (kto ma do niego dostęp: sekcja 5) i `prune`. Tylko ten serwis czyta i usuwa wpisy [erd].
+
+### 3.4 Crony
+- [ ] `escalation-scheduler`, co minutę.
+  - Flagi z minionym `warn_at` albo `notify_at`, bez potwierdzenia i nieodwołane.
+  - Woła `flags`, a przy `admin_notify` także `notifications`.
+  - Klucze idempotencji: `(flag_id, level)` i `dedupe_key`.
+- [ ] `task-occurrence-generator`, co 15 min, z oknem 48 h. Klucz: `(task_id, due_at)`.
+- [ ] `health-due-reminders`, co godzinę. Wysyła o stałej godzinie lokalnej stajni. Klucz: `health:{eventId}:{rodzaj}`.
+- [ ] `files-gc`, co godzinę. Najpierw usuwa obiekt w S3, potem zmienia wiersz.
+- [ ] `billing-usage-snapshot`, na koniec okresu. Klucz: `(subscription_id, period_start, metric)`.
+- [ ] `billing-invoicing`, 1. dnia miesiąca.
+- [ ] `billing-dunning`, codziennie.
+  - Przypomnienia, potem `past_due`, potem `suspended`.
+  - Propozycja: przy rozjeździe `subscriptions.status` i `stables.status` ponawia zdarzenie.
+- [ ] `horse-left-reconciler`, co godzinę. Woła ten sam handler co konsument `horse.left` w `access`, `flags`, `care`, `tasks` i `rides`.
+- [ ] `retention-pruner`, co noc. Woła `POST /internal/prune` każdego serwisu i sam niczego nie usuwa.
+- [ ] Każdy cron testujemy na cztery przypadki: powtórzony przebieg, przebieg równoległy, przerwanie w połowie, fałszywy zegar (w tym noc zmiany czasu).
+- **Nie śledzimy wyświetleń flag na tabletach** [erd]: nie ma do tego ani tabeli, ani crona. Status flagi to tylko „potwierdzona HH:MM” albo „niepotwierdzona”. Brak potwierdzenia w terminie, także przy martwym tablecie, obsługuje wyłącznie `escalation-scheduler` przez `flag_escalations` (scenariusz A-02).
+
+### 3.5 Aplikacje
+
+#### 3.5.1 Apka mobilna (właściciel, najemca, obsługa, admin)
+- [ ] Szkielet:
+  - Expo w development buildzie, Expo Router;
+  - TanStack Query z trwałym cache;
+  - `api-client` i i18n;
+  - `react-native-get-random-values` jako pierwszy import, bo id nadaje klient.
+- [ ] Logowanie: Cognito `USER_AUTH` z SMS OTP, tokeny w `expo-secure-store`. Po zalogowaniu `GET /me` i członkostwa, nawigacja według roli, przełącznik stajni.
+- [ ] Odpytywanie z ETag tylko na widocznym ekranie.
+- [ ] Zapisy:
+  - flaga wyłącznie online, z jawnym stanem „zapisano na serwerze”;
+  - potwierdzenia, odhaczenia, zdarzenia i zadania przez lokalną kolejkę.
+- [ ] Ekrany z makiet:
+  - Logowanie;
+  - Moje konie (Main);
+  - SzybkaFlaga, StatusFlagi, KartaKonia;
+  - MojBoks;
+  - ListaDnia, StajennyKonie;
+  - BoksyAdmin, BoksSzczegoly;
+  - Zaproszenie.
+- [ ] Ekrany bez makiet: profil (wyloguj wszędzie, usuń konto, język), zadania, jazdy instruktora.
+- [ ] Przy kilku halach zawsze „Hala nowa · boks 4”; przy jednej hali bez podziału. Nawigacja do boksu zawsze po `id`.
+- [ ] Kolory i znak słowny „eKoniuszy” z `packages/theme` (tokeny LCD z `docs/paleta.md`): akcent tylko na elementach klikalnych; status zawsze jako ikona, słowo i pole, nigdy sam kolor; flaga krytyczna jako jasny tint z lewym paskiem 4 px.
+
+#### 3.5.2 Apka tabletu (kiosk e-ink, kolorowy albo czarno-biały)
+- [ ] `apps/tablet`: Expo w development buildzie. Dystrybucja wyłącznie jako APK przez `releases`.
+- [ ] Sprzęt do developmentu (zakupy: sekcja 1): Boox Note Air6 C (kolorowy 10,3", Android 16). Tylko jeśli coś nie zadziała: Samsung Galaxy Tab Active5 jako wzorzec Device Owner i plan B oraz Boox Go 10.3 Gen II Lumi do testu prawdziwego czarno-białego ekranu. Kolorowe i czarno-białe modele e-ink są równorzędnymi kandydatami.
+- [ ] Moduł Kotlin `modules/kiosk` (Expo Modules API i config plugin):
+  - `DeviceAdminReceiver` oraz odbiorniki `BOOT_COMPLETED`, `LOCKED_BOOT_COMPLETED` i `MY_PACKAGE_REPLACED`;
+  - Lock Task z `setLockTaskFeatures(LOCK_TASK_FEATURE_NONE)`; `GLOBAL_ACTIONS` trzeba wyłączyć jawnie;
+  - apka jako HOME, `setKeyguardDisabled`, `STAY_ON_WHILE_PLUGGED_IN`;
+  - restrykcje: `DISALLOW_DEBUGGING_FEATURES`, blokada resetu fabrycznego z ustawień;
+  - blokada aktualizatora OTA producenta (`setPackagesSuspended` albo `setApplicationHidden`) i `setSystemUpdatePolicy`;
+  - cicha instalacja przez `PackageInstaller`, z kontrolą `sha256` i certyfikatu podpisu;
+  - watchdog: restart procesu, gdy JS przez N minut nie zgłosi udanego odpytania;
+  - limit ładowania tam, gdzie firmware go udostępnia (Boox: `charge_control_en`);
+  - dodanie sieci Wi-Fi jako DO (`WifiManager.addNetwork`), sprawdzone pod kątem kolizji z `DISALLOW_CONFIG_WIFI`.
+- [ ] Odświeżanie EPD przez wspólny interfejs `epdRefresh(full|partial)`, z czterema implementacjami:
+  - Onyx SDK;
+  - kontroler Onyx/Qualcomm jak w KOReader;
+  - refleksja dla RK3566;
+  - pełna klatka czarna i biała jako wariant awaryjny na każdym sprzęcie.
+
+  Żadna implementacja nie może „nic nie robić”.
+
+  Kolorowy e-ink i tablet bez e-inku:
+  - Na kolorowym e-inku (Kaleido 3, Gallery 3) pole koloru zmienia się tylko przy zmianie statusu, jednym pełnym odświeżeniem w trybie z kolorem. Zegar, odliczanie i pasek ONLINE są czarno-białe i korzystają z szybkiego odświeżania, bo szybkie tryby gubią kolor. Czy Onyx SDK pozwala ustawić tryb dla fragmentu ekranu na Note Air6 C: [niepotwierdzone] (T-21, K-05).
+  - Na tablecie LCD (Samsung Galaxy Tab Active5 jako wzorzec Device Owner i plan B, jeśli zostanie dokupiony) EPD nie istnieje: moduł wykrywa to jawnie i zapisuje w diagnostyce, zamiast po cichu pomijać odświeżanie (propozycja).
+- [ ] Onyx SDK (repozytorium Maven tylko po HTTP):
+  - artefakty w lustrze albo w repo (vendoring);
+  - Gradle dependency verification z sumami;
+  - `allowInsecureProtocol` najwyżej dla tego jednego repozytorium.
+- [ ] `tools/provision-tablet`, w tej kolejności:
+  1. rozpakowanie bez Wi-Fi i bez konta;
+  2. zapis modelu, numeru firmware i `ro.board.platform`;
+  3. włączenie ADB według procedury dla danego modelu;
+  4. `adb install`;
+  5. `dpm set-device-owner`;
+  6. blokada aktualizatora OTA i nałożenie polityk oraz ustawień producenta;
+  7. dopiero teraz dodanie sieci przez DPC;
+  8. logowanie i wybór boksu;
+  9. wyłączenie ADB.
+- [ ] Odzyskanie tabletu: reset fabryczny z ustawień jest zablokowany, ale reset z recovery (przyciski) zostaje jako ścieżka serwisowa, po której idzie ponowny provisioning. Czy FRP przeszkadza bez konta Google: [niepotwierdzone] (T-06).
+- [ ] Ekrany:
+  - **TabletBoks:**
+    - nagłówek z numerem boksu i koniem, przy kilku halach zawsze z nazwą hali („Hala nowa · boks 4”), oraz przycisk „Zmień boks”;
+    - bez informacji, kto jest zalogowany (logowanie i wylogowanie tylko w ukrytych ustawieniach);
+    - baner flagi;
+    - KARMIENIE ze stanem WSTRZYMANE;
+    - PADOK, DZIŚ;
+    - BOKS („dotknij, gdy zrobione”);
+    - HISTORIA;
+    - stopka „ONLINE · aktualne na HH:MM”, przełącznik PL i UA.
+  - **TabletPopup:**
+    - kolejka pop-upów, krytyczne pierwsze;
+    - pop-up nowej flagi znika po POTWIERDZAM albo po odwołaniu flagi, czyli gdy flaga zniknie z odpowiedzi przy najbliższym odpytaniu (także po potwierdzeniu na innym tablecie albo w apce);
+    - status flagi tylko „potwierdzona HH:MM” albo „niepotwierdzona”;
+    - po restarcie wraca.
+  - **TabletZmianaBoksu** (bez blokady boksu: zmienić może każdy, kto stoi przy tablecie):
+    - lista z `board GET …/boxes`, w zakładkach hal; otwarta jest zakładka hali bieżącego boksu; przy jednej hali sama lista, bez zakładek;
+    - przycisk boksu z numerem i koniem; wolny boks oznaczony;
+    - przełączenie od razu po stuknięciu;
+    - powrót do poprzedniego boksu po 30 s bez wyboru;
+    - wybór, czyli `boxes.id` (nie numer), zapisany lokalnie na tablecie; przetrwa restart, aktualizację APK i ponowne logowanie, a serwer o nim nie wie;
+    - nowy pop-up w trakcie wybierania: zachowanie sprawdza T-28.
+- [ ] Ukryte ustawienia (długie przytrzymanie): logowanie i wylogowanie, wybór stajni, diagnostyka, dodanie sieci Wi-Fi. Kto może zmienić sieć: sekcja 5.
+- [ ] Stany ekranu:
+  - wylogowany, także po global sign-out; nigdy nie pokazuje wtedy starych flag;
+  - bez wybranego boksu;
+  - boks wolny;
+  - brak uprawnień;
+  - stajnia zawieszona;
+  - brak sieci;
+  - wymagana aktualizacja.
+- [ ] Odpytywanie:
+  - interwał według decyzji (sekcja 5), z `If-None-Match`, jitterem i backoffem;
+  - sprawdzić, czy odpowiedź 304 dociera do JS;
+  - czas brany z nagłówka serwera.
+- [ ] Zapisy (potwierdzenie, „Nakarmiony”, zdarzenie, zadanie):
+  - kolejka w SQLite;
+  - id nadane przez klienta i `request_hash`;
+  - `occurred_at` i `time_quality`;
+  - bez autora: `source = tablet`, `user_id = NULL`, `box_id` wybranego boksu z nagłówka `X-Box-Id`;
+  - licznik niewysłanych.
+- [ ] Zasady e-ink (paleta tabletu `t-*` z `docs/paleta.md`, przez `packages/theme`):
+  - ten sam ekran działa na kolorowym e-inku (Kaleido 3, Gallery 3) i na czarno-białym, bez osobnej wersji interfejsu;
+  - profil palety: domyślny (Kaleido 3) albo profil Gallery 3, który podmienia `t-ok`, `t-warn` i `t-crit`. Tablet wybiera profil po modelu urządzenia (lista model → profil w konfiguracji APK), z ręcznym przełącznikiem w ukrytych ustawieniach (propozycja). Czarno-biały ekran używa profilu domyślnego, bo drabina jasności jest czytelna w szarości;
+  - kolor tylko w dużych polach: baner flagi, komórki tabeli, kafle (≥ 44 px), pasek popupu 16 px, lewy pasek ≥ 10 px. Bez kolorowego tekstu, ikon, cienkich linii i obrysów;
+  - na kolorze tylko pogrubiony tekst czarny (`t-ok`, `t-warn`) albo biały (`t-crit`, ≥ 19 px); szary tekst wyłącznie `t-ink-2` ≥ 20 px na papierze;
+  - neutralne kolory tylko achromatyczne; bez szarych wypełnień w roli struktury (nagłówki tabel i tło białe, sekcje oddziela czarna linia), więc szare pole zawsze oznacza status;
+  - każdy status ma też słowo, ikonę i grubość obrysu: krytyczna to ciemne pole bez ramki, uwaga ramka 4 px, OK 2 px, do zrobienia 2 px przerywana; info (leki, wet) bez wypełnienia, z ramką 2 px i ikoną;
+  - popup na nieprzezroczystym `t-scrim`;
+  - bez animacji;
+  - duże fonty, przyciski ok. 15 mm;
+  - pełne odświeżenie po pop-upie, przy nowej fladze krytycznej, przy każdej zmianie pola koloru i co najmniej raz na dobę;
+  - zegar odświeżany częściowo co minutę, czarno-biały.
+- [ ] Testy zrzutów (propozycja): ekrany z fixture'ów renderowane w obu profilach i przeliczone na skalę szarości; statusy muszą się różnić jasnością i obrysem także bez koloru. Czytelność i kolejność jasności na prawdziwym Kaleido 3, Gallery 3 i czarno-białym ekranie: [niepotwierdzone], bo sterownik ma własną krzywą i dithering (T-20, T-21, K-01, K-06). Czarno-biały ekran sprawdzamy na sprzęcie tylko wtedy, gdy zostanie dokupiony Boox Go 10.3 Gen II Lumi.
+- [ ] Aktualizacja APK:
+  - sprawdzanie po starcie i co kilka godzin;
+  - pobieranie ze wznawianiem;
+  - instalacja w oknie serwisowym, przy pustej kolejce zapisów;
+  - cofnięcie wersji to APK z wyższym `versionCode`.
+- [ ] Diagnostyka (2.12) z buforem offline.
+
+#### 3.5.3 Panel web
+- [ ] SPA (propozycja: React, Vite, TanStack). Sposób przechowywania tokenów: sekcja 5.
+- [ ] PanelBoksy:
+  - liczniki;
+  - alert o niepotwierdzonej fladze krytycznej;
+  - filtry i wyszukiwarka;
+  - tabela boksów;
+  - sekcje hal z adresem;
+  - konie bez boksu;
+  - rodzaje zdarzeń przy boksie.
+- [ ] PanelDodajHale: nazwa i adres hali (z kopiowaniem adresu innej hali), potem jedno z trzech: nowe boksy od–do (numeracja w tej hali, domyślnie od 1; numery mogą powtarzać się z innymi halami), przeniesienie istniejących boksów albo pusta hala.
+- [ ] PanelPlatnosci.
+- [ ] Przy kilku halach każdy boks w tabelach, filtrach, alertach i formularzach przypisania ma halę razem z numerem; wybór boksu w formularzach wysyła `boxId`.
+- [ ] Ekrany bez makiet: rejestracja stajni, Pulpit, Konie, Ludzie (role, zaproszenia, konta wyświetlaczy), Ustawienia (progi, słowniki, sloty, okno APK).
+- [ ] Edycje z `If-Match` i obsługą 412.
+- [ ] Kolory i znak słowny „eKoniuszy” z `packages/theme` (tokeny LCD z `docs/paleta.md`, zmienne CSS); flaga krytyczna jako pigułka z pełnym ciemnym polem (`crit-solid` z tekstem `on-crit`).
+
+#### 3.5.4 Wyświetlacz (`/wyswietlacz`) i `tools/display-kiosk`
+- [ ] Logowanie kontem `display`; zablokowane konto pokazuje „wyświetlacz zablokowany”.
+- [ ] WyswietlaczCentralny:
+  - nagłówek z „Teraz”, następnym posiłkiem i zegarem;
+  - pasek pilnych flag wszystkich hal;
+  - sekcje hal z przyciskiem „Pełny ekran”;
+  - kafle boksów;
+  - „Dziś w stajni”, ostatnie akcje, zadania.
+- [ ] WyswietlaczHala (pełny ekran jednej hali):
+  - większe kafle i większa typografia;
+  - **tylko flagi tej hali**, także w pasku pilnych;
+  - skrót pozostałych hal tylko liczbowy;
+  - przełącznik hal (bez wracania do widoku wszystkich) i przycisk „Wszystkie hale”.
+- [ ] Przy jednej hali bez sekcji, bez „Pełny ekran” i bez przełącznika; przy kilku halach kafel zawsze pokazuje halę razem z numerem boksu.
+- [ ] Wybór widoku (wszystkie hale albo `buildingId` jednej hali) pamięta lokalnie przeglądarka telewizora w `localStorage`, obsłużonym w try/catch, bez tabeli i bez wiedzy serwera. Ustawia się go raz, myszką przy instalacji albo pilotem przez HDMI-CEC. Bez zapisanego wyboru, przy niedostępnej pamięci albo gdy zapisana hala zniknęła lub jest wyłączona, strona pokazuje wszystkie hale.
+- [ ] Kolory z `packages/theme` (tokeny LCD z `docs/paleta.md`): na TV bez pól w akcencie; kafel krytyczny jako pełne pole `crit-solid` z ramką 3 px `crit-line`, niepotwierdzony z ramką 3 px `warn-line` na `warn-tint-weak`, wolny z przerywaną ramką 2 px `line-strong` na `bg`; liczby i zegar z `tabular-nums`.
+- [ ] Odpytywanie co 10 s z ETag. Przy błędzie zostaje ostatni stan z paskiem „Brak połączenia od HH:MM” i znacznikiem „ostatnia aktualizacja HH:MM:SS”. Po dłuższej awarii `location.reload()`.
+- [ ] Przy wielu boksach kafle skrócone, a gdy dalej się nie mieszczą, strony przełączane co 20 s.
+- [ ] Zegar liczony z przesunięcia względem nagłówka `Date` serwera. Fonty serwowane przez panel, bez zewnętrznego CDN (makiety ładują Figtree z Google Fonts).
+- [ ] Opcjonalnie co kilka minut przesunięcie całego układu o 1–2 px przeciw retencji obrazu.
+- [ ] `tools/display-kiosk` dla Raspberry Pi 5 4 GB z TV albo monitorem przez HDMI (obraz Raspberry Pi OS Trixie 64-bit, nie FullPageOS):
+  1. Raspberry Pi Imager: host, użytkownik, klucz SSH, Wi-Fi, strefa Europe/Warsaw.
+  2. Autologowanie do pulpitu.
+  3. Chromium jako usługa `systemd --user` z `Restart=always`. Samo wpisanie do autostartu labwc nie restartuje przeglądarki po awarii.
+  4. Flagi: `--kiosk --noerrdialogs --disable-infobars --no-first-run --password-store=basic --user-data-dir=<stały katalog>`. Bez `--incognito` i `--temp-profile`.
+  5. Okno „Przywrócić strony?”: przed startem (`ExecStartPre`) poprawić `exit_type` i `exited_cleanly` w pliku Preferences. Przełącznik `--hide-crash-restore-bubble` sprawdzić w W-12.
+  6. Wygaszanie ekranu całkowicie wyłączone (bez `swayidle` w autostarcie). Ukryty kursor.
+  7. `HandlePowerKey=ignore` i brak skrótu wyłączania w labwc [niepotwierdzone].
+  8. `RuntimeWatchdogSec` ≤ 15 s; limit sprawdzić przez `wdctl`; bez pakietu `watchdog`.
+  9. Codzienny restart Chromium timerem, w porze ustalonej z obsługą.
+  10. CEC (`v4l-utils`): `cec-ctl --playback`, `--image-view-on`, ustawienie Pi jako aktywnego źródła.
+  11. Wymuszony tryb wyjścia `video=HDMI-A-1:1920x1080@60D` [niepotwierdzone].
+  12. NTP i RTC.
+  13. SSH tylko z kluczami.
+  14. Aktualizacje najpierw na kanarku. W stajni `apt-mark hold chromium`, dopóki kanarek nie przejdzie testów.
+  15. Nazwę pakietu (`chromium` czy `chromium-browser`) skrypt wykrywa sam.
+  16. Overlay FS wyłączony.
+
+### 3.6 Kolejność prac
+- [ ] **Etap 0, od pierwszego dnia, trzy tory równolegle:**
+  - **A, fundament:** 3.1 i 3.2; najpierw stub tokenów i seed.
+  - **B, bramka sprzętowa tabletu:** punkty (B) z 4.3.1 (T-01…T-04, T-08, T-13, T-24, T-25) oraz testy koloru K-01 i K-05 na Boox Note Air6 C, na sztucznych odpowiedziach `board`, z paletą `t-*` w profilu właściwym dla ekranu. Kończy się decyzją: model zostaje albo bierzemy plan B. Planem B jest Samsung Galaxy Tab Active5, dokupiony dopiero wtedy, gdy T-01 albo T-02 nie przejdą na Boox; ten sam moduł DO przechodzi na nim T-01…T-03, co oddziela błąd naszego kodu od ograniczeń firmware e-ink. Innym wyjściem jest kolejny model e-ink z działającym DO, kolorowy albo czarno-biały.
+  - **C, spike Cognito:** lista z 3.2.
+- [ ] **Etap 1, logowanie:** `identity`, `access`, `auth` i `authz`, logowanie w apce i w panelu.
+  - Gotowe, gdy działa logowanie na puli dev, zaakceptowanie zaproszenia tworzy członkostwo, a macierz izolacji dla tych tras jest zielona.
+- [ ] **Etap 2, stajnia, hale, boksy, konie:** `stable`, panel (Boksy i konie, Dodaj halę), apka admina.
+  - Gotowe, gdy seed z dwiema halami (boksy 1–8 i 1–6) jest widoczny w panelu i w apce z halą przy numerze, dodanie hali z adresem i boksami od 1 działa, a przypisanie, przeniesienie i zamiana koni przechodzą testy współbieżności.
+- [ ] **Etap 3, flagi:** `flags`, `notifications` z `fake-sms`, `escalation-scheduler`, ekrany właściciela i obsługi.
+  - Gotowe, gdy scenariusze A-01 i A-02 odtwarzają się od zera, a test wyścigu potwierdzenia z eskalacją jest zielony.
+- [ ] **Etap 4, tablica i tablet:** `board` z ETag, kiosk, pop-up, „Zmień boks”, kolejka zapisów, `releases`.
+  - Gotowe, gdy flaga z telefonu pojawia się jako pop-up w ustalonym czasie, potwierdzenie i odwołanie usuwają pop-up, „Zmień boks” przełącza między halami i wraca do poprzedniego boksu po 30 s, a APK aktualizuje się bez dotykania tabletu.
+- [ ] **Etap 5, wyświetlacz:** widok `board` dla wyświetlacza, `/wyswietlacz` z pełnym ekranem hali i przełącznikiem hal, obraz Pi.
+  - Gotowe, gdy działa 72 h bez przerwy, wybór hali przetrwa restart, pełny ekran pokazuje tylko flagi tej hali, a w odpowiedziach nie ma danych osobowych.
+- [ ] **Etap 6, karmienie i padok:** `care`; wstrzymany posiłek i odwołany padok na tablicy; ListaDnia i MojBoks; konsumenci `horse.left` i `horse-left-reconciler`.
+- [ ] **Etap 7, zdrowie, jazdy, zadania:** `health` z `files`, `rides`, `tasks`; crony `task-occurrence-generator`, `health-due-reminders` i `files-gc`.
+- [ ] **Etap 8, płatności:** `billing` na fałszywych adapterach, trzy crony billingu, przejście `subscription.status_changed` → `stables.status`, stan „zawieszona” na tablecie i wyświetlaczu.
+- [ ] **Etap 9, przed stajnią pilotażową:**
+  - `audit` i `retention-pruner`;
+  - pełna macierz izolacji;
+  - test obciążenia;
+  - alerty;
+  - przegląd bezpieczeństwa;
+  - runbooki (4.5);
+  - wyjście z SMS sandbox.
+- **Prace równoległe:**
+  - `packages/theme` od etapu 0, zanim powstaną pierwsze ekrany;
+  - po etapie 1 interfejsy apek, tabletu i wyświetlacza na fixture'ach z kontraktów;
+  - `care` zaraz po etapie 2;
+  - `health`, `rides` i `tasks` niezależnie od siebie;
+  - adaptery `billing` w dowolnym momencie.
+
+## 4. Testy
+
+### 4.1 Testy automatyczne (CI przy każdym PR oraz przebieg nocny)
+- [ ] **Jednostkowe (Vitest, fast-check).**
+  - Reguły flag: okno ważności, cel „najbliższy posiłek”, `days_mask`, `suspend_meal`, `cancel_paddock`, `replaces_flag_id`, `warn_at` i `notify_at`.
+  - Noce 25.10.2026 i 28.03.2027.
+  - Składanie odpowiedzi `board`: ta sama treść daje ten sam ETag; w treści nie ma czasu serwera; listy mają deterministyczną kolejność (hale według `sort_order`, boksy w obrębie hali).
+  - Koń i boks: przeniesienie, zamiana, wyjazd; przeniesienie boksu do innej hali (zmiana `building_id`), po którym koń, historia i zdarzenia zostają przy boksie [erd].
+  - Hale i numery boksów:
+    - boks rozpoznajemy tylko po `id`; żadna funkcja nie szuka boksu po numerze (`boxes.label`), bo numer powtarza się między halami [erd];
+    - etykieta boksu: przy kilku halach zawsze hala razem z numerem („Hala nowa · boks 4”), przy jednej hali sam numer.
+  - Status flagi: tylko „potwierdzona HH:MM” albo „niepotwierdzona”, w PL, UA i EN; test słownika tłumaczeń odrzuca każdą inną nazwę statusu (propozycja).
+  - Widoczność: `display` bez danych osobowych; na tablet nie trafiają opisy wizyt; tablica tabletu nie pokazuje, kto jest zalogowany.
+  - Billing: kwoty w groszach.
+  - Normalizacja telefonu do E.164.
+  - Komplet tłumaczeń PL, UA i EN.
+  - Paleta (`packages/theme`): wartości zgodne z `docs/paleta.md`, kontrasty WCAG oraz drabina jasności tokenów `t-*` w profilu Kaleido 3 i Gallery 3 (testy z 3.1.12).
+- [ ] **Integracyjne (Testcontainers: PostgreSQL i LocalStack; Cognito zastępuje stub, prawdziwa pula w przebiegu nocnym).**
+  - Wielokolumnowe klucze obce: konia stajni A nie da się wstawić do boksu stajni B.
+  - Unikalności przy równoległych zapisach.
+  - Numer boksu bez unikalności [erd]:
+    - dwa boksy o tym samym `label` w różnych halach, a także w tej samej hali, zapisują się bez błędu;
+    - introspekcja schematu potwierdza, że na `boxes.label` nie ma indeksu unikalnego.
+  - Dwie hale z tymi samymi numerami (seed z 3.2: boks 4 jest w obu halach, Sonata w Hali głównej, Bella w Hali nowej):
+    - potwierdzenie flagi Belli z `X-Box-Id` boksu 4 Hali nowej zapisuje w `flag_acknowledgements.box_id` id tego boksu, nie boksu 4 Hali głównej;
+    - „Nakarmiony” i zdarzenie przy boksie z `X-Box-Id` boksu 4 Hali głównej trafiają do Sonaty i do id tego boksu;
+    - `board` dla każdego `id` zwraca właściwego konia i właściwe flagi; historia obu boksów jest rozdzielna.
+  - Dodanie hali (serwis `stable`):
+    - hala i jej boksy zapisują się w jednej transakcji razem z audytem; błąd wstrzyknięty w środku nie zostawia hali bez boksów ani boksów bez hali;
+    - nowe boksy numerowane od 1 powtarzają numery innych hal bez błędu;
+    - przeniesienie boksu z koniem do nowej hali zmienia tylko `building_id`;
+    - usunięcie hali z boksami jest odrzucane, pustej przechodzi; wyłączenie hali (`active = false`).
+  - Audyt: zapis w tej samej transakcji, brak wpisu po rollbacku, granty w `audit`.
+  - Po rollbacku żadne zdarzenie nie wychodzi.
+  - Awaria „po commicie, przed publikacją” (wstrzykiwana w buildzie testowym): skutki naprawia cron, np. `horse-left-reconciler`.
+  - S3: ważność presigned URL, prefiks `stable_id/`, przejście `pending` → `attached`, `files-gc`.
+- [ ] **Kontraktowe.**
+  - Migawki OpenAPI (3.1.5).
+  - Boks w API występuje tylko jako `boxId` (w ścieżce, w treści albo w nagłówku `X-Box-Id`); żaden kontrakt nie wybiera boksu po numerze (propozycja).
+  - Schematy zdarzeń: producent waliduje, konsument ma fixture'y wersji N-1 i N (własne testy albo Pact message pacts).
+  - **Kontrakt bazy:** CI z importów `packages/db` wylicza, kto czyta które kolumny, i blokuje migrację, która usuwa albo zmienia kolumnę używaną przez bieżącą lub poprzednią wersję dowolnego serwisu.
+- [ ] **Idempotencja i DLQ.**
+  - Ta sama wiadomość 2 i 10 razy, także równolegle do dwóch replik, daje jeden skutek.
+  - Zamieniona kolejność zdarzeń daje poprawny stan końcowy.
+  - Obsługa dłuższa niż visibility timeout nadal daje jeden skutek.
+  - SIGTERM w trakcie obsługi nie zostawia częściowego zapisu.
+  - Wiadomość trująca trafia do DLQ i wywołuje alert; redrive po poprawce działa.
+- [ ] **Crony:** powtórzony przebieg, równoległy, nadrabianie po godzinnej przerwie bez dubli (jeden wiersz `flag_escalations` na flagę i poziom) i bez eskalacji flag już potwierdzonych lub odwołanych, `spec.timeZone`, pomiar opóźnienia eskalacji (odstęp harmonogramu plus start poda).
+- [ ] **Repliki (przebieg nocny w klastrze testowym).**
+  - Żaden serwis nie trzyma stanu w pamięci.
+  - ETag z różnych replik jest identyczny.
+  - Rolling update pod obciążeniem przy wersjach N i N-1 działających naraz.
+  - Zabita replika w trakcie zapisu: klient ponawia z tym samym id i powstaje jeden zapis.
+- [ ] **Migracje:**
+  - wszystkie migracje od zera, a introspekcja zgodna ze schematem w repo;
+  - migracja na danych syntetycznych w skali;
+  - serwisy w wersji N-1 przechodzą testy na schemacie N;
+  - próba dodania `NOT NULL` jednym krokiem jest wyłapywana;
+  - dwa równoległe `migrate`: migruje dokładnie jeden.
+  - Bramka zakazanych obiektów: 3.1.3.
+- [ ] **Wydajność (k6 z `If-None-Match`).**
+  - Model obciążenia: S stajni, H hal i B boksów na stajnię, tablet przy każdym boksie odpytujący co P s, D wyświetlaczy odpytujących co 10 s (część w widoku wszystkich hal, część na pełnym ekranie jednej hali), do tego telefony. Parametry: sekcja 5.
+  - Scenariusze:
+    - stan ustalony (prawie same 304);
+    - pora posiłku;
+    - powrót wszystkich tabletów w tej samej sekundzie razem z odświeżeniem tokenów;
+    - rolling deploy;
+    - 24 h bez przerwy.
+  - Mierzymy:
+    - p50, p95 i p99 `board` osobno dla 200 i 304;
+    - liczbę zapytań SQL na jedno odpytanie;
+    - CPU bazy i sumę pul połączeń wobec limitu;
+    - udział 304 (wyraźnie poniżej 100% oznacza niedeterministyczny ETag);
+    - stabilność pamięci replik.
+
+  Progi ustalamy po pierwszym pomiarze bazowym, a przebieg nocny pilnuje regresji.
+- [ ] **Apka mobilna (Maestro, Detox na symulatorze iOS).**
+  - Ścieżki właściciela, najemcy, obsługi i admina z makiet.
+  - Flaga wysłana przy zrywanym połączeniu nie tworzy duplikatu, a apka pokazuje stan „nie wysłano”.
+  - Języki, duża czcionka systemowa, mały i duży ekran.
+  - Przy kilku halach lista boksów w grupach hal z filtrem, a każdy boks z halą przy numerze; wybór boksu wysyła `boxId`. Status flagi tylko „potwierdzona HH:MM” albo „niepotwierdzona”.
+  - Na fizycznych iPhone'ach skrypt ręczny przez TestFlight (wsparcie Maestro dla fizycznych iPhone'ów: [niepotwierdzone]).
+- [ ] **Panel web (Playwright: Chromium, Firefox, WebKit).**
+  - Boksy i konie, rodzaje zdarzeń. Przy kilku halach każdy boks w tabelach, filtrach, alertach i formularzach przypisania ma halę przy numerze; wyszukanie „4” zwraca dwa boksy z nazwami hal; formularze wysyłają `boxId`.
+  - Dodawanie hali (Boksy i konie → „Dodaj halę”):
+    - nazwa i adres, także skopiowany z innej hali; adres widać potem przy hali i w szczegółach boksu;
+    - wariant „nowe boksy”: zakres od 1 (np. 1–4) zapisuje się bez błędu, choć numery powtarzają się z innymi halami;
+    - wariant „przeniesienie”: wolny boks i boks z koniem przechodzą do nowej hali z historią;
+    - wariant „pusta hala”;
+    - usunięcia hali z boksami interfejs nie proponuje, a API je odrzuca; wyłączenie hali działa;
+    - po dodaniu drugiej hali stajnia z jedną halą zaczyna pokazywać halę przy numerze w panelu.
+  - Płatności na fałszywym adapterze: podwójny webhook daje jedną płatność, brak płatności daje `suspended`.
+  - `/wyswietlacz`:
+    - sztuczny zegar i odpytywanie co 10 s;
+    - `context.setOffline`;
+    - widok wszystkich hal: sekcje hal z przyciskiem „Pełny ekran”, pasek pilnych flag wszystkich hal, kafel z halą przy numerze;
+    - pełny ekran hali: tylko flagi tej hali, także w pasku pilnych; skrót pozostałych hal tylko liczbowy; przełącznik hal przechodzi na inną halę bez wracania do widoku wszystkich; „Wszystkie hale” wraca do widoku ogólnego;
+    - wybór widoku zapamiętany w `localStorage`: przetrwa przeładowanie i nowy kontekst przeglądarki z tym samym profilem; bez zapisanego wyboru, przy wyjątku z `localStorage` albo gdy zapisana hala zniknęła lub jest wyłączona, strona pokazuje wszystkie hale;
+    - jedna hala (druga stajnia z seedu): bez sekcji, bez „Pełny ekran” i bez przełącznika;
+    - nowa hala dodana w panelu pojawia się w ciągu 10 s;
+    - regresja wizualna przy 1920×1080 i 3840×2160, w widoku wszystkich hal i na pełnym ekranie każdej hali.
+- [ ] **Tablet.**
+  - Testy instrumentowane na emulatorze (3.1.2).
+  - Testy zrzutów (propozycja, 3.5.2): ekrany z fixture'ów renderowane w profilu Kaleido 3 i Gallery 3 i przeliczone na skalę szarości. Statusy (papier, OK, uwaga, krytyczna) muszą się różnić jasnością i grubością obrysu także bez koloru; na polach koloru tylko czarny albo biały pogrubiony tekst.
+  - „Zmień boks” na emulatorze ze sztucznym zegarem: zakładki hal (otwarta zakładka hali bieżącego boksu), przełączenie od razu po stuknięciu, powrót do poprzedniego boksu po 30 s bez wyboru, wybór (`boxes.id`) zachowany po zabiciu procesu; przy jednej hali lista bez zakładek.
+  - Scenariusze UI na sztukach deweloperskich z ADB (Maestro albo UI Automator).
+  - Na sztukach produkcyjnych (ADB wyłączone) obserwacja kamerą i w logach, a stuknięcia ręczne.
+- [ ] **Prawdziwe SMS w przebiegu nocnym:** modem z kartą SIM odczytuje kod OTP i eskalację.
+- [ ] **E-mail:** doręczalność zaproszeń i przypomnień do skrzynek WP, Onet, Interia, o2 i Gmail; zgodność SPF, DKIM i DMARC w nagłówkach.
+
+### 4.2 Bezpieczeństwo
+- [ ] **Izolacja stajni.**
+  - Każda trasa wywołana tokenem stajni A z identyfikatorami stajni B daje 404 (meta-test pilnuje nowych tras).
+  - `board` i wyświetlacz nie widzą innej stajni.
+  - Zdarzenie z cudzym `stable_id` jest odrzucane.
+  - `X-Box-Id` albo `boxId` boksu stajni B (druga stajnia z seedu ma te same numery boksów) daje 404 i nie tworzy zapisu. Lista „Zmień boks” zawiera tylko hale i boksy stajni zalogowanego użytkownika.
+  - Strażnik predykatu `stable_id`, w tym tabele podrzędne przez rodzica.
+- [ ] **Role, macierz rola × akcja (to, co dozwolone, i to, co zabronione).**
+  - owner: tylko flagi swoich koni.
+  - tenant: podgląd boksu i historii bez zapisu; po `valid_to` albo `revoked_at` traci dostęp.
+  - staff: wszystkie konie, także Luna bez boksu.
+  - admin: hale (z adresem), boksy, zaproszenia, konta `display`. Dodać halę może tylko admin.
+  - display: tylko GET, każdy zapis daje 403.
+  - Kombinacje ról: ta sama osoba jako owner i tenant; staff w jednej stajni i owner w drugiej.
+  - technician: po decyzji (sekcja 5).
+- [ ] **Wyświetlacz bez danych osobowych.** Dane-kanarki (unikalne telefony, e-maile, nazwiska) w seedzie. Skan każdej odpowiedzi dla `display` oraz HTML i JS strony `/wyswietlacz` nie może znaleźć kanarka ani wzorca E.164 czy e-maila.
+- [ ] **Tablica tabletu nie pokazuje, kto jest zalogowany.** Tablet zalogowany kontem z danymi-kanarkami: na żadnym ekranie poza ukrytymi ustawieniami nie ma imienia, telefonu ani e-maila zalogowanej osoby. Akcje z tabletu zapisują się bez autora: `source = tablet` (przy potwierdzeniu flagi `method = tablet`), `user_id = NULL`, `audit_log.actor_type = tablet` [erd].
+- [ ] **Presigned URL.**
+  - `files` niedostępny z zewnątrz (ingress, NetworkPolicy).
+  - Właściciel sprawdza uprawnienia przed wydaniem linku, np. `owner_private` nie trafia do obsługi.
+  - Link po terminie daje 403; tokenem stajni A nie da się dostać linku do pliku stajni B.
+  - Upload z ograniczonym typem i rozmiarem, z kontrolą `sha256`.
+- [ ] **Zaproszenia.**
+  - Nie da się ich zaakceptować po `expires_at` ani po `revoked_at`, ani zaakceptować drugi raz.
+  - Dopasowanie tylko do zweryfikowanego kontaktu; formaty `+48 600…`, `600…` i `0048…` dają ten sam wynik.
+  - Numer przydzielony przez operatora nowej osobie nie przejmuje dostępów poprzedniego właściciela.
+- [ ] **Sesje.**
+  - Po global sign-out zmierzyć czas do utraty dostępu na telefonie, tablecie, w panelu i na wyświetlaczu.
+  - Skradziony tablet czyta tablicę najwyżej przez czas życia access tokenu.
+  - Blokada konta `display` przez admina: zmierzyć czas do zniknięcia danych; sprawdzane także w członkostwie.
+  - Wygaśnięcie refresh tokenu (pula testowa ze skróconą ważnością) daje czytelny ekran logowania, bez zamrożonych danych.
+  - Usunięcie konta: pseudonimizacja i usunięcie w Cognito.
+- [ ] **Cognito i SMS na prawdziwych numerach.**
+  - Na każdej karcie z 1.4: czy kod dochodzi, mediana i najgorszy czas, widoczna nazwa nadawcy.
+  - Treść po polsku i ukraińsku, bez linków w SMS z kodem.
+  - Autouzupełnianie kodu (iOS `one-time-code`, Android SMS Retriever).
+  - Ponowne wysłanie kodu i limity Cognito.
+  - Ważność kodu (makieta podaje 10 min) porównana z oknem sesji Cognito.
+  - Zmiana numeru, numer przeniesiony, roaming, 5 minut bez zasięgu.
+- [ ] **TOTP (jeśli zostaje).**
+  - Rejestracja przez QR i przez ręczne przepisanie sekretu w Google Authenticator, Microsoft Authenticator, Aegis i 1Password.
+  - Zegar telefonu przesunięty o ±30 s i ±2 min.
+  - Ponowne użycie kodu.
+  - Utrata telefonu z TOTP: odzyskanie dostępu z wpisem w audycie. Jedyny admin bez dostępu: przećwiczona procedura.
+- [ ] **Kiosk:** T-02 i W-26.
+- [ ] **Pozostałe:** SBOM i skan zależności w CI, nagłówki bezpieczeństwa i CORS panelu, sekrety poza repo. Opcjonalnie zewnętrzny test penetracyjny przed wdrożeniem.
+
+### 4.3 Testy na prawdziwym sprzęcie
+
+#### 4.3.1 Tablet
+**A. Provisioning i kiosk**
+- [ ] **T-01 (B) Device Owner.**
+  - Na tablecie bez kont: ADB według procedury dla modelu, potem `adb shell dpm set-device-owner`.
+  - Zapisać komunikat i wynik `dumpsys device_policy`.
+  - Kontrolnie spróbować na tablecie z kontem Google: ma się nie udać.
+  - Najpierw na emulatorze, potem na Boox Note Air6 C.
+  - Jeśli na Boox się nie uda: ten sam moduł DO na Samsung Galaxy Tab Active5 (dokupiony dopiero wtedy, wzorzec Device Owner i plan B) oddziela błąd naszego kodu od ograniczeń firmware e-ink.
+- [ ] **T-02 (B) Lock Task z `setLockTaskFeatures(NONE)`.** Próby ucieczki:
+  - krawędzie ekranu i panel producenta (Boox, prawa krawędź);
+  - długie przytrzymanie przycisku zasilania;
+  - Recents, powiadomienia, szybkie ustawienia, gesty;
+  - podłączenie ładowarki i klawiatury USB.
+
+  Żadna próba nie może się udać.
+- [ ] **T-03 (B) HOME.** Po restarcie startuje nasza apka, bez launchera producenta. Do tego `setKeyguardDisabled` i `STAY_ON_WHILE_PLUGGED_IN`.
+- [ ] **T-04 (B) Ustawienia producenta.**
+  - App Freeze wyłączone, Autostart włączony, „Stay active in the background” na Unlimited, auto-uśpienie i auto-wyłączenie wyłączone, Wi-Fi aktywne w uśpieniu.
+  - Obserwacja przez 72 h: czy firmware zabija apkę, robi force-stop, wyłącza pakiet albo kasuje alarmy.
+  - DPC i HOME wracają same, a ustawienia po restarcie nie wracają do „Restricted”.
+- [ ] **T-05 Aktualizator producenta.** Blokada `setPackagesSuspended` albo `setApplicationHidden` (ustalić nazwę pakietu) i sprawdzenie, czy firmware respektuje `setSystemUpdatePolicy`. Okres zamrożenia wynosi najwyżej 90 dni ([system updates](https://developer.android.com/work/dpc/system-updates)).
+- [ ] **T-06 Restrykcje i odzyskanie.**
+  - `DISALLOW_DEBUGGING_FEATURES`, zablokowany reset z ustawień i blokada zmiany daty nie przeszkadzają w cichej instalacji ani w dodaniu sieci przez DPC.
+  - Reset z recovery, a potem ponowny provisioning, przywraca tablet. FRP go nie blokuje.
+- [ ] **T-07 Provisioning.** Czas od rozpakowania do kiosku i powtarzalność `tools/provision-tablet`.
+
+**B. Zasilanie i praca ciągła**
+- [ ] **T-08 (B) Autostart po rozładowaniu.** Bateria spada do zera, prąd wraca. Tablet sam się włącza i wraca do Lock Task, zalogowany, na zapamiętanym boksie. 50 cykli z przekaźnika, 100% udanych. Do tego:
+  - zanik samego zasilacza (zmierzyć czas pracy na baterii);
+  - zanik prądu w całej stajni, czyli tabletu razem z AP.
+- [ ] **T-09 Restart procesu systemowego (soft reboot).** Apka, Lock Task i odpytywanie wracają same, a ekran nie zostaje w złym stanie.
+- [ ] **T-10 Limit ładowania.**
+  - Czy model ma Charging protection.
+  - Czy da się ją włączyć z modułu Kotlin.
+  - Czy poziom zatrzymuje się na 80% przez cały test.
+  - Bez limitu: ładowanie cykliczne z gniazda sterowanego i reakcja apki na zmianę zasilania.
+- [ ] **T-11 Praca ciągła** (72 h w bramce, potem co najmniej 28 dni na stanowisku). Mierzymy:
+  - crash i ANR, PSS i stertę JS (trend tygodniowy), restarty;
+  - ponowne połączenia Wi-Fi;
+  - temperaturę i stan baterii (`BatteryManager`) oraz temperaturę w obudowie;
+  - grubość tabletu suwmiarką co tydzień;
+  - liczbę interwencji człowieka (cel: zero);
+  - czy diagnostyka w ogóle dociera do logów i metryk.
+- [ ] **T-12 Zasilacz.** Bilans przy 5 V bez PD i z PD (zasilacz USB-C PD 20–30 W), pobór w spoczynku i przy odświeżaniu, osobno przy pełnym odświeżeniu w trybie z kolorem, długość kabla.
+
+**C. Sieć i czas**
+- [ ] **T-13 (B) Wi-Fi.** Pasma 2,4 i 5 GHz osobno, WPA2 i WPA3. Wi-Fi nie zasypia: zmierzyć opóźnienie odpytywania przy włączonym oszczędzaniu energii.
+- [ ] **T-14 Awarie sieci.**
+  - AP wyłączony na 1 min, 10 min i 2 h.
+  - Wi-Fi działa, ale WAN jest odcięty.
+  - Restart AP i roaming między AP.
+  - `netem` z 5–30% strat.
+  - 802.11k/v/r włączone i wyłączone.
+
+  Stopka pokazuje „brak połączenia, dane z HH:MM”, a tablet wraca sam, bez dotykania.
+- [ ] **T-15 Zmiana sieci w kiosku.** Ukryty ekran dodaje sieć przez DPC. Sprawdzić zgodność z `DISALLOW_CONFIG_WIFI` i zmierzyć czas przywrócenia wszystkich tabletów po zmianie hasła albo routera.
+- [ ] **T-16 Czas.** NTP i strefa Europe/Warsaw; start bez sieci (`time_quality = unknown`); symulacja zmiany czasu.
+- [ ] **T-17 Fala powrotów.** Wszystkie tablety wracają naraz: jitter rozkłada odpytywanie i odświeżanie tokenów w czasie.
+
+**D. Ekran i dotyk**
+- [ ] **T-18 Opóźnienie flagi.**
+  - Od zapisu flagi w apce do widocznego pop-upu: p95 z co najmniej 500 prób.
+  - Pomiar kamerą w zwolnionym tempie i z logów.
+  - Sprawdzić, czy 304 dociera do JS.
+  - Na kolorowym e-inku pop-up z paskiem `t-crit` wymaga pełnego odświeżenia w trybie z kolorem: zmierzyć je osobno i doliczyć do progu.
+  - Próg: interwał odpytywania plus render plus odświeżenie EPD.
+- [ ] **T-19 Dotyk.** „POTWIERDZAM”, „Zmień boks” i kafle obsługiwane:
+  - gołą, mokrą i brudną dłonią;
+  - w każdej parze rękawic;
+  - przez folię i przez szybę.
+
+  Do tego przypadkowe dotknięcia (łokieć, koń).
+- [ ] **T-20 Czytelność.** Z 1,5 i 2 m, przy oświetleniu zmierzonym luksomierzem (dzień, światło sztuczne, zmierzch, noc), z podświetleniem i bez, przez obudowę. Ocenia kilka osób, także w okularach.
+  - **Pola koloru `t-*` na kolorowym e-inku** (Boox Note Air6 C: według źródeł z 1.1 panel Kaleido 3, czyli profil domyślny; potwierdzić na sprzęcie, K-01):
+    - baner flagi, WSTRZYMANE i pasek pop-upu w `t-crit` z białym pogrubionym tekstem ≥ 19 px: czytelne z 2 m, biel nie szarzeje od ditheringu;
+    - pola `t-warn` i `t-ok` z czarnym pogrubionym tekstem: kafle ≥ 44 px, komórki tabeli, lewy pasek ≥ 10 px;
+    - tekst `t-ink-2` (≥ 20 px) tylko na papierze i nadal czytelny;
+    - neutralne pola (`t-paper`, `t-scrim`) i linie `t-line` bez kolorowego ziarna;
+    - te same ekrany w profilu domyślnym i w profilu Gallery 3; wynik zapisuje parę model → profil w konfiguracji APK.
+  - **Wariant czarno-biały:**
+    - zdjęcia ekranu kolorowego przeliczone na szarość, a jeśli firmware Boox ma tryb czarno-biały, także w tym trybie [niepotwierdzone];
+    - na prawdziwym czarno-białym panelu dopiero po dokupieniu Boox Go 10.3 Gen II Lumi;
+    - kolejność jasności papier > OK > uwaga > krytyczna > atrament zachowana na sprzęcie mimo krzywej sterownika i ditheringu; pomiar na zdjęciu z kartą szarości (propozycja);
+    - statusy rozróżnialne bez koloru: krytyczna to ciemne pole bez ramki, uwaga ramka 4 px, OK 2 px, do zrobienia 2 px przerywana; info bez wypełnienia, z ramką 2 px i ikoną.
+- [ ] **T-21 Odświeżanie i „duchy”.**
+  - Każda ścieżka EPD z 3.5.2.
+  - Po odwołaniu flagi nie zostaje „duch” napisu „BEZ ŚNIADANIA” (zdjęcia makro przed i po).
+  - Ocena po 24 h i po 7 dniach stałego obrazu.
+  - **Kolorowy e-ink:**
+    - każda zmiana statusu (nowa flaga, potwierdzenie, odwołanie, przejście w „niepotwierdzona”, „Nakarmiony”) zmienia pole koloru jednym pełnym odświeżeniem w trybie z kolorem; po zniknięciu pola `t-crit` albo `t-warn` nie zostaje kolorowy ślad;
+    - zegar, odliczanie i pasek ONLINE są czarno-białe i idą szybkim trybem (A2 albo DU); sprawdzić, czy szybki tryb nie odbarwia ani nie przyciemnia sąsiednich pól koloru, bo szybkie tryby gubią kolor;
+    - czy Onyx SDK pozwala ustawić tryb dla fragmentu ekranu na Note Air6 C: [niepotwierdzone]; jeśli nie, zmierzyć skutki odświeżania zegara dla całego ekranu;
+    - liczba pełnych odświeżeń na dobę: po pop-upie, przy nowej fladze krytycznej, przy każdej zmianie pola koloru i co najmniej raz na dobę, bez animacji;
+    - zmiana statusu w trakcie częściowego odświeżania zegara nie zostawia pola w starym kolorze.
+  - **Czarno-biały e-ink** (tylko po dokupieniu Go 10.3 Gen II Lumi): te same ścieżki; pola statusu jako szarość bez „duchów” po zmianie statusu.
+- [ ] **T-22 Zimno w komorze, 0 °C i niżej.** Sprawdzamy:
+  - szybkość odświeżania i dotyk; na kolorowym e-inku osobno czas pełnego odświeżenia w trybie z kolorem i nasycenie pól `t-*`;
+  - czy tablet ładuje się w zimnie (jeśli firmware wstrzymuje ładowanie, tablet rozładuje się mimo zasilacza);
+  - kondensację po ogrzaniu.
+
+**Testy koloru K-01…K-07** (rozszerzają T-20, T-21 i T-22; K-01 i K-05 przechodzą przed zakupem etapu 1; progi ustalić przed testem, sekcja 5):
+- [ ] **K-01 Czytelność pól statusu i drabina jasności.**
+  - Plansza testowa w ukrytych ustawieniach (propozycja): pola `t-paper`, `t-ok`, `t-warn`, `t-crit`, `t-ink` i `t-scrim` w rozmiarach z makiet (kafel 44 px, baner flagi, pasek popupu 16 px, lewy pasek 10 px). Tekst jak w apce: pogrubiony czarny na `t-ok` i `t-warn`, pogrubiony biały 19 px na `t-crit`, `t-ink-2` 20 px na papierze. Plansza w obu profilach: domyślnym (Kaleido 3) i Gallery 3.
+  - Oświetlenie mierzone luksomierzem: półmrok hali, ciepłe światło sztuczne, światło dzienne z bramy, latarka czołowa. W domu warunki odtwarzamy, a potwierdzamy je w stajni pilotażowej (T-29).
+  - Podświetlenie wyłączone, w połowie i na maksimum, przy skrajnych ustawieniach CTM.
+  - Pomiar: zdjęcie z ręczną ekspozycją i szarą kartą, potem jasność każdego pola. Kolejność papier > OK > uwaga > krytyczna > atrament musi się utrzymać, a odstępy nie mogą spaść poniżej progu.
+  - Ocena z 1,5 i 2 m przez kilka osób: czy da się odróżnić „niepotwierdzona” od OK bez czytania słowa i czy biały tekst na `t-crit` jest czytelny. Jeśli profil Gallery 3 wypadnie na Kaleido 3 lepiej niż domyślny, to sygnał do zmiany palety.
+- [ ] **K-02 Ditherowanie i ziarno.**
+  - Zdjęcia makro płaskich pól `t-ok`, `t-warn` i `t-crit` oraz neutralnego pola `t-scrim` i linii `t-line` (`t-line` nigdy nie jest wypełnieniem). Sprawdzamy, czy sterownik ditheruje pola (wzór, mora), czy krawędzie pól są postrzępione i czy neutralne R = G = B zostają bez kolorowego ziarna.
+  - Białe litery na `t-crit`: kolorowe obwódki na krawędziach przy siatce koloru 150 ppi.
+  - Ustawienia E-Ink Center dla naszego pakietu (tryb odświeżania, wzmocnienie ciemnych kolorów, suwaki koloru): zapisać wartości domyślne, zmierzyć ich wpływ i zamrozić je w `tools/provision-tablet`. Czy da się je ustawić z ADB albo DPC: [niepotwierdzone].
+- [ ] **K-03 Ghosting koloru.**
+  - Sekwencje: baner `t-crit` → papier (odwołanie flagi); `t-warn` → `t-ok` (potwierdzenie, „potwierdzona HH:MM”); pop-up na `t-scrim` → zamknięcie; „Zmień boks” → inny boks z innymi polami koloru, także między zakładkami hal.
+  - Zdjęcia makro przed zmianą, po odświeżeniu częściowym i po pełnym. Po pełnym odświeżeniu nie może zostać czytelny ślad pola ani słowa.
+  - Ocena po 24 h i po 7 dniach stałego obrazu, z pełnym odświeżeniem raz na dobę.
+- [ ] **K-04 Pełne odświeżenie przy zmianie statusu.**
+  - Każda zmiana pola koloru daje dokładnie jedno pełne odświeżenie w trybie z kolorem: log `epdRefresh(full)` i nagranie wideo.
+  - Mierzymy czas od nowych danych do stabilnego obrazu (wchodzi do budżetu T-18) i widoczność błysku.
+  - Bez zmiany statusu nie ma pełnych odświeżeń, poza jednym na dobę.
+  - Częściowe odświeżanie zegara, odliczania i paska ONLINE nie narusza sąsiednich pól koloru (granice regionów).
+- [ ] **K-05 Tryby A2 i DU gubiące kolor.**
+  - Celowo narysować pole `t-warn` i `t-crit` w A2 i DU, a wynik udokumentować zdjęciem.
+  - W normalnej pracy szybkim trybem idą tylko elementy czarno-białe: zegar, odliczanie i ONLINE.
+  - Tryb naszej apki w E-Ink Center ustawić na jakościowy (HD albo Regal) i wyłączyć „Smooth Mode”. Sprawdzić, czy firmware nie przełącza apki w tryb szybki przy przewijaniu HISTORII albo listy boksów, i czy ustawienie przetrwa restart i rozładowanie.
+  - Czy Onyx SDK pozwala ustawić tryb dla fragmentu ekranu: [niepotwierdzone] (3.5.2).
+- [ ] **K-06 Wariant czarno-biały.**
+  - Etap 0, bez dodatkowego sprzętu: zrzuty ekranu z Air6 C (`screencap`) w obu profilach, skwantowane do 16 poziomów szarości. Sprawdzamy kolejność i odstępy drabiny oraz grubości obrysów: uwaga 4 px, OK 2 px, do zrobienia 2 px przerywana, krytyczna bez ramki. Wynik jest tylko orientacyjny, bo zrzut pomija krzywą sterownika i dithering panelu.
+  - Na panelu Carta (Go 10.3 Gen II Lumi, jeśli zostanie dokupiony): K-01…K-04 w tej samej formie. Dodatkowo sprawdzamy, czy szare pola 204, 146 i 66 nie ditherują się w sposób mylący z ramkami.
+  - Kryterium: każdy status rozróżnialny bez koloru, po jasności, obrysie, słowie i ikonie.
+- [ ] **K-07 Podświetlenie w pracy ciągłej.**
+  - Najniższy poziom podświetlenia, przy którym K-01 przechodzi w półmroku.
+  - Czy apka albo DPC ustawia jasność i barwę światła. Onyx ma osobne kanały ciepły i zimny, którymi steruje np. [Gentle Glow](https://apt.izzysoft.de/packages/com.onyx.darie.calin.gentleglowonyxboox/). Na Air6 C: [niepotwierdzone]. Ustawienie musi przetrwać restart i rozładowanie do zera.
+  - Pobór prądu z podświetleniem w bilansie T-12, temperatura w obudowie w T-11. W T-22 dodatkowo czas pełnego odświeżenia z kolorem i ghosting w zimnie.
+
+**E. Logowanie**
+- [ ] **T-23 Sesja na tablecie.**
+  - Logowanie SMS OTP.
+  - Odnawianie sesji przez cały test ciągły.
+  - Global sign-out z telefonu: tablet pokazuje ekran logowania i pamięta boks.
+  - Po zalogowaniu innym kontem tablet wraca do tego samego boksu (to samo `id`).
+  - Tablica nie pokazuje, kto jest zalogowany; logowanie i wylogowanie tylko w ukrytych ustawieniach (długie przytrzymanie).
+  - Tokeny w Keystore (sprzętowym czy programowym).
+
+**F. Aktualizacje APK**
+- [ ] **T-24 (B) Cicha instalacja.** `PackageInstaller` jako DO, restart przez `MY_PACKAGE_REPLACED` i powrót do Lock Task. Zły podpis albo uszkodzony plik jest odrzucany, a stara wersja działa dalej.
+- [ ] **T-25 (B) Przerwana aktualizacja.**
+  - Zerwane Wi-Fi w trakcie pobierania.
+  - Presigned URL wygasa w trakcie pobierania.
+  - Zanik prądu w trakcie instalacji.
+  - Restart w trakcie instalacji.
+
+  W każdym przypadku tablet kończy na działającej wersji i sam wraca do kiosku.
+- [ ] **T-26 Wadliwa wersja.** Crash przy starcie uruchamia watchdog; naprawa przez status `halted` i APK z wyższym `versionCode`. Aktualizacja przy otwartym pop-upie: boks i sesja zostają.
+- [ ] **T-27 Play Protect.** Status certyfikacji (Sklep Play › Informacje) i numer firmware. T-24 powtarzać po aktualizacjach Play services (weryfikacja deweloperów).
+
+**G. Funkcje tabletu**
+- [ ] **T-28 Pop-up i zmiana boksu.**
+  - **Pop-up:**
+    - kolejka pop-upów, krytyczne pierwsze;
+    - pop-up nowej flagi znika po POTWIERDZAM albo po odwołaniu flagi, przy najbliższym odpytaniu;
+    - potwierdzenie na jednym tablecie (albo w apce) usuwa pop-up z drugiego tabletu na tym samym boksie przy najbliższym odpytaniu;
+    - status tylko „potwierdzona HH:MM” albo „niepotwierdzona”;
+    - zapis bez autora: `method = tablet`, `user_id = NULL`, `box_id` wybranego boksu z `X-Box-Id`.
+  - **„Zmień boks”** (bez blokady boksu, zmienić może każdy przy tablecie):
+    - lista w zakładkach hal; otwarta jest zakładka hali bieżącego boksu; przy jednej hali lista bez zakładek;
+    - przyciski boksów z numerem i koniem; wolne boksy (Hala główna · boks 3, Hala nowa · boks 6) oznaczone;
+    - stuknięcie przełącza od razu; nagłówek pokazuje halę z numerem („Hala nowa · boks 4”);
+    - bez wyboru powrót do poprzedniego boksu po 30 s, z doliczonym odświeżeniem e-ink; to samo po przełączaniu zakładek bez wyboru boksu (od kiedy liczyć 30 s, erd.md nie przesądza; propozycja: od ostatniego dotknięcia listy);
+    - nowy pop-up w trakcie wybierania;
+    - wybór boksu (`boxes.id`) przetrwa restart, zanik prądu, aktualizację APK i ponowne logowanie;
+    - boks przeniesiony w panelu do innej hali: tablet zostaje na tym samym `id`, a nagłówek i zakładka pokazują nową halę;
+    - hala dodana w panelu pojawia się jako nowa zakładka przy najbliższym odpytaniu.
+  - **Dwie hale, ten sam numer** (tablety na Hala główna · boks 4 i Hala nowa · boks 4; w zestawie domowym drugim tabletem jest emulator):
+    - flaga Belli pojawia się tylko na tablecie Hala nowa · boks 4, a nie na tablecie Sonaty;
+    - POTWIERDZAM zapisuje `box_id` boksu 4 Hali nowej;
+    - „Nakarmiony” i zdarzenie przy boksie z tabletu Hala główna · boks 4 trafiają do Sonaty i do id boksu 4 Hali głównej;
+    - nagłówki obu tabletów zawsze pokazują halę.
+
+**H. Środowisko (stajnia pilotażowa)**
+- [ ] **T-29 Warunki w stajni.**
+  - Kilka tygodni pracy z rejestratorami.
+  - Oględziny portu USB-C, styków i wnętrza ramki po 2, 4 i 8 tygodniach.
+  - Ocena próbek materiałów.
+  - Atrapy obudów przed montażem.
+  - Mechanika: próba zdjęcia tabletu bez klucza, trzaskanie drzwiami boksu, uderzenie w ramkę.
+
+#### 4.3.2 Wyświetlacz
+- [ ] **W-01 Zimny start:** czas od podania prądu do widoku z danymi.
+- [ ] **W-02 Wspólny zanik TV i Pi**, 100 cykli z losową przerwą od 5 s do 10 min.
+  - Telewizor włącza się sam albo budzi go CEC.
+  - Wraca ten sam widok (wszystkie hale albo pełny ekran zapamiętanej hali, W-29), a sesja jest ważna.
+  - Journal i `fsck` bez błędów.
+  - Porównanie NVMe z microSD.
+- [ ] **W-03 Mrugnięcia zasilania** krótsze niż 1 s: Pi nie zawisa. Jeśli przekaźnik nie zejdzie poniżej 1 s, test robi się ręcznie wyłącznikiem listwy.
+- [ ] **W-04 Zanik prądu samego telewizora:** obraz wraca bez ingerencji.
+- [ ] **W-05 Restart samego Pi:** telewizor nie zostaje na ekranie „brak sygnału”. Sprawdzić HPD i EDID przy telewizorze w standby.
+- [ ] **W-06 Przycisk zasilania Pi:** przypadkowe naciśnięcie nie pokazuje okna wyłączania i nie wyłącza Pi.
+- [ ] **W-07 Doba bez dotykania pilota:** telewizor nie wyłącza się po 4 h i nie pokazuje komunikatu o wyłączeniu.
+- [ ] **W-08 Trwałość ustawień telewizora** po zaniku zasilania i po świadomej aktualizacji jego firmware. Po włączeniu telewizor wraca na wejście HDMI z Pi, a nie na launcher.
+- [ ] **W-09 Overscan:** ramka 1 px przy krawędziach jest widoczna w całości.
+- [ ] **W-10 Retencja:** po 14 dniach statycznego widoku szara plansza nie pokazuje śladów.
+- [ ] **W-11 Blokada pilota i przycisków** (jeśli model ją ma).
+- [ ] **W-12 `kill -9` Chromium:** przeglądarka wraca w ≤ 10 s, bez okna „Przywrócić strony?”, paska infobar ani okna pęku kluczy.
+- [ ] **W-13 Zawieszenie jądra:** watchdog sam restartuje Pi.
+- [ ] **W-14 Wygaszanie i kursor:** 72 h ekran aktywny, kursor niewidoczny.
+- [ ] **W-15 Praca ciągła** co najmniej 28 dni, razem z tabletami. Mierzymy:
+  - pamięć Chromium i `free` bez rosnącego trendu (porównanie 2 GB z 4 GB);
+  - `vcgencmd get_throttled` = `0x0`;
+  - temperaturę z Pi zamocowanym za pracującym telewizorem;
+  - obudowę pasywną wobec wentylatora (tylko na stanowisku);
+  - ile GB dziennie zapisuje się na nośnik.
+
+  Na koniec decyzja o nocnym przeładowaniu strony.
+- [ ] **W-16 Aktualizacje:** pełna lista testów na kanarku przed każdą aktualizacją systemu albo Chromium w stajni.
+- [ ] **W-17 Czas:** start bez sieci z RTC, symulacja zmiany czasu (NTP wyłączony, `timedatectl set-time`), zmiana daty po północy.
+- [ ] **W-18 Odtworzenie zestawu:** podmiana karty na gotowy obraz, logowanie, wybór hali (nowy profil przeglądarki nie ma zapisanego wyboru, więc startuje od wszystkich hal). Zmierzyć czas i spisać procedurę.
+- [ ] **W-19 Wi-Fi w miejscu montażu** z Pi za włączonym telewizorem (`nmcli` albo `iw`); porównanie z LAN.
+- [ ] **W-20 AP wyłączony** na 1 min, 10 min i 1 h: pasek „Brak połączenia od…”, po powrocie strona odświeża się sama.
+- [ ] **W-21 Błędy serwera** (500, 503, timeout, odpowiedź po 10 s): nigdy biały ekran, ostatni stan z informacją, ile ma lat.
+- [ ] **W-22 ETag i 304:** odpowiedź 304 nie przerysowuje ekranu, ekran nie miga; zmierzyć transfer na dobę.
+- [ ] **W-23 Czytelność:** 3 osoby z 2, 4, 6 i 10 m odczytują halę z numerem boksu, imię konia i nazwę flagi, w dzień przy otwartych wrotach i w nocy, w widoku wszystkich hal i na pełnym ekranie hali. Porównanie 1080p z 4K przy skali 2.
+- [ ] **W-24 Układ** przy 1280×720, 1920×1080 i 3840×2160 (skala 2): bez przewijania i ucinania, także przy flagach we wszystkich 14 boksach obu hal (Hala główna 1–8, Hala nowa 1–6), w widoku wszystkich hal i na pełnym ekranie każdej hali.
+- [ ] **W-25 Klawiatura i pilot przez CEC.**
+  - Wejście w pełny ekran, przełącznik hal i powrót przyciskiem „Wszystkie hale” samymi strzałkami i OK, z widocznym fokusem.
+  - Kody klawiszy przez `ir-keytable --test` albo `evtest`.
+  - W razie potrzeby przemapować `KEY_OK` na `KEY_ENTER`.
+- [ ] **W-26 Ucieczka z kiosku:** Alt+F4, Ctrl+W, F11 i skróty terminala nie dają dostępu do systemu, a Chromium wraca.
+- [ ] **W-27 SSH:** tylko klucze, brak domyślnego hasła.
+- [ ] **W-28 Pilotaż, 4–8 tygodni.**
+  - Co 2 tygodnie oględziny kurzu i odczyt rejestratorów.
+  - Poranek po mroźnej nocy.
+  - Korozja złączy HDMI i USB-C oraz listew po pilotażu.
+- [ ] **W-29 Pełny ekran hali i zapamiętany wybór.**
+  - Telewizor ustawiony na pełny ekran Hali nowej wraca na ten sam widok po restarcie Pi, `kill -9` Chromium, zaniku prądu (W-02) i ponownym logowaniu konta `display`.
+  - Na pełnym ekranie są tylko flagi tej hali, także w pasku pilnych; flaga Kasztana (Hala główna · boks 7) nie występuje, a skrót Hali głównej jest tylko liczbowy.
+  - Przełącznik hal przechodzi na pełny ekran Hali głównej bez wracania do widoku wszystkich; „Wszystkie hale” wraca do sekcji wszystkich hal z paskiem pilnych obejmującym obie hale.
+  - Zapisana hala wyłączona w panelu albo usunięta: po najbliższym odpytaniu strona pokazuje wszystkie hale. Wyczyszczony profil przeglądarki: wszystkie hale.
+  - Dwa telewizory na jednym koncie `display` pamiętają różne wybory niezależnie; serwer o wyborze nie wie.
+
+#### 4.3.3 Sieć
+- [ ] **N-01 Przed montażem w stajni pilotażowej:**
+  - mapa Wi-Fi zrobiona telefonem i tabletem w każdym miejscu montażu;
+  - RSSI i SNR mierzone na tablecie w obudowie i bez niej;
+  - pasma.
+- [ ] **N-02 Zmienne sezonowe:** konie w boksach i puste boksy, wrota otwarte i zamknięte, strych z sianem pełny i pusty.
+- [ ] **N-03 Liczba klientów na AP i transfer na tablet na dobę.**
+- [ ] **N-04 Brak portalu logowania i wyjście na port 443** do środowiska testowego z sieci stajni.
+- [ ] **N-05 Amoniak:** NH3 na wysokości montażu i przy podłodze, rano przed sprzątaniem i po nim.
+- [ ] **N-06 Przećwiczona zmiana Wi-Fi w stajni** według T-15.
+
+### 4.4 Scenariusze akceptacyjne z makiet
+
+Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt tabletu na sztuce z ADB) i ręcznie na stanowisku. Dane pochodzą z seedu z 3.2: Hala główna, boksy 1–8 (Kasztan w boksie 7, wolny boks 3), i Hala nowa, boksy 1–6 (Grom 1, Mgła 2, Rumba 3, Bella 4, Bursztyn 5, wolny boks 6). Numery boksów powtarzają się między halami, więc skrypty i asercje odwołują się do boksów po `id` ze stałych UUID seedu, a interfejs zawsze pokazuje halę razem z numerem.
+
+1. **A-01 Kasztan (Hala główna · boks 7).**
+   - [ ] O 03:14 Anna ustawia flagę „Bez śniadania” do 10:00 z notatką.
+   - [ ] Tablet z wybranym boksem Hala główna · boks 7 przy najbliższym odpytaniu pokazuje pop-up „NOWA FLAGA · od Anny · 03:14”, a śniadanie jest „WSTRZYMANE”. Tablica nie pokazuje, kto jest zalogowany na tablecie.
+   - [ ] O 06:02 ktoś stuka POTWIERDZAM. Pop-up znika, baner pokazuje „POTWIERDZONA 06:02”, a apka Anny „Potwierdzona 06:02”, bez autora.
+   - [ ] W bazie: `method = tablet`, `user_id` NULL, `box_id` boksu 7 Hali głównej (nie boksu 7 innej hali ani stajni), `audit_log.actor_type = tablet`.
+   - [ ] Wyświetlacz pokazuje „Hala główna · boks 7” i „do 10:00 · potwierdzona 06:02”. Historia boksu ma wpisy 03:14 i 06:02.
+   - [ ] Na kolorowym e-inku pole `t-crit` banera zmienia się jednym pełnym odświeżeniem przy potwierdzeniu, bez kolorowego śladu (T-21).
+   - [ ] O 10:00 flaga znika sama: dane w bazie się nie zmieniają, zmienia się odpowiedź i ETag. Eskalacji nie ma.
+2. **A-02 Bella (Hala nowa · boks 4, martwy tablet).**
+   - [ ] Flaga „Nie na padok” z 01:20, Hala nowa · boks 4, tablet tego boksu wyłączony.
+   - [ ] Tablet Hala główna · boks 4 (Sonata) tej flagi nie pokazuje.
+   - [ ] Po `warn_at` „NIEPOTWIERDZONA” (jeden wiersz `flag_escalations` z `level = board_warning`) widać:
+     - w pasku pilnych widoku wszystkich hal, z „Hala nowa · boks 4”;
+     - na pełnym ekranie Hali nowej;
+     - na liście dnia.
+
+     Na pełnym ekranie Hali głównej flaga nie występuje; w skrócie Hali nowej jest najwyżej liczba.
+   - [ ] Po `notify_at` admin dostaje dokładnie jedno powiadomienie (jeden wiersz `level = admin_notify`), także przy restarcie crona i dwóch replikach. Apka Anny pokazuje „Admin stajni dostał powiadomienie”.
+   - [ ] Ola potwierdza w apce: status „potwierdzona HH:MM”, autorką w danych jest Ola, dalszych eskalacji nie ma.
+3. **A-03 Odwołanie flagi przy otwartym pop-upie.**
+   - [ ] Pop-up i baner znikają przy najbliższym odpytaniu, posiłek wraca, na ekranie e-ink nie zostaje „duch”, a na kolorowym e-inku także kolorowy ślad pola `t-crit`.
+   - [ ] Wyświetlacz zmienia się najpóźniej po 10 s.
+   - [ ] Eskalacja nie wychodzi, nawet gdy odwołanie przyszło tuż przed `notify_at`.
+4. **A-04 Luna (koń bez boksu).**
+   - [ ] Luna jest widoczna w apce obsługi i w panelu, ale na żadnym tablecie.
+   - [ ] W formularzu przypisania wolne boksy mają halę przy numerze („Hala główna · boks 3”, „Hala nowa · boks 6”), a zapis wysyła `boxId`.
+   - [ ] Po przypisaniu do Hala nowa · boks 6 Luna pojawia się na tablecie tego boksu, a nie na tablecie Hala główna · boks 6 (Fala). Powstaje otwarty wpis w `horse_box_history`, a zużycie w billingu rośnie o 1.
+5. **A-05 Wolne boksy: Hala główna · boks 3 i Hala nowa · boks 6.**
+   - [ ] Szczegóły Hala nowa · boks 6: Wicher do 01.10, przeniesiony do Hala główna · boks 5, oraz zdarzenia z 09.10 i 01.10.
+   - [ ] Tablety obu boksów pokazują „wolny”, a w „Zmień boks” oba są oznaczone jako wolne w zakładkach swoich hal.
+   - [ ] Zdarzenie wpisane z tabletu Hala nowa · boks 6 nie ma autora i trafia do historii tylko tego boksu.
+6. **A-06 Najemca.**
+   - [ ] Anna widzi „Udostępnione do 31.12.2026 · tylko podgląd” i historię Hala główna · boks 7. Wpisy z apki mają osobę, wpisy z tabletu nie mają.
+   - [ ] Zapis przez API daje 403. Po `valid_to` dostęp znika.
+   - [ ] Marek Nowak akceptuje zaproszenie na najem Hala główna · boks 3 przed terminem; po terminie zaproszenia nie da się zaakceptować.
+7. **A-07 Obsługa.**
+   - [ ] Ola ustawia flagi dla Iskry (Hala główna · boks 1), Groma (Hala nowa · boks 1) i Luny oraz zmienia plan karmienia. Właściciel widzi flagę, a tablet pokazuje pop-up: tablet Hala główna · boks 1 tylko dla Iskry, tablet Hala nowa · boks 1 tylko dla Groma. Flaga Luny bez boksu nie trafia na żaden tablet.
+   - [ ] Właściciel bez dostępu do konia dostaje odmowę.
+8. **A-08 Wyświetlacz z dwiema halami.**
+   - [ ] Hala główna: 7 koni, 1 wolny boks (3), 1 flaga krytyczna. Hala nowa: 5 koni, 1 wolny boks (6), 1 flaga niepotwierdzona. Każdy kafel ma halę przy numerze.
+   - [ ] Pełny ekran hali pokazuje tylko flagi tej hali. Przełącznik hal zmienia halę bez wracania do widoku ogólnego. „Wszystkie hale” wraca do widoku ogólnego. Wybór przetrwa restart i zanik prądu (W-29).
+   - [ ] Nowa hala dodana w panelu pojawia się najpóźniej po 10 s, a tablety mają nową zakładkę w „Zmień boks” (A-11).
+   - [ ] Na ekranie nie ma danych osobowych.
+9. **A-09 Noc zmiany czasu (symulacja).** Śniadanie zostaje o 06:30 czasu lokalnego, flaga „do odwołania” przechodzi przez zmianę, eskalacje nie przesuwają się o godzinę.
+10. **A-10 Ten sam numer w dwóch halach (boks 4).**
+    - [ ] Tablety na Hala główna · boks 4 (Sonata) i Hala nowa · boks 4 (Bella), oba wybrane przez „Zmień boks”: zakładka hali, potem boks 4.
+    - [ ] Anna ustawia flagę dla Belli: pop-up pojawia się tylko na tablecie Hala nowa · boks 4.
+    - [ ] POTWIERDZAM na tym tablecie: `flag_acknowledgements.box_id` to id boksu 4 Hali nowej.
+    - [ ] „Nakarmiony” i „Czyszczenie” z tabletu Hala główna · boks 4 zapisują się dla Sonaty i boksu 4 Hali głównej; historia boksu 4 Hali nowej ich nie ma.
+    - [ ] Apka, panel i wyświetlacz pokazują oba boksy zawsze z halą; wyszukanie „4” w panelu zwraca dwa boksy.
+    - [ ] Na tablecie Hala główna · boks 4 „Zmień boks” bez wyboru wraca po 30 s do Hala główna · boks 4, a nie do boksu 4 drugiej hali.
+11. **A-11 Dodanie hali w panelu.**
+    - [ ] Admin w Boksy i konie → „Dodaj halę” podaje nazwę i adres (skopiowany z Hali nowej i poprawiony) i dodaje boksy 1–4. Hala i boksy zapisują się w jednej transakcji z wpisem audytu.
+    - [ ] Numery 1–4 powtarzają się z obiema halami bez błędu. Adres nowej hali widać w panelu przy hali i w szczegółach jej boksów.
+    - [ ] Najpóźniej po 10 s nowa hala ma sekcję na wyświetlaczu i zakładkę w „Zmień boks” na tabletach; telewizor na pełnym ekranie innej hali zostaje na swojej hali.
+    - [ ] Drugi wariant: pusta hala, potem przeniesienie do niej wolnego Hala nowa · boks 6. Boks zachowuje `id` i historię (Wicher do 01.10); tablet z tym boksem pokazuje nową halę w nagłówku.
+    - [ ] Usunięcie hali z boksami jest odrzucane; po przeniesieniu boksów z powrotem pustą halę da się usunąć albo wyłączyć.
+    - [ ] Hali nie doda nikt poza adminem (403).
+
+### 4.5 Stanowisko testowe i kryteria gotowości do wdrożenia
+
+**Zestaw domowy (minimalny, przed stanowiskiem)**
+- Sprzęt (sekcja 1):
+  - 1× Boox Note Air6 C (kolorowy 10,3", Android 16) z zasilaczem USB-C PD 20–30 W;
+  - Raspberry Pi 5 4 GB z oficjalnym zasilaczem 27 W, obudową z wentylatorem, microSD 64 GB A2 i kablem micro-HDMI → HDMI;
+  - własne: TV albo monitor z HDMI, domowe Wi-Fi, własny telefon (SMS), klawiatura i mysz USB.
+- Co tu przechodzi:
+  - bramka tabletu (punkty (B) z 4.3.1) i pozostałe testy T-xx na jednej sztuce, z paletą `t-*` w profilu właściwym dla ekranu; cykle zasilania (T-08) ręcznie wtyczką zasilacza, dopóki nie ma przekaźników, a testy wymagające komory albo dwóch AP (T-14, T-22) dopiero na stanowisku;
+  - T-20, T-21 i K-01…K-05, K-07 w kolorze, a wariant czarno-biały (K-06) tylko na zrzutach przeliczonych na szarość;
+  - T-28 i A-10 z jednym tabletem: drugim tabletem jest emulator albo skrypt odpytujący `board` z `X-Box-Id` drugiego boksu (propozycja); boks 4 obu hal wybiera się przez „Zmień boks”;
+  - testy W na własnym TV albo monitorze, w tym W-29 (pełny ekran hali po restarcie); testy porównawcze (NVMe, obudowa pasywna, drugi telewizor) dopiero na stanowisku;
+  - SMS OTP na własnym telefonie; pełna lista sieci z 1.4 dopiero na stanowisku.
+- Dokupić tylko, jeśli coś nie zadziała:
+  - Samsung Galaxy Tab Active5, gdy T-01 albo T-02 nie przejdą na Boox: wzorzec Device Owner i plan B;
+  - Boox Go 10.3 Gen II Lumi do testu prawdziwego czarno-białego ekranu (K-06, T-20, T-21).
+
+**Stanowisko testowe**
+- Ściana „korytarza” z 4 tabletami wybranego modelu (kolorowego albo czarno-białego) w konfiguracji produkcyjnej, w prototypowych obudowach, ze znacznikami 1,5 i 2 m i ściemnianą lampą. Tablety stoją na boksach z seedu: Hala główna · boks 4 i boks 7, Hala nowa · boks 4 i wolny boks 6, więc ten sam numer boksu występuje na ścianie dwa razy (A-10). Obok drugi model, jeśli bramkę przeszły dwa, w pracy ciągłej, tablet do testów niszczących w komorze i sztuka deweloperska.
+- Dwa telewizory z Raspberry Pi: jeden pokazuje wszystkie hale, drugi pełny ekran Hali nowej. Obok kanarek.
+- Osobne Wi-Fi z dwoma AP, most z `netem`, możliwość odcięcia WAN.
+- Przekaźniki na każdym urządzeniu i na AP. Skrypty scenariuszy awarii uruchamiane według harmonogramu, także w nocy.
+- Kamery i rejestratory.
+- Telefony z kartami różnych sieci i modem SMS.
+- Środowisko testowe z seedem obu stajni; k6 symuluje pozostałe tablety i stajnie.
+- Dziennik testów: każda interwencja ręczna, każdy zawieszony ekran, każdy „duch” i wynik każdego cyklu zasilania.
+
+**Etapy:** bramka (1–2 tygodnie, punkty B oraz K-01 i K-05, w zestawie domowym), stanowisko (co najmniej 28 dni, całe 4.3 i 4.4, równolegle obciążenie z 4.1), stajnia pilotażowa (4–6 tygodni, prawdziwa obsługa w rękawicach, przećwiczona zmiana Wi-Fi, oględziny obudów).
+
+**Wymagania wobec stajni pilotażowej** (zapewnia stajnia, my mierzymy):
+- przy każdym boksie z tabletem: gniazdo 230 V z zasilaczem USB-C PD ≥ 20 W albo PoE+ z wydzieloną mocą ok. 25 W, jeśli taki wariant zostanie wybrany; kabel o ustalonej długości poza zasięgiem konia;
+- RSSI i SNR w miejscu tabletu mierzone na samym tablecie, w obudowie;
+- pasmo zgodne z wynikiem T-13;
+- osobny SSID albo zgoda na dodanie urządzeń; brak portalu logowania; ruch wychodzący na port 443;
+- przy telewizorze: gniazdo 230 V, a jeśli się da, gniazdo Ethernet;
+- znana temperatura w miejscach montażu, z informacją, czy hale są ogrzewane;
+- informacja, jak sprząta się korytarz (woda, myjka, środki dezynfekujące), bo od tego zależy klasa IP;
+- 230 V przy boksach montuje tylko elektryk z uprawnieniami ([IEC 60364-7-705](https://vde-verlag.de/iec-normen/212877/iec-60364-7-705-2006.html)); wymagania normy [niepotwierdzone].
+
+**Kryteria gotowości do wdrożenia**
+- [ ] **CI zielone:**
+  - testy jednostkowe i integracyjne;
+  - kontrakty API, zdarzeń i bazy;
+  - bramka zakazanych obiektów;
+  - migracje N-1 → N;
+  - pełna macierz izolacji, bez żadnej trasy bez testu.
+- [ ] Test obciążenia w docelowej skali przeszedł, a wyniki są zapisane jako linia bazowa.
+- [ ] Wszystkie scenariusze A-01…A-11 przechodzą automatycznie, na stanowisku i w stajni pilotażowej.
+- [ ] **Tablet:**
+  - 100% autostartów do Lock Task w serii cykli zasilania;
+  - 100% aktualizacji APK udanych albo bezpiecznie przerwanych;
+  - zero wyjść z kiosku;
+  - zero „duchów” odwołanej flagi, także kolorowych śladów pól `t-*`;
+  - pola `t-*` czytelne z 1,5 i 2 m, a statusy rozróżnialne bez koloru (kolejność jasności zachowana na ekranie wybranego modelu, kolorowego albo czarno-białego);
+  - „Zmień boks” wraca do poprzedniego boksu po 30 s bez wyboru, a zapisy z tabletu trafiają do `id` wybranego boksu także przy tych samych numerach w dwóch halach;
+  - zero interwencji ręcznych w ostatnich 2 tygodniach testu ciągłego;
+  - pamięć bez rosnącego trendu;
+  - bateria bez puchnięcia;
+  - temperatura w obudowie w zakresie producenta;
+  - opóźnienie flagi w p95 i trafność dotyku w rękawicach w ustalonych progach;
+  - działa w najniższej temperaturze zanotowanej w hali pilotażowej.
+- [ ] Wyświetlacz pracuje tygodniami bez interwencji, po zaniku prądu sam wraca do zapamiętanego widoku (wszystkie hale albo pełny ekran hali, na którym są tylko flagi tej hali) i nie ma śladów retencji.
+- [ ] SMS OTP dochodzi we wszystkich testowanych sieciach w ustalonym czasie. Odzyskiwanie dostępu działa. Global sign-out i blokada konta odbierają dostęp w zmierzonym czasie.
+- [ ] Eskalacja działa przy martwym tablecie (A-02). To jedyne zabezpieczenie, bo stanu tabletów nie śledzimy.
+- [ ] Zmiana czasu przeszła bez błędów, w symulacji albo na stanowisku.
+- [ ] **Przećwiczone runbooki:**
+  - wymiana tabletu i jego provisioning;
+  - odzyskanie zablokowanego tabletu;
+  - zmiana Wi-Fi w stajni;
+  - ponowne logowanie tabletu i telewizora;
+  - cofnięcie wydania APK;
+  - redrive z DLQ;
+  - odtworzenie bazy (po stronie platformy).
+- [ ] Alerty działają: niepusta DLQ, nieudany cron, opóźniona eskalacja, 5xx w `board`.
+- [ ] Zatwierdzona para model tabletu + firmware, z zablokowanym aktualizatorem producenta, oraz profil palety `t-*` dla tego modelu.
+
+## 5. Decyzje do podjęcia przed startem
+
+**Blokują etap 1 (Cognito)**
+1. **TOTP a logowanie SMS bez hasła.** W Cognito oba wykluczają się dla tego samego użytkownika. Kto ma mieć TOTP i w jakim przepływie, np. tylko admin panelu z hasłem? Jak ma działać „Użyj aplikacji uwierzytelniającej” z makiety Logowanie?
+2. **Logowanie recenzentów Apple i Google**, którzy nie odbiorą SMS. Do wyboru: konto demo z innym sposobem logowania w osobnym kliencie albo tryb demo uzgodniony z Apple. Custom SMS sender w produkcji odpada.
+3. **Konto `display`.** Jak się loguje (SMS na własny numer, unikalny w puli, albo e-mail OTP)? Kto loguje telewizor przy instalacji i po wygaśnięciu sesji? Jedno konto na wszystkie telewizory czy osobne konto na każdy: erd.md dopuszcza oba warianty, wybiera admin [erd]; do ustalenia, który zalecamy przy instalacji.
+4. **Czasy życia tokenów i rotacja dla klientów tabletu i wyświetlacza.** Decydują, jak szybko global sign-out i blokada konta zadziałają i jak często trzeba ponownie logować sprzęt na miejscu.
+5. **Global sign-out a tablety.** Czy wylogowanie użytkownika może wylogować wszystkie tablety na jego koncie? Czy tablety mają używać osobnego konta obsługi, np. jednego na halę? Akcje z tabletu i tak nie mają autora (`source = tablet`), a tablica nie pokazuje, kto jest zalogowany [erd], więc wybór konta wpływa tylko na uprawnienia (np. które boksy są na liście „Zmień boks”) i na skutki wylogowania.
+
+**Infrastruktura (Dawid)**
+
+6. Regiony AWS i podział kont na środowiska; od tego zależy liczba wyjść z sandboxów.
+7. Mechanizm poświadczeń z klastra do AWS; wpływa na ważność presigned URL.
+8. Uwierzytelnianie serwis→serwis dla `/internal` oraz uwierzytelnianie i rola operatora (wydania APK, plany billingu, odczyt audytu).
+9. Kto pisze manifesty workloadów i w jakim formacie.
+10. PostgreSQL: wersja, pooler, PITR. Do tego LocalStack w CI (warunki obrazu) albo konto dev AWS.
+11. Narzędzie błędów i logów oraz ścieżka diagnostyki tabletu i Pi: publiczny endpoint uwierzytelniany tokenem użytkownika albo SDK narzędzia, w obu przypadkach z buforem offline.
+12. Keystore APK tabletu i jego kopia; build w EAS czy lokalnie; runnery macOS i KVM.
+13. Środowisko stajni pilotażowej:
+    - test, prod czy osobny pilot;
+    - z jaką pulą Cognito;
+    - czy SMS jest już poza sandboxem;
+    - co dzieje się z danymi po wdrożeniu.
+14. Zdalny dostęp do Pi (SSH, Raspberry Pi Connect albo inne narzędzie).
+15. Sposób przechowywania tokenów w panelu i na wyświetlaczu: pamięć i storage przeglądarki albo cienki BFF z ciasteczkiem httpOnly.
+
+**Zachowanie produktu, potrzebne developmentowi**
+
+16. **Poprawki erd.md.**
+    - Pkt 4 przeczy decyzji o pełnym ekranie: na pełnym ekranie hali tylko flagi tej hali, także w pasku pilnych (dziś erd.md mówi, że pasek „obejmuje wszystkie hale”); skrót innych hal tylko liczbowy.
+    - Pkt 9: „ujeżdżalnie (`arenas`) należą do `rides`”, żeby nie mylić ich z halami-budynkami.
+    - Diagram audytu: `stable_id` bez dopisku „FK”.
+17. Czy koń bez boksu (Luna) jest widoczny na wyświetlaczu, a jeśli tak, to gdzie (propozycja: w osobnej sekcji obok sekcji hal, tylko w widoku wszystkich hal). Na pełnym ekranie hali go nie ma, bo nie należy do żadnej hali.
+18. Zakres uprawnień roli `technician`.
+19. Czy najemca widzi konia, który stoi w jego boksie (otwarte w erd.md).
+20. Wyświetlacz w nocy: praca całą dobę czy wygaszanie przez CEC. Od tego zależy klasa monitora (16/7 czy 24/7).
+21. Tablet offline: kolejka zapisów (propozycja; wskazują na nią pola `time_quality` i `request_hash`) czy blokada akcji z komunikatem.
+22. Brak makiet dla trzech stanów: wyświetlacz offline („dane z HH:MM”), stajnia `suspended`, odebrany dostęp. Trzeba ustalić ich wygląd.
+23. `actor_id` w audycie dla akcji z tabletu (`actor_type = tablet`): `NULL` czy `box_id`. Nie `id` zalogowanego użytkownika, bo akcje z tabletu nie mają autora (`source = tablet`) [erd]. Do tego: kto ma dostęp do odczytu audytu.
+24. Złożone odczyty (lista dnia, historia boksu) w `board` (propozycja).
+25. Zakładanie stajni: czy wystarczą idempotentne wywołania z ponowieniami i `stable.created`, czy potrzebny jest cron uzgadniający.
+26. SMS z `notifications` (eskalacje, zaproszenia):
+    - przez AWS, ze wspólnym limitem, Sender ID i protect configuration, czy przez innego dostawcę;
+    - nazwa nadawcy;
+    - czy dopuścić numery spoza Polski, np. +380.
+27. Czy zakaz obiektów w bazie obejmuje widoki (`CREATE VIEW`).
+28. Okresy retencji: audyt, `notifications`, pliki `deleted`, `payment_provider_events`.
+29. Domyślne sloty posiłków i szablony flag dla nowej stajni (erd.md mówi o wartościach domyślnych tylko dla `box_care_types`) oraz domyślna nazwa pierwszej hali, którą kod zakłada razem ze stajnią (adres bierze ze stajni [erd]). Kto dostaje `health-due-reminders`.
+30. Parametry billingu potrzebne w kodzie: definicja metryki w `billing-usage-snapshot` (stan na koniec okresu czy maksimum w okresie) oraz to, czy `InvoiceSystem` w v1 ma prawdziwą integrację (KSeF 2.0).
+31. **Identyfikatory od nazwy eKoniuszy.** Nazwa produktu jest ustalona (repozytorium nadal nazywa się KonskaAppka). Otwarta jest dokładna postać scope pakietów, bundle ID, `applicationId` i nazw w sklepach. Bundle ID i `applicationId` są nieodwracalne, więc muszą zapaść przed założeniem rekordów.
+32. Kto może zmienić sieć Wi-Fi na tabletach przez ukryte ustawienia, jak się przy tym uwierzytelnia i kto zna hasło.
+33. **Założenia tabletu do potwierdzenia** [erd, pkt 2]:
+    - na tablecie jest zalogowany jeden użytkownik naraz (pilnuje apka);
+    - boks może zmienić każdy, kto stoi przy tablecie („Zmień boks” bez dodatkowego uwierzytelnienia);
+    - ustawienia tabletu otwiera się dłuższym przytrzymaniem;
+    - po wylogowaniu tablet pamięta wybrany boks i wraca do niego po kolejnym logowaniu.
+34. **Zapamiętany boks albo hala, których nie da się pokazać.**
+    - Co pokazuje tablet, gdy zapamiętany boks jest w wyłączonej hali (`active = false`) albo nowo zalogowany użytkownik nie ma do niego dostępu (propozycja: tablet od razu otwiera listę „Zmień boks”, bez powrotu po 30 s).
+    - Co pokazuje telewizor zapamiętany na pełnym ekranie hali, którą wyłączono albo usunięto (propozycja: wraca do widoku wszystkich hal).
+    - Przeniesienie boksu do innej hali niczego tu nie zmienia, bo tablet pamięta `id` boksu, nie numer [erd].
+
+**Parametry testów (progi go/no-go ustalić przed testem)**
+
+35. Interwał odpytywania tabletu („kilka sekund”) i próg opóźnienia flagi w p95.
+36. Minimalna trafność stuknięć w rękawicach.
+37. Model obciążenia: liczba stajni, boksów i hal na stajnię, wyświetlaczy na stajnię, a wśród nich ile pokazuje wszystkie hale, a ile pełny ekran jednej hali.
+38. Czas trwania pilotażu i to, czy musi objąć przymrozki.
+39. Próg rozróżnialności statusów na ekranie tabletu (K-01, T-20): minimalna różnica jasności między sąsiednimi szczeblami drabiny (papier, OK, uwaga, krytyczna, atrament), zmierzona na zdjęciu z kartą szarości (propozycja). Paleta zakłada co najmniej 3 poziomy odstępu na 16; na sprzęcie krzywa sterownika i dithering mogą to zmienić.
+
+**Sprzęt**
+
+40. **Model tabletu i firmware** (po bramce (B)): zatwierdzona para model + firmware, z zablokowanym aktualizatorem OTA i statusem Play Protect z T-27. Modele kolorowe (Kaleido 3, Gallery 3) i czarno-białe są pełnoprawnymi kandydatami; ekran musi działać na obu rodzajach.
+41. **Model kolorowego e-inka po testach.** Czy zostaje Boox Note Air6 C z zestawu domowego, czy wybieramy inny model, kolorowy albo czarno-biały. Rozstrzygają bramka (B), testy koloru K-01…K-07 oraz T-20, T-21 i T-22 (czytelność pól `t-*`, „duchy” i kolorowe ślady, nasycenie i czas pełnego odświeżenia z kolorem w zimnie). Gdy na Boox nie przejdą T-01 albo T-02, plan B to Samsung Galaxy Tab Active5 (dokupiony dopiero wtedy) albo inny e-ink z działającym DO, kolorowy albo czarno-biały.
+42. **Profil palety `t-*`: Kaleido 3 czy Gallery 3.** Note Air6 C ma według źródeł z 1.1 panel Kaleido 3, więc dostaje profil domyślny; potwierdzić na sprzęcie (K-01, T-20). Profil Gallery 3 podmienia `t-ok`, `t-warn` i `t-crit` na mniej nasycone przy tej samej jasności. Wynik zapisujemy jako parę model → profil w konfiguracji APK. Do decyzji: czy utrzymywać profil Gallery 3, skoro nie kupujemy tabletu z Gallery 3 i nie da się go sprawdzić na sprzęcie (1.1, rekomendacja, pkt 5).
+43. **Czy wymagać obsługi czarno-białych tabletów od pierwszej wersji.** Ekran i tak projektujemy tak, żeby działał na czarno-białym e-inku (drabina jasności i grubość obrysu, `docs/paleta.md`), a testy zrzutów sprawdzają go w szarości. Otwarte jest, czy v1 oficjalnie wspiera czarno-biały model:
+    - tak: przed wdrożeniem dokupić Boox Go 10.3 Gen II Lumi, przejść K-06, T-20 i T-21 na prawdziwym czarno-białym panelu i zatwierdzić drugą parę model + firmware;
+    - nie: w v1 wariant czarno-biały sprawdzamy tylko na zrzutach przeliczonych na szarość (K-06), a czarno-biały model dochodzi później, po tych samych testach.
+44. Obudowa: otwarty front z folią czy szyba (po T-19); materiał (po próbkach).
+45. Miejsce montażu tabletu (wysokość, odległość odczytu, zasięg konia). Od tego zależy wybór 10,3″ czy 7,8″.
+46. Podświetlenie w nocy: czy włączone, a jeśli tak, to na jakim minimalnym poziomie.
+
+## Źródła
+
+Linki użyte w sekcjach 1, 2 i 4.
+
+**Android, Device Owner, weryfikacja deweloperów**
+- Android Developers, Lock task mode: https://developer.android.com/work/dpc/dedicated-devices/lock-task-mode
+- Android Developers, Dedicated devices cookbook: https://developer.android.com/work/dpc/dedicated-devices/cookbook
+- Android Developers, Dedicated devices: https://developer.android.com/work/dpc/dedicated-devices
+- Android Developers, Build a DPC: https://developer.android.com/work/dpc/build-dpc
+- Android Developers, System updates: https://developer.android.com/work/dpc/system-updates
+- Android Developers, Developer verification FAQ: https://developer.android.com/developer-verification/guides/faq
+- Android Developers, Developer verification guides: https://developer.android.com/developer-verification/guides?hl=en
+- Android Developer Console Help, Understanding Android developer verification: https://support.google.com/android-developer-console/answer/16561738?hl=en
+- Android Developers, Target API level requirements: https://developer.android.com/google/play/requirements/target-sdk
+
+**Tablety e-ink**
+- BOOX for Business: https://shop.boox.com/pages/business
+- BooxUltimatum: https://github.com/huuunleashed/BooxUltimatum
+- BooxUltimatum, eksperymenty (Charging protection): https://github.com/huuunleashed/BooxUltimatum/blob/main/knowledge/experiments.md
+- etutor-server, hardware Boox: https://github.com/scottcowan/etutor-server/blob/main/docs/hardware-boox.md
+- Palma 2 Pro tips: https://github.com/Kisuke-CZE/Palma_2_Pro-tips
+- boox-tracker, weryfikacja: https://github.com/otherguy/boox-tracker/blob/main/agents/verification.md
+- Good e-Reader, aktualizacje starszych Boox: https://goodereader.com/blog/onyx-boox/some-older-boox-models-launched-years-back-still-getting-latest-update
+- EinkHome, urządzenia PocketBook (rozdzielczość Kaleido 3): https://github.com/dgalli1/EinkHome/blob/main/resources/pocketbook-devices.md
+- OnyxAndroidDemo (Onyx SDK): https://github.com/onyx-intl/OnyxAndroidDemo
+- KOReader, DeviceInfo.kt: https://github.com/koreader/android-luajit-launcher/blob/master/app/src/main/java/org/koreader/launcher/device/DeviceInfo.kt
+- Bigme SDK, inżynieria wsteczna: https://github.com/imedwei/inksdk/blob/main/docs/bigme-sdk-reverse-engineered.md
+- Crystalfontz, odświeżanie e-paper: https://www.crystalfontz.com/blog/?p=2698
+- comparisontabl.es, Boox Go 10.3 Gen II: https://comparisontabl.es/e-readers/boox-go-10-3-gen-ii/
+- Galaxus DE, Onyx Boox Go 10.3 Gen 2: https://www.galaxus.de/en/s1/product/onyx-boox-go-103-gen-2-1030-64-gb-ereaders-69696534
+- JB Hi-Fi, Boox Go 10.3 Gen 2: https://www.jbhifi.com.au/products/boox-go-10-3-gen-2-ereader-300ppi-monochrome-e-ink
+- digitec, Boox Go 10.3 Gen II: https://www.digitec.ch/en/s1/product/onyx-boox-go-103-gen-ii-1030-64-gb-ereaders-69696534
+- digitec, Boox Go 10.3 2nd Gen Lumi: https://www.digitec.ch/en/s1/product/onyx-boox-go-103-2nd-gen-lumi-1030-64-gb-ereaders-69291196
+- Notebookcheck, Meebook M8: https://www.notebookcheck.net/M8-New-e-book-reader-comes-with-Android-and-stylus-support.1019867.0.html
+- lx-music-eink (Meebook M8, Android 14): https://github.com/shellsec/lx-music-eink/blob/main/README.en.md
+- Parkablogs, Bigme B751C S: https://www.parkablogs.com/content/bigme-b751c-s-colour-e-ink-tablet-review
+- Notebookcheck, Boox Note Air6 C: https://www.notebookcheck.net/Boox-Note-Air6-C-tablet-debuts-with-10-3-color-E-Ink-display-Android-16-faster-CPU-pen-and-AI-voice-transcription.1374349.0.html
+- Samsung Knox KBA-489, No Battery Mode: https://docs.samsungknox.com/admin/knox-manage/kbas/kba-489-enable-no-battery-mode/
+- endoflife.date, Samsung Galaxy Tab: https://github.com/endoflife-date/endoflife.date/blob/master/products/samsung-galaxy-tab.md
+
+**Kolorowe tablety e-ink i testy koloru**
+- E Ink, Kaleido 3: https://www.eink.com/brand/detail/Kaleido3
+- E Ink, Gallery 3: https://www.eink.com/brand/detail/Gallery_3
+- E Ink, Kaleido 3 Outdoor: https://www.eink.com/news/detail/E-Ink-Launches-E-Ink-Kaleido-3-Outdoor-ePaper-Technology
+- E Ink, instrukcja wyświetlacza 7,8″ (tryby odświeżania): https://shopkits.eink.com/en/download/0223011714sy884942/User%20Manual%20-%207.8''ePaper%20Display%20%28VB3300-GHA%29.pdf
+- Advantech, EPD (tryby DU i A2): https://ess-wiki.advantech.com.tw/view/EPD-130_application_tech
+- Good e-Reader, kolory Kaleido 3: https://goodereader.com/blog/?p=348641
+- Good e-Reader, Boox Tab Mini C: https://goodereader.com/blog/?p=365481
+- myereader, Kaleido a Gallery: https://myereader.substack.com/p/differences-between-e-ink-kaleido
+- myereader, recenzja Kobo Libra Colour: https://myereader.substack.com/p/kobo-libra-colour-review-e-ink-colour
+- eWritable, kolor a czerń i biel: https://ewritable.net/guides/color-vs-monochrome-eink-screens/
+- eWritable, firmware Bigme: https://ewritable.net/brands/bigme/firmware/4-6/
+- Android Authority, kolorowy e-ink: https://www.androidauthority.com/color-e-ink-not-ready-yet-3624449
+- BOOX, Note Air6 C (sklep): https://shop.boox.com/products/noteair6c
+- BOOX, zapowiedź Note Air6 C: https://shop.boox.com/blogs/news/introducing-boox-note-air6-c-a-refined-10-3-color-epaper-notebook-for-knowledge-workers
+- BOOX, Note Mini C: https://shop.boox.com/products/noteminic
+- BOOX, Go Color 7 Gen II: https://onyxboox.com/boox_gocolor7g2
+- BOOX, Tab Ultra C Pro: https://onyxboox.com/boox_tabultracpro
+- BOOX, Tab X C: https://onyxboox.com/boox_tabxc
+- Android Authority, Note Air6 C: https://www.androidauthority.com/boox-note-air6-c-3711609/
+- smartwatchlife, Note Air6 C w Japonii: https://www.smartwatchlife.jp/81239/
+- The Gadgeteer, Note Air6 C: https://the-gadgeteer.com/?p=527166
+- Mobile-review, Note Air6 C: https://mobile-review.com/all/news/onyx-boox-privezla-v-rossiyu-note-air-6-c-i-palma-3/
+- Diario Estrategia, Note Air6 C i Note Mini C: https://www.diarioestrategia.cl/texto-diario/mostrar/6017173/boox-actualiza-cuadernos-digitales-tinta-electronica-note-air6-c-note-mini-c-palma-3
+- Komputronik, Note Air6 C: https://www.komputronik.pl/product/1032275/czytnik-e-book-onyx-boox-note-air-6-c-szary.html
+- LDLC, Note Air6 C: https://www.ldlc.com/en/product/PB00754914.html
+- Inet, Note Air6 C: https://www.inet.se/produkt/6613387/onyx-boox-note-air6-c
+- The eBook Reader, Note Air5 C: https://blog.the-ebook-reader.com/2025/10/20/new-boox-note-air5-c-runs-android-15-and-supports-emr-stylus/
+- Parkablogs, Note Air5 C: https://parkablogs.com/content/boox-note-air5-c-tablet-review
+- TechRadar, Note Air5 C: https://www.techradar.com/tablets/ereaders/onyx-boox-note-air5-c-review
+- x-kom, Note Air5 C: https://www.x-kom.pl/p/1542740-czytnik-ebook-onyx-boox-note-air-5-c-64gb-szary.html
+- Galaxus, Note Air5 C: https://www.galaxus.de/en/s1/product/onyx-boox-note-air5-c-1030-64-gb-ereader-64701965
+- BOOX przez Barchart, seria Go 7: https://www.barchart.com/story/news/32065972/boox-unveils-go-7-series-portable-ereaders-for-immersive-reading-and-instant-idea-capture
+- TechRadar, Go Color 7 Gen II: https://www.techradar.com/tablets/ereaders/onyx-boox-go-color-7-gen-ii-review
+- YesPress, Go Color 7 Gen II (E-Ink Center): https://yespress.io/products/boox-go-color-7-gen-ii
+- x-kom, Go Color 7 Gen II: https://www.x-kom.pl/p/1542815-czytnik-ebook-onyx-boox-go-7-color-ii-gen-64gb-czarny.html
+- Komputronik, Go Color 7 Gen II: https://www.komputronik.pl/product/968931/czytnik-e-book-onyx-boox-go-7-color-ii-gen-czarny.html
+- LDLC, Go Color 7 Gen II: https://www.ldlc.com/en/product/PB00684465.html
+- Notebookcheck, następca Tab Mini C: https://www.notebookcheck.net/Boox-planning-four-new-devices-including-Palma-3-and-a-likely-successor-to-the-Tab-Mini-C.1370054.0.html
+- Notebookcheck, Android 13 dla Go 6 Gen II: https://www.notebookcheck.net/Onyx-rolls-out-Android-13-update-for-Boox-Go-6-Gen-II.1407708.0.html
+- Notebookcheck, Palma 2 Pro: https://www.notebookcheck.net/Boox-Palma-2-Pro-hands-on-review-Colorful-5G-e-reader-with-Android.1253300.0.html
+- Notebookcheck, Bigme Galy: https://www.notebookcheck.net/Bigme-Galy-8-inch-eReader-launches-with-colour-display-and-Google-Play-Store-access.669163.0.html
+- Parkablogs, Bigme Galy: https://www.parkablogs.com/content/review-bigme-galy-worlds-first-e-ink-gallery-3-tablet
+- Notebookcheck, Bigme B10: https://www.notebookcheck.net/Bigme-B10-color-E-Ink-tablet-gets-a-12GB-RAM-version-in-China.1330521.0.html
+- Android Authority, Bigme B10: https://www.androidauthority.com/bigme-b10-tablet-launch-3637013/
+- Parkablogs, Bigme B10: https://parkablogs.com/content/bigme-b10-e-paper-tablet-review
+- Liliputing, Bigme B10: https://liliputing.com/?p=196870
+- Mezha, Bigme B10: https://mezha.ua/en/news/bigme-b10-e-ink-tablet-308192/
+- Notebookcheck, Bigme B1051C: https://www.notebookcheck.net/Bigme-B1051C-Tablet-comes-with-Android-14-a-color-E-Ink-display-an-EMR-pencil-and-keyboard-support.904799.0.html
+- Parkablogs, Bigme B1051C: https://www.parkablogs.com/index.php/content/review-bigme-b1051c-ereader-with-keyboard-case
+- Notebookcheck, Bigme B751C-S: https://www.notebookcheck.net/Bigme-B751C-S-color-e-reader-with-stylus-support-launched-in-China.1190990.0.html
+- PocketBook, InkPad Eo 2: https://pocketbook.ch/en-ch/news/pocketbook-inkpad-eo-2-news-ch
+- ifeng, InkPad Eo 2 na targach: https://tech.ifeng.com/c/8x4yRMDUT2O
+- ComputerBase, PocketBook InkPad Eo: https://www.computerbase.de/artikel/tablets/pocketbook-inkpad-eo-e-book-reader-test.88903/seite-3
+- comparisontabl.es, InkPad Eo 2: https://comparisontabl.es/e-readers/pocketbook-inkpad-eo-2/
+- Root Nation, PocketBook Viva: https://root-nation.com/pl/news-pl/pl-pocketbook-viva/
+- XP-Pen, kolorowe tablety e-ink: https://www.xp-pen.com/blog/color-e-ink-tablet.html
+- heyupnow, Viwoods AiPaper Reader C: https://heyupnow.com/en-de/products/viwoods-aipaper-reader-c
+- r/Onyx_Boox, próba Device Ownera na Boox: https://www.reddit.com/r/Onyx_Boox/comments/1ihrbpy/using_adb_to_setdeviceowner/
+- OwnDroid (konto blokujące DO): https://github.com/BinTianqi/OwnDroid
+- Gentle Glow (sterowanie podświetleniem Onyx): https://apt.izzysoft.de/packages/com.onyx.darie.calin.gentleglowonyxboox/
+
+**Montaż, zasilanie, sieć, przyrządy**
+- Tabela odporności poliwęglanu: https://www.foxxlifesciences.in/pages/polycarbonate-chemical-compatibility-chart
+- Globe Scientific, tabela odporności chemicznej: https://www.globescientific.com//media/PDF/Library_PDF/Chemical%20Resistance%20Chart.pdf
+- DLG, Spelsberg TK PC: https://www.dlg.org/en/tests/agricultural-technology-and-farm-inputs/test-reports/test-g-spelsberg-leergehaeuse-der-tk-pc-serie-mit-zubehoer
+- DLG, raport 7458 (Spelsberg Abox): https://pruefberichte.dlg.org/filestorage/7458.pdf
+- TheHorse, Ammonia is the Enemy: https://thehorse.com/129872/ammonia-is-the-enemy/
+- EN 62262 (kody IK): https://en.wikipedia.org/wiki/EN_62262
+- REDARC, ładowanie Li-ion poniżej 0 °C: https://us.support.redarcelectronics.com/hc/en-us/articles/13856244101007-Why-you-should-not-charge-a-lithium-battery-below-0-C-or-32-F
+- UCTRONICS U6115, instrukcja: https://www.welectron.com/mediafiles/productimg/arducam/Amazon/U6115_Manual.pdf
+- Brateck, ramka antykradzieżowa: https://www.computeralliance.com.au/brateck-anti-theft-wall-mounted-tablet-enclosure/
+- Wkręty zabezpieczające: https://www.albanycountyfasteners.com/screws-bolts/machine-screws/tamper-resistant-security-machine-screws
+- Gore, membrany wyrównujące ciśnienie: https://gore.com/node/24906
+- Teltonika TSW202, karta katalogowa: https://teltonika-networks.com/cdn/products/2023/08/64e896612f9829-30532758/datasheet-pdf/tsw202-datasheet-v13.pdf
+- PoE Texas GAT-USBC: https://reach.dog/shop/poe-texas/products/gat-usbc
+- IEC 60364-7-705: https://vde-verlag.de/iec-normen/212877/iec-60364-7-705-2006.html
+- WiFiAnalyzer: https://apkmirror.com/apk/vrem-software-development/wifianalyzer-open-source/wifianalyzer-open-source-2-0-4-release
+- NetSpot dla Androida: https://netspotapp.com/android
+- NetSpot, pomiar na Androidzie: https://netspotapp.com/help/wifi-site-survey-on-android
+- iperf3: https://software.es.net/iperf
+- York University, standard Wi-Fi: https://facilities.info.yorku.ca/files/2018/11/27-21-33-Data-Comm-WIFI-AP-v3.2-20180726.pdf?x18178
+- Shelly Plug S Gen3: https://www.shelly.com/pl/blogs/documentation/shelly-plug-s-gen-3-device-smart-control
+- FNIRSI FNB58: https://www.elektor.com/products/fnirsi-fnb58-usb-tester-with-bluetooth
+- Forensics Detectors, miernik amoniaku: https://forensicsdetectors.com/products/basic-ammonia-detector
+
+**Wyświetlacz**
+- Raspberry Pi 5: https://www.raspberrypi.com/news/introducing-raspberry-pi-5/
+- Core Electronics, zasilacz 27 W: https://core-electronics.com.au/raspberry-pi-5-power-supply-usb-c-pd-27w-black.html
+- Raspberry Pi, USB Power Delivery na Pi 5: https://pip-assets.raspberrypi.com/categories/685-app-notes-guides-whitepapers/documents/RP-009856-WP-1-USB%20Power%20delivery%20on%20Raspberry%20Pi%205.pdf
+- Raspberry Pi, chłodzenie Pi 5: https://www.raspberrypi.com/news/heating-and-cooling-raspberry-pi-5/
+- bret.dk, obudowa Flirc: https://bret.dk/flirc-raspberry-pi-5-case-review/
+- The Pi Hut, M.2 HAT+ Compact: https://thepihut.com/products/raspberry-pi-m-2-hat-compact
+- Raspberry Pi, SSD Kit: https://www.raspberrypi.com/products/ssd-kit/
+- Adafruit, karta microSD A2: https://www.adafruit.com/product/6011
+- Raspberry Pi, dokumentacja (RTC): https://www.raspberrypi.com/documentation/computers/raspberry-pi.html
+- The Pi Hut, bateria RTC: https://thepihut.com/products/rtc-battery-for-raspberry-pi-5
+- Raspberry Pi, kabel micro-HDMI: https://www.raspberrypi.com/products/micro-hdmi-to-standard-hdmi-a-cable/
+- Adafruit, Read-Only Raspberry Pi: https://learn.adafruit.com/read-only-raspberry-pi
+- invidis, wypalanie OLED: https://invidis.com/sixteen-nine/2018/10/16/long-term-tests-confirm-oleds-have-burn-in-issues-but-is-the-risk-real-in-digital-signage/
+- Rozporządzenie (UE) 2019/2021: https://eur-lex.europa.eu/eli/reg/2019/2021/oj
+- LG 49XS2B, Power On Status: https://manualslib.mx/manual/563119/Lg-49Xs2B.html?page=38
+- WMU, digital signage: https://wmich.edu/digital-accessibility/digital-signage
+
+**Telefony i karty SIM**
+- Antyweb, rejestracja kart SIM: https://antyweb.pl/rejestracja-kart-sim-jak-to-zrobic
+
+**AWS: SMS, Cognito, SES, S3, SNS/SQS, IAM**
+- SNS, wyjście z SMS sandbox: https://docs.aws.amazon.com/sns/latest/dg/sns-sms-sandbox-moving-to-production.html
+- EUMS, weryfikacja numeru: https://docs.aws.amazon.com/sms-voice/latest/userguide/verify-destination-phone-number.html
+- EUMS, numery symulatora: https://docs.aws.amazon.com/sms-voice/latest/userguide/test-phone-numbers.html
+- EUMS, Sender ID: https://docs.aws.amazon.com/sms-voice/latest/userguide/sender-id.html
+- EUMS, kraje: https://docs.aws.amazon.com/sms-voice/latest/userguide/phone-numbers-sms-by-country.html
+- EUMS, rejestracje: https://docs.aws.amazon.com/sms-voice/latest/userguide/registrations.html
+- AWS, rejestracja numerów w nowych krajach (w tym Polska): https://aws.amazon.com/about-aws/whats-new/2025/04/aws-end-user-messaging-self-service-phone-number-registration
+- EUMS, limit wydatków: https://docs.aws.amazon.com/sms-voice/latest/userguide/spend-limit.html
+- EUMS, wnioski do Support: https://docs.aws.amazon.com/sms-voice/latest/userguide/awssupport.html
+- EUMS, protect configuration: https://docs.aws.amazon.com/sms-voice/latest/userguide/protect-configuration.html
+- EUMS, limity znaków: https://docs.aws.amazon.com/sms-voice/latest/userguide/sms-limitations-character.html
+- Twilio, Polska: https://www.twilio.com/en-us/guidelines/pl/sms
+- NASK, ustawa o zwalczaniu nadużyć: https://cyberpolicy.nask.pl/ustawa-o-zwalczaniu-naduzyc-w-komunikacji-elektronicznej/
+- Cognito, ustawienia SMS: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-sms-settings.html
+- Terraform AWS provider, zgłoszenie #50066: https://github.com/hashicorp/terraform-provider-aws/issues/50066
+- Cognito, przepływy uwierzytelniania: https://docs.aws.amazon.com/cognito/latest/developerguide/authentication-flows-selection-sdk.html
+- Cognito, plany funkcji: https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html
+- Cognito, MFA: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html
+- Cognito, refresh tokens: https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-the-refresh-token.html
+- Cognito, unieważnianie tokenów: https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html
+- Cognito, AdminDisableUser: https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminDisableUser.html
+- Cognito, custom SMS sender: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-custom-sms-sender.html
+- AWS sample, SMS przekierowany na e-mail: https://github.com/aws-samples/amazon-cognito-user-pool-development-and-testing-with-sms-redirected-to-email
+- Cognito, atrybuty puli: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html
+- CloudFormation, Cognito EmailConfiguration: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cognito-userpool-emailconfiguration.html
+- SES, FAQ dostępu produkcyjnego: https://repost.aws/knowledge-center/ses-production-access-request-faq
+- S3, presigned URL: https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url
+- SNS, szyfrowanie z kolejką SQS: https://docs.aws.amazon.com/sns/latest/dg/sns-enable-encryption-for-topic-sqs-queue-subscriptions.html
+- IAM Roles Anywhere: https://docs.aws.amazon.com/sdkref/latest/guide/access-rolesanywhere.html
+
+**Apple, Google Play, Expo**
+- Apple Developer Program, zapis: https://developer.apple.com/programs/enroll/
+- Apple, pomoc dot. zapisu: https://developer.apple.com/support/enrollment/
+- Apple, D-U-N-S: https://apple.co/308Ikbq
+- App Store Connect, DSA: https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-eu-digital-services-act-compliance-information
+- App Store Review Guidelines: https://developer.apple.com/app-store/review/guidelines/
+- Expo, TestFlight: https://docs.expo.dev/submit/testflight.md
+- Expo, dystrybucja wewnętrzna: https://docs.expo.dev/build/internal-distribution/
+- Expo, iOS Universal Links: https://docs.expo.dev/linking/ios-universal-links/
+- Play Console, wymagania testów dla kont osobistych: https://support.google.com/googleplay/android-developer/answer/14151465?hl=en
+- Play Console, weryfikacja urządzenia: https://support.google.com/googleplay/android-developer/answer/14316361?hl=en
+- Android Developers Blog, D-U-N-S w Google Play: https://android-developers.googleblog.com/2023/07/boosting-trust-and-transparency-in-google-play.html?hl=fr
+- Play Console, usuwanie konta: https://support.google.com/googleplay/android-developer/answer/13327111
+- Expo, EAS Submit: https://docs.expo.dev/submit/introduction
+- Expo, EAS Update deployment: https://docs.expo.dev/eas-update/deployment
+- Expo, expo-updates: https://docs.expo.dev/versions/latest/sdk/updates
+
+**Domena, TLS, faktury**
+- Ważność certyfikatów TLS (SC-081): https://sslinsights.com/200-day-ssl-certificate-validity/
+- KSeF, środowiska testowe 2.0: https://ksef.podatki.gov.pl/wyjasnienia/we-wrzesniu-zamiana-srodowisk-testowych-z-ksef-10-na-ksef-20/
