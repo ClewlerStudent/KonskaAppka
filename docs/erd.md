@@ -36,7 +36,8 @@
      - odblokować może ten, kto zablokował, admin stajni albo serwisant (rola `technician` w `stable_members`; propozycja do potwierdzenia);
      - po wylogowaniu blokada zostaje, a tablet czeka na kolejne logowanie i wraca do tego samego boksu.
 3. **Boks jako kontener i podgląd dla najemcy.**
-   - Boks ma tylko podstawowe dane. To, co się z nim dzieje, zapisuje się jako zdarzenia w `box_care_events`, np. czyszczenie, ścielenie, dorzucenie siana albo karmy, woda.
+   - Boks ma tylko podstawowe dane. To, co się z nim dzieje, zapisuje się jako zdarzenia w `box_care_events`.
+   - Rodzaje zdarzeń to lista (słownik `box_care_types`) per stajnia, z etykietami w językach (`box_care_type_labels`). Na start kod wstawia domyślne: czyszczenie, ścielenie, siano, karma, woda. Admin może dodawać własne, zmieniać kolejność i wyłączać nieużywane.
    - Wpisy robi obsługa na tablecie (jedno stuknięcie) albo w apce.
    - „Ostatnie czyszczenie” czy „ostatnio dorzucona karma” to najnowsze zdarzenie danego rodzaju dla boksu (indeks po boksie, rodzaju i czasie). Nie trzymamy osobnych kolumn „ostatnio”, więc zostaje też historia.
    - Najemca miejsca dostaje dostęp do boksu przez `box_access` z rolą `tenant`, także przez zaproszenie (`invitations.box_id`). Widzi tylko podstawowe dane boksu: ostatnie zdarzenia i ich historię.
@@ -44,7 +45,6 @@
    - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. po końcu najmu.
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
    - Do potwierdzenia:
-     - lista rodzajów zdarzeń przy boksie;
      - czy najemca widzi też konia, który stoi w jego boksie.
 4. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
@@ -114,7 +114,7 @@
 | `devices` | morski | `devices`, `device_box_locks`, `device_commands`, `device_alerts` |
 | `board` | błękitny | `board_states` (wersja i `ETag` stanu tablicy), `board_device_sync` |
 | `flags` | czerwony | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_displays`, `flag_escalations` |
-| `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `box_care_events`, `paddock_plans`, `paddock_plan_companions` |
+| `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `box_care_types`, `box_care_type_labels`, `box_care_events`, `paddock_plans`, `paddock_plan_companions` |
 | `health` | limonkowy | `health_events`, `health_attachments` |
 | `rides` | bursztynowy | `arenas`, `rides` |
 | `tasks` | pomarańczowy | `tasks`, `task_occurrences` |
@@ -173,7 +173,7 @@
 
 ![ERD aplikacji, schemat app](erd/app.png)
 
-Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 52 tabele i 72 relacje.
+Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 54 tabele i 74 relacje.
 
 <details>
 <summary>Źródło mermaid</summary>
@@ -482,11 +482,25 @@ erDiagram
         text unit
         int sort_order
     }
+    box_care_types {
+        uuid id PK
+        uuid stable_id FK "stables"
+        text code "unikalny w stajni, np. cleaning"
+        text icon
+        boolean show_on_board "pokazywać na tablecie"
+        int sort_order
+        boolean active
+    }
+    box_care_type_labels {
+        uuid type_id PK, FK
+        text locale PK "pl | uk | en"
+        text label "np. Czyszczenie boksu"
+    }
     box_care_events {
         uuid id PK "z klienta"
         uuid stable_id FK "stables"
         uuid box_id FK "boxes"
-        text type "cleaning | bedding | hay | feed | water"
+        uuid type_id FK "box_care_types"
         timestamptz occurred_at
         uuid user_id FK "users"
         uuid device_id FK "devices, NULL gdy z apki"
@@ -814,6 +828,8 @@ erDiagram
     boxes ||--o{ box_care_events : "zdarzenia"
     devices |o--o{ box_care_events : "z tabletu"
     users |o--o{ devices : "zalogowany na"
+    box_care_types ||--o{ box_care_type_labels : "etykiety"
+    box_care_types ||--o{ box_care_events : "rodzaj"
     classDef svc_stable fill:#dbeafe,stroke:#1d4ed8
     classDef svc_access fill:#ede9fe,stroke:#6d28d9
     classDef svc_identity fill:#fce7f3,stroke:#be185d
@@ -834,7 +850,7 @@ erDiagram
     class devices,device_box_locks,device_commands,device_alerts svc_devices
     class board_states,board_device_sync svc_board
     class flag_templates,flag_template_labels,horse_flags,flag_acknowledgements,flag_displays,flag_escalations svc_flags
-    class meal_slots,meal_slot_labels,feeds,paddocks,feeding_plans,feeding_plan_items,feeding_checks,box_care_events,paddock_plans,paddock_plan_companions svc_care
+    class meal_slots,meal_slot_labels,feeds,paddocks,feeding_plans,feeding_plan_items,feeding_checks,box_care_types,box_care_type_labels,box_care_events,paddock_plans,paddock_plan_companions svc_care
     class health_events,health_attachments svc_health
     class arenas,rides svc_rides
     class tasks,task_occurrences svc_tasks
@@ -882,7 +898,7 @@ erDiagram
 
 - `device_alerts.kind`: `offline`, `power_lost`, `clock_drift`, `board_stale`, `flag_undisplayed`, `battery_full_long`, `firmware_changed`.
 - `device_commands.type`: `refresh_board`, `restart_app`, `sign_out`, `unlock_box`, `add_wifi_network`, `check_updates`, `wipe`.
-- `box_care_events.type`: `cleaning` (czyszczenie), `bedding` (ścielenie), `hay` (dorzucone siano), `feed` (dorzucona karma), `water` (woda); lista do potwierdzenia.
+- `box_care_types`: słownik per stajnia. Domyślne pozycje wstawiane przez kod: `cleaning` (czyszczenie), `bedding` (ścielenie), `hay` (dorzucone siano), `feed` (dorzucona karma), `water` (woda).
 - `horse_flags.source`: `app` (właściciel w apce) albo flaga wpisana w imieniu właściciela: `on_behalf_phone`, `on_behalf_sms`, `on_behalf_in_person`.
 
 ## Zmiany względem modelu z analizy v3
