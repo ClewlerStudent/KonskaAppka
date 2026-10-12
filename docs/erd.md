@@ -33,7 +33,7 @@
    - Nie ma blokady boksu. Na tablicy jest przycisk „Zmień boks”, który otwiera listę boksów pogrupowaną po halach. Stuknięcie w boks od razu przełącza tablet. Bez wyboru tablet po 30 s wraca do poprzedniego boksu.
    - Tablica boksu nie pokazuje, kto jest zalogowany. Logowanie i wylogowanie są w ustawieniach tabletu.
    - Wylogowanie użytkownika ze wszystkich urządzeń robi Cognito (global sign-out).
-   - Tablety są stale włączone i zalogowane, więc akcji z tabletu (potwierdzenie flagi, „Ogarnięte”, „Podano śniadanie”, „Wyprowadzono na padok”) nie przypisujemy zalogowanej osobie. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
+   - Tablety są stale włączone i zalogowane, więc akcji z tabletu (potwierdzenie flagi, „Ogarnięte”, „Woda” przy poidle ręcznym) nie przypisujemy zalogowanej osobie. Akcje dla całej hali („Podano śniadanie”, „Wyprowadzono na padok”) robi się w apce obsługi, a tablet pokazuje tylko ich stan. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
    - Status flagi to tylko „potwierdzona” (z godziną) albo „niepotwierdzona”. Tak pokazują go apka, panel, tablet i wyświetlacz. Nie śledzimy, czy flaga wyświetliła się na tablecie, ani tego, czy tablet działa. Skąd przyszło potwierdzenie (`flag_acknowledgements.method`, `box_id`), zostaje tylko w danych do audytu.
    - **Blokada ekranu (dotyku).**
      - Ekran jest dotykowy, więc przycisk „Zablokuj ekran” (kłódka) włącza blokadę na czas mycia albo wycierania tabletu.
@@ -52,7 +52,7 @@
      - **„Ogarnięte”** (sprzątanie i ścielenie razem): per boks, jedno tapnięcie na tablecie przy boksie albo zaznaczenie kilku boksów w apce i jeden zapis. Wpis trafia do `box_care_events` (`kind = tidy`). Boks ogarnia się codziennie, czasem 2–3 razy dziennie, więc wpisów może być kilka, a „Ogarnięte dziś 07:10” to najnowszy.
      - **„Podano śniadanie”** (tak samo obiad i kolację): jedna akcja dla całej hali w `building_routines` (`kind = meal_served`). Koń z flagą, która wstrzymuje ten posiłek w jego godzinie, jest pomijany i wypisany jako pominięty. Nie ma potwierdzania karmienia per koń.
      - **„Wyprowadzono na padok”**: jedna akcja dla całej hali (`kind = paddock_out`). Obejmuje konie z planem padoku na teraz i pomija konie z flagą „Nie na padok” obowiązującą w tym czasie.
-     - Każdą akcję można cofnąć przez kilka minut (`cancelled_at`). Z tabletu akcja nie ma autora, z apki ma.
+     - Każdą akcję można cofnąć przez godzinę od zapisu (`cancelled_at`, propozycja), np. gdy ktoś stuknął niewłaściwą halę. Z tabletu akcja nie ma autora, z apki ma.
    - **Poidło to ustawienie boksu** (`boxes.auto_waterer`). Ustawia je admin w szczegółach boksu, a nowy boks ma domyślnie poidło automatyczne (wartość nadaje kod).
      - Przy automatycznym poidle znacznik wody nie wyświetla się nigdzie, bo zawsze jest w porządku.
      - Boks z poidłem ręcznym (np. wiadro, gdy automat czeka na wymianę) pokazuje na tablecie, wyświetlaczu, w apce i panelu znacznik „Poidło ręczne” z godziną ostatniego dolania. Ma też szybką akcję „Woda” (`box_care_events.kind = water`), dostępną tylko dla takiego boksu.
@@ -376,7 +376,7 @@ erDiagram
         text severity
         text effect
         text note
-        text author_role "owner | staff | admin"
+        text author_role "client | staff | admin"
         timestamptz valid_from "wymagane"
         timestamptz valid_to "wymagane, bez do odwołania"
         text variant "Derka: on | off"
