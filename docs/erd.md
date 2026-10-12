@@ -38,8 +38,10 @@
    - Rodzaje zdarzeń to lista (słownik `box_care_types`) per stajnia, z etykietami w językach (`box_care_type_labels`). Na start kod wstawia domyślne: czyszczenie, ścielenie, siano, karma, woda. Admin może dodawać własne, zmieniać kolejność i wyłączać nieużywane.
    - Wpisy robi obsługa na tablecie (jedno stuknięcie) albo w apce.
    - „Ostatnie czyszczenie” czy „ostatnio dorzucona karma” to najnowsze zdarzenie danego rodzaju dla boksu (indeks po boksie, rodzaju i czasie). Nie trzymamy osobnych kolumn „ostatnio”, więc zostaje też historia.
-   - Najemca miejsca dostaje dostęp do boksu przez `box_access` z rolą `tenant`, także przez zaproszenie (`invitations.box_id`). Widzi tylko podstawowe dane boksu: ostatnie zdarzenia i ich historię.
-   - Najemca nie steruje boksem ani tabletem: nie ustawia flag, nie zmienia planów, nie blokuje boksu na tablecie.
+   - **Historia boksu** to zdarzenia przy boksie razem z flagami konia, który w nim stoi (utworzenie, przyjęcie przez obsługę, odwołanie). Widzi ją każdy, kto ma dostęp do boksu, co najmniej do odczytu: najemca, właściciel konia, obsługa i admin.
+   - Najemca miejsca dostaje dostęp do boksu przez `box_access` z rolą `tenant`, także przez zaproszenie (`invitations.box_id`). Ta rola to podgląd boksu i jego historii. Najemca nie steruje boksem ani tabletem.
+   - Flagi ustawia i odwołuje się przez dostęp do konia (`horse_access`). Zwykle najemca miejsca jest też właścicielem konia w tym boksie, więc jako klient ustawia i odwołuje jego flagi. Odwołana flaga znika z tablicy, a jej pop-up z tabletu przy najbliższym odpytaniu.
+   - **Obsługa** (`staff`) może z apki i z panelu web robić to samo co klient, czyli ustawiać i odwoływać flagi, zmieniać plany karmienia i padoku oraz wpisywać zdarzenia, ale dla wszystkich koni w stajni.
    - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. po końcu najmu.
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
    - Do potwierdzenia:
