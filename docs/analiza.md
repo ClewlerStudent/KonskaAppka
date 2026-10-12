@@ -2,7 +2,7 @@
 
 > System dla wielu stajni: apka mobilna dla adminów stajni, właścicieli koni, obsługi i instruktorów, dotykowy tablet e-ink z Androidem przy każdym boksie oraz panel web.
 > KonskaAppka to nazwa robocza.
-> **Uwaga (2026-10-12): część v3 jest nieaktualna po kolejnych decyzjach.** Zamiast modularnego monolitu będą osobne mikroserwisy w monorepo (także crony), zamiast własnego uwierzytelniania Cognito (OTP przez SMS i TOTP), zamiast plików w PostgreSQL S3, a WebSocketów nie będzie (kolejki albo REST). Koń jest powiązany z boksem 1:1. Model danych do zatwierdzenia: [docs/erd.md](erd.md). Ten dokument zostanie przepisany po zatwierdzeniu modelu.
+> **Uwaga (2026-10-12): część v3 jest nieaktualna po kolejnych decyzjach.** Zamiast modularnego monolitu będą osobne mikroserwisy w monorepo (także crony), zamiast własnego uwierzytelniania Cognito (OTP przez SMS i TOTP), zamiast plików w PostgreSQL S3, a WebSocketów nie będzie (kolejki albo REST). Dochodzą płatności (serwis `billing`). Koń i boks są w relacji 0..1 do 0..1, a na tablecie loguje się użytkownik, który może zablokować boks. Model danych do zatwierdzenia: [docs/erd.md](erd.md). Ten dokument zostanie przepisany po zatwierdzeniu modelu.
 >
 > Wersja robocza v3 · 2026-10-12 · zastępuje v2. Dokument jest czysto techniczny: logika w kodzie TypeScript, baza danych tylko do przechowywania, uruchomienie na klastrze Kubernetes z osobną bazą. Rozmieszczenie i infrastruktura to decyzje Dawida (rozdział 10). To, co celowo przesunięto poza v1, zebrano w rozdziale 16.
 
