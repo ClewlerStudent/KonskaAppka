@@ -7,7 +7,7 @@
 > - pliki w S3;
 > - koń i boks w relacji 0..1 do 0..1 (koń może stać bez boksu, boks bez konia);
 > - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
-> - użytkownik logowany na tabletach, który może zablokować na tablecie wybrany boks;
+> - użytkownik logowany na tabletach, który może zablokować na tablecie wybrany boks (blokada trzymana na tablecie, bez tabeli urządzeń);
 > - boks jako kontener z podstawowymi danymi (ostatnie czyszczenie, ostatnio dorzucona karma itd.), z podglądem dla najemcy miejsca;
 > - sesje tylko w Cognito, bez tabel sesji w bazie.
 
@@ -21,19 +21,17 @@
    - Zamiana dwóch koni to jedna transakcja w kodzie: koń A na chwilę bez boksu, koń B do boksu A, koń A do boksu B.
    - Każda zmiana zamyka i otwiera wpisy w `horse_box_history`. Unikalne indeksy pilnują, żeby otwarty był najwyżej jeden wpis na konia i jeden na boks.
    - Relacji pilnuje baza kluczem obcym i unikalnością, bez logiki w bazie.
-2. **Tablet: logowanie użytkownika i blokada boksu.**
-   - Tablet nie ma własnego konta. Loguje się na nim użytkownik tym samym kontem co w apce.
-   - Jeden użytkownik może być zalogowany na kilku tabletach naraz i wszędzie widzi te same dane, bo decydują jego uprawnienia, a nie tablet.
-   - Na danym tablecie użytkownik wybiera boks i go blokuje (`device_box_locks`). Tablet pokazuje wtedy tylko ten boks.
-   - Na tablecie jest najwyżej jedna aktywna blokada, a jeden boks może być zablokowany na kilku tabletach.
-   - Sesji w bazie nie ma, bo sesje i tokeny trzyma Cognito.
-     - Tablet zgłasza w telemetrii, kto jest na nim zalogowany (`devices.current_user_id`). Dzięki temu admin widzi to w panelu.
-     - Zdalne wylogowanie konkretnego tabletu to komenda `sign_out`: tablet unieważnia swój refresh token w Cognito.
-     - Wylogowanie użytkownika ze wszystkich urządzeń robi Cognito (global sign-out).
+2. **Tablet: logowanie użytkownika i blokada boksu, bez tabeli urządzeń.**
+   - Tablet nie ma własnego konta ani wiersza w bazie. Loguje się na nim użytkownik tym samym kontem co w apce; sesja i tokeny są w Cognito.
+   - Jeden użytkownik może być zalogowany na kilku tabletach naraz i wszędzie widzi te same dane, bo decydują jego uprawnienia.
+   - Blokada boksu to ustawienie samego tabletu, zapamiętane w apce. Użytkownik wybiera boks, blokuje go i tablet pokazuje tylko ten boks. Serwer o blokadzie nie wie, a jeden boks może być pokazywany na kilku tabletach.
+   - Odblokowuje się na tablecie: ten, kto zablokował, admin albo serwisant. Apka sprawdza rolę zalogowanego użytkownika.
+   - Wylogowanie użytkownika ze wszystkich urządzeń robi Cognito (global sign-out).
+   - Czy flaga dotarła na tablet, widać po `flag_displays` (wyświetlono przy boksie). Osobnego śledzenia, czy tablet działa, nie ma.
+   - Bez tabeli urządzeń nie ma zdalnych komend, telemetrii (bateria, Wi-Fi) ani listy tabletów w panelu. Diagnostyka tabletów, jeśli będzie potrzebna, trafia do logów i metryk, nie do bazy.
    - Założenia do potwierdzenia:
      - na tablecie jest zalogowany jeden użytkownik naraz (pilnuje apka);
      - zablokować boks na tablecie mogą tylko członkowie stajni z rolą `admin`, `staff` albo `technician`;
-     - odblokować może ten, kto zablokował, admin stajni albo serwisant (rola `technician` w `stable_members`; propozycja do potwierdzenia);
      - po wylogowaniu blokada zostaje, a tablet czeka na kolejne logowanie i wraca do tego samego boksu.
 3. **Boks jako kontener i podgląd dla najemcy.**
    - Boks ma tylko podstawowe dane. To, co się z nim dzieje, zapisuje się jako zdarzenia w `box_care_events`.
@@ -62,13 +60,13 @@
    - Serwis `identity` tworzy wiersz `users` przy pierwszym uwierzytelnionym żądaniu (upsert po `cognito_sub`).
    - Usunięcie konta to pseudonimizacja w `users` i usunięcie konta w Cognito.
    - Zaproszenie nie ma własnego tokenu: po zalogowaniu przez Cognito serwis `access` dopasowuje zweryfikowany telefon albo e-mail z tokenu do `invitations.target`.
-   - Tablet wysyła token zalogowanego użytkownika i identyfikator instalacji (`devices.id`).
+   - Tablet wysyła token zalogowanego użytkownika i numer zablokowanego boksu.
 6. **Pliki w S3.**
    - `files` trzyma metadane, `s3_key` (z prefiksem `stable_id/`) i właściciela (`owner_service`, `owner_id`).
    - Link do pobrania wydaje tylko serwis-właściciel po sprawdzeniu uprawnień. Na przykład `health` sprawdza widoczność wpisu i dostęp do konia, a dopiero potem prosi `files` o krótko ważny presigned URL.
 7. **Bez WebSocketów.**
    - Tablet co kilka sekund odpytuje przez REST stan zablokowanego boksu (`board_states`) z `ETag`; gdy nic się nie zmieniło, dostaje `304`.
-   - `board_device_sync` zapisuje, co tablet pobrał i co wyświetlił.
+   - Wyświetlenie flagi tablet zgłasza z numerem boksu (`flag_displays`).
    - Między serwisami: kolejki **SNS + SQS**, bez outboxów.
      - Serwis po zatwierdzeniu transakcji publikuje zdarzenie do tematu SNS (jeden temat na rodzaj zdarzenia).
      - Każdy konsument ma własną kolejkę SQS z kolejką błędów (DLQ).
@@ -81,7 +79,7 @@
 8. **Sloty posiłków i padoki należą do `care`, a hale do `rides`**, bo te serwisy z nich korzystają.
 9. **Płatności (`billing`).**
    - Płaci stajnia: ma konto rozliczeniowe (dane do faktury) i subskrypcję planu.
-   - Comiesięczny cron zapisuje zużycie (np. boksy z koniem, aktywne tablety). Z niego powstaje faktura z pozycjami, a płatności przychodzą od dostawcy przez webhooki.
+   - Comiesięczny cron zapisuje zużycie (np. boksy z koniem). Z niego powstaje faktura z pozycjami, a płatności przychodzą od dostawcy przez webhooki.
    - Kwoty są w groszach (`bigint`).
    - Status subskrypcji steruje `stables.status`: brak płatności daje `suspended`.
    - Dostawca płatności i system faktur (KSeF) są do wyboru; w modelu są tylko identyfikatory zewnętrzne.
@@ -111,8 +109,7 @@
 | `identity` | różowy | `users` |
 | `access` | fioletowy | `stable_members`, `horse_access`, `box_access`, `invitations` |
 | `stable` | niebieski | `stables`, `stable_locales`, `stable_settings`, `boxes`, `horses`, `horse_box_history` |
-| `devices` | morski | `devices`, `device_box_locks`, `device_commands`, `device_alerts` |
-| `board` | błękitny | `board_states` (wersja i `ETag` stanu tablicy), `board_device_sync` |
+| `board` | błękitny | `board_states` (wersja i `ETag` stanu tablicy) |
 | `flags` | czerwony | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_displays`, `flag_escalations` |
 | `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `box_care_types`, `box_care_type_labels`, `box_care_events`, `paddock_plans`, `paddock_plan_companions` |
 | `health` | limonkowy | `health_events`, `health_attachments` |
@@ -129,15 +126,12 @@
 | Cron | Serwisy | Co robi |
 |---|---|---|
 | `escalation-scheduler` | `flags`, `notifications` | Znajduje flagi z minionym `warn_at` albo `notify_at` i bez potwierdzenia |
-| `device-offline-detector` | `devices` | Oznacza tablety bez kontaktu, otwiera alert `offline` |
-| `board-display-check` | `board`, `flags` | Szuka tabletów, które nie wyświetliły aktualnej wersji (`board_stale`, `flag_undisplayed`) |
+| `flag-display-check` | `flags`, `notifications` | Szuka krytycznych flag, które po N minutach nie zostały wyświetlone przy żadnym tablecie boksu, i powiadamia admina |
 | `board-horizon-refresher` | `board` | Przelicza stan tablic na granicy kubełka horyzontu, także gdy nic się nie zmieniło |
 | `task-occurrence-generator` | `tasks` | Tworzy wystąpienia zadań cyklicznych |
 | `health-due-reminders` | `health`, `notifications` | Przypomnienia o zbliżających się wizytach |
-| `device-commands-expirer` | `devices` | Wygasza komendy i zeruje zaszyfrowane payloady (np. hasła Wi-Fi) |
-| `releases-rollout-guard` | `releases`, `devices` | Wstrzymuje rollout APK, gdy tablety po aktualizacji przestają się synchronizować |
 | `files-gc` | `files` | Usuwa z S3 pliki `pending` starsze niż 24 h i pliki `deleted` po retencji |
-| `billing-usage-snapshot` | `billing` (czyta `horses`, `devices`) | Raz w okresie zapisuje zużycie: boksy z koniem, aktywne tablety |
+| `billing-usage-snapshot` | `billing` (czyta `horses`) | Raz w okresie zapisuje zużycie: boksy z koniem |
 | `billing-invoicing` | `billing`, `files` | Wystawia faktury z pozycjami, PDF do S3, przekazuje do systemu faktur |
 | `billing-dunning` | `billing`, `notifications` | Przypomnienia o zaległych płatnościach, po terminie `past_due`, potem `suspended` |
 | `horse-left-reconciler` | `access`, `flags`, `care`, `tasks`, `rides` | Szuka koni `left` z otwartymi dostępami, flagami albo planami i zleca ich zamknięcie właścicielom (na wypadek zgubionego zdarzenia) |
@@ -145,7 +139,7 @@
 
 ## Współpraca serwisów
 
-- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin), `task_occurrences` i `device_box_locks`. Uprawnienia sprawdza w `stable_members`, `horse_access` i `box_access`.
+- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin) i `task_occurrences`. Uprawnienia sprawdza w `stable_members`, `horse_access` i `box_access`.
 - **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo jego kolejkę SQS. Zapisy z tabletu i apki (potwierdzenia, odhaczenia) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
 - **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji) służą reakcjom, a nie kopiowaniu danych:
   - `flag.changed` podbija wersję w `board_states`, więc tablet przy następnym odpytaniu dostaje nowy stan;
@@ -173,7 +167,7 @@
 
 ![ERD aplikacji, schemat app](erd/app.png)
 
-Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 54 tabele i 74 relacje.
+Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 49 tabel i 65 relacji.
 
 <details>
 <summary>Źródło mermaid</summary>
@@ -285,62 +279,6 @@ erDiagram
         uuid accepted_by FK "users"
         timestamptz revoked_at
     }
-    devices {
-        uuid id PK "identyfikator instalacji z apki"
-        uuid stable_id FK "stables, gdzie wisi tablet"
-        text name
-        text status "active | retired"
-        text model
-        text firmware
-        text app_version
-        int version_code
-        text connectivity "online | offline"
-        timestamptz connectivity_changed_at
-        timestamptz last_seen_at
-        text wifi_ssid
-        int wifi_rssi
-        int battery_percent
-        boolean power_connected
-        int clock_offset_ms
-        int pending_writes
-        timestamptz telemetry_at
-        uuid current_user_id FK "users, kto jest zalogowany (z telemetrii)"
-        timestamptz registered_at
-        timestamptz retired_at
-    }
-    device_box_locks {
-        uuid id PK
-        uuid stable_id FK "stables"
-        uuid device_id FK "jedna otwarta blokada na tablet"
-        uuid box_id FK "boxes"
-        uuid locked_by FK "users"
-        timestamptz locked_at
-        timestamptz unlocked_at "NULL = aktywna"
-        uuid unlocked_by FK "users"
-    }
-    device_commands {
-        uuid id PK
-        uuid stable_id FK "stables"
-        uuid device_id FK
-        text type "rodzaj komendy, lista pod diagramem"
-        bytea payload_enc "zerowany po zakończeniu"
-        text status "pending | delivered | succeeded | failed | expired"
-        uuid created_by FK "users"
-        timestamptz delivered_at
-        timestamptz finished_at
-        text result_code
-        text result_message
-        timestamptz expires_at
-    }
-    device_alerts {
-        uuid id PK
-        uuid stable_id FK "stables"
-        uuid device_id FK "jeden otwarty alert danego rodzaju"
-        text kind "rodzaj alertu, lista pod diagramem"
-        timestamptz opened_at
-        timestamptz closed_at
-        timestamptz notified_at
-    }
     board_states {
         uuid box_id PK, FK "boxes"
         uuid stable_id FK "stables"
@@ -350,15 +288,6 @@ erDiagram
         timestamptz horizon_from
         timestamptz horizon_to
         timestamptz updated_at
-    }
-    board_device_sync {
-        uuid device_id PK, FK "devices"
-        uuid stable_id FK "stables"
-        uuid box_id FK
-        timestamptz last_poll_at
-        bigint served_version
-        bigint seen_version
-        timestamptz seen_at
     }
     flag_templates {
         uuid id PK
@@ -411,7 +340,6 @@ erDiagram
         uuid stable_id FK "stables"
         uuid flag_id FK
         uuid user_id FK "users, zalogowany użytkownik"
-        uuid device_id FK "devices, NULL gdy z apki"
         uuid box_id FK "boxes, gdzie potwierdzono"
         text method "tablet | app"
         timestamptz occurred_at
@@ -423,8 +351,7 @@ erDiagram
     flag_displays {
         uuid id PK
         uuid stable_id FK "stables"
-        uuid flag_id FK "unikalne z device_id"
-        uuid device_id FK "devices"
+        uuid flag_id FK "unikalne z box_id"
         uuid box_id FK "boxes"
         bigint board_version
         timestamptz displayed_at
@@ -503,7 +430,7 @@ erDiagram
         uuid type_id FK "box_care_types"
         timestamptz occurred_at
         uuid user_id FK "users"
-        uuid device_id FK "devices, NULL gdy z apki"
+        text source "tablet | app"
         text note
         text time_quality "synced | unknown"
         timestamptz received_at
@@ -516,7 +443,7 @@ erDiagram
         uuid meal_slot_id FK
         date service_date "unikalne z horse_id i meal_slot_id"
         uuid user_id FK "users"
-        uuid device_id FK "devices, NULL gdy z apki"
+        text source "tablet | app"
         uuid box_id FK "boxes"
         timestamptz occurred_at
         text time_quality "synced | unknown"
@@ -602,7 +529,7 @@ erDiagram
         text status
         uuid completion_event_id UK "id zdarzenia z klienta"
         uuid done_by_user_id FK "users"
-        uuid done_by_device_id FK "devices, NULL gdy z apki"
+        text source "tablet | app"
         timestamptz occurred_at
         text time_quality "synced | unknown"
         timestamptz received_at
@@ -637,8 +564,7 @@ erDiagram
     app_release_targets {
         uuid id PK
         uuid release_id FK
-        uuid stable_id FK "stables, opcjonalnie"
-        uuid device_id FK "devices, opcjonalnie"
+        uuid stable_id FK "stables"
     }
     notifications {
         uuid id PK
@@ -682,7 +608,7 @@ erDiagram
     }
     billing_plan_prices {
         uuid plan_id PK, FK
-        text metric PK "boxes_with_horse | active_devices"
+        text metric PK "np. boxes_with_horse"
         bigint unit_price_minor "grosze za jednostkę"
     }
     subscriptions {
@@ -704,7 +630,7 @@ erDiagram
         uuid subscription_id FK "unikalne z period_start i metric"
         timestamptz period_start
         timestamptz period_end
-        text metric "boxes_with_horse | active_devices"
+        text metric "np. boxes_with_horse"
         int quantity
     }
     invoices {
@@ -769,14 +695,7 @@ erDiagram
     horses ||--o{ horse_access : "dostęp"
     stables ||--o{ invitations : "zaprasza"
     horses |o--o{ invitations : "do konia"
-    devices ||--o{ device_box_locks : "blokady"
-    boxes ||--o{ device_box_locks : "zablokowany na"
-    users ||--o{ device_box_locks : "blokuje"
-    devices ||--o{ device_commands : "komendy"
-    devices ||--o{ device_alerts : "alerty"
     boxes ||--o| board_states : "stan tablicy"
-    board_states ||--o{ board_device_sync : "tablety boksu"
-    devices ||--o| board_device_sync : "co pobrał i wyświetlił"
     flag_templates ||--o{ flag_template_labels : "etykiety"
     flag_templates |o--o{ horse_flags : "szablon"
     horse_flags |o--o| horse_flags : "zastępuje"
@@ -786,8 +705,6 @@ erDiagram
     horses ||--o{ horse_flags : "flagi"
     meal_slots |o--o{ horse_flags : "cel: posiłek"
     users ||--o{ flag_acknowledgements : "kto potwierdził"
-    devices |o--o{ flag_acknowledgements : "z tabletu"
-    devices ||--o{ flag_displays : "na tablecie"
     meal_slots ||--o{ meal_slot_labels : "etykiety"
     meal_slots ||--o{ feeding_plans : "posiłek"
     feeding_plans ||--o{ feeding_plan_items : "pozycje"
@@ -826,14 +743,13 @@ erDiagram
     boxes ||--o{ box_access : "najem"
     users ||--o{ box_access : "najemca"
     boxes ||--o{ box_care_events : "zdarzenia"
-    devices |o--o{ box_care_events : "z tabletu"
-    users |o--o{ devices : "zalogowany na"
     box_care_types ||--o{ box_care_type_labels : "etykiety"
     box_care_types ||--o{ box_care_events : "rodzaj"
+    boxes ||--o{ flag_displays : "wyświetlono przy boksie"
+    boxes |o--o{ flag_acknowledgements : "potwierdzono przy boksie"
     classDef svc_stable fill:#dbeafe,stroke:#1d4ed8
     classDef svc_access fill:#ede9fe,stroke:#6d28d9
     classDef svc_identity fill:#fce7f3,stroke:#be185d
-    classDef svc_devices fill:#ccfbf1,stroke:#0f766e
     classDef svc_board fill:#cffafe,stroke:#0e7490
     classDef svc_flags fill:#fee2e2,stroke:#b91c1c
     classDef svc_care fill:#dcfce7,stroke:#15803d
@@ -847,8 +763,7 @@ erDiagram
     class stables,stable_locales,stable_settings,boxes,horses,horse_box_history svc_stable
     class stable_members,horse_access,box_access,invitations svc_access
     class users svc_identity
-    class devices,device_box_locks,device_commands,device_alerts svc_devices
-    class board_states,board_device_sync svc_board
+    class board_states svc_board
     class flag_templates,flag_template_labels,horse_flags,flag_acknowledgements,flag_displays,flag_escalations svc_flags
     class meal_slots,meal_slot_labels,feeds,paddocks,feeding_plans,feeding_plan_items,feeding_checks,box_care_types,box_care_type_labels,box_care_events,paddock_plans,paddock_plan_companions svc_care
     class health_events,health_attachments svc_health
@@ -877,7 +792,7 @@ erDiagram
         text service
         text actor_type "user | operator | system"
         uuid actor_id
-        uuid device_id FK "devices, gdy z tabletu"
+        text client "tablet | app | web"
         text action
         text entity_type
         uuid entity_id
@@ -896,8 +811,6 @@ erDiagram
 
 ## Słowniki wartości
 
-- `device_alerts.kind`: `offline`, `power_lost`, `clock_drift`, `board_stale`, `flag_undisplayed`, `battery_full_long`, `firmware_changed`.
-- `device_commands.type`: `refresh_board`, `restart_app`, `sign_out`, `unlock_box`, `add_wifi_network`, `check_updates`, `wipe`.
 - `box_care_types`: słownik per stajnia. Domyślne pozycje wstawiane przez kod: `cleaning` (czyszczenie), `bedding` (ścielenie), `hay` (dorzucone siano), `feed` (dorzucona karma), `water` (woda).
 - `horse_flags.source`: `app` (właściciel w apce) albo flaga wpisana w imieniu właściciela: `on_behalf_phone`, `on_behalf_sms`, `on_behalf_in_person`.
 
@@ -906,15 +819,14 @@ erDiagram
 - **Przejmuje Cognito:** `otp_challenges`, `auth_sessions`, `access_tokens`, `refresh_tokens`, `device_auth_challenges`, `rate_limit_buckets`, a także `invitations.token_hash` (zaproszenie dopasowuje się do zweryfikowanego telefonu albo e-maila).
 - **Tablety:**
   - nie ma parowania (`device_pairing_requests`) ani PIN-ów obsługi (`stable_members.pin_verifier`, `stables.service_pin_verifier`): na tablecie zawsze jest zalogowany konkretny użytkownik;
-  - `device_box_locks` zastępuje `device_boxes`;
-  - `board_device_sync.last_poll_at` i `devices.last_seen_at` (z telemetrii) zastępują `device_presence`.
+  - nie ma tabel urządzeń (`devices`, `device_boxes`, `device_presence`, komendy, alerty): blokada boksu jest trzymana na tablecie, sesje w Cognito;
 - **Przejmuje S3:** `stored_files` i `stored_file_chunks`.
 - **Serwisy:** dochodzi `billing` (płatności). Każda tabela ma serwis-właściciela; wszystko jest w schemacie `app`, poza audytem w schemacie `audit`.
 - **Odpada razem z WebSocketami i monolitem:**
   - `outbox_seq` i `outbox_events`; zdarzenia idą wprost do SNS + SQS, bez outboxów;
   - `jobs`, bo crony są serwisami;
   - `boxes.board_version` przechodzi do `board_states.version`.
-- **Bez jsonb:** ustawienia stajni, języki, etykiety, pozycje karmienia, towarzysze na padoku, telemetria tabletu, rollout APK, ceny planów, adres do faktury i zmiany w audycie mają własne kolumny albo tabele. `board_states` nie trzyma gotowej treści tablicy: `board` składa ją przy odpytaniu, a w tabeli zostaje wersja i `ETag`.
+- **Bez jsonb:** ustawienia stajni, języki, etykiety, pozycje karmienia, towarzysze na padoku, rollout APK, ceny planów, adres do faktury i zmiany w audycie mają własne kolumny albo tabele. `board_states` nie trzyma gotowej treści tablicy: `board` składa ją przy odpytaniu, a w tabeli zostaje wersja i `ETag`.
 - **Załączniki:** ogólne `attachments` zastępuje `health_attachments`, bo w v1 załączniki są tylko w zdrowiu.
 - **Poza v1, do decyzji:**
   - eksporty danych (`data_exports`, w przyszłości osobny serwis `exports`, który czyta dane wprost z bazy);
