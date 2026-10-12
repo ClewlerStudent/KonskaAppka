@@ -53,7 +53,10 @@
      - **„Podano śniadanie”** (tak samo obiad i kolację): jedna akcja dla całej hali w `building_routines` (`kind = meal_served`). Koń z flagą, która wstrzymuje ten posiłek w jego godzinie, jest pomijany i wypisany jako pominięty. Nie ma potwierdzania karmienia per koń.
      - **„Wyprowadzono na padok”**: jedna akcja dla całej hali (`kind = paddock_out`). Obejmuje konie z planem padoku na teraz i pomija konie z flagą „Nie na padok” obowiązującą w tym czasie.
      - Każdą akcję można cofnąć przez kilka minut (`cancelled_at`). Z tabletu akcja nie ma autora, z apki ma.
-   - Wody nie odnotowujemy, bo poidła są automatyczne. Nie ma też osobnych wpisów „siano” i „karma”.
+   - **Poidło to ustawienie boksu** (`boxes.auto_waterer`). Ustawia je admin w szczegółach boksu, a nowy boks ma domyślnie poidło automatyczne (wartość nadaje kod).
+     - Przy automatycznym poidle znacznik wody nie wyświetla się nigdzie, bo zawsze jest w porządku.
+     - Boks z poidłem ręcznym (np. wiadro, gdy automat czeka na wymianę) pokazuje na tablecie, wyświetlaczu, w apce i panelu znacznik „Poidło ręczne” z godziną ostatniego dolania. Ma też szybką akcję „Woda” (`box_care_events.kind = water`), dostępną tylko dla takiego boksu.
+   - Nie ma osobnych wpisów „siano” i „karma”.
    - Pozycja planu karmienia może mieć informację „namoczyć” i ile (`feeding_plan_items.soak`, `soak_note`, np. „w 2 l wody”). To wersja prosta: model karmienia jest otwartą kwestią.
    - **Historia boksu** to flagi konia (utworzenie, potwierdzenie, odwołanie) i zdarzenia z przycisków obsługi. Widzi ją klient konia, który stoi w boksie (od dnia, w którym koń do niego trafił), obsługa i admin.
    - **Klient** (rola `client`) to osoba, która przyprowadza konia do stajni: właściciel albo dzierżawca konia. Dla stajni to ten sam klient.
@@ -120,7 +123,7 @@
    - Adres pierwszej hali to adres podany przy zakładaniu stajni.
    - Nową halę dodaje admin w panelu web: Boksy i konie → „Dodaj halę”.
      - Podaje nazwę i adres (może skopiować adres innej hali).
-     - Potem wybiera jedno: dodaje nowe boksy z zakresu numerów (każda hala numeruje boksy od siebie, np. od 1), przenosi istniejące boksy albo zostawia halę pustą.
+     - Potem wybiera jedno: dodaje nowe boksy z zakresu numerów (każda hala numeruje boksy od siebie, np. od 1; nowe boksy mają domyślnie poidło automatyczne), przenosi istniejące boksy albo zostawia halę pustą.
      - Serwis `stable` zapisuje halę i boksy w jednej transakcji i dopisuje audyt.
      - Innym serwisom nic nie trzeba wysyłać: tablet („Zmień boks”) i wyświetlacz widzą nową halę przy najbliższym odpytaniu.
    - Usunąć można tylko pustą halę. Halę z boksami trzeba najpierw opróżnić (przenieść boksy) albo wyłączyć (`active = false`).
@@ -285,6 +288,7 @@ erDiagram
         uuid stable_id FK
         uuid building_id FK "buildings, hala"
         text label "numer w hali, bez unikalności"
+        boolean auto_waterer "automatyczne poidło"
         boolean active
     }
     horses {
@@ -467,7 +471,7 @@ erDiagram
         uuid id PK "z klienta"
         uuid stable_id FK "stables"
         uuid box_id FK "boxes"
-        text kind "tidy: Ogarnięte"
+        text kind "tidy: Ogarnięte | water: tylko poidło ręczne"
         timestamptz occurred_at
         uuid user_id FK "users; NULL, gdy z tabletu"
         text source "tablet | app"
@@ -831,7 +835,7 @@ erDiagram
 
 ## Słowniki wartości
 
-- `box_care_events.kind`: `tidy` („Ogarnięte”, czyli sprzątanie i ścielenie razem). Wody, siana i karmy nie odnotowujemy.
+- `box_care_events.kind`: `tidy` („Ogarnięte”, czyli sprzątanie i ścielenie razem) i `water` („Woda”, tylko w boksie z poidłem ręcznym, `boxes.auto_waterer = false`). Siana i karmy nie odnotowujemy.
 - `building_routines.kind`: `meal_served` („Podano śniadanie / obiad / kolację”, z `meal_slot_id`), `paddock_out` („Wyprowadzono na padok”).
 - `flag_templates`: domyślne szablony wstawiane przez kod: `bez_sniadania`, `bez_kolacji`, `nie_na_padok`, `derka` (warianty `on` = zakładać, `off` = nie zakładać), `leki`, `wet`. Admin może dodać własne.
 - `stable_members.role`: `admin` (Admin: zarządca albo właściciel stajni), `staff` (Obsługa), `instructor` (Instruktor), `it_support` (Wsparcie IT), `display` (Wyświetlacz), `client` (Klient).
@@ -845,7 +849,7 @@ erDiagram
   - nie ma tabel urządzeń (`devices`, `device_boxes`, `device_presence`, komendy, alerty): wybrany boks jest zapamiętany na tablecie, bez blokady, a sesje są w Cognito;
 - **Hale:** tekstowe `boxes.building` zastępuje tabela `buildings` (z adresem hali) i klucz `boxes.building_id`.
 - **Feedback ze stajni:**
-  - rutyna obsługi to szybkie akcje: „Ogarnięte” per boks (`box_care_events.kind = tidy`) oraz posiłek i padok dla całej hali (`building_routines`). Odpadają `feeding_checks` (karmienie per koń), `box_care_types` i `box_care_type_labels` (osobne czyszczenie, ścielenie, siano, karma i woda);
+  - rutyna obsługi to szybkie akcje: „Ogarnięte” per boks (`box_care_events.kind = tidy`) oraz posiłek i padok dla całej hali (`building_routines`). Odpadają `feeding_checks` (karmienie per koń), `box_care_types` i `box_care_type_labels` (osobne czyszczenie, ścielenie, siano i karma); woda zostaje tylko dla boksów z poidłem ręcznym (`boxes.auto_waterer`);
   - flagi mają wymagane godziny od–do i wariant (`horse_flags.variant`, flaga „Derka”); `feeding_plan_items` dostaje „namoczyć” i ile;
   - jedna rola Klient zamiast właściciela konia i najemcy miejsca: odpada `box_access`, a `invitations` traci `box_id` i `access_role`; „serwisant” to teraz Wsparcie IT (`it_support`);
   - zadania są jednorazowe: odpadają `task_occurrences` i cron `task-occurrence-generator`;
