@@ -65,7 +65,8 @@
    - `files` trzyma metadane, `s3_key` (z prefiksem `stable_id/`) i właściciela (`owner_service`, `owner_id`).
    - Link do pobrania wydaje tylko serwis-właściciel po sprawdzeniu uprawnień. Na przykład `health` sprawdza widoczność wpisu i dostęp do konia, a dopiero potem prosi `files` o krótko ważny presigned URL.
 7. **Bez WebSocketów.**
-   - Tablet co kilka sekund odpytuje przez REST stan zablokowanego boksu (`board_states`) z `ETag`; gdy nic się nie zmieniło, dostaje `304`.
+   - Tablet sam regularnie, co kilka sekund, pyta serwis `board` o stan zablokowanego boksu. Serwer nie trzyma żadnego stanu tablic.
+   - `board` nie ma własnych tabel: przy każdym zapytaniu składa odpowiedź z danych w bazie. `ETag` to hash odpowiedzi, więc gdy nic się nie zmieniło, tablet dostaje `304`.
    - Wyświetlenie flagi tablet zgłasza z numerem boksu (`flag_displays`).
    - Między serwisami: kolejki **SNS + SQS**, bez outboxów.
      - Serwis po zatwierdzeniu transakcji publikuje zdarzenie do tematu SNS (jeden temat na rodzaj zdarzenia).
@@ -109,7 +110,7 @@
 | `identity` | różowy | `users` |
 | `access` | fioletowy | `stable_members`, `horse_access`, `box_access`, `invitations` |
 | `stable` | niebieski | `stables`, `stable_locales`, `stable_settings`, `boxes`, `horses`, `horse_box_history` |
-| `board` | błękitny | `board_states` (wersja i `ETag` stanu tablicy) |
+| `board` | — (bez tabel) | brak; składa stan tablicy z tabel innych serwisów przy każdym zapytaniu tabletu |
 | `flags` | czerwony | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_displays`, `flag_escalations` |
 | `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `box_care_types`, `box_care_type_labels`, `box_care_events`, `paddock_plans`, `paddock_plan_companions` |
 | `health` | limonkowy | `health_events`, `health_attachments` |
@@ -127,7 +128,6 @@
 |---|---|---|
 | `escalation-scheduler` | `flags`, `notifications` | Znajduje flagi z minionym `warn_at` albo `notify_at` i bez potwierdzenia |
 | `flag-display-check` | `flags`, `notifications` | Szuka krytycznych flag, które po N minutach nie zostały wyświetlone przy żadnym tablecie boksu, i powiadamia admina |
-| `board-horizon-refresher` | `board` | Przelicza stan tablic na granicy kubełka horyzontu, także gdy nic się nie zmieniło |
 | `task-occurrence-generator` | `tasks` | Tworzy wystąpienia zadań cyklicznych |
 | `health-due-reminders` | `health`, `notifications` | Przypomnienia o zbliżających się wizytach |
 | `files-gc` | `files` | Usuwa z S3 pliki `pending` starsze niż 24 h i pliki `deleted` po retencji |
@@ -142,7 +142,6 @@
 - **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin) i `task_occurrences`. Uprawnienia sprawdza w `stable_members`, `horse_access` i `box_access`.
 - **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo jego kolejkę SQS. Zapisy z tabletu i apki (potwierdzenia, odhaczenia) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
 - **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji) służą reakcjom, a nie kopiowaniu danych:
-  - `flag.changed` podbija wersję w `board_states`, więc tablet przy następnym odpytaniu dostaje nowy stan;
   - `horse.left` zamyka flagi, plany i dostępy w serwisach-właścicielach;
   - `subscription.status_changed` zmienia `stables.status`.
 - **Prywatność:** treść notatek `app_only` i opisy wizyt nigdy nie trafiają do odpowiedzi `board` dla tabletu. Pilnuje tego kod `board` i jego testy.
@@ -167,7 +166,7 @@
 
 ![ERD aplikacji, schemat app](erd/app.png)
 
-Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 49 tabel i 65 relacji.
+Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 48 tabel i 64 relacji.
 
 <details>
 <summary>Źródło mermaid</summary>
@@ -279,16 +278,6 @@ erDiagram
         uuid accepted_by FK "users"
         timestamptz revoked_at
     }
-    board_states {
-        uuid box_id PK, FK "boxes"
-        uuid stable_id FK "stables"
-        uuid horse_id FK "horses"
-        bigint version
-        text etag "z wersji i kubełka horyzontu; treść składana przy GET"
-        timestamptz horizon_from
-        timestamptz horizon_to
-        timestamptz updated_at
-    }
     flag_templates {
         uuid id PK
         uuid stable_id FK "stables"
@@ -353,7 +342,6 @@ erDiagram
         uuid stable_id FK "stables"
         uuid flag_id FK "unikalne z box_id"
         uuid box_id FK "boxes"
-        bigint board_version
         timestamptz displayed_at
         timestamptz received_at
     }
@@ -695,7 +683,6 @@ erDiagram
     horses ||--o{ horse_access : "dostęp"
     stables ||--o{ invitations : "zaprasza"
     horses |o--o{ invitations : "do konia"
-    boxes ||--o| board_states : "stan tablicy"
     flag_templates ||--o{ flag_template_labels : "etykiety"
     flag_templates |o--o{ horse_flags : "szablon"
     horse_flags |o--o| horse_flags : "zastępuje"
@@ -750,7 +737,6 @@ erDiagram
     classDef svc_stable fill:#dbeafe,stroke:#1d4ed8
     classDef svc_access fill:#ede9fe,stroke:#6d28d9
     classDef svc_identity fill:#fce7f3,stroke:#be185d
-    classDef svc_board fill:#cffafe,stroke:#0e7490
     classDef svc_flags fill:#fee2e2,stroke:#b91c1c
     classDef svc_care fill:#dcfce7,stroke:#15803d
     classDef svc_health fill:#ecfccb,stroke:#4d7c0f
@@ -763,7 +749,6 @@ erDiagram
     class stables,stable_locales,stable_settings,boxes,horses,horse_box_history svc_stable
     class stable_members,horse_access,box_access,invitations svc_access
     class users svc_identity
-    class board_states svc_board
     class flag_templates,flag_template_labels,horse_flags,flag_acknowledgements,flag_displays,flag_escalations svc_flags
     class meal_slots,meal_slot_labels,feeds,paddocks,feeding_plans,feeding_plan_items,feeding_checks,box_care_types,box_care_type_labels,box_care_events,paddock_plans,paddock_plan_companions svc_care
     class health_events,health_attachments svc_health
@@ -825,8 +810,8 @@ erDiagram
 - **Odpada razem z WebSocketami i monolitem:**
   - `outbox_seq` i `outbox_events`; zdarzenia idą wprost do SNS + SQS, bez outboxów;
   - `jobs`, bo crony są serwisami;
-  - `boxes.board_version` przechodzi do `board_states.version`.
-- **Bez jsonb:** ustawienia stajni, języki, etykiety, pozycje karmienia, towarzysze na padoku, rollout APK, ceny planów, adres do faktury i zmiany w audycie mają własne kolumny albo tabele. `board_states` nie trzyma gotowej treści tablicy: `board` składa ją przy odpytaniu, a w tabeli zostaje wersja i `ETag`.
+  - `boxes.board_version` znika razem z cache tablic: serwis `board` nie trzyma stanu.
+- **Bez jsonb:** ustawienia stajni, języki, etykiety, pozycje karmienia, towarzysze na padoku, rollout APK, ceny planów, adres do faktury i zmiany w audycie mają własne kolumny albo tabele.
 - **Załączniki:** ogólne `attachments` zastępuje `health_attachments`, bo w v1 załączniki są tylko w zdrowiu.
 - **Poza v1, do decyzji:**
   - eksporty danych (`data_exports`, w przyszłości osobny serwis `exports`, który czyta dane wprost z bazy);
