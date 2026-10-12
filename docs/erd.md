@@ -37,11 +37,15 @@
    - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. po końcu najmu.
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
    - Rola w `box_access`: `tenant` (najemca, może przekazywać informacje) albo `viewer` (tylko podgląd).
-4. **Jedna baza, jeden schemat, właściciel tabeli.**
+4. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
    - Klucze obce są normalne, także między tabelami różnych serwisów.
    - Dzięki temu nie ma replik ani synchronizacji danych między serwisami. Na przykład `board` składa stan tablicy, czytając wprost konie, flagi i plany karmienia.
-   - Serwisy czytają te same tabele, więc mają jeden schemat. Definicja tabel i migracje leżą w jednym pakiecie monorepo (`packages/db`), a serwisy importują z niego typy tabel.
+   - Serwisy czytają te same tabele, więc mają jeden schemat `app`. Definicja tabel i migracje leżą w jednym pakiecie monorepo (`packages/db`), a serwisy importują z niego typy tabel.
+   - Audit jest w osobnym schemacie `audit` (`audit_log`, `audit_log_changes`), bez kluczy obcych do `app`.
+     - Każdy serwis dopisuje wpis audytu w tej samej transakcji co zmiana, więc nie da się zmienić danych bez śladu i nie potrzeba do tego kolejki.
+     - Role bazy serwisów mają w schemacie `audit` tylko `INSERT`, bez odczytu, zmiany i usuwania.
+     - Czytać i sprzątać po okresie retencji może tylko serwis `audit`.
    - Koszt: zmiana kolumny czytanej przez inne serwisy musi być zgodna wstecz (najpierw dodać, potem usunąć).
 5. **Tożsamość w Cognito.**
    - `users.cognito_sub` wiąże nasz profil z kontem w puli Cognito.
@@ -109,7 +113,7 @@
 | `files` | `files` (metadane; treść w S3) |
 | `releases` | `app_releases`, `app_release_targets` |
 | `notifications` | `notifications` |
-| `audit` | `audit_log`, `audit_log_changes` |
+| `audit` | `audit_log`, `audit_log_changes` (schemat `audit`; wpisy dodają wszystkie serwisy, czyta i usuwa tylko `audit`) |
 
 **Crony to osobne mikroserwisy bez własnych tabel.** Czytać mogą wprost z bazy, ale zmiany zlecają serwisom-właścicielom przez API albo kolejki. Idempotencję zapewniają unikalności po stronie tych serwisów, np. `notifications.dedupe_key`.
 
@@ -142,7 +146,7 @@
 
 ## Legenda
 
-- **Linie:** każda linia to klucz obcy (jeden schemat). Pod każdym diagramem jest obrazek, a pod nim w zwijanej sekcji źródło mermaid.
+- **Linie:** każda linia to klucz obcy. Wszystkie tabele poza audytem są w schemacie `app`; tabele audytu (diagram 5) są w schemacie `audit` i nie mają kluczy obcych do `app`. Pod każdym diagramem jest obrazek, a pod nim w zwijanej sekcji źródło mermaid.
 - **Krotności.** Znacznik przy tabeli mówi, ile jej wierszy przypada na jeden wiersz tabeli po drugiej stronie:
   - `||` dokładnie jeden;
   - `o|` (zapisane po lewej stronie jako `|o`) zero albo jeden;
@@ -697,7 +701,7 @@ erDiagram
 
 ## 5. Pliki, wydania APK, powiadomienia i audit
 
-Serwisy: `files`, `releases`, `notifications`, `audit`.
+Serwisy: `files`, `releases`, `notifications`, `audit` (tabele `audit_log` i `audit_log_changes` w schemacie `audit`).
 
 ![Pliki, wydania APK, powiadomienia i audit](erd/05-pliki-wydania-powiadomienia.png)
 
@@ -756,7 +760,7 @@ erDiagram
         timestamptz sent_at
     }
     audit_log {
-        uuid id PK
+        uuid id PK "schemat audit"
         uuid stable_id "stables"
         text service
         text actor_type "user | operator | system"
@@ -768,7 +772,7 @@ erDiagram
         timestamptz created_at
     }
     audit_log_changes {
-        uuid audit_log_id PK, FK
+        uuid audit_log_id PK, FK "schemat audit"
         text field PK
         text old_value "bez sekretów"
         text new_value
@@ -920,7 +924,7 @@ erDiagram
   - `device_box_locks` zastępuje `device_boxes`;
   - `board_device_sync.last_poll_at` i `devices.last_seen_at` (z telemetrii) zastępują `device_presence`.
 - **Przejmuje S3:** `stored_files` i `stored_file_chunks`.
-- **Serwisy:** dochodzi `billing` (płatności). Każda tabela ma serwisu-właściciela, ale wszystko jest w jednym schemacie.
+- **Serwisy:** dochodzi `billing` (płatności). Każda tabela ma serwis-właściciela; wszystko jest w schemacie `app`, poza audytem w schemacie `audit`.
 - **Odpada razem z WebSocketami i monolitem:**
   - `outbox_seq` i `outbox_events`; zdarzenia idą wprost do SNS + SQS, bez outboxów;
   - `jobs`, bo crony są serwisami;
