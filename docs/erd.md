@@ -61,12 +61,12 @@
    - Nie ma osobnych wpisów „siano” i „karma”.
    - Pozycja planu karmienia może mieć informację „namoczyć” i ile (`feeding_plan_items.soak`, `soak_note`, np. „w 2 l wody”), jeśli stajnia ma włączone moczenie paszy (pkt 16). To wersja prosta: model karmienia jest otwartą kwestią.
    - **Historia boksu** to flagi konia (utworzenie, potwierdzenie, odwołanie) i zdarzenia z przycisków obsługi. Widzi ją klient konia, który stoi w boksie (od dnia, w którym koń do niego trafił), obsługa i admin.
-   - **Tablet nie pokazuje historii**, tylko „Ostatnie akcje”: 5 najnowszych wpisów boksu i konia, bez przewijania i bez przycisku „Cała historia”. Pełną historię widać w apce i panelu web.
+   - **Tablet nie pokazuje historii**, tylko „Ostatnie akcje”: najwyżej 5 najnowszych wpisów boksu i konia, bez przewijania i bez przycisku „Cała historia”. Pełną historię widać w apce i panelu web.
    - **Klient** (rola `client`) to osoba, która przyprowadza konia do stajni: właściciel albo dzierżawca konia. Dla stajni to ten sam klient.
      - Dostęp ma przez `horse_access` (rola `client`), także przez zaproszenie (`invitations.horse_id`).
      - Widzi swojego konia i boks, w którym koń stoi, oraz ustawia i odwołuje jego flagi.
      - Osobnego najmu boksu bez konia nie ma, więc tabela `box_access` odpada.
-   - **Widok klienta jest maksymalnie prosty:** kafelki flag włączonych w ustawieniach stajni, opcjonalna notatka i godziny podpowiedziane przez szablon, które można zmienić. Na ekranie „Mój boks” sekcje „Ostatnio” i „Historia” pokazują tylko flagi (z potwierdzeniami) i zdarzenia z przycisków obsługi.
+   - **Widok klienta jest maksymalnie prosty:** kafelki flag włączonych w ustawieniach stajni, opcjonalna notatka i godziny podpowiedziane przez szablon, które można zmienić. Na ekranie „Mój boks” sekcja „Ostatnio” pokazuje tylko zdarzenia z przycisków obsługi (gdy stajnia je wyłączyła, sekcji nie ma), a „Historia” flagi (z potwierdzeniami) i zdarzenia z przycisków obsługi.
    - **Obsługa** (`staff`) może z apki i panelu web robić to samo co klient, ale dla wszystkich koni w stajni, oraz wykonuje szybkie akcje i zadania.
    - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. gdy koń opuszcza stajnię albo kończy się dzierżawa.
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
@@ -168,10 +168,10 @@
        - szybkie przyciski obsługi: „Ogarnięte” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`). „Woda” zależy od poidła boksu (pkt 3);
      - **Widoczność per rola** (`stable_role_features`): admin zaznacza, co pojawia się w panelu klienta, obsługi, instruktora, wsparcia IT i wyświetlacza. Funkcje to stała lista (sekcja „Słowniki”). Admin widzi wszystko.
    - **Wyłączona opcja znika:** kafelek flagi, „namoczyć”, przycisk albo sekcja nie pokazują się klientowi, obsłudze, na tablecie ani na wyświetlaczu. Zgodnie z zasadą spójności z pkt 3 znika też stan tego, czego nie da się zapisać.
-     - Wyłączony szybki przycisk znika razem ze stanem wykonania, np. „Ogarnięte 07:10”, „podane 06:40” albo „Wyprowadzono 10:05”. Plan karmienia zostaje, bo to osobna funkcja (widoczność „Plan karmienia”), a godziny posiłków zostają jako plan dnia (np. „następny posiłek: obiad 12:00”).
-     - Wyłączony „Padok” chowa też plan padoku (godziny i towarzyszy) na tablecie, wyświetlaczu i w karcie konia, bo stajnia nie prowadzi wtedy padoków w aplikacji. Flaga „Nie na padok” zostaje, jeśli jest włączona.
-     - „Woda” przy poidle ręcznym zostaje, bo nie ma przełącznika (pkt 3).
-   - Zmiana działa przy najbliższym odpytaniu (apka, tablet, wyświetlacz). Wpisy już zapisane zostają w historii.
+     - Wyłączony szybki przycisk znika razem ze stanem wykonania, np. „Ogarnięte dziś 07:10”, „podane 06:40” albo „Wyprowadzono na padok wczoraj 10:05”. Plan karmienia zostaje, bo to osobna funkcja (widoczność `feeding_plan`), a godziny posiłków zostają jako plan dnia (np. „Następny posiłek: obiad 12:00”).
+     - Wyłączony „Padok” chowa też plan padoku (godziny i towarzyszy) wszędzie: na tablecie, wyświetlaczu i w apce (lista koni, karta konia), bo stajnia nie prowadzi wtedy padoków w aplikacji. Flaga „Nie na padok” zostaje, jeśli jest włączona; podpowiada wtedy okno „dziś, cały dzień” (propozycja).
+     - „Woda” przy poidle ręcznym zostaje, bo nie ma przełącznika (pkt 3). Sekcja „Szybkie akcje” na tablecie znika, gdy nie ma w niej żadnego przycisku; w boksie z poidłem ręcznym zostaje z samą „Wodą”.
+   - Zmiana działa przy najbliższym odpytaniu (apka, tablet, wyświetlacz). Wpisy już zapisane zostają w „Historii” (apka, panel web), ale „Ostatnie akcje” na tablecie i wyświetlaczu oraz „Ostatnio” w apce pomijają zdarzenia wyłączonych przycisków, bo to też stan wykonania.
    - Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami.
 
 ## Otwarte kwestie
