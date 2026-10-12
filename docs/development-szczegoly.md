@@ -1,6 +1,6 @@
 # eKoniuszy: development, testy i zakupy przed wdrożeniem
 
-> Stan na 2026-10-12, po feedbacku ze stajni (erd.md pkt 2, 3 i 12–15 oraz „Otwarte kwestie”). Model danych i decyzje: [docs/erd.md](erd.md) (v3), paleta kolorów: [docs/paleta.md](paleta.md), wersja zwięzła: [docs/development.md](development.md). Z [docs/analiza.md](analiza.md) (nieaktualna v3) bierzemy tylko szczegóły tabletu. Dokument opisuje, co kupić, jakie konta założyć, co zbudować i jak przetestować system przed wdrożeniem. Nie podaje cen i nie wskazuje, gdzie ani u kogo stoją klaster i baza; o tym decyduje Dawid.
+> Stan na 2026-10-12, po feedbacku ze stajni (erd.md pkt 2, 3 i 12–16 oraz „Otwarte kwestie”), z konfiguracją per stajnia (erd.md pkt 16: „Ustawienia stajni”, potwierdzenia flag zależne od ustawień stajni, widoczność per rola). Model danych i decyzje: [docs/erd.md](erd.md) (v3), paleta kolorów: [docs/paleta.md](paleta.md), wersja zwięzła: [docs/development.md](development.md). Z [docs/analiza.md](analiza.md) (nieaktualna v3) bierzemy tylko szczegóły tabletu. Dokument opisuje, co kupić, jakie konta założyć, co zbudować i jak przetestować system przed wdrożeniem. Nie podaje cen i nie wskazuje, gdzie ani u kogo stoją klaster i baza; o tym decyduje Dawid.
 
 **Oznaczenia**
 - **[niepotwierdzone]**: weryfikacja nie znalazła potwierdzenia w źródłach. Rozstrzyga test albo karta produktu sprawdzona przed zakupem.
@@ -152,7 +152,7 @@ Pozycje z 1.0 wliczają się w ilości z 1.1–1.4; nie kupujemy ich drugi raz.
 - reMarkable Paper Pro (Gallery 3): system na Linuksie, bez Androida ([XP-Pen](https://www.xp-pen.com/blog/color-e-ink-tablet.html)).
 - PocketBook Viva (Gallery 3, [Root Nation](https://root-nation.com/pl/news-pl/pl-pocketbook-viva/)): system PocketBook, a nie Android [niepotwierdzone].
 - Hisense: brak aktualnego tabletu e-ink z Androidem.
-- Panele e-paper do digital signage, także Kaleido 3 Outdoor: bez dotyku, więc nie da się potwierdzić flagi.
+- Panele e-paper do digital signage, także Kaleido 3 Outdoor: bez dotyku, więc nie da się zapisać szybkich akcji ani potwierdzić flagi (w stajni z potwierdzeniami).
 - Palma 3, Palma 2 Pro (6,13″, [Notebookcheck](https://www.notebookcheck.net/Boox-Palma-2-Pro-hands-on-review-Colorful-5G-e-reader-with-Android.1253300.0.html)), Viwoods AiPaper Reader C (6,13″, Kaleido 3, Android 16; [heyupnow](https://heyupnow.com/en-de/products/viwoods-aipaper-reader-c)), Go 6 Gen II, Picco: za małe ekrany.
 - Boox Go 7 (7″ mono, Android 13) zostaje w rezerwie na wypadek, gdyby M8 był niedostępny, a 7″ okazało się wystarczające w T-20. W kolorze tę rolę ma Go Color 7 Gen II (tabela kolorowych kandydatów).
 
@@ -314,7 +314,7 @@ Zasilanie przy boksie i Wi-Fi zapewnia stajnia. Kupujemy więc tylko to, czego s
 | Samsung, aktualny | 1 | Najpopularniejsza nakładka systemowa. | — |
 | Xiaomi albo Redmi | 1 | Agresywnie zamyka aplikacje w tle i inaczej uzupełnia kod z SMS. | — |
 | Pixel, najnowszy | 1 | Czysty Android i najnowsze API. | Android 10 lub nowszy jest też potrzebny do weryfikacji urządzenia w Play Console, jeśli konto okaże się osobiste. |
-| Karty SIM na kartę, z pakietem danych | ok. 10 + 2 zapasowe | Po jednej na osobę z danych przykładowych: admin, dwie osoby z obsługi, klienci (Anna, Karolina W., Tomasz L., Ewa K.), zaproszony klient (Marek Nowak), konto Wsparcia IT (`it_support`, propozycja); do tego konto `display`, jeśli loguje się SMS-em. | Sieci: Orange, Play, Plus i T-Mobile oraz 2–3 podmarki albo MVNO (np. nju mobile, Heyah, Virgin Mobile); jeden numer przeniesiony; opcjonalnie numer +380 (sekcja 5). Rejestracja na kartę wymaga danych osoby ([Antyweb](https://antyweb.pl/rejestracja-kart-sim-jak-to-zrobic)). Pilnować ważności kont. Nie używać tych numerów do 2FA kont Apple, Google i AWS. W SMS sandbox AWS mieści się tylko 10 zweryfikowanych numerów. |
+| Karty SIM na kartę, z pakietem danych | ok. 12 + 2 zapasowe | Po jednej na osobę z danych przykładowych: admini obu stajni (Damian, Paweł), dwie osoby z obsługi, klienci (Anna, Karolina W., Tomasz L., Ewa K.), zaproszony klient (Marek Nowak), konta Wsparcia IT (`it_support`) i Instruktora (`instructor`), oba propozycja; do tego konto `display`, jeśli loguje się SMS-em. Ola i Anna mają jedno konto w obu stajniach (przełącznik stajni). | Sieci: Orange, Play, Plus i T-Mobile oraz 2–3 podmarki albo MVNO (np. nju mobile, Heyah, Virgin Mobile); jeden numer przeniesiony; opcjonalnie numer +380 (sekcja 5). Rejestracja na kartę wymaga danych osoby ([Antyweb](https://antyweb.pl/rejestracja-kart-sim-jak-to-zrobic)). Pilnować ważności kont. Nie używać tych numerów do 2FA kont Apple, Google i AWS. W SMS sandbox AWS mieści się tylko 10 zweryfikowanych numerów. |
 | Modem USB LTE z kartą SIM albo telefon z Androidem przekazujący SMS-y do API testów | 1–2 | Automatyczny odczyt prawdziwych SMS-ów (OTP z Cognito, eskalacje) w przebiegu nocnym. | Custom SMS sender omija polskie sieci, więc tego testu nie zastąpi. |
 
 ### 1.5 Przyrządy na stanowisko testowe
@@ -391,7 +391,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
   - decyzję o rotacji refresh tokenu (okno łaski do 60 s). Czy obsługuje ją Amplify albo SDK w React Native, trzeba sprawdzić.
 - [ ] Klient tablet [erd]:
   - tablet nie ma własnego konta: loguje się na nim użytkownik tym samym kontem co w apce, a tablet zostaje zalogowany na stałe. Dlatego ten klient potrzebuje długiego refresh tokenu (wartość: sekcja 5);
-  - token wskazuje użytkownika, ale akcje z tabletu (potwierdzenie flagi, „Ogarnięte”, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu, „Woda” przy poidle ręcznym) zapisujemy bez autora: `source = tablet`, `user_id` NULL, `id` boksu i czas [erd]. Serwisy rozpoznają tablet po kliencie Cognito, nie po treści żądania (propozycja);
+  - token wskazuje użytkownika, ale akcje z tabletu (potwierdzenie flagi w stajni, która wymaga potwierdzeń, „Ogarnięte”, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu, „Woda” przy poidle ręcznym) zapisujemy bez autora: `source = tablet`, `user_id` NULL, `id` boksu i czas [erd]. Serwisy rozpoznają tablet po kliencie Cognito, nie po treści żądania (propozycja);
   - tablet wysyła `id` wybranego boksu, nie numer, bo numer (`boxes.label`) powtarza się w halach.
 - [ ] Klient display: konto techniczne stajni z rolą `display` w `stable_members`, jedno na wszystkie telewizory albo osobne na każdy telewizor [erd]. Tylko odczyt, długi refresh token jak dla tabletu.
 - [ ] Wysyłka SMS jedną z dwóch ścieżek ([ustawienia SMS](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-sms-settings.html)):
@@ -600,7 +600,7 @@ Zasady wspólne:
 - [ ] squawk na każdej nowej migracji: blokady, indeksy bez `CONCURRENTLY`, `NOT NULL` bez uzupełnienia danych.
 
 #### 3.1.4 `packages/db` (Drizzle)
-- [ ] `pgSchema('app')` i `pgSchema('audit')`: 45 tabel w `app` i 2 w `audit` [erd], pliki pogrupowane według serwisu-właściciela. Hierarchia `businesses` → `stables` (`business_id`) → `buildings` → `boxes` [erd].
+- [ ] `pgSchema('app')` i `pgSchema('audit')`: 46 tabel w `app` (z `stable_role_features`) i 2 w `audit` [erd], pliki pogrupowane według serwisu-właściciela. Hierarchia `businesses` → `stables` (`business_id`) → `buildings` → `boxes` [erd].
 - [ ] `owners.ts` (tabela → serwis) to jedno źródło dla reguły lint o zapisie, generatora grantów i README serwisów.
 - [ ] Konwencje [erd]:
   - identyfikatory UUIDv7 nadawane w kodzie;
@@ -624,6 +624,8 @@ Zasady wspólne:
   - indeks `box_care_events (stable_id, box_id, kind, occurred_at)` do najnowszego „Ogarnięte” i najnowszej „Wody” (wpisów może być kilka dziennie) (propozycja);
   - `horse_flags.valid_from` i `valid_to` są `NOT NULL` (bez „do odwołania”) [erd];
   - `boxes.auto_waterer` jest `NOT NULL` bez `DEFAULT`: wartość `true` (poidło automatyczne) nadaje kod nowemu boksowi [erd];
+  - ustawienia stajni [erd]: `stable_settings` 1:1 ze stajnią (klucz `stable_id`) z przełącznikami `flags_require_ack`, `soak_enabled`, `tidy_enabled`, `meal_served_enabled`, `paddock_out_enabled`; `stable_role_features` z kluczem `(stable_id, role, feature)` i kolumną `visible`. Kolumny `NOT NULL` bez `DEFAULT` (propozycja): wartości domyślne nowej stajni („wszystko włączone, łącznie z potwierdzeniami” [erd]) nadaje kod;
+  - `horse_flags.requires_ack` (kopia `stable_settings.flags_require_ack` w chwili zapisu flagi [erd]) jest `NOT NULL` bez `DEFAULT` (propozycja); `flag_templates` nie ma już `requires_ack` [erd];
   - celowo **bez** unikalności numeru boksu: ani `(stable_id, label)`, ani `(building_id, label)` [erd]. Boksy numeruje się w obrębie hali, więc każda hala może mieć swój boks 1, a boks identyfikuje wyłącznie `boxes.id`. Test katalogu sprawdza, że na `boxes.label` nie ma unikalnego indeksu; zwykły indeks `boxes (stable_id, building_id)` do listy boksów hali (propozycja).
 - [ ] `audit.audit_log.stable_id` bez klucza obcego do `app` [erd].
 - [ ] Przepływ migracji:
@@ -656,6 +658,8 @@ Zasady wspólne:
   - `version_conflict` (412), `precondition_required` (428);
   - `id_conflict` (409);
   - `target_passed` (422);
+  - `option_disabled` (409, propozycja): zapis opcji wyłączonej w ustawieniach stajni, np. flaga z nieaktywnego szablonu (`derka` w Stajni Brzozowej), „namoczyć” przy wyłączonym moczeniu, szybka akcja z wyłączonym przyciskiem;
+  - `ack_not_required` (409, propozycja): potwierdzenie flagi z `requires_ack = false`;
   - `profile_missing`;
   - `client_upgrade_required`;
   - 404 dla obiektów innej stajni.
@@ -728,6 +732,7 @@ Zasady wspólne:
 - [ ] Role w stajni (`stable_members.role`) [erd]: `admin` (Admin: zarządca albo właściciel stajni), `staff` (Obsługa), `instructor` (Instruktor), `it_support` (Wsparcie IT: techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami), `display` (Wyświetlacz), `client` (Klient: właściciel albo dzierżawca konia).
 - [ ] Uprawnienia czytane z bazy przy każdym żądaniu: `stable_members` oraz `horse_access` (rola `client`) z `valid_from`, `valid_to` i `revoked_at`. Dzięki temu blokada działa od razu, bez czekania na wygaśnięcie tokenu. Klient nie ma osobnego dostępu do boksu: widzi boks, w którym stoi jego koń (`horses.box_id`), i historię tego boksu od otwarcia wpisu konia w `horse_box_history` [erd].
 - [ ] Polityki jako czyste funkcje: rola w stajni × dostęp do konia (boks wynika z konia). Macierz testów rola × akcja. Dla `display` DTO z listą dozwolonych pól.
+- [ ] Widoczność per rola (`stable_role_features`) [erd] czytana z bazy przy każdym żądaniu, tak jak uprawnienia, więc zmiana w panelu działa przy najbliższym odpytaniu. Widoczność tylko zawęża to, na co pozwala rola, nigdy tego nie rozszerza (propozycja): klient z zaznaczonymi „Szybkimi akcjami i ich stanem” widzi stan, ale zapis dalej daje 403. Odpowiedzi złożone (`board`, lista dnia, karta konia) pomijają ukryte sekcje, a trasy funkcji ukrytej dla roli dają 403 (propozycja). `admin` nie ma wierszy w macierzy i widzi wszystko [erd]. Członkostwo i widoczność liczą się osobno w każdej stajni (Ola jest obsługą w dwóch stajniach o różnych ustawieniach).
 - [ ] `X-Box-Id` z tabletu walidowany: boks tej stajni, do którego użytkownik ma dostęp. Nagłówek niesie `boxes.id` (UUID), nigdy numer boksu, bo numer nie jest unikalny. Trafia do `box_id` w potwierdzeniach flag, „Ogarnięte” i „Wodzie”; przy akcji hali z tabletu wyznacza halę (`boxes.building_id`), bo `building_routines` nie ma `box_id`.
 - [ ] Krótki czas życia access tokenu, długi refresh token dla tabletu i wyświetlacza (wartości: sekcja 5).
 
@@ -752,12 +757,13 @@ Zasady wspólne:
 - [ ] `packages/rules`: czyste funkcje czasu.
   - Wystąpienia posiłków w strefie stajni i według `days_mask`.
   - Okno flagi `valid_from`–`valid_to` (obowiązkowe, w strefie stajni) i podpowiedź z `flag_templates.default_window` [erd]: „Bez śniadania” dziś 06:00–10:00, „Nie na padok” w godzinach padoku konia, „Derka” 16:00–08:00 (przez północ).
-  - `ack_deadline_at`, `warn_at` i `notify_at`, liczone od początku okna flagi [erd].
+  - `ack_deadline_at`, `warn_at` i `notify_at`, liczone od początku okna flagi i tylko dla flag z `requires_ack` [erd]; flaga bez potwierdzeń nie ma terminów (propozycja: `NULL`).
+  - Konfiguracja stajni (propozycja): czysta funkcja `stableFeatures(settings, activeTemplates, roleFeatures, role)` zwraca, co pokazać danej roli: kafelki flag (aktywne szablony, „Inna flaga”), „namoczyć”, przyciski szybkich akcji, tryb potwierdzeń i widoczne funkcje. Używają jej serwisy (`board`, `care`, `flags`) i apki, więc tablet, apka, panel i wyświetlacz ukrywają to samo.
   - Skutki flag liczone z okna godzin [erd]:
     - `suspend_meal` wstrzymuje tylko posiłki, których godzina wypada w oknie;
     - `cancel_paddock` skraca albo odwołuje padok tylko w oknie (Kasztan: padok B 10:00–16:00 i „Nie na padok” 14:30–16:00 dają padok 10:00–14:30, czyli między wetem o 8:00 a kowalem o 15:00);
     - lista koni pominiętych przy akcjach zbiorczych hali: flagi obowiązujące w chwili posiłku albo wyprowadzenia, także niepotwierdzone (propozycja).
-  - Etykiety godzin flagi: „06:00–10:00”, „od 14:30” (flaga, która zacznie się później), „16:00–08:00”, „dziś, cały dzień”.
+  - Etykiety godzin flagi: „06:00–10:00”, „od 14:30” (flaga, która zacznie się później), „16:00–08:00”, „dziś, cały dzień”. Etykieta statusu tylko dla flagi z `requires_ack`; flaga bez potwierdzeń ma „obowiązuje od razu” zamiast statusu.
   - Testy właściwości (fast-check) oraz nocy 25.10.2026 i 28.03.2027.
 - [ ] `packages/i18n`: polski, ukraiński i angielski. Etykiety słowników pochodzą z tabel `*_labels`.
 - [ ] `packages/theme`: tokeny palety z `docs/paleta.md`, jedno źródło dla apki, panelu, wyświetlacza TV i tabletu.
@@ -828,7 +834,16 @@ Zasady wspólne:
 - [ ] **Seed z makiet** (`pnpm db:seed`).
   - Przechodzi przez API albo repozytoria właścicieli, razem z audytem.
   - Czas jest liczony względem „dziś” w strefie Europe/Warsaw. Tryb stałej daty (wt 13.10.2026, teraz 07:15, pop-up tabletu o 06:01, jak na makietach) służy do zrzutów ekranu.
-  - **Działalność i stajnia:** działalność (`businesses`), a w niej Stajnia Pod Lipami, języki pl i uk, `warn_offset_min = 30`, `notify_offset_min = 15`.
+  - **Działalność i dwie stajnie o różnych ustawieniach:** działalność (`businesses`), a w niej Stajnia Pod Lipami (pełna opcja, z potwierdzeniami; dane poniżej) i Stajnia Brzozowa (mała, bez derek, moczenia i potwierdzeń; osobny punkt na końcu seedu). Obie w tej samej działalności (propozycja; erd.md tego nie przesądza), bo seed ma pokazać, że ustawienia są per stajnia, a nie dla całej działalności, i że izolacja idzie po `stable_id`. Stajnia Pod Lipami: języki pl i uk, `warn_offset_min = 30`, `notify_offset_min = 15`.
+  - **Ustawienia Stajni Pod Lipami** (`stable_settings`, `flag_templates.active`, `stable_role_features`) [erd]:
+    - `flags_require_ack = true` (potwierdzenia włączone);
+    - usługi: Derka (szablon `derka` aktywny) i moczenie (`soak_enabled = true`); flagi: wszystkie szablony aktywne; przyciski: „Ogarnięte”, posiłek i padok (`tidy_enabled`, `meal_served_enabled`, `paddock_out_enabled` = `true`);
+    - widoczność per rola:
+      - klient: `flags`, `feeding_plan`, `routine`, `box_history`, `health`, `rides`;
+      - obsługa: wszystko poza `device_diagnostics`;
+      - Wsparcie IT: tylko `device_diagnostics`;
+      - wyświetlacz: `flags`, `feeding_plan`, `routine`, `tasks`;
+      - instruktor: `flags` i `rides` (propozycja, jak na makiecie PanelUstawieniaStajni; arkusz zmian tego nie podaje).
   - **Hale** (każda z własnym adresem, boksy numerowane w obrębie hali od 1):
     - Hala główna (ul. Lipowa 12), boksy 1–8;
     - Hala nowa (ul. Polna 3), boksy 1–6.
@@ -846,7 +861,8 @@ Zasady wspólne:
     - Marek Nowak: oczekujące zaproszenie SMS jako klient do Luny (`invitations.horse_id`, bez boksu);
     - wygasłe zaproszenie dla obsługi;
     - konto `wyswietlacz-korytarz` z rolą `display`;
-    - konto z rolą `it_support` do macierzy ról (propozycja, poza makietami).
+    - konto z rolą `it_support` do macierzy ról (propozycja, poza makietami);
+    - konto z rolą `instructor` do macierzy ról (propozycja, poza makietami).
 
     Numery są fikcyjne; numery do puli dev leżą w lokalnym `.env`, poza repo.
   - **Słowniki:**
@@ -876,7 +892,23 @@ Zasady wspólne:
     - „Wymienić żarówkę w korytarzu” · Hala główna, wziął Piotr o 07:00, w toku;
     - „Przywieźć słomę z magazynu”, zrobione: Ola 06:30.
   - **Zdrowie, jazdy i billing** jak na makietach: wet 08:00 i kowal 15:00 (Kasztan), jazda 16:00 (Iskra, kryta ujeżdżalnia). Kwoty to wartości testowe.
-  - **Druga, mała stajnia tej samej działalności** z jedną halą, takimi samymi numerami boksów i imionami koni, do testów izolacji po `stable_id`, a nie po działalności (także interfejsu bez podziału na hale).
+  - **Druga stajnia: Stajnia Brzozowa** (ta sama działalność, mała, prowadzona przez właściciela, który sam jest stajennym). Służy do pokazania innych ustawień, do testów izolacji po `stable_id`, a nie po działalności (te same numery boksów 1–6 co w Hali nowej), i do interfejsu bez podziału na hale.
+    - Adres ul. Brzozowa 5, Piaseczno. Jedna hala, więc nigdzie nie pokazujemy podziału na hale (nagłówek tabletu „BOKS 1 · KOMETA”, w apce „boks 1”). Boksy 1–6: 1 Kometa, 2 Dąb, 3 Iga, 4 Lord, 5 wolny, 6 Nuta.
+    - Ludzie: Paweł, admin i właściciel (sam też obsługuje); Ola, obsługa także w Pod Lipami (drugie członkostwo `staff`), przychodzi rano do pomocy; Anna, klientka także w Pod Lipami (`horse_access` do Komety). Ola i Anna mają więc w apce przełącznik stajni. Damian nie jest członkiem tej stajni. Konta `it_support` i `instructor` z Pod Lipami także tutaj (propozycja, poza makietami). Konta `display` nie ma. Klienci pozostałych koni poza makietami (propozycja: bez kont).
+    - Ustawienia [erd]:
+      - `flags_require_ack = false` (potwierdzenia wyłączone);
+      - Derka: nie (szablon `derka` nieaktywny); moczenie: nie (`soak_enabled = false`);
+      - flagi: Bez śniadania, Bez kolacji, Nie na padok, Wet, Leki (aktywne szablony);
+      - przyciski: „Ogarnięte” i posiłek; padok wyłączony (`paddock_out_enabled = false`), bo konie stoją w systemie padokowo-boksowym i wychodzą same;
+      - widoczność per rola: klient `flags`, `routine`, `box_history`, `health` (bez planu karmienia i jazd); obsługa `flags`, `feeding_plan`, `routine`, `box_history`, `health` (bez zadań i jazd); wyświetlacz: nic (stajnia nie ma wyświetlacza); Wsparcie IT `device_diagnostics`; instruktor `flags` i `rides` (propozycja, jak na makiecie PanelUstawieniaBrzozowa).
+    - Słowniki: posiłki jak w Pod Lipami, 06:30, 12:00 i 18:00 (propozycja; makieta tabletu pokazuje „potem obiad 12:00”); szablony flag jak wyżej. Plan karmienia Komety bez „namoczyć”: owies (rano, wieczorem 1 kg), siano (bez ograniczeń), musli wieczorem 0,5 kg (jak na makiecie TabletBoksBrzozowa).
+    - Dziś (wt 13.10, 07:15):
+      - Kometa: „Bez śniadania” 06:00–09:00, notatka „dentysta o 8:30”, ustawiona przez Annę (`author_role = client`) o 05:50, `requires_ack = false`: obowiązuje od razu, bez statusu, bez terminów potwierdzenia i bez eskalacji;
+      - Lord: „Leki rano” 06:00–09:00, ustawił Paweł (`author_role = admin`), też bez potwierdzenia;
+      - „Podano śniadanie” 06:35 (Paweł, apka), pominięta Kometa (flaga); jedna hala, więc „cała stajnia”;
+      - „Ogarnięte” 3 z 6: boks 1 Kometa 07:00 (z tabletu, bez autora), 2 Dąb 06:55 (Ola, apka), 4 Lord 07:05; pozostałe wczoraj;
+      - wczoraj: „Podano kolację” 18:00 i „Ogarnięte” boksu 1 o 16:30 (Paweł, apka), żeby „OSTATNIE AKCJE” tabletu boksu 1 miały 5 wpisów jak na makiecie;
+      - bez zadań i jazd w seedzie tej stajni; dentysta jest tylko w notatce flagi.
 - [ ] `pnpm setup` (compose, migracje, granty, LocalStack, seed) i `pnpm reset`; `.env.example` dla każdego serwisu; opis, jak podłączyć telefon i tablet z LAN.
 
 ### 3.3 Serwisy
@@ -897,7 +929,7 @@ Zasady wspólne:
 - [ ] `POST /internal/users`: konto techniczne, np. `display`.
 
 **access** (`stable_members`, `horse_access`, `invitations`)
-- [ ] `GET /me/memberships`: stajnie, role i dostępy.
+- [ ] `GET /me/memberships`: stajnie, role i dostępy. Osoba może być członkiem kilku stajni z różnymi rolami albo tą samą rolą (w seedzie Ola jako obsługa i Anna jako klientka w Stajni Pod Lipami i w Stajni Brzozowej); apka przełącza między nimi stajnię bez ponownego logowania.
 - [ ] Zarządzanie członkami: zmiana roli (`admin | staff | instructor | it_support | display | client`), `active`.
 - [ ] `POST …/display-accounts`: konta wyświetlaczy.
 - [ ] Zaproszenia.
@@ -909,10 +941,16 @@ Zasady wspólne:
 - [ ] Dostęp klienta do konia: `horse_access` z rolą `client` (właściciel albo dzierżawca konia), `valid_to` np. równe końcowi dzierżawy, `revoked_at`, gdy koń opuszcza stajnię. Osobnego dostępu do boksu nie ma: boks i jego historię (od dnia, w którym koń do niego trafił) klient widzi przez konia [erd].
 - [ ] `/internal/stables/{id}/admins` (idempotentne), `/internal/horses/{id}/left`, `/internal/prune`.
 
-**stable** (`businesses`, `stables`, `stable_locales`, `stable_settings`, `buildings`, `boxes`, `horses`, `horse_box_history`)
-- [ ] Działalność (`businesses`) z kilkoma stajniami (`stables.business_id`): działalność → stajnie → hale → boksy [erd]. Uprawnienia, dane, izolacja i płatności zostają na poziomie stajni; działalność tylko grupuje stajnie [erd].
-- [ ] `POST /stables`: stajnia (w istniejącej albo nowej działalności), ustawienia i pierwsza hala z adresem stajni; po COMMIT wywołanie `access` i zdarzenie `stable.created`.
+**stable** (`businesses`, `stables`, `stable_locales`, `stable_settings`, `stable_role_features`, `buildings`, `boxes`, `horses`, `horse_box_history`)
+- [ ] Działalność (`businesses`) z kilkoma stajniami (`stables.business_id`): działalność → stajnie → hale → boksy [erd]. Uprawnienia, dane, izolacja, płatności i ustawienia zostają na poziomie stajni; działalność tylko grupuje stajnie [erd].
+- [ ] `POST /stables`: stajnia (w istniejącej albo nowej działalności), ustawienia i pierwsza hala z adresem stajni; po COMMIT wywołanie `access` i zdarzenie `stable.created`. Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami [erd]; domyślna macierz widoczności per rola: sekcja 5.
 - [ ] Ustawienia z `If-Match`: progi eskalacji, `author_display`, `owner_edits_feeding`, `rides_enabled`, okno instalacji APK.
+- [ ] **„Ustawienia stajni”** (konfiguracja per stajnia, erd.md pkt 16), tylko admin tej stajni; obsługa, klient, instruktor i `it_support` dostają 403, a admin innej stajni 404 (Damian w Stajni Brzozowej). Na PoC przełączniki gotowych opcji, bez własnych reguł:
+  - `GET …/settings` i `PATCH …/settings` z `If-Match` i audytem: „Flagi wymagają potwierdzenia” (`flags_require_ack`), moczenie paszy (`soak_enabled`), przyciski „Ogarnięte” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`) [erd]. „Woda” nie ma przełącznika, zależy od poidła boksu [erd];
+  - `GET …/role-features` i `PUT …/role-features` z `If-Match` i audytem: macierz ról `client | staff | instructor | it_support | display` × funkcji ze stałej listy `flags`, `feeding_plan`, `routine`, `box_history`, `tasks`, `health`, `rides`, `device_diagnostics` [erd]. `admin` nie występuje w macierzy, bo widzi wszystko; nieznana rola albo funkcja daje 422 (propozycja);
+  - flagi włącza się i wyłącza przez `flag_templates.active` (także Derkę, szablon `derka`) [erd]; tę tabelę zapisuje serwis `flags`, więc panel wysyła przełączniki flag do `flags`, a resztę do `stable`. Jeden przycisk „Zapisz” w panelu robi dwa żądania; przy błędzie jednego panel mówi, która część się nie zapisała (propozycja);
+  - `GET …/features` (propozycja): efektywna konfiguracja dla roli zalogowanego użytkownika w tej stajni (`stableFeatures` z `packages/rules`): kafelki flag, „namoczyć”, przyciski, tryb potwierdzeń i widoczne funkcje. Apka czyta ją po wyborze stajni i przy odpytywaniu z ETag;
+  - zmiana działa przy najbliższym odpytaniu apki, tabletów i wyświetlacza, bez zdarzeń [erd]; wpisy już zapisane zostają w historii; przełącznik potwierdzeń dotyczy tylko nowych flag (`horse_flags.requires_ack`, serwis `flags`).
 - [ ] Hale (`buildings`) [erd]:
   - każda hala ma nazwę (unikalną w stajni), własny adres (`address_line1`, `address_line2`, `postal_code`, `city`, `country_code`), `sort_order` i `active`; adres pierwszej hali to adres podany przy zakładaniu stajni;
   - lista i edycja hal (nazwa, adres, kolejność) z `If-Match`;
@@ -937,22 +975,30 @@ Zasady wspólne:
   - przeniesienie boksu do innej hali zachowuje konia, historię i zdarzenia;
   - nowe boksy mają `auto_waterer = true`; przełącznik poidła zmienia tylko admin, obsługa dostaje 403;
   - usunięcie hali z boksami daje 409;
-  - przy jednej hali interfejs nie pokazuje podziału na hale.
+  - przy jednej hali interfejs nie pokazuje podziału na hale;
+  - „Ustawienia stajni” i macierz widoczności zmienia tylko admin tej stajni (`If-Match`, audyt); obsługa, klient i `it_support` dostają 403, admin innej stajni 404; zmiana w jednej stajni nie zmienia drugiej stajni tej samej działalności;
+  - nowa stajnia ma ustawienia domyślne z kodu (wszystko włączone, z potwierdzeniami) [erd].
 
 **flags** (`flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_escalations`)
 - [ ] Szablony flag z domyślnym oknem godzin (`default_window`), w tym `derka` z efektem `rug` [erd]. `flag-preview` (propozycja) zwraca podpowiedź okna i jej skutki, np. „dziś 06:00–10:00 · wstrzymane śniadanie 06:30”, liczone na serwerze.
+- [ ] Włączanie i wyłączanie flag z ekranu „Ustawienia stajni”: `PATCH …/flag-templates/{id}` z `active`, tylko admin, `If-Match`, audyt [erd]. Derka to szablon `derka` (zakładanie derek jako usługa stajni). Kafelki klienta i obsługi pokazują tylko aktywne szablony i „Inna flaga”. Flagi z wyłączonego szablonu, które już trwają: sekcja 5 (propozycja: obowiązują i są widoczne do końca okna, znika tylko kafelek).
 - [ ] Utworzenie flagi.
   - Id nadane przez klienta i `request_hash`.
   - Szablon albo `custom_text`.
   - Okno `valid_from`–`valid_to` obowiązkowe, w strefie stajni; „do odwołania” nie ma [erd]. Brak okna albo koniec przed początkiem daje 422 (propozycja). Przy flagach posiłkowych dodatkowo `meal_slot_id` i `service_date`.
   - `variant` dla szablonu `derka`: `on` (zakładać) albo `off` (nie zakładać); dla innych szablonów pusty (propozycja: 422 przy brakującym albo zbędnym wariancie).
   - `source` (`app` albo `on_behalf_*`) i `author_role` (`client | staff | admin`) z roli autora w stajni [erd].
-  - Przy zapisie wyliczane `ack_deadline_at`, `warn_at` i `notify_at`, od początku okna [erd].
+  - Szablon nieaktywny w tej stajni (np. `derka` w Stajni Brzozowej) daje `409 option_disabled` (propozycja).
+  - `requires_ack` kopiowane przy zapisie z `stable_settings.flags_require_ack` tej stajni [erd]; klient go nie wysyła. Zastąpienie flagi (`replaces_flag_id`, np. zmiana godzin) bierze bieżące ustawienie stajni, bo to nowy zapis (propozycja).
+  - Przy zapisie wyliczane `ack_deadline_at`, `warn_at` i `notify_at`, od początku okna, tylko gdy `requires_ack = true` [erd]; przy `requires_ack = false` pola zostają puste (propozycja).
   - Gdy okno już minęło: `422 target_passed`.
-- [ ] Odwołanie i zastąpienie (`replaces_flag_id`), także zmiana godzin. Status flagi to tylko „potwierdzona HH:MM” albo „niepotwierdzona” [erd].
-- [ ] Potwierdzenia obsługi wymagają wyłącznie flagi (wyjątki od rutyny); przepływ „Nowa flaga” → pop-up na tablecie → „Potwierdzono flagę” bez zmian [erd]. Szybkie akcje obsługi potwierdzenia nie mają.
-- [ ] Potwierdzenie: `method` wynika z klienta tokenu, a `box_id` z nagłówka. Flaga zakończona albo odwołana daje `conflict` i nie wraca.
-- [ ] `/internal/flags/{id}/escalations`: w transakcji z blokadą wiersza flagi sprawdza, czy nadal nie ma potwierdzenia.
+- [ ] Odwołanie i zastąpienie (`replaces_flag_id`), także zmiana godzin. Status flagi to tylko „potwierdzona HH:MM” albo „niepotwierdzona” [erd], i tylko dla flagi z `requires_ack`; flaga bez potwierdzeń obowiązuje od razu i nie ma statusu.
+- [ ] Potwierdzenia obsługi mogą wymagać wyłącznie flagi (wyjątki od rutyny); czy wymagają, zależy od ustawień stajni (`stable_settings.flags_require_ack`) [erd]. Szybkie akcje obsługi potwierdzenia nie mają.
+  - Przełącznik włączony (Stajnia Pod Lipami): przepływ „Nowa flaga” → pop-up na tablecie → „Potwierdzono flagę” bez zmian, status „potwierdzona HH:MM” albo „niepotwierdzona”, eskalacje.
+  - Przełącznik wyłączony (Stajnia Brzozowa): flaga obowiązuje od razu; nie ma pop-upu z POTWIERDZAM, statusu oczekiwania u klienta, sekcji „Wymaga potwierdzenia” u obsługi ani eskalacji [erd]. Na tablecie flaga od razu stoi w banerze (przed początkiem okna pod banerem z „od HH:MM”), bez plakietki „POTWIERDZONA”.
+  - Zmiana przełącznika nie zmienia flag, które już trwają, bo każda ma własne `requires_ack` [erd]: niepotwierdzona flaga z czasu, gdy potwierdzenia były włączone, dalej czeka na potwierdzenie i eskaluje; flaga zapisana bez potwierdzeń nie dostaje statusu po ich włączeniu. Dlatego pop-up, status i sekcja „Wymaga potwierdzenia” idą za `requires_ack` flagi, a nie za bieżącym przełącznikiem stajni (propozycja).
+- [ ] Potwierdzenie: `method` wynika z klienta tokenu, a `box_id` z nagłówka. Flaga zakończona albo odwołana daje `conflict` i nie wraca. Flaga z `requires_ack = false` daje `409 ack_not_required` (propozycja) i nie tworzy wiersza `flag_acknowledgements`.
+- [ ] `/internal/flags/{id}/escalations`: w transakcji z blokadą wiersza flagi sprawdza, czy flaga ma `requires_ack` i czy nadal nie ma potwierdzenia; flagi bez `requires_ack` nigdy nie eskalują [erd].
 - [ ] Konsumuje `horse.left`: odwołuje flagi konia.
 - [ ] Testy:
   - wyścig potwierdzenia z eskalacją;
@@ -960,11 +1006,15 @@ Zasady wspólne:
   - flaga bez `valid_to` jest odrzucana; flaga, która zacznie się później, ma etykietę „od 14:30” i nie wstrzymuje niczego przed początkiem okna;
   - „Derka: zakładać” 16:00–08:00 przechodzi przez północ i kończy się następnego dnia o 08:00;
   - noc zmiany czasu;
-  - macierz uprawnień.
+  - macierz uprawnień;
+  - flaga w stajni bez potwierdzeń (Stajnia Brzozowa) ma `requires_ack = false`, puste terminy potwierdzenia i zero wierszy `flag_escalations`; jej potwierdzenie daje `409 ack_not_required` (propozycja);
+  - przełączenie `flags_require_ack` w obie strony nie zmienia `requires_ack` flag już zapisanych (trwająca niepotwierdzona flaga dalej eskaluje, flaga bez potwierdzeń nie dostaje statusu); nowa flaga po przełączeniu bierze nowe ustawienie;
+  - flaga z nieaktywnego szablonu (`derka` w Stajni Brzozowej, Derka wyłączona w Pod Lipami) daje `409 option_disabled` (propozycja), a „Inna flaga” (`custom_text`) przechodzi.
 
 **care** (10 tabel karmienia, padoków, rutyny hali, „Ogarnięte” i „Wody”)
 - [ ] Sloty posiłków, harmonogram dnia, pasze, padoki.
-- [ ] Plan karmienia (klient edytuje tylko przy włączonym `owner_edits_feeding`) i plan padoku z towarzyszami. Pozycja planu może mieć „namoczyć” i ile (`soak`, `soak_note`, np. „w 2 l wody”); to wersja prosta, bo model karmienia jest otwartą kwestią [erd].
+- [ ] Plan karmienia (klient edytuje tylko przy włączonym `owner_edits_feeding`) i plan padoku z towarzyszami. Pozycja planu może mieć „namoczyć” i ile (`soak`, `soak_note`, np. „w 2 l wody”), jeśli stajnia ma włączone moczenie paszy (`stable_settings.soak_enabled`); to wersja prosta, bo model karmienia jest otwartą kwestią [erd]. Przy wyłączonym moczeniu zapis z `soak = true` daje `409 option_disabled` (propozycja), a odczyty (apka, `board`) pomijają „namoczyć”; wpisy zostają w bazie.
+- [ ] Wyłączone przyciski szybkich akcji (`tidy_enabled`, `meal_served_enabled`, `paddock_out_enabled` = `false`) [erd]: zapis takiej akcji z apki i z tabletu daje `409 option_disabled` (propozycja), np. „Wyprowadzono na padok” w Stajni Brzozowej. Wpisy zapisane przed wyłączeniem zostają w historii. „Woda” nie ma przełącznika, zależy od poidła boksu.
 - [ ] Szybkie akcje obsługi zamiast odhaczania czynności [erd]:
   - **„Ogarnięte”** (sprzątanie i ścielenie razem): `box_care_events.kind = tidy`, jeden boks jednym tapnięciem z tabletu albo kilka zaznaczonych boksów jednym zapisem z apki (jedno żądanie, wiersz na boks). Kilka wpisów dziennie jest poprawne, a „Ogarnięte dziś 07:10” to najnowszy niecofnięty wpis;
   - **„Woda”** (tylko boks z poidłem ręcznym, `boxes.auto_waterer = false`) [erd]: `box_care_events.kind = water`, jednym tapnięciem z tabletu tego boksu albo z apki obsługi. Znacznik „Poidło ręczne · woda HH:MM” (w seedzie 06:55) to najnowszy niecofnięty wpis. Dla boksu z poidłem automatycznym zapis daje 409 (propozycja), a odpowiedzi nie mają żadnego pola wody;
@@ -981,17 +1031,19 @@ Zasady wspólne:
 **health** (`health_events`, `health_attachments`)
 - [ ] Wpisy zdrowia z `visibility` (`stable` albo `owner_private`) i miękkim usuwaniem; lista wizyt według terminu.
 - [ ] Załączniki przez `files`. Link do pobrania tylko po sprawdzeniu widoczności wpisu i dostępu do konia [erd].
+- [ ] Wizyty i zdrowie widzi tylko rola z zaznaczonym `health` w `stable_role_features` (admin zawsze) [erd]; bez tej widoczności trasy odczytu dają 403 (propozycja).
 
 **rides** (`arenas`, `rides`)
 - [ ] Ujeżdżalnie i jazdy.
   - Kolizja konia, areny albo przekroczona pojemność daje 409.
   - Flaga `no_riding` daje ostrzeżenie.
   - Całość wyłącza `rides_enabled`.
+  - Jazdy widzi tylko rola z zaznaczonym `rides` (w seedzie: klient w Pod Lipami tak, w Stajni Brzozowej nie) [erd].
 - [ ] Konsumuje `horse.left`: anuluje przyszłe jazdy.
 
 **tasks** (`tasks`)
 - [ ] Zadania tylko jednorazowe, np. „Poidło w boksie 5 do wymiany” [erd]. Dodaje je wyłącznie admin (zarządca albo właściciel stajni): tytuł, notatka, opcjonalnie hala, boks albo koń; odwołanie przez `cancelled_at`. Zadań cyklicznych nie ma, codzienną rutynę obsługują szybkie akcje `care`.
-- [ ] Lista dla obsługi: „Do wzięcia”, „Moje”, „Zrobione dziś”.
+- [ ] Lista dla obsługi: „Do wzięcia”, „Moje”, „Zrobione dziś”. Widzi ją tylko rola z zaznaczonym `tasks` (w Pod Lipami obsługa i wyświetlacz; w Stajni Brzozowej nikt poza adminem, więc Ola nie ma tam zakładki „Zadania”) [erd]; bez tej widoczności trasy zadań dają 403 (propozycja).
 - [ ] „Biorę”: stajenny sam bierze zadanie z listy (`taken_by`, `taken_at`), warunkową zmianą `taken_by IS NULL`; drugie „Biorę” na wzięte zadanie daje 409 z osobą, która je wzięła (propozycja).
 - [ ] „Zrobione”: `done_by`, `done_at`; tylko osoba, która wzięła zadanie, albo admin (propozycja).
 - [ ] Zadania obsługuje apka, bo potrzebna jest osoba; tablet ich nie pokazuje ani nie odhacza, a `board` nie zwraca ich dla tabletu [erd]. Admin dodaje zadania w apce (także w panelu: propozycja).
@@ -1000,11 +1052,12 @@ Zasady wspólne:
 **board** (bez tabel, rola tylko `SELECT`)
 - [ ] `GET /boxes/{boxId}` (tablet). `boxId` to `boxes.id` (UUID) zapamiętany na tablecie, nigdy numer boksu, bo numer nie jest unikalny. Odpowiedź:
   - halę (nazwa, liczba hal w stajni, żeby tablet wiedział, czy pokazać halę przy numerze), numer boksu i konia;
-  - flagi z notatką, autorem flagi (według `author_display`), godzinami („06:00–10:00”; flaga, która zacznie się później, jako „od 14:30”), wariantem („Derka: zakładać”) i statusem: tylko „potwierdzona HH:MM” albo „niepotwierdzona”;
+  - flagi z notatką, autorem flagi (według `author_display`), godzinami („06:00–10:00”; flaga, która zacznie się później, jako „od 14:30”), wariantem („Derka: zakładać”) i statusem: tylko „potwierdzona HH:MM” albo „niepotwierdzona”, i tylko dla flagi z `requires_ack`; flaga bez potwierdzeń (Stajnia Brzozowa) nie ma statusu, ma „obowiązuje od razu” i od razu stoi w banerze (przed początkiem okna pod banerem z „od HH:MM”), bez plakietki „POTWIERDZONA” [erd];
   - bez danych zalogowanego użytkownika: tablica nie pokazuje, kto jest zalogowany;
-  - znacznik pop-upu dla flag `requires_ack` bez potwierdzenia;
-  - tabelę karmienia z planu, z oznaczeniem „NAMOCZYĆ” i ile przy pozycjach z `soak`, oraz posiłki wstrzymane przez flagi w ich oknie (WSTRZYMANE);
-  - „SZYBKIE AKCJE” (trzy przyciski) [erd]:
+  - znacznik pop-upu tylko dla flag `requires_ack` bez potwierdzenia; flaga zapisana w stajni bez potwierdzeń pop-upu nie ma [erd];
+  - tabelę karmienia z planu, z oznaczeniem „NAMOCZYĆ” i ile przy pozycjach z `soak` (tylko przy `soak_enabled`; inaczej bez „namoczyć”), oraz posiłki wstrzymane przez flagi w ich oknie (WSTRZYMANE);
+  - konfigurację stajni (`stableFeatures` z `packages/rules`) [erd]: wyłączona opcja nie trafia do odpowiedzi razem ze swoim stanem (zasada spójności), np. bez „NAMOCZYĆ”, bez przycisku „PADOK” i bez godzin padoku przy `paddock_out_enabled = false`; sekcje filtrowane widocznością roli `staff`, bo tablica nie zależy od zalogowanej osoby (propozycja, sekcja 5);
+  - „SZYBKIE AKCJE” (do trzech przycisków, tylko włączone w ustawieniach stajni; w Stajni Brzozowej „OGARNIĘTE” i posiłek) [erd]:
     - najnowsze „Ogarnięte” boksu („dziś 07:10”, ten boks);
     - posiłek hali: etykieta według pory z `meal_slots` („Śniadanie”, „Obiad”, „Kolacja”, np. „Siano”), stan („podane 06:40” z listą pominiętych) i następny posiłek („potem obiad 12:00”);
     - padok: plan padoku konia z godzinami skróconymi albo odwołanymi przez flagi (`packages/rules`; Kasztan „B 10:00–14:30”, z towarzyszami) i stan akcji „Wyprowadzono na padok” hali;
@@ -1018,7 +1071,9 @@ Zasady wspólne:
   - Na pełnym ekranie hali tylko flagi tej hali, w pasku pilnych także.
   - Skrót pozostałych hal pokazuje wyłącznie liczby, bez treści flag.
   - Kafel bez posiłków per koń: flagi z godzinami, „Ogarnięte HH:MM”, padok z godzinami, a przy poidle ręcznym „Poidło ręczne · woda HH:MM”; nagłówek hali z rutyną, np. „Śniadanie podane 06:40 · padok 10:00”.
-- [ ] Lista dnia obsługi (szybkie akcje per hala, „Wymaga potwierdzenia” tylko z flagami, skrót zadań) i historia boksu (propozycja).
+  - Sekcje według widoczności roli `display` w `stable_role_features` (Stajnia Pod Lipami: flagi, plan karmienia, szybkie akcje i ich stan, zadania) i bez wyłączonych opcji; stan „niepotwierdzona” tylko dla flag z `requires_ack` [erd].
+- [ ] Lista dnia obsługi (szybkie akcje per hala, tylko włączone przyciski; „Wymaga potwierdzenia” tylko z flagami z `requires_ack` bez potwierdzenia, więc w stajni bez potwierdzeń jej nie ma, chyba że trwa niepotwierdzona flaga sprzed wyłączenia przełącznika (A-20); skrót zadań, gdy obsługa ma widoczność `tasks`) i historia boksu (propozycja). Stajnia Brzozowa: „Podano śniadanie” i „Ogarnięte”, bez padoku, bez „Wymaga potwierdzenia”, bez zadań, bez hali.
+- [ ] Konfiguracja i widoczność są częścią treści, więc ich zmiana zmienia ETag i tablet, apka i wyświetlacz widzą ją przy najbliższym odpytaniu [erd].
 - [ ] `ETag` to hash treści.
   - Czas serwera idzie w nagłówku, nie w treści.
   - Treść zależy od upływu czasu, więc na start składamy całą odpowiedź przy każdym zapytaniu.
@@ -1069,7 +1124,7 @@ Zasady wspólne:
 
 ### 3.4 Crony
 - [ ] `escalation-scheduler`, co minutę.
-  - Flagi z minionym `warn_at` albo `notify_at`, bez potwierdzenia i nieodwołane.
+  - Flagi z `requires_ack`, minionym `warn_at` albo `notify_at`, bez potwierdzenia i nieodwołane [erd]. Flag bez `requires_ack` (stajnia bez potwierdzeń, np. Stajnia Brzozowa) nie bierze wcale, także po późniejszym włączeniu potwierdzeń w stajni.
   - Woła `flags`, a przy `admin_notify` także `notifications`.
   - Klucze idempotencji: `(flag_id, level)` i `dedupe_key`.
 - [ ] `health-due-reminders`, co godzinę. Wysyła o stałej godzinie lokalnej stajni. Klucz: `health:{eventId}:{rodzaj}`.
@@ -1082,7 +1137,7 @@ Zasady wspólne:
 - [ ] `horse-left-reconciler`, co godzinę. Woła ten sam handler co konsument `horse.left` w `access`, `flags`, `care`, `tasks` i `rides`.
 - [ ] `retention-pruner`, co noc. Woła `POST /internal/prune` każdego serwisu i sam niczego nie usuwa.
 - [ ] Każdy cron testujemy na cztery przypadki: powtórzony przebieg, przebieg równoległy, przerwanie w połowie, fałszywy zegar (w tym noc zmiany czasu).
-- **Nie śledzimy wyświetleń flag na tabletach** [erd]: nie ma do tego ani tabeli, ani crona. Status flagi to tylko „potwierdzona HH:MM” albo „niepotwierdzona”. Brak potwierdzenia w terminie, także przy martwym tablecie, obsługuje wyłącznie `escalation-scheduler` przez `flag_escalations` (scenariusz A-02).
+- **Nie śledzimy wyświetleń flag na tabletach** [erd]: nie ma do tego ani tabeli, ani crona. Status flagi to tylko „potwierdzona HH:MM” albo „niepotwierdzona” (w stajni, która wymaga potwierdzeń; czy wymaga, zależy od ustawień stajni). Brak potwierdzenia w terminie, także przy martwym tablecie, obsługuje wyłącznie `escalation-scheduler` przez `flag_escalations` (scenariusz A-02).
 - **Bez crona zadań i rutyny** [erd]: zadania są jednorazowe, więc nie ma generatora wystąpień. Rutyny dnia też nie generujemy z wyprzedzeniem: szybkie akcje zapisuje obsługa (apka albo tablet przy boksie), a pominięte konie i skutki flag liczy `packages/rules` przy zapisie i przy odczycie `board`.
 
 ### 3.5 Aplikacje
@@ -1094,6 +1149,7 @@ Zasady wspólne:
   - `api-client` i i18n;
   - `react-native-get-random-values` jako pierwszy import, bo id nadaje klient.
 - [ ] Logowanie: Cognito `USER_AUTH` z SMS OTP, tokeny w `expo-secure-store`. Po zalogowaniu `GET /me` i członkostwa, nawigacja według roli, przełącznik stajni.
+- [ ] Przełącznik stajni w nagłówku („Stajnia Pod Lipami ▾”) dla osób z członkostwem w kilku stajniach (Ola, Anna). Po przełączeniu apka pobiera konfigurację tej stajni (`stable GET …/features`) i pokazuje tylko włączone opcje i funkcje widoczne dla roli: kafelki aktywnych flag, „namoczyć” przy włączonym moczeniu, włączone przyciski, status tylko przy flagach z `requires_ack` (w praktyce: stajnia z potwierdzeniami). Cache i kolejka zapisów są osobne dla każdej stajni (propozycja). Przy jednej stajni przełącznika nie ma.
 - [ ] Odpytywanie z ETag tylko na widocznym ekranie.
 - [ ] Zapisy:
   - flaga wyłącznie online, z jawnym stanem „zapisano na serwerze”;
@@ -1101,22 +1157,24 @@ Zasady wspólne:
   - pozostałe zapisy (potwierdzenia, „Ogarnięte”, „Woda”, akcje hali, „Cofnij” i „Zrobione”) przez lokalną kolejkę.
 - [ ] Ekrany z makiet:
   - Logowanie;
-  - Moje konie (Main);
+  - Moje konie (Main), także MainBrzozowa (klientka Anna po przełączeniu na Stajnię Brzozową);
   - SzybkaFlaga, StatusFlagi, KartaKonia;
   - MojBoks;
-  - ListaDnia, StajennyKonie, StajennyZadania;
+  - ListaDnia, także ListaDniaBrzozowa (Ola po przełączeniu na Stajnię Brzozową), StajennyKonie, StajennyZadania;
   - BoksyAdmin, BoksSzczegoly;
   - Zaproszenie.
 - [ ] Klient (właściciel albo dzierżawca konia), widok maksymalnie prosty [erd]:
-  - Main i SzybkaFlaga: kafelki flag (Bez śniadania, Bez kolacji, Nie na padok, Derka, Wet, Leki, Inna flaga), godziny od–do podpowiedziane z możliwością zmiany, opcjonalna notatka i przycisk, bez innych pól i kroków; „Derka” z wyborem „zakładać / nie zakładać”;
-  - przy flagach godziny i status; na liście koni najwyżej skrót z przycisków obsługi, bez linii posiłku per koń;
-  - StatusFlagi: godziny obowiązywania i oś Ustawiona → Potwierdzona;
-  - KartaKonia: plan karmienia z „namoczyć” i ile, „Dziś” (wet 8:00, padok B 10:00–14:30, kowal 15:00), flagi z godzinami;
-  - MojBoks: „Ostatnio” tylko zdarzenia z przycisków obsługi (Ogarnięte, Podano śniadanie/obiad/kolację z pominiętymi, Wyprowadzono na padok); dla Kasztana: Ogarnięte dziś 07:10, Podano śniadanie 06:40 (pominięty: flaga), Wyprowadzono na padok wczoraj 10:05 · Piotr. „Historia” tylko flagi (utworzenie, potwierdzenie, odwołanie) i zdarzenia z przycisków, także wczorajsze (Podano kolację 18:02 · Piotr, padok 10:05 · Piotr).
+  - Main i SzybkaFlaga: kafelki flag włączonych w ustawieniach stajni (Stajnia Pod Lipami: Bez śniadania, Bez kolacji, Nie na padok, Derka, Wet, Leki, Inna flaga; Stajnia Brzozowa: te same bez Derki), godziny od–do podpowiedziane z możliwością zmiany, opcjonalna notatka i przycisk, bez innych pól i kroków; „Derka” z wyborem „zakładać / nie zakładać” tylko tam, gdzie stajnia oferuje derki [erd];
+  - przy flagach godziny i status (status tylko dla flag z `requires_ack`, w praktyce: stajnia z potwierdzeniami; flaga bez potwierdzeń ma „obowiązuje od razu”, a w Stajni Brzozowej także dopisek „W tej stajni flagi obowiązują od razu, bez potwierdzania”); na liście koni najwyżej skrót z przycisków obsługi, bez linii posiłku per koń (MainBrzozowa: Kometa, „Bez śniadania 06:00–09:00 · dentysta o 8:30”, „Ogarnięte dziś 07:00 · śniadanie pominięte: flaga”);
+  - StatusFlagi: godziny obowiązywania i oś Ustawiona → Potwierdzona (tylko dla flag z `requires_ack`; flaga bez potwierdzeń ma samo „Ustawiona · obowiązuje od razu”, propozycja);
+  - KartaKonia: plan karmienia z „namoczyć” i ile (plan tylko przy widoczności `feeding_plan` dla klienta, „namoczyć” tylko przy włączonym moczeniu), „Dziś” (wet 8:00, padok B 10:00–14:30, kowal 15:00), flagi z godzinami;
+  - MojBoks: „Ostatnio” tylko zdarzenia z przycisków obsługi (Ogarnięte, Podano śniadanie/obiad/kolację z pominiętymi, Wyprowadzono na padok); dla Kasztana: Ogarnięte dziś 07:10, Podano śniadanie 06:40 (pominięty: flaga), Wyprowadzono na padok wczoraj 10:05 · Piotr. „Historia” tylko flagi (utworzenie, potwierdzenie przy flagach z `requires_ack`, odwołanie) i zdarzenia z przycisków, także wczorajsze (Podano kolację 18:02 · Piotr, padok 10:05 · Piotr);
+  - sekcje według widoczności roli klienta w tej stajni (`stable_role_features`): w Stajni Brzozowej klientka nie ma planu karmienia ani jazd [erd].
 - [ ] Obsługa i admin:
-  - ListaDnia: na górze „Szybkie akcje” per hala: „Podano śniadanie / obiad / kolację” (po zapisie „✓ 06:40”, pominięci, „Cofnij”), „Wyprowadzono na padok” z liczbą koni i pominiętymi, „Ogarnięte” z licznikiem (7 z 14) otwierające siatkę boksów z zaznaczaniem kilku naraz i jednym zapisem; „Wymaga potwierdzenia” tylko z flagami; bez listy karmienia per koń; skrót zadań;
-  - StajennyZadania (zakładka „Zadania”): „Do wzięcia” z „Biorę”, „Moje” z „Zrobione”, „Zrobione dziś”; „+ Dodaj zadanie” widzi tylko admin;
-  - StajennyKonie: kafelki szybkiej flagi z Derką, godziny przy flagach;
+  - ListaDnia: na górze „Szybkie akcje” per hala (tylko przyciski włączone w ustawieniach stajni): „Podano śniadanie / obiad / kolację” (po zapisie „✓ 06:40”, pominięci, „Cofnij”), „Wyprowadzono na padok” z liczbą koni i pominiętymi, „Ogarnięte” z licznikiem (7 z 14) otwierające siatkę boksów z zaznaczaniem kilku naraz i jednym zapisem; „Wymaga potwierdzenia” tylko z flagami, i tylko z flagami z `requires_ack` bez potwierdzenia (w stajni bez potwierdzeń sekcji nie ma, chyba że trwa niepotwierdzona flaga sprzed wyłączenia przełącznika, A-20); bez listy karmienia per koń; skrót zadań (przy widoczności `tasks`);
+  - ListaDniaBrzozowa (Ola po przełączeniu stajni): „Szybkie akcje” na całą stajnię: „Podano śniadanie” (✓ 06:35 · Paweł, pominięta Kometa) i „Ogarnięte 3 z 6”, bez padoku; bez sekcji „Wymaga potwierdzenia”; „Flagi dziś” bez statusu („obowiązują od razu”: Kometa, Lord); bez namaczania i bez zadań; bez hali przy numerze;
+  - StajennyZadania (zakładka „Zadania”, tylko przy widoczności `tasks` dla obsługi): „Do wzięcia” z „Biorę”, „Moje” z „Zrobione”, „Zrobione dziś”; „+ Dodaj zadanie” widzi tylko admin;
+  - StajennyKonie: kafelki szybkiej flagi włączonych w stajni (z Derką tylko tam, gdzie stajnia oferuje derki), godziny przy flagach;
   - BoksyAdmin i BoksSzczegoly: „Ogarnięte dziś 07:10” zamiast osobnych czynności, flagi z godzinami, klient przy koniu (Marek Nowak przy Lunie, „zaproszenie czeka”), przyciski „Ogarnięte” i „Przypisz konia”; przy poidle ręcznym (Hala nowa · boks 5) znacznik „Poidło ręczne · woda 06:55” i przycisk „Woda”, przy automatycznym bez znacznika wody; w BoksSzczegoly admin ma przełącznik „Automatyczne poidło: tak/nie” (wolny boks 6 w Hali nowej: „tak”);
   - Zaproszenie: role Klient (z wyborem konia), Obsługa, Instruktor, Wsparcie IT (z opisem jednym zdaniem).
 - [ ] Ekrany bez makiet: profil (wyloguj wszędzie, usuń konto, język), dodawanie zadania przez admina, jazdy instruktora.
@@ -1166,15 +1224,15 @@ Zasady wspólne:
   - **TabletBoks:**
     - nagłówek z numerem boksu i koniem, przy kilku halach zawsze z nazwą hali („Hala nowa · boks 4”), oraz przyciski „Zmień boks” i „Zablokuj ekran” (kłódka);
     - bez informacji, kto jest zalogowany (logowanie i wylogowanie tylko w ukrytych ustawieniach);
-    - baner flagi z godzinami („BEZ ŚNIADANIA · 06:00–10:00”), a pod nim flagi, które zaczną się później, z etykietą „od HH:MM” („Później: Nie na padok od 14:30 (kowal 15:00)”; Sonata o 07:15: „Derka: zakładać · od 16:00”);
-    - KARMIENIE: tabela z planu ze stanem WSTRZYMANE, pozycje do namoczenia wyraźnie oznaczone („Wysłodki 0,5 kg · NAMOCZYĆ 2 l”, wieczór);
+    - baner flagi z godzinami („BEZ ŚNIADANIA · 06:00–10:00”), a pod nim flagi, które zaczną się później, z etykietą „od HH:MM” („Później: Nie na padok od 14:30 (kowal 15:00)”; Sonata o 07:15: „Derka: zakładać · od 16:00”); plakietka „POTWIERDZONA HH:MM” tylko dla flag z `requires_ack` (w praktyce: stajnia z potwierdzeniami), a flaga bez potwierdzeń od razu stoi w banerze z dopiskiem „obowiązuje od razu” (przed początkiem okna pod banerem z „od HH:MM”) [erd];
+    - KARMIENIE: tabela z planu ze stanem WSTRZYMANE, pozycje do namoczenia wyraźnie oznaczone („Wysłodki 0,5 kg · NAMOCZYĆ 2 l”, wieczór), tylko przy włączonym moczeniu paszy;
     - bez ramki „PADOK / DZIŚ”: padok jest w przycisku „PADOK”, a wet i kowal w banerze flagi;
-    - SZYBKIE AKCJE (podpis „ogarnięte: ten boks · posiłek i padok: cała hala”), trzy duże przyciski [erd]:
+    - SZYBKIE AKCJE (podpis „ogarnięte: ten boks · posiłek i padok: cała hala”), do trzech dużych przycisków, tylko włączonych w ustawieniach stajni; wyłączony przycisk znika razem ze swoim stanem [erd]:
       - „OGARNIĘTE”: ten boks, stan „dziś 07:10”, ponowne tapnięcie zapisuje ponownie;
       - posiłek dla całej hali tego boksu, z etykietą według pory z `meal_slots` („ŚNIADANIE”, „OBIAD”, „KOLACJA”, np. „SIANO”): stan „podane 06:40”, pod spodem „potem obiad 12:00”; tapnięcie zapisuje „Podano śniadanie” dla hali i pomija konie z flagą (Kasztan);
       - „PADOK”: „Wyprowadzono na padok” dla całej hali tego boksu; pokazuje padok konia po skutkach flag („B 10:00–14:30 z Falą i Rumbą”);
     - te same akcje hali są w apce obsługi (ListaDnia); zapis z tabletu nie ma autora (`source = tablet`), a stan widać na pozostałych tabletach hali, w apce i na wyświetlaczu przy najbliższym odpytaniu;
-    - do tego POTWIERDZAM przy fladze (pop-up i baner) oraz przy poidle ręcznym (Hala nowa · boks 5) znacznik „Poidło ręczne · woda 06:55” i przycisk „WODA”; przy automatycznym (prawie każdy boks) znacznika wody nie ma [erd];
+    - do tego POTWIERDZAM przy fladze z `requires_ack` (pop-up i baner; przy fladze bez potwierdzeń nie ma go wcale) oraz przy poidle ręcznym (Hala nowa · boks 5) znacznik „Poidło ręczne · woda 06:55” i przycisk „WODA”; przy automatycznym (prawie każdy boks) znacznika wody nie ma [erd];
     - bez zadań: tablet ich nie pokazuje ani nie odhacza;
     - OSTATNIE AKCJE: dokładnie 5 najnowszych wpisów (flagi i przyciski), bez przewijania i bez „Cała historia” [erd]; pełna historia w apce i panelu;
     - bez siana i ścielenia;
@@ -1183,11 +1241,11 @@ Zasady wspólne:
     - „Zablokuj ekran” (kłódka) obok „Zmień boks” włącza blokadę;
     - tablica dalej się odświeża i jest czytelna, ale dotyk nic nie zmienia; pasek „EKRAN ZABLOKOWANY · przytrzymaj kłódkę 3 s, aby odblokować”, przy kłódce kółko postępu przytrzymania;
     - przyciski z przerywaną ramką zamiast wyszarzenia (e-ink), tylko czerń, biel i `t-*`;
-    - pop-up nowej flagi pojawia się mimo blokady, ale POTWIERDZAM działa dopiero po odblokowaniu;
+    - pop-up nowej flagi (tylko dla flag z `requires_ack`, w praktyce: stajnia z potwierdzeniami) pojawia się mimo blokady, ale POTWIERDZAM działa dopiero po odblokowaniu; flaga bez potwierdzeń po prostu pojawia się w banerze;
     - blokada sama schodzi po 10 min (propozycja), żeby tablet nie został zablokowany na stałe;
     - stan tylko lokalnie na tablecie (w pamięci apki), bez API i tabel; po restarcie apki ekran jest odblokowany (propozycja);
     - to blokada dotyku, a nie blokada boksu (tej nie ma).
-  - **TabletPopup:**
+  - **TabletPopup** (tylko w stajni, która wymaga potwierdzeń; czy wymaga, zależy od ustawień stajni [erd]; tylko flagi z `requires_ack`):
     - kolejka pop-upów, krytyczne pierwsze;
     - godziny flagi („dziś 06:00–10:00”);
     - pop-up nowej flagi znika po POTWIERDZAM albo po odwołaniu flagi, czyli gdy flaga zniknie z odpowiedzi przy najbliższym odpytaniu (także po potwierdzeniu na innym tablecie albo w apce);
@@ -1200,7 +1258,12 @@ Zasady wspólne:
     - powrót do poprzedniego boksu po 30 s bez wyboru;
     - wybór, czyli `boxes.id` (nie numer), zapisany lokalnie na tablecie; przetrwa restart, aktualizację APK i ponowne logowanie, a serwer o nim nie wie;
     - nowy pop-up w trakcie wybierania: zachowanie sprawdza T-28.
-- [ ] Ukryte ustawienia (długie przytrzymanie): logowanie i wylogowanie, wybór stajni, diagnostyka, dodanie sieci Wi-Fi. Kto może zmienić sieć: sekcja 5.
+  - **TabletBoksBrzozowa** (boks 1, Kometa, w stajni z jedną halą i bez potwierdzeń):
+    - nagłówek „BOKS 1 · KOMETA” bez hali;
+    - baner „BEZ ŚNIADANIA · 06:00–09:00 · dentysta o 8:30” z „obowiązuje od razu”, bez pop-upu i bez plakietki „POTWIERDZONA”;
+    - SZYBKIE AKCJE tylko „OGARNIĘTE” (dziś 07:00) i „ŚNIADANIE” (podane 06:35, potem obiad 12:00; posiłek dla całej stajni), bez „PADOK”;
+    - karmienie bez „NAMOCZYĆ”; OSTATNIE AKCJE: 5 wpisów (07:00 Ogarnięte, 06:35 Podano śniadanie bez Komety · Paweł, 05:50 nowa flaga · Anna, wczoraj 18:00 Podano kolację i 16:30 Ogarnięte · Paweł).
+- [ ] Ukryte ustawienia (długie przytrzymanie): logowanie i wylogowanie, wybór stajni (tablet pokazuje tylko boksy wybranej stajni, z jej ustawieniami) (propozycja), diagnostyka, dodanie sieci Wi-Fi. Kto może zmienić sieć: sekcja 5.
 - [ ] Stany ekranu:
   - wylogowany, także po global sign-out; nigdy nie pokazuje wtedy starych flag;
   - bez wybranego boksu;
@@ -1214,7 +1277,7 @@ Zasady wspólne:
   - interwał według decyzji (sekcja 5), z `If-None-Match`, jitterem i backoffem;
   - sprawdzić, czy odpowiedź 304 dociera do JS;
   - czas brany z nagłówka serwera.
-- [ ] Zapisy: tylko potwierdzenie flagi, „Ogarnięte”, posiłek i padok dla hali tego boksu, „Woda” (boks z poidłem ręcznym) i ich „Cofnij”; zadań tablet nie zapisuje [erd]:
+- [ ] Zapisy: tylko potwierdzenie flagi (z `requires_ack`), „Ogarnięte”, posiłek i padok dla hali tego boksu (tylko włączone przyciski), „Woda” (boks z poidłem ręcznym) i ich „Cofnij”; zadań tablet nie zapisuje [erd]:
   - kolejka w SQLite;
   - id nadane przez klienta i `request_hash`;
   - `occurred_at` i `time_quality`;
@@ -1244,15 +1307,22 @@ Zasady wspólne:
 - [ ] SPA (propozycja: React, Vite, TanStack). Sposób przechowywania tokenów: sekcja 5.
 - [ ] PanelBoksy:
   - liczniki;
-  - alert o niepotwierdzonej fladze krytycznej;
+  - alert o niepotwierdzonej fladze krytycznej (tylko dla flag z `requires_ack`, w praktyce: stajnia z potwierdzeniami; trwająca niepotwierdzona flaga zostaje w alercie także po wyłączeniu potwierdzeń, A-20);
   - filtry i wyszukiwarka;
   - tabela boksów z kolumnami: Boks, Koń, Klient (jedna kolumna: właściciel albo dzierżawca konia), Aktywne flagi (z godzinami), Ostatnio ogarnięte, Akcje; bez kolumn innych czynności; boks z poidłem ręcznym ma znacznik „Poidło ręczne · woda HH:MM” (bez osobnej kolumny), a szczegóły boksu przełącznik „Automatyczne poidło: tak/nie” (admin);
   - sekcje hal z adresem;
   - konie bez boksu (Luna, klient Marek Nowak, „zaproszenie czeka”).
 - [ ] PanelDodajHale: nazwa i adres hali (z kopiowaniem adresu innej hali), potem jedno z trzech: nowe boksy od–do (numeracja w tej hali, domyślnie od 1; numery mogą powtarzać się z innymi halami), przeniesienie istniejących boksów albo pusta hala.
 - [ ] PanelPlatnosci.
+- [ ] **Ustawienia stajni** (PanelUstawieniaStajni dla Stajni Pod Lipami z Damianem, PanelUstawieniaBrzozowa dla Stajni Brzozowej z Pawłem; erd.md pkt 16), tylko admin:
+  - zakładka „Ustawienia” w nawigacji panelu, w nagłówku przełącznik stajni („Stajnia Pod Lipami ▾”) i podtytuł „ustawienia dotyczą tylko tej stajni”;
+  - sekcja „Potwierdzenia flag”: przełącznik „Flagi wymagają potwierdzenia” z opisem obu trybów (włączone: nowa flaga → pop-up na tablecie → „Potwierdzono flagę”, status u klienta, eskalacja do admina; wyłączone: flaga obowiązuje od razu i od razu stoi w banerze tabletu, bez pop-upu, statusu oczekiwania, sekcji „Wymaga potwierdzenia” i eskalacji) i dopiskiem „Dotyczy nowych flag. Flagi, które już trwają, zostają w swoim trybie.”;
+  - sekcja „Usługi”: przełączniki derek (flaga „Derka”) i moczenia paszy („namoczyć” + ile), flag (Bez śniadania, Bez kolacji, Nie na padok, Wet, Leki) i szybkich przycisków (Ogarnięte, Posiłek, Padok); dopisek, że wyłączona opcja znika z kafelków klienta, widoku obsługi, tabletu i wyświetlacza razem ze swoim stanem, i że „Woda” nie ma przełącznika (ustawienie boksu);
+  - sekcja „Widoczność per rola”: macierz z checkboxami, funkcje Flagi, Plan karmienia, Szybkie akcje i ich stan, Historia boksu, Zadania, Zdrowie i wizyty, Jazdy, Diagnostyka tabletów i wyświetlaczy × role Klient, Obsługa, Instruktor, Wsparcie IT, Wyświetlacz; „Admin widzi wszystko”; w Stajni Brzozowej dopisek „Stajnia nie ma wyświetlacza” i pusta kolumna Wyświetlacz;
+  - przycisk „Zapisz” z dopiskiem „Zmiany działają przy najbliższym odświeżeniu apki, tabletów i wyświetlacza”; zapis z `If-Match` do `stable` (ustawienia i widoczność) i `flags` (aktywne szablony), obsługa 412;
+  - przełączniki i checkboxy jako `role="switch"` i `role="checkbox"` z etykietami, obsługiwane klawiaturą (propozycja).
 - [ ] Przy kilku halach każdy boks w tabelach, filtrach, alertach i formularzach przypisania ma halę razem z numerem; wybór boksu w formularzach wysyła `boxId`.
-- [ ] Ekrany bez makiet: rejestracja stajni (w działalności), Pulpit, Konie, Ludzie (role Klient, Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz; zaproszenia, konta wyświetlaczy), Ustawienia (progi, słowniki, sloty, szablony flag z domyślnymi godzinami, okno APK).
+- [ ] Ekrany bez makiet: rejestracja stajni (w działalności), Pulpit, Konie, Ludzie (role Klient, Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz; zaproszenia, konta wyświetlaczy), pozostałe ustawienia stajni poza ekranem „Ustawienia stajni” (progi eskalacji, słowniki, sloty, domyślne godziny szablonów flag, okno APK).
 - [ ] Edycje z `If-Match` i obsługą 412.
 - [ ] Kolory i znak słowny „eKoniuszy” z `packages/theme` (tokeny LCD z `docs/paleta.md`, zmienne CSS); flaga krytyczna jako pigułka z pełnym ciemnym polem (`crit-solid` z tekstem `on-crit`).
 
@@ -1263,7 +1333,8 @@ Zasady wspólne:
   - pasek pilnych flag wszystkich hal;
   - sekcje hal z przyciskiem „Pełny ekran”, w nagłówku hali rutyna („Śniadanie podane 06:40 · padok 10:00”);
   - kafle boksów bez posiłków per koń: flagi z godzinami, „Ogarnięte HH:MM”, padok z godzinami; przy poidle ręcznym „Poidło ręczne · woda HH:MM”, przy automatycznym bez znacznika wody;
-  - „Dziś w stajni”, ostatnie akcje z przycisków obsługi, zadania jednorazowe.
+  - „Dziś w stajni”, ostatnie akcje z przycisków obsługi, zadania jednorazowe;
+  - tylko sekcje widoczne dla roli `display` w ustawieniach stajni (Stajnia Pod Lipami: flagi, plan karmienia, szybkie akcje i ich stan, zadania) i bez opcji wyłączonych w stajni; stan „niepotwierdzona” i pasek pilnych z niepotwierdzonymi tylko dla flag z `requires_ack` (w praktyce: stajnia z potwierdzeniami) [erd]. Stajnia Brzozowa wyświetlacza nie ma.
 - [ ] WyswietlaczHala (pełny ekran jednej hali):
   - większe kafle i większa typografia;
   - **tylko flagi tej hali**, także w pasku pilnych;
@@ -1271,7 +1342,7 @@ Zasady wspólne:
   - przełącznik hal (bez wracania do widoku wszystkich) i przycisk „Wszystkie hale”.
 - [ ] Przy jednej hali bez sekcji, bez „Pełny ekran” i bez przełącznika; przy kilku halach kafel zawsze pokazuje halę razem z numerem boksu.
 - [ ] Wybór widoku (wszystkie hale albo `buildingId` jednej hali) pamięta lokalnie przeglądarka telewizora w `localStorage`, obsłużonym w try/catch, bez tabeli i bez wiedzy serwera. Ustawia się go raz, myszką przy instalacji albo pilotem przez HDMI-CEC. Bez zapisanego wyboru, przy niedostępnej pamięci albo gdy zapisana hala zniknęła lub jest wyłączona, strona pokazuje wszystkie hale.
-- [ ] Kolory z `packages/theme` (tokeny LCD z `docs/paleta.md`): na TV bez pól w akcencie; kafel krytyczny jako pełne pole `crit-solid` z ramką 3 px `crit-line`, niepotwierdzony z ramką 3 px `warn-line` na `warn-tint-weak`, wolny z przerywaną ramką 2 px `line-strong` na `bg`; liczby i zegar z `tabular-nums`.
+- [ ] Kolory z `packages/theme` (tokeny LCD z `docs/paleta.md`): na TV bez pól w akcencie; kafel krytyczny jako pełne pole `crit-solid` z ramką 3 px `crit-line`, niepotwierdzony (tylko flaga z `requires_ack`) z ramką 3 px `warn-line` na `warn-tint-weak`, wolny z przerywaną ramką 2 px `line-strong` na `bg`; liczby i zegar z `tabular-nums`.
 - [ ] Odpytywanie co 10 s z ETag. Przy błędzie zostaje ostatni stan z paskiem „Brak połączenia od HH:MM” i znacznikiem „ostatnia aktualizacja HH:MM:SS”. Po dłuższej awarii `location.reload()`.
 - [ ] Przy wielu boksach kafle skrócone, a gdy dalej się nie mieszczą, strony przełączane co 20 s.
 - [ ] Zegar liczony z przesunięcia względem nagłówka `Date` serwera. Fonty serwowane przez panel, bez zewnętrznego CDN (makiety ładują Figtree z Google Fonts).
@@ -1301,18 +1372,18 @@ Zasady wspólne:
   - **C, spike Cognito:** lista z 3.2.
 - [ ] **Etap 1, logowanie:** `identity`, `access` (role z `client` i `it_support`, zaproszenie klienta do konia), `auth` i `authz`, logowanie w apce i w panelu.
   - Gotowe, gdy działa logowanie na puli dev, zaakceptowanie zaproszenia tworzy członkostwo (dla klienta także dostęp do konia), a macierz izolacji dla tych tras jest zielona.
-- [ ] **Etap 2, stajnia, hale, boksy, konie:** `stable` (działalność → stajnie → hale → boksy), panel (Boksy i konie, Dodaj halę), apka admina.
-  - Gotowe, gdy seed z dwiema halami (boksy 1–8 i 1–6) jest widoczny w panelu i w apce z halą przy numerze, dodanie hali z adresem i boksami od 1 działa, a przypisanie, przeniesienie i zamiana koni przechodzą testy współbieżności.
-- [ ] **Etap 3, flagi:** `flags` z obowiązkowymi godzinami, skutkami z okna (`packages/rules`) i Derką, `notifications` z `fake-sms`, `escalation-scheduler`, ekrany klienta (kafelki flag) i obsługi.
-  - Gotowe, gdy scenariusze A-01, A-02 i A-12 odtwarzają się od zera, a test wyścigu potwierdzenia z eskalacją jest zielony.
-- [ ] **Etap 4, tablica i tablet:** `board` z ETag, kiosk, pop-up, „Zmień boks”, blokada ekranu, kolejka zapisów, `releases`.
-  - Gotowe, gdy flaga z telefonu pojawia się jako pop-up w ustalonym czasie, potwierdzenie i odwołanie usuwają pop-up, „Zmień boks” przełącza między halami i wraca do poprzedniego boksu po 30 s, zablokowany ekran nie reaguje na dotyk (T-30, A-15), a APK aktualizuje się bez dotykania tabletu.
+- [ ] **Etap 2, stajnia, hale, boksy, konie:** `stable` (działalność → stajnie → hale → boksy), ustawienia stajni i widoczność per rola (`stable_settings`, `stable_role_features`, `GET …/features`), panel (Boksy i konie, Dodaj halę, Ustawienia stajni), apka admina, przełącznik stajni w apce.
+  - Gotowe, gdy seed z dwiema halami (boksy 1–8 i 1–6) jest widoczny w panelu i w apce z halą przy numerze, dodanie hali z adresem i boksami od 1 działa, a przypisanie, przeniesienie i zamiana koni przechodzą testy współbieżności; obie stajnie z seedu mają swoje ustawienia, a ekran „Ustawienia stajni” zmienia je tylko admin tej stajni.
+- [ ] **Etap 3, flagi:** `flags` z obowiązkowymi godzinami, skutkami z okna (`packages/rules`) i Derką, `requires_ack` kopiowanym z ustawień stajni, szablonami włączanymi w „Ustawieniach stajni”, `notifications` z `fake-sms`, `escalation-scheduler` (tylko flagi z `requires_ack`), ekrany klienta (kafelki flag) i obsługi.
+  - Gotowe, gdy scenariusze A-01, A-02, A-12, A-18 i A-20 odtwarzają się od zera, a test wyścigu potwierdzenia z eskalacją jest zielony.
+- [ ] **Etap 4, tablica i tablet:** `board` z ETag i konfiguracją stajni, kiosk, pop-up (dla flag z `requires_ack`), „Zmień boks”, blokada ekranu, kolejka zapisów, `releases`.
+  - Gotowe, gdy flaga z telefonu pojawia się jako pop-up w ustalonym czasie (flaga bez potwierdzeń od razu w banerze), potwierdzenie i odwołanie usuwają pop-up, „Zmień boks” przełącza między halami i wraca do poprzedniego boksu po 30 s, zablokowany ekran nie reaguje na dotyk (T-30, A-15), a APK aktualizuje się bez dotykania tabletu.
 - [ ] **Etap 5, wyświetlacz:** widok `board` dla wyświetlacza, `/wyswietlacz` z pełnym ekranem hali i przełącznikiem hal, obraz Pi.
   - Gotowe, gdy działa 72 h bez przerwy, wybór hali przetrwa restart, pełny ekran pokazuje tylko flagi tej hali, a w odpowiedziach nie ma danych osobowych.
 - [ ] **Etap 6, karmienie, padok i rutyna obsługi:** `care`; szybkie akcje („Ogarnięte” per boks i kilka naraz, „Woda” przy poidle ręcznym, posiłek i padok dla hali z pominiętymi, z apki i z „SZYBKICH AKCJI” tabletu, „Cofnij”); przełącznik poidła w `stable`; wstrzymany posiłek i skrócony albo odwołany padok na tablicy z okna flag; „NAMOCZYĆ” w tabeli karmienia; ListaDnia i MojBoks; konsumenci `horse.left` i `horse-left-reconciler`.
-  - Gotowe, gdy przechodzą A-13 i A-16.
+  - Gotowe, gdy przechodzą A-13, A-16, A-17 i A-19 (przyciski i moczenie według ustawień stajni).
 - [ ] **Etap 7, zdrowie, jazdy, zadania:** `health` z `files`, `rides`, `tasks` (zadania jednorazowe, „Biorę”, „Zrobione”, StajennyZadania); crony `health-due-reminders` i `files-gc`.
-  - Gotowe, gdy przechodzi A-14.
+  - Gotowe, gdy przechodzą A-14 i A-21 (widoczność per rola obejmuje też zdrowie, jazdy i zadania).
 - [ ] **Etap 8, płatności (bez rozbudowy na PoC):** `billing` na fałszywych adapterach, trzy crony billingu, przejście `subscription.status_changed` → `stables.status`, stan „zawieszona” na tablecie i wyświetlaczu.
 - [ ] **Etap 9, przed stajnią pilotażową:**
   - `audit` i `retention-pruner`;
@@ -1340,7 +1411,9 @@ Zasady wspólne:
   - Hale i numery boksów:
     - boks rozpoznajemy tylko po `id`; żadna funkcja nie szuka boksu po numerze (`boxes.label`), bo numer powtarza się między halami [erd];
     - etykieta boksu: przy kilku halach zawsze hala razem z numerem („Hala nowa · boks 4”), przy jednej hali sam numer.
-  - Status flagi: tylko „potwierdzona HH:MM” albo „niepotwierdzona”, w PL, UA i EN; test słownika tłumaczeń odrzuca każdą inną nazwę statusu (propozycja).
+  - Status flagi: tylko „potwierdzona HH:MM” albo „niepotwierdzona”, w PL, UA i EN; test słownika tłumaczeń odrzuca każdą inną nazwę statusu (propozycja). Flaga z `requires_ack = false` nie ma statusu ani terminów potwierdzenia, tylko „obowiązuje od razu”.
+  - Konfiguracja stajni (`stableFeatures`): dla ustawień obu stajni z seedu i każdej roli zwraca właściwe kafelki (Stajnia Brzozowa bez Derki), „namoczyć” tylko przy `soak_enabled`, przyciski (Brzozowa: „Ogarnięte” i posiłek, bez padoku), tryb potwierdzeń i widoczne funkcje zgodnie z macierzą; `admin` zawsze wszystko; widoczność nigdy nie dodaje uprawnień (testy właściwości, propozycja).
+  - Składanie `board` z ustawieniami: przy wyłączonej opcji w odpowiedzi nie ma ani przycisku, ani jego stanu (np. bez godzin padoku i stanu „Wyprowadzono na padok” przy `paddock_out_enabled = false`, bez „NAMOCZYĆ” przy `soak_enabled = false`); flaga bez `requires_ack` stoi w banerze bez znacznika pop-upu; zmiana ustawień zmienia ETag.
   - Widoczność: `display` bez danych osobowych; na tablet nie trafiają opisy wizyt; tablica tabletu nie pokazuje, kto jest zalogowany.
   - Billing: kwoty w groszach.
   - Normalizacja telefonu do E.164.
@@ -1365,6 +1438,13 @@ Zasady wspólne:
     - akcja całej hali z tabletu (`X-Box-Id` boksu 7 Hali głównej) zapisuje wiersz dla Hali głównej bez autora; ten sam posiłek zapisany potem z apki albo z tabletu innego boksu tej hali daje `already_done` i nie tworzy drugiego wiersza; akcja dla innej hali niż hala boksu daje 403 i nie tworzy wiersza (propozycja);
     - „Woda” dla Hala nowa · boks 5 (`auto_waterer = false`) zapisuje wiersz `kind = water`, a znacznik pokazuje najnowszy niecofnięty wpis; „Woda” dla boksu z poidłem automatycznym daje 409 (propozycja) i nie tworzy wiersza.
   - Przełącznik poidła (serwis `stable`, odczyt przez `board`): admin zmienia `boxes.auto_waterer` z `If-Match` i audytem; obsługa, klient i `it_support` dostają 403; po ustawieniu `true` znacznik i akcja „Woda” znikają z odpowiedzi tabletu, apki, panelu i wyświetlacza przy najbliższym odpytaniu, a po ustawieniu `false` wracają; wpisy `box_care_events` zostają; nowe boksy (także z „Dodaj halę”) mają `true`.
+  - Ustawienia stajni (serwisy `stable`, `flags`, `care`, odczyt przez `board`):
+    - flaga zapisana w Stajni Brzozowej ma `requires_ack = false`, puste `ack_deadline_at`, `warn_at` i `notify_at`; `escalation-scheduler` jej nie bierze, a potwierdzenie daje `409 ack_not_required` (propozycja);
+    - zmiana `flags_require_ack` w Stajni Pod Lipami po zapisie flagi Belli nie zmienia jej `requires_ack`: dalej jest niepotwierdzona i eskaluje; nowa flaga zapisana po wyłączeniu obowiązuje od razu; po ponownym włączeniu flagi zapisane bez potwierdzeń nie dostają statusu;
+    - wyłączenie Derki (`flag_templates.active = false` dla `derka`) usuwa kafelek z `GET …/features` klienta i obsługi przy najbliższym odpytaniu, a zapis flagi z tego szablonu daje `409 option_disabled` (propozycja); trwająca Derka Sonaty: sekcja 5;
+    - przy `paddock_out_enabled = false` „Wyprowadzono na padok” daje `409 option_disabled` z apki i z tabletu (propozycja); przy `soak_enabled = false` pozycja planu z `soak = true` daje 409, a istniejące „namoczyć” znika z odczytów, ale zostaje w bazie;
+    - macierz widoczności: dla każdej roli i funkcji w obu stajniach trasa odczytu i sekcja odpowiedzi złożonej są albo dostępne, albo pominięte (403 dla trasy, propozycja); zmiana macierzy działa przy najbliższym żądaniu;
+    - ustawienia, macierz i szablony zmienia tylko admin tej stajni, z `If-Match` i audytem; zmiana w Stajni Pod Lipami nie zmienia Stajni Brzozowej.
   - Zadania (serwis `tasks`): dwa równoległe „Biorę” na to samo zadanie dają jedno wzięcie i jedno 409; „Zrobione” bez wzięcia albo przez inną osobę niż biorąca, poza adminem, jest odrzucane (propozycja); nie-admin nie doda zadania (403).
   - Dostęp klienta: Anna widzi boks 7 Hali głównej (Kasztan) i jego historię od dnia, w którym Kasztan do niego trafił; po przeniesieniu Kasztana widzi nowy boks od dnia przeniesienia, a starego już nie (dostęp do boksu wynika wyłącznie z konia).
   - Dodanie hali (serwis `stable`):
@@ -1379,6 +1459,7 @@ Zasady wspólne:
 - [ ] **Kontraktowe.**
   - Migawki OpenAPI (3.1.5).
   - Boks w API występuje tylko jako `boxId` (w ścieżce, w treści albo w nagłówku `X-Box-Id`); żaden kontrakt nie wybiera boksu po numerze (propozycja).
+  - `horse_flags.requires_ack` nie występuje w żądaniu utworzenia flagi (ustawia go serwer); odpowiedzi flag niosą `requiresAck`, a pole statusu jest puste dla flag bez potwierdzeń (propozycja).
   - Schematy zdarzeń: producent waliduje, konsument ma fixture'y wersji N-1 i N (własne testy albo Pact message pacts).
   - **Kontrakt bazy:** CI z importów `packages/db` wylicza, kto czyta które kolumny, i blokuje migrację, która usuwa albo zmienia kolumnę używaną przez bieżącą lub poprzednią wersję dowolnego serwisu.
 - [ ] **Idempotencja i DLQ.**
@@ -1387,7 +1468,7 @@ Zasady wspólne:
   - Obsługa dłuższa niż visibility timeout nadal daje jeden skutek.
   - SIGTERM w trakcie obsługi nie zostawia częściowego zapisu.
   - Wiadomość trująca trafia do DLQ i wywołuje alert; redrive po poprawce działa.
-- [ ] **Crony:** powtórzony przebieg, równoległy, nadrabianie po godzinnej przerwie bez dubli (jeden wiersz `flag_escalations` na flagę i poziom) i bez eskalacji flag już potwierdzonych lub odwołanych, `spec.timeZone`, pomiar opóźnienia eskalacji (odstęp harmonogramu plus start poda).
+- [ ] **Crony:** powtórzony przebieg, równoległy, nadrabianie po godzinnej przerwie bez dubli (jeden wiersz `flag_escalations` na flagę i poziom) i bez eskalacji flag już potwierdzonych lub odwołanych ani flag bez `requires_ack`, `spec.timeZone`, pomiar opóźnienia eskalacji (odstęp harmonogramu plus start poda).
 - [ ] **Repliki (przebieg nocny w klastrze testowym).**
   - Żaden serwis nie trzyma stanu w pamięci.
   - ETag z różnych replik jest identyczny.
@@ -1420,7 +1501,8 @@ Zasady wspólne:
   - Ścieżki klienta (kafelek flagi z podpowiedzianymi godzinami w najwyżej trzech stuknięciach do zapisu, propozycja), obsługi (szybkie akcje, siatka „Ogarnięte”, „Woda” przy poidle ręcznym, „Cofnij”, zadania) i admina z makiet (przełącznik „Automatyczne poidło” w BoksSzczegoly).
   - Flaga wysłana przy zrywanym połączeniu nie tworzy duplikatu, a apka pokazuje stan „nie wysłano”.
   - Języki, duża czcionka systemowa, mały i duży ekran.
-  - Przy kilku halach lista boksów w grupach hal z filtrem, a każdy boks z halą przy numerze; wybór boksu wysyła `boxId`. Status flagi tylko „potwierdzona HH:MM” albo „niepotwierdzona”.
+  - Przy kilku halach lista boksów w grupach hal z filtrem, a każdy boks z halą przy numerze; wybór boksu wysyła `boxId`. Status flagi tylko „potwierdzona HH:MM” albo „niepotwierdzona”, i tylko dla flag z `requires_ack` (w praktyce: stajnia z potwierdzeniami).
+  - Przełącznik stajni (A-17): Anna i Ola przechodzą między Stajnią Pod Lipami a Stajnią Brzozową; kafelki, status flag, plan karmienia, szybkie akcje, „Wymaga potwierdzenia” i zakładka „Zadania” zmieniają się według ustawień i widoczności wybranej stajni; zapis z kolejki trafia do stajni, w której powstał.
   - Na fizycznych iPhone'ach skrypt ręczny przez TestFlight (wsparcie Maestro dla fizycznych iPhone'ów: [niepotwierdzone]).
 - [ ] **Panel web (Playwright: Chromium, Firefox, WebKit).**
   - Boksy i konie (kolumny Klient, Aktywne flagi z godzinami, Ostatnio ogarnięte; znacznik „Poidło ręczne · woda HH:MM” tylko przy Hala nowa · boks 5; przełącznik poidła w szczegółach boksu tylko dla admina). Przy kilku halach każdy boks w tabelach, filtrach, alertach i formularzach przypisania ma halę przy numerze; wyszukanie „4” zwraca dwa boksy z nazwami hal; formularze wysyłają `boxId`.
@@ -1431,6 +1513,7 @@ Zasady wspólne:
     - wariant „pusta hala”;
     - usunięcia hali z boksami interfejs nie proponuje, a API je odrzuca; wyłączenie hali działa;
     - po dodaniu drugiej hali stajnia z jedną halą zaczyna pokazywać halę przy numerze w panelu.
+  - Ustawienia stajni (PanelUstawieniaStajni, PanelUstawieniaBrzozowa): stan przełączników i macierzy obu stajni z seedu; „Zapisz” z `If-Match`, konflikt 412 pokazuje komunikat; wyłączenie Derki i włączenie z powrotem; zakładki nie widzi nikt poza adminem; przełącznik stajni w nagłówku przechodzi między stajniami.
   - Płatności na fałszywym adapterze: podwójny webhook daje jedną płatność, brak płatności daje `suspended`.
   - `/wyswietlacz`:
     - sztuczny zegar i odpytywanie co 10 s;
@@ -1438,14 +1521,16 @@ Zasady wspólne:
     - widok wszystkich hal: sekcje hal z przyciskiem „Pełny ekran”, pasek pilnych flag wszystkich hal, kafel z halą przy numerze;
     - pełny ekran hali: tylko flagi tej hali, także w pasku pilnych; skrót pozostałych hal tylko liczbowy; przełącznik hal przechodzi na inną halę bez wracania do widoku wszystkich; „Wszystkie hale” wraca do widoku ogólnego;
     - wybór widoku zapamiętany w `localStorage`: przetrwa przeładowanie i nowy kontekst przeglądarki z tym samym profilem; bez zapisanego wyboru, przy wyjątku z `localStorage` albo gdy zapisana hala zniknęła lub jest wyłączona, strona pokazuje wszystkie hale;
-    - jedna hala (druga stajnia z seedu): bez sekcji, bez „Pełny ekran” i bez przełącznika;
+    - jedna hala (Stajnia Brzozowa; w seedzie nie ma wyświetlacza, więc test zakłada konto `display` i zaznacza jego widoczność w fixture'ach, nie w seedzie): bez sekcji, bez „Pełny ekran” i bez przełącznika;
+    - sekcje według widoczności roli `display` (w Stajni Pod Lipami bez zdrowia i historii boksu); stan „niepotwierdzona” tylko dla flag z `requires_ack`: flaga bez potwierdzeń go nie ma, a trwająca niepotwierdzona flaga ma go dalej po wyłączeniu potwierdzeń (A-20);
     - nowa hala dodana w panelu pojawia się w ciągu 10 s;
     - regresja wizualna przy 1920×1080 i 3840×2160, w widoku wszystkich hal i na pełnym ekranie każdej hali.
 - [ ] **Tablet.**
   - Testy instrumentowane na emulatorze (3.1.2).
   - Testy zrzutów (propozycja, 3.5.2): ekrany z fixture'ów renderowane w profilu Kaleido 3 i Gallery 3 i przeliczone na skalę szarości. Statusy (papier, OK, uwaga, krytyczna) muszą się różnić jasnością i grubością obrysu także bez koloru; na polach koloru tylko czarny albo biały pogrubiony tekst.
   - „Zmień boks” na emulatorze ze sztucznym zegarem: zakładki hal (otwarta zakładka hali bieżącego boksu), przełączenie od razu po stuknięciu, powrót do poprzedniego boksu po 30 s bez wyboru, wybór (`boxes.id`) zachowany po zabiciu procesu; przy jednej hali lista bez zakładek.
-  - Blokada ekranu na emulatorze ze sztucznym zegarem: seria stuknięć i przeciągnięć po zablokowanym ekranie nie wysyła żadnego zapisu; odblokowanie dopiero po 3 s przytrzymania kłódki; pop-up nowej flagi pojawia się mimo blokady, a POTWIERDZAM działa po odblokowaniu; po 10 min blokada schodzi sama (propozycja).
+  - Blokada ekranu na emulatorze ze sztucznym zegarem: seria stuknięć i przeciągnięć po zablokowanym ekranie nie wysyła żadnego zapisu; odblokowanie dopiero po 3 s przytrzymania kłódki; pop-up nowej flagi (stajnia z potwierdzeniami) pojawia się mimo blokady, a POTWIERDZAM działa po odblokowaniu; po 10 min blokada schodzi sama (propozycja).
+  - Konfiguracja stajni na emulatorze: tablet przełączony w ukrytych ustawieniach na Stajnię Brzozową, boks 1 (TabletBoksBrzozowa): nagłówek bez hali, baner bez plakietki „POTWIERDZONA” i bez pop-upu, „SZYBKIE AKCJE” tylko „OGARNIĘTE” i „ŚNIADANIE”, karmienie bez „NAMOCZYĆ”; zrzut porównany z makietą (propozycja).
   - Scenariusze UI na sztukach deweloperskich z ADB (Maestro albo UI Automator).
   - Na sztukach produkcyjnych (ADB wyłączone) obserwacja kamerą i w logach, a stuknięcia ręczne.
 - [ ] **Prawdziwe SMS w przebiegu nocnym:** modem z kartą SIM odczytuje kod OTP i eskalację.
@@ -1456,17 +1541,19 @@ Zasady wspólne:
   - Każda trasa wywołana tokenem stajni A z identyfikatorami stajni B daje 404 (meta-test pilnuje nowych tras).
   - `board` i wyświetlacz nie widzą innej stajni.
   - Zdarzenie z cudzym `stable_id` jest odrzucane.
-  - `X-Box-Id` albo `boxId` boksu stajni B (druga stajnia z seedu ma te same numery boksów) daje 404 i nie tworzy zapisu. Lista „Zmień boks” zawiera tylko hale i boksy stajni zalogowanego użytkownika.
+  - `X-Box-Id` albo `boxId` boksu stajni B (Stajnia Brzozowa ma te same numery boksów 1–6 co Hala nowa) daje 404 i nie tworzy zapisu. Lista „Zmień boks” zawiera tylko hale i boksy stajni zalogowanego użytkownika.
   - Strażnik predykatu `stable_id`, w tym tabele podrzędne przez rodzica.
-  - Druga stajnia z seedu należy do tej samej działalności (`businesses`): wspólna działalność nie daje dostępu między stajniami, a obiekty drugiej stajni dają 404, bo uprawnienia i izolacja są na poziomie stajni [erd].
+  - Stajnia Brzozowa należy do tej samej działalności (`businesses`) co Stajnia Pod Lipami (propozycja seedu): wspólna działalność nie daje dostępu między stajniami, a obiekty drugiej stajni dają 404, bo uprawnienia, izolacja i ustawienia są na poziomie stajni [erd]. Damian (admin Pod Lipami) dostaje 404 na ustawieniach i boksach Stajni Brzozowej, Paweł odwrotnie.
 - [ ] **Role, macierz rola × akcja (to, co dozwolone, i to, co zabronione).**
   - client: flagi swoich koni (ustawienie, zmiana godzin, odwołanie), podgląd boksu, w którym stoi jego koń, i historii tego boksu od dnia, w którym koń do niego trafił; bez szybkich akcji obsługi i bez zadań (403); boks bez jego konia (np. wolny Hala główna · boks 3) daje 404; po `valid_to` albo `revoked_at` traci dostęp.
   - staff: wszystkie konie, także Luna bez boksu; szybkie akcje obsługi (także „Woda” przy poidle ręcznym); „Biorę” i „Zrobione” przy zadaniach, ale bez dodawania zadań i bez przełącznika poidła (403).
-  - admin: hale (z adresem), boksy (także przełącznik „Automatyczne poidło”), zaproszenia, konta `display`, dodawanie i odwoływanie zadań. Dodać halę może tylko admin.
+  - admin: hale (z adresem), boksy (także przełącznik „Automatyczne poidło”), zaproszenia, konta `display`, dodawanie i odwoływanie zadań, „Ustawienia stajni” (potwierdzenia, usługi, aktywne szablony flag, widoczność per rola). Dodać halę i zmienić ustawienia stajni może tylko admin tej stajni; staff, client, instructor, it_support i display dostają 403.
   - it_support: konfiguracja i diagnostyka tabletów i wyświetlaczy; zapis koni, flag, zaproszeń i zadań daje 403, bez danych osobowych klientów [erd].
   - klient Cognito tablet: tylko potwierdzenie flagi, „Ogarnięte” i „Woda” (poidło ręczne) dla boksu z `X-Box-Id` oraz posiłek i padok dla hali tego boksu [erd]; zadania i akcja dla innej hali dają 403 (propozycja).
   - display: tylko GET, każdy zapis daje 403.
-  - Kombinacje ról: ta sama osoba jako client dwóch koni w różnych halach (Anna: Kasztan i Bella); staff w jednej stajni i client w drugiej.
+  - Widoczność per rola (`stable_role_features`) tylko zawęża uprawnienia (propozycja): odznaczona funkcja daje 403 na trasach tej funkcji i znika z odpowiedzi złożonych, a zaznaczona nie daje roli prawa zapisu, którego rola nie ma (np. klient z widocznością „Szybkie akcje i ich stan” dalej dostaje 403 na zapis).
+  - Opcje wyłączone w ustawieniach stajni: zapis daje `409 option_disabled` (propozycja) dla każdej roli, także admina i tabletu; potwierdzenie flagi bez `requires_ack` daje `409 ack_not_required` (propozycja).
+  - Kombinacje ról: ta sama osoba jako client dwóch koni w różnych halach (Anna: Kasztan i Bella); ta sama osoba w dwóch stajniach o różnych ustawieniach (Ola: staff w obu, Anna: client w obu), gdzie uprawnienia, widoczność i konfiguracja liczą się osobno dla każdej stajni; staff w jednej stajni i client w drugiej.
 - [ ] **Wyświetlacz bez danych osobowych.** Dane-kanarki (unikalne telefony, e-maile, nazwiska) w seedzie. Skan każdej odpowiedzi dla `display` oraz HTML i JS strony `/wyswietlacz` nie może znaleźć kanarka ani wzorca E.164 czy e-maila.
 - [ ] **Tablica tabletu nie pokazuje, kto jest zalogowany.** Tablet zalogowany kontem z danymi-kanarkami: na żadnym ekranie poza ukrytymi ustawieniami nie ma imienia, telefonu ani e-maila zalogowanej osoby. Akcje z tabletu zapisują się bez autora: `source = tablet` (przy potwierdzeniu flagi `method = tablet`), `user_id = NULL`, `audit_log.actor_type = tablet` [erd].
 - [ ] **Presigned URL.**
@@ -1562,7 +1649,7 @@ Zasady wspólne:
 
 **D. Ekran i dotyk**
 - [ ] **T-18 Opóźnienie flagi.**
-  - Od zapisu flagi w apce do widocznego pop-upu: p95 z co najmniej 500 prób.
+  - Od zapisu flagi w apce do widocznego pop-upu (stajnia z potwierdzeniami; w stajni bez nich do flagi w banerze): p95 z co najmniej 500 prób.
   - Pomiar kamerą w zwolnionym tempie i z logów.
   - Sprawdzić, czy 304 dociera do JS.
   - Na kolorowym e-inku pop-up z paskiem `t-crit` wymaga pełnego odświeżenia w trybie z kolorem: zmierzyć je osobno i doliczyć do progu.
@@ -1605,7 +1692,7 @@ Zasady wspólne:
   - mycie i wycieranie zablokowanego ekranu mokrą ścierką i spryskiwaczem: zero zapisów i zero zmian na ekranie; mokra ścierka i woda nie odblokowują ekranu (nie „przytrzymują” kłódki przez 3 s);
   - odblokowanie przytrzymaniem kłódki 3 s gołą dłonią i w rękawicach (propozycja);
   - zablokowana tablica dalej się odświeża (zegar, nowa flaga, „Ogarnięte” z apki), przyciski mają przerywaną ramkę, bez szarych wypełnień;
-  - pop-up nowej flagi pojawia się mimo blokady; POTWIERDZAM nie działa do odblokowania;
+  - pop-up nowej flagi (stajnia z potwierdzeniami) pojawia się mimo blokady; POTWIERDZAM nie działa do odblokowania;
   - blokada schodzi sama po 10 min (propozycja), także po restarcie apki ekran jest odblokowany;
   - zmiana wyglądu przy blokadzie i odblokowaniu nie zostawia „duchów” ani kolorowego śladu (T-21).
 
@@ -1666,12 +1753,13 @@ Zasady wspólne:
 
 **G. Funkcje tabletu**
 - [ ] **T-28 Pop-up i „Zmień boks”.**
-  - **Pop-up:**
+  - **Pop-up** (tylko dla flag z `requires_ack`, w praktyce w stajni z potwierdzeniami; czy stajnia ich wymaga, zależy od jej ustawień):
     - kolejka pop-upów, krytyczne pierwsze;
     - godziny flagi w pop-upie („dziś 06:00–10:00”);
     - pop-up nowej flagi znika po POTWIERDZAM albo po odwołaniu flagi, przy najbliższym odpytaniu;
     - potwierdzenie na jednym tablecie (albo w apce) usuwa pop-up z drugiego tabletu na tym samym boksie przy najbliższym odpytaniu;
     - status tylko „potwierdzona HH:MM” albo „niepotwierdzona”;
+    - w stajni bez potwierdzeń (Stajnia Brzozowa, A-18) pop-upu nie ma: nowa flaga przy najbliższym odpytaniu od razu stoi w banerze (przed początkiem okna pod banerem z „od HH:MM”), bez POTWIERDZAM i bez plakietki „POTWIERDZONA”;
     - zapis bez autora: `method = tablet`, `user_id = NULL`, `box_id` wybranego boksu z `X-Box-Id`.
   - **„Zmień boks”** (bez blokady boksu, zmienić może każdy przy tablecie):
     - lista w zakładkach hal; otwarta jest zakładka hali bieżącego boksu; przy jednej hali lista bez zakładek;
@@ -1766,6 +1854,8 @@ Zasady wspólne:
 
 Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt tabletu na sztuce z ADB) i ręcznie na stanowisku. Dane pochodzą z seedu z 3.2 (wt 13.10.2026, teraz 07:15): Hala główna, boksy 1–8 (Kasztan w boksie 7, wolny boks 3), i Hala nowa, boksy 1–6 (Grom 1, Mgła 2, Rumba 3, Bella 4, Bursztyn 5, wolny boks 6). Numery boksów powtarzają się między halami, więc skrypty i asercje odwołują się do boksów po `id` ze stałych UUID seedu, a interfejs zawsze pokazuje halę razem z numerem.
 
+A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia flag. Pop-upy, POTWIERDZAM, status „potwierdzona / niepotwierdzona”, sekcja „Wymaga potwierdzenia” i eskalacje są w nich dlatego, że tak jest ustawiona ta stajnia: czy flagi wymagają potwierdzenia, zależy od ustawień stajni (erd.md pkt 12 i 16). A-17…A-21 sprawdzają konfigurację per stajnia na obu stajniach z seedu; Stajnia Brzozowa ma jedną halę (boksy 1–6, Kometa w boksie 1, wolny boks 5), więc tam interfejs pokazuje sam numer boksu.
+
 1. **A-01 Kasztan (Hala główna · boks 7): wet o 8:00, kowal o 15:00.**
    - [ ] O 03:14 Anna wybiera kafelek „Bez śniadania”: godziny podpowiadają się jako dziś 06:00–10:00, dopisuje notatkę „Wet o 8:00, koń na czczo” i zapisuje. O 03:16 wybiera „Nie na padok”, zmienia podpowiedziane godziny padoku na 14:30–16:00 i dopisuje „Kowal o 15:00”.
    - [ ] Tablet z wybranym boksem Hala główna · boks 7 przy najbliższym odpytaniu pokazuje pop-upy „NOWA FLAGA · od Anny · 03:14” z godzinami „dziś 06:00–10:00” (krytyczny pierwszy) i „Nie na padok · 14:30–16:00”. Tablica nie pokazuje, kto jest zalogowany na tablecie.
@@ -1859,6 +1949,38 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
     - [ ] Boksy z poidłem automatycznym (np. Hala nowa · boks 4, Hala główna · boks 7) nie mają znacznika wody ani przycisku „Woda” na tablecie, w apce, w panelu i na wyświetlaczu; „Woda” wysłana dla takiego boksu daje 409 (propozycja).
     - [ ] Zadanie „Poidło w boksie 5 do wymiany” jest w apce obsługi („Do wzięcia”), a na tablecie tego boksu go nie ma.
     - [ ] Przełącznik: po wymianie automatu Damian w BoksSzczegoly ustawia „Automatyczne poidło: tak”. Przy najbliższym odpytaniu znacznik i „Woda” znikają z tabletu, apki, panelu i wyświetlacza; wpisy `box_care_events` zostają w bazie, a audyt ma zmianę. Ola (obsługa) nie zmieni przełącznika (403). Nowy boks z „Dodaj halę” ma poidło automatyczne.
+17. **A-17 Dwie stajnie: przełączenie stajni u Anny i u Oli.**
+    - [ ] Anna (klientka w obu stajniach) o 07:15 w Stajni Pod Lipami widzi Kasztana i Bellę: kafelki z „Derką”, flagi ze statusem („potwierdzona 06:02”, Bella „niepotwierdzona”), plan karmienia z „namoczyć” i jazdy. Przełącza nagłówek na „Stajnia Brzozowa ▾” (MainBrzozowa): Kometa (boks 1, bez hali), „Bez śniadania 06:00–09:00 · dentysta o 8:30” bez statusu, z „obowiązuje od razu”, oraz „Ogarnięte dziś 07:00 · śniadanie pominięte: flaga”. Kafelki: Bez śniadania, Bez kolacji, Nie na padok, Wet, Leki, Inna flaga, bez „Derki”; dopisek „W tej stajni flagi obowiązują od razu, bez potwierdzania”. Karta Komety nie ma planu karmienia ani jazd. Powrót do Pod Lipami przywraca poprzedni widok, bez ponownego logowania.
+    - [ ] Ola (obsługa w obu stajniach) w Pod Lipami ma ListaDnia jak w A-13: „Szybkie akcje” per hala z padokiem, „Wymaga potwierdzenia” z Bellą, skrót zadań i zakładka „Zadania”. Po przełączeniu na Stajnię Brzozową (ListaDniaBrzozowa): „Podano śniadanie” ✓ 06:35 · Paweł z pominiętą Kometą i „Ogarnięte 3 z 6” (boksy 1, 2, 4), bez padoku; bez sekcji „Wymaga potwierdzenia”; „Flagi dziś” (Kometa, Lord) bez statusu; bez namaczania; bez zakładki „Zadania”; bez hali przy numerze.
+    - [ ] Tablet boksu 1 Stajni Brzozowej (TabletBoksBrzozowa, stajnia wybrana w ukrytych ustawieniach, propozycja): nagłówek „BOKS 1 · KOMETA” bez hali, baner „BEZ ŚNIADANIA · 06:00–09:00 · dentysta o 8:30” bez plakietki „POTWIERDZONA”, „SZYBKIE AKCJE” tylko „OGARNIĘTE” (dziś 07:00) i „ŚNIADANIE” (podane 06:35), bez „PADOK”, karmienie bez „NAMOCZYĆ”. Tablet Hala główna · boks 7 w Pod Lipami w tym samym czasie ma trzy przyciski i „NAMOCZYĆ”.
+    - [ ] Dane się nie mieszają: w Stajni Brzozowej Anna nie widzi Kasztana ani Belli, a Ola nie widzi koni Pod Lipami. Flaga ustawiona przez Olę w Stajni Brzozowej ma `requires_ack = false`, a w Pod Lipami `true`. Zapis z kolejki apki trafia do stajni, w której powstał, także gdy Ola w międzyczasie przełączy stajnię.
+18. **A-18 Flaga bez potwierdzeń (Stajnia Brzozowa · boks 1, Kometa).**
+    - [ ] O 05:50 Anna wybiera kafelek „Bez śniadania”, zmienia podpowiedziane godziny na 06:00–09:00 i dopisuje „dentysta o 8:30”. Zapis ma `requires_ack = false` i puste `ack_deadline_at`, `warn_at` i `notify_at`.
+    - [ ] Tablet boksu 1 przy najbliższym odpytaniu (przed 06:00) pokazuje flagę bez pop-upu, bez POTWIERDZAM i bez plakietki jako „Później: Bez śniadania od 06:00”, a od 06:00 w banerze „BEZ ŚNIADANIA · 06:00–09:00 · dentysta o 8:30” z „obowiązuje od razu”. W tabeli karmienia poranny owies i siano są „WSTRZYMANE”.
+    - [ ] U Anny flaga nie ma statusu oczekiwania. U Oli i Pawła nie ma sekcji „Wymaga potwierdzenia”. Nikt nie dostaje eskalacji (zero wierszy `flag_escalations`, zero powiadomień), także po czasie, po którym flaga w Pod Lipami byłaby „niepotwierdzona”. Potwierdzenie wysłane wprost przez API daje `409 ack_not_required` (propozycja).
+    - [ ] O 06:35 Paweł stuka w apce „Podano śniadanie”: jeden wpis dla całej stajni, Kometa pominięta („bez Komety: flaga”), choć nikt flagi nie potwierdzał. Tablet boksu 1 pokazuje „ŚNIADANIE · podane 06:35 · potem obiad 12:00”, a o 07:15 „OSTATNIE AKCJE” to dokładnie 5 wpisów: 07:00 Ogarnięte; 06:35 Podano śniadanie (bez Komety: flaga) · Paweł; 05:50 nowa flaga „Bez śniadania” · Anna; wczoraj 18:00 Podano kolację · Paweł; wczoraj 16:30 Ogarnięte · Paweł.
+    - [ ] „Leki rano” Lorda (Paweł, 06:00–09:00) też obowiązuje od razu, bez statusu. O 09:00 obie flagi kończą się same.
+19. **A-19 Wyłączenie Derki i innych usług (Stajnia Pod Lipami).**
+    - [ ] Damian w „Ustawieniach stajni” (PanelUstawieniaStajni) wyłącza „Derki” i zapisuje. Przy najbliższym odpytaniu kafelek „Derka” znika u klientów (Main i SzybkaFlaga Ewy K. i Anny) i u obsługi (StajennyKonie); flaga z szablonu `derka` wysłana przez API daje `409 option_disabled` (propozycja). Trwająca „Derka: zakładać” Sonaty (od 16:00): zachowanie według decyzji 48 z sekcji 5 (propozycja: obowiązuje do końca okna i dalej jest na tablecie Hala główna · boks 4 i w apce, znika tylko kafelek). Po ponownym włączeniu kafelek wraca.
+    - [ ] Damian wyłącza moczenie paszy: „NAMOCZYĆ” znika z tabletu Kasztana (wysłodki) i z KartaKonia; pozycje planu z `soak` zostają w bazie i wracają po włączeniu.
+    - [ ] Damian wyłącza przycisk „Padok”: „PADOK” znika z „SZYBKICH AKCJI” tabletów hali i z ListaDnia razem ze stanem i godzinami padoku; „Wyprowadzono na padok” z apki i z tabletu daje `409 option_disabled` (propozycja). Wczorajszy wpis 10:05 zostaje w Historii MojBoks Anny, bo wpisy już zapisane zostają w historii [erd]. Po włączeniu przycisk wraca.
+    - [ ] Ola (obsługa) i Ewa K. (klientka) nie mają ekranu „Ustawienia stajni”, a API daje im 403; Paweł dostaje 404 dla ustawień Stajni Pod Lipami. Zmiany w Pod Lipami nie zmieniają Stajni Brzozowej. Każda zmiana ma wpis audytu.
+20. **A-20 Zmiana przełącznika potwierdzeń nie zmienia trwających flag.**
+    - [ ] Stajnia Pod Lipami, 07:20: Damian wyłącza „Flagi wymagają potwierdzenia” (panel pokazuje „Dotyczy nowych flag. Flagi, które już trwają, zostają w swoim trybie.”). Flaga Belli (`requires_ack = true`) dalej jest „niepotwierdzona”, dalej ma pop-up na tablecie Hala nowa · boks 4 i jest w „Wymaga potwierdzenia”, a `escalation-scheduler` dalej ją eskaluje; TV (pasek pilnych, pełny ekran Hali nowej) i alert w panelu dalej pokazują Bellę jako niepotwierdzoną; potwierdzone flagi Kasztana zachowują „potwierdzona 06:02”.
+    - [ ] O 07:25 Ola ustawia flagę dla Iskry (Hala główna · boks 1): `requires_ack = false`, obowiązuje od razu, bez pop-upu na tablecie i bez statusu u Karoliny W.
+    - [ ] O 07:30 Damian włącza potwierdzenia z powrotem: flaga Iskry zostaje bez statusu i bez eskalacji; nowa flaga dla Groma (Hala nowa · boks 1) daje pop-up i „niepotwierdzona” do potwierdzenia.
+    - [ ] Stajnia Brzozowa: Paweł włącza potwierdzenia. Flaga Komety zostaje „obowiązuje od razu”, bez statusu i eskalacji; nowa flaga dla Lorda (boks 4) daje pop-up na tablecie i status „niepotwierdzona”. Po teście Paweł wyłącza potwierdzenia (stan z seedu).
+21. **A-21 Macierz widoczności per rola.**
+    - [ ] W obu stajniach każda rola widzi w apce, panelu, na tablecie i na wyświetlaczu tylko funkcje zaznaczone w macierzy z seedu:
+      - klient: w Pod Lipami Anna ma flagi, plan karmienia (KartaKonia), stan szybkich akcji, historię boksu (MojBoks), zdrowie (wet 08:00, kowal 15:00) i jazdy, bez zadań; w Stajni Brzozowej bez planu karmienia i jazd;
+      - obsługa: Ola w Pod Lipami ma wszystko poza diagnostyką, z zadaniami; w Stajni Brzozowej bez zadań i jazd;
+      - instruktor (konto `instructor` z seedu, w obu stajniach): flagi i jazdy (propozycja, jak na makietach);
+      - Wsparcie IT: tylko diagnostyka tabletów i wyświetlaczy, w obu stajniach, bez danych koni i klientów;
+      - wyświetlacz Pod Lipami: flagi, plan karmienia, szybkie akcje i ich stan, zadania, bez zdrowia i historii boksu; Stajnia Brzozowa wyświetlacza nie ma;
+      - tablet: widoczność obsługi (propozycja, sekcja 5);
+      - admin (Damian, Paweł): wszystko, niezależnie od macierzy.
+    - [ ] Damian odznacza klientowi „Plan karmienia”: przy najbliższym odpytaniu KartaKonia Anny w Pod Lipami nie ma planu, a trasa planu daje jej 403 (propozycja); po zaznaczeniu plan wraca. Zaznaczenie klientowi „Zadania” pokazuje Annie listę zadań, ale „Biorę” dalej daje 403, bo widoczność nie dodaje uprawnień (propozycja).
+    - [ ] Ustawienia Pod Lipami nie zmieniają widoku Anny i Oli w Stajni Brzozowej.
 
 ### 4.5 Stanowisko testowe i kryteria gotowości do wdrożenia
 
@@ -1871,6 +1993,7 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
   - bramka tabletu (punkty (B) z 4.3.1) i pozostałe testy T-xx na jednej sztuce, z paletą `t-*` w profilu właściwym dla ekranu; cykle zasilania (T-08) ręcznie wtyczką zasilacza, dopóki nie ma przekaźników, a testy wymagające komory albo dwóch AP (T-14, T-22) dopiero na stanowisku;
   - T-20, T-21 i K-01…K-05, K-07 w kolorze, a wariant czarno-biały (K-06) tylko na zrzutach przeliczonych na szarość;
   - T-28 i A-10 z jednym tabletem: drugim tabletem jest emulator albo skrypt odpytujący `board` z `X-Box-Id` drugiego boksu (propozycja); boks 4 obu hal wybiera się przez „Zmień boks”;
+  - A-17 i A-18 na tablecie: ten sam tablet przełączony w ukrytych ustawieniach na Stajnię Brzozową (boks 1) albo emulator (propozycja);
   - testy W na własnym TV albo monitorze, w tym W-29 (pełny ekran hali po restarcie); testy porównawcze (NVMe, obudowa pasywna, drugi telewizor) dopiero na stanowisku;
   - SMS OTP na własnym telefonie; pełna lista sieci z 1.4 dopiero na stanowisku.
 - Dokupić tylko, jeśli coś nie zadziała:
@@ -1884,7 +2007,7 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
 - Przekaźniki na każdym urządzeniu i na AP. Skrypty scenariuszy awarii uruchamiane według harmonogramu, także w nocy.
 - Kamery i rejestratory.
 - Telefony z kartami różnych sieci i modem SMS.
-- Środowisko testowe z seedem obu stajni; k6 symuluje pozostałe tablety i stajnie.
+- Środowisko testowe z seedem obu stajni (Stajnia Pod Lipami i Stajnia Brzozowa, różne ustawienia); k6 symuluje pozostałe tablety i stajnie. Do A-17 i A-18 jeden tablet stanowiska przełączamy w ukrytych ustawieniach na Stajnię Brzozową, boks 1 (propozycja).
 - Dziennik testów: każda interwencja ręczna, każdy zawieszony ekran, każdy „duch” i wynik każdego cyklu zasilania.
 
 **Etapy:** bramka (1–2 tygodnie, punkty B oraz K-01 i K-05, w zestawie domowym), stanowisko (co najmniej 28 dni, całe 4.3 i 4.4, równolegle obciążenie z 4.1), stajnia pilotażowa (4–6 tygodni, prawdziwa obsługa w rękawicach, przećwiczona zmiana Wi-Fi, oględziny obudów).
@@ -1907,7 +2030,7 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
   - migracje N-1 → N;
   - pełna macierz izolacji, bez żadnej trasy bez testu.
 - [ ] Test obciążenia w docelowej skali przeszedł, a wyniki są zapisane jako linia bazowa.
-- [ ] Wszystkie scenariusze A-01…A-16 przechodzą automatycznie, na stanowisku i w stajni pilotażowej.
+- [ ] Wszystkie scenariusze A-01…A-21 przechodzą automatycznie i na stanowisku (z seedem obu stajni); w stajni pilotażowej A-01…A-16 oraz te części A-17…A-21, które pasują do jej ustawień (propozycja).
 - [ ] **Tablet:**
   - 100% autostartów do Lock Task w serii cykli zasilania;
   - 100% aktualizacji APK udanych albo bezpiecznie przerwanych;
@@ -1924,7 +2047,7 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
   - działa w najniższej temperaturze zanotowanej w hali pilotażowej.
 - [ ] Wyświetlacz pracuje tygodniami bez interwencji, po zaniku prądu sam wraca do zapamiętanego widoku (wszystkie hale albo pełny ekran hali, na którym są tylko flagi tej hali) i nie ma śladów retencji.
 - [ ] SMS OTP dochodzi we wszystkich testowanych sieciach w ustalonym czasie. Odzyskiwanie dostępu działa. Global sign-out i blokada konta odbierają dostęp w zmierzonym czasie.
-- [ ] Eskalacja działa przy martwym tablecie (A-02). To jedyne zabezpieczenie, bo stanu tabletów nie śledzimy.
+- [ ] Eskalacja działa przy martwym tablecie (A-02). Dla flag z `requires_ack` (w stajni, która wymaga potwierdzeń) to jedyne zabezpieczenie, bo stanu tabletów nie śledzimy; flaga zapisana w stajni bez potwierdzeń (zależy od ustawień stajni) obowiązuje od razu i nie eskaluje (A-18), a trwająca niepotwierdzona flaga eskaluje także po wyłączeniu przełącznika (A-20).
 - [ ] Zmiana czasu przeszła bez błędów, w symulacji albo na stanowisku.
 - [ ] **Przećwiczone runbooki:**
   - wymiana tabletu i jego provisioning;
@@ -2018,6 +2141,12 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
 45. **Model karmienia:** pudełko (porcja przygotowana wcześniej), namaczanie (co, w ilu litrach wody, jak długo) i ile. Dziś jest tylko wersja prosta: „namoczyć” i ile przy pozycji planu (`feeding_plan_items.soak`, `soak_note`), a tablet pokazuje „NAMOCZYĆ” w tabeli karmienia. Przed rozbudową nie dodajemy pól ani tabel.
 46. **Ekran dotykowy z blokadą czy zaprogramowany fizyczny przycisk przy boksie.** Dziś tablet ma blokadę dotyku na czas mycia (3.5.2, T-19, T-30, A-15). Alternatywą jest fizyczny przycisk, np. „Ogarnięte”, zamiast dotyku; wpłynąłby na obudowę i montaż (1.2) i na moduł `modules/kiosk` (obsługa przycisku). Do rozstrzygnięcia nic pod to nie kupujemy; dane z T-19, T-30 i A-15 w stajni pilotażowej pomogą w decyzji.
 47. **Płatności, faktury, KSeF:** czy to nie za dużo na PoC. Na razie bez rozbudowy: `billing` zostaje jak jest, na poziomie stajni, na fałszywych adapterach (2.11, 3.3); sandbox dostawcy i środowisko KSeF dopiero po decyzji.
+
+**Konfiguracja per stajnia** (erd.md pkt 16; do potwierdzenia przed etapem 2)
+
+48. **Wyłączenie flagi przy flagach, które już trwają.** erd.md mówi, że wyłączona opcja znika razem ze swoim stanem. Propozycja: przy wyłączeniu szablonu (np. Derki) znika kafelek i nie da się zapisać nowej flagi, ale flagi, które już trwają, obowiązują i są widoczne do końca okna (bezpieczeństwo konia, np. trwająca „Bez śniadania” przed wetem). Alternatywa: ukrycie także trwających flag.
+49. **Domyślna widoczność per rola dla nowej stajni.** erd.md: „wszystko włączone, łącznie z potwierdzeniami”. Czy to dotyczy też macierzy ról (np. `display` i `it_support` widzą wszystkie funkcje; uprawnienia ról i tak ograniczają zapis), czy nowa stajnia dostaje węższą macierz, np. jak Stajnia Pod Lipami (propozycja do decyzji).
+50. **Widoczność na tablecie.** Tablet nie jest rolą w macierzy, a tablica nie zależy od zalogowanej osoby. Propozycja: tablet używa widoczności roli Obsługa (`staff`) w tej stajni. Do tego: widoczność instruktora w danych demo (arkusz jej nie podaje; propozycja: Flagi i Jazdy, jak na makietach).
 
 ## Źródła
 
