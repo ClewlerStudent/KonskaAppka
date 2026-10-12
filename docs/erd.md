@@ -8,7 +8,7 @@
 > - koń i boks w relacji 0..1 do 0..1 (koń może stać bez boksu, boks bez konia);
 > - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
 > - użytkownik logowany na tabletach, który może zablokować na tablecie wybrany boks;
-> - udostępnianie boksu albo konia użytkownikowi, który wynajmuje miejsce w stajni.
+> - podgląd dziennika opieki konia dla użytkownika, który wynajmuje miejsce w stajni (bez dostępu do boksu).
 
 ## Do zatwierdzenia
 
@@ -27,16 +27,21 @@
    - Na tablecie jest najwyżej jedna aktywna blokada, a jeden boks może być zablokowany na kilku tabletach.
    - Założenia do potwierdzenia:
      - na tablecie jest zalogowany jeden użytkownik naraz;
-     - zablokować można tylko boks, który użytkownik ma prawo widzieć;
+     - zablokować boks na tablecie mogą tylko członkowie stajni z rolą `admin`, `staff` albo `technician`;
      - odblokować może ten, kto zablokował, admin stajni albo serwisant (rola `technician` w `stable_members`; propozycja do potwierdzenia);
      - po wylogowaniu blokada zostaje, a tablet czeka na kolejne logowanie i wraca do tego samego boksu.
-3. **Udostępnienie boksu albo konia najemcy miejsca.**
-   - Admin stajni może udostępnić użytkownikowi konkretny boks (`box_access`) albo konia (`horse_access`), także przez zaproszenie (`invitations.box_id` albo `invitations.horse_id`).
-   - Najemca widzi online swój boks i konia, który w nim stoi. Może ustawiać flagi i przekazywać informacje dla obsługi oraz zablokować swój boks na tablecie.
-   - Dostęp do boksu daje wgląd w konia tylko na czas, gdy koń w tym boksie stoi. Gdy konia przeniesiono, widać go dalej tylko przez `horse_access`.
+3. **Najemca miejsca: tylko podgląd dziennika opieki.**
+   - Admin stajni udostępnia najemcy konia przez `horse_access` z rolą `tenant`, także przez zaproszenie (`invitations.horse_id`, `access_role = tenant`).
+   - Najemca nie ma dostępu do boksu ani tabletu. Widzi tylko, co się z koniem działo:
+     - kiedy był karmiony (`feeding_checks`);
+     - wykonane zadania przy koniu (`task_occurrences`);
+     - wizyty z historii zdrowia widoczne dla stajni.
+   - Nie ustawia flag, nie zmienia planów, nie blokuje boksu na tablecie.
    - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. po końcu najmu.
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
-   - Rola w `box_access`: `tenant` (najemca, może przekazywać informacje) albo `viewer` (tylko podgląd).
+   - Do potwierdzenia:
+     - czy najemca widzi też aktywne flagi i plan karmienia;
+     - czy ma widzieć wyjścia na padok. Wymaga to odhaczania padoku (`paddock_checks`), które dziś jest poza v1.
 4. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
    - Klucze obce są normalne, także między tabelami różnych serwisów.
@@ -100,7 +105,7 @@
 | Mikroserwis | Kolor na ERD | Tabele (tylko ten serwis do nich pisze) |
 |---|---|---|
 | `identity` | różowy | `users` |
-| `access` | fioletowy | `stable_members`, `horse_access`, `box_access`, `invitations` |
+| `access` | fioletowy | `stable_members`, `horse_access`, `invitations` |
 | `stable` | niebieski | `stables`, `stable_locales`, `stable_settings`, `boxes`, `horses`, `horse_box_history` |
 | `devices` | morski | `devices`, `device_sessions`, `device_box_locks`, `device_commands`, `device_alerts` |
 | `board` | błękitny | `board_states` (wersja i `ETag` stanu tablicy), `board_device_sync` |
@@ -136,7 +141,7 @@
 
 ## Współpraca serwisów
 
-- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin), `task_occurrences` i `device_box_locks`. Uprawnienia sprawdza w `stable_members`, `horse_access` i `box_access`.
+- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin), `task_occurrences` i `device_box_locks`. Uprawnienia sprawdza w `stable_members` i `horse_access`.
 - **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo jego kolejkę SQS. Zapisy z tabletu i apki (potwierdzenia, odhaczenia) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
 - **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji) służą reakcjom, a nie kopiowaniu danych:
   - `flag.changed` podbija wersję w `board_states`, więc tablet przy następnym odpytaniu dostaje nowy stan;
@@ -164,7 +169,7 @@
 
 ![ERD aplikacji, schemat app](erd/app.png)
 
-Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 52 tabele i 71 relacji.
+Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 51 tabel i 68 relacji.
 
 <details>
 <summary>Źródło mermaid</summary>
@@ -244,20 +249,9 @@ erDiagram
         uuid stable_id FK "stables"
         uuid horse_id FK "horses"
         uuid user_id FK "users"
-        text role "owner | co_owner | lessee | viewer"
+        text role "owner | co_owner | lessee | tenant | viewer"
         timestamptz valid_from
         timestamptz valid_to
-        timestamptz revoked_at
-        uuid granted_by FK "users"
-    }
-    box_access {
-        uuid id PK
-        uuid stable_id FK
-        uuid box_id FK
-        uuid user_id FK
-        text role "tenant | viewer"
-        timestamptz valid_from
-        timestamptz valid_to "koniec najmu"
         timestamptz revoked_at
         uuid granted_by FK "users"
     }
@@ -268,8 +262,7 @@ erDiagram
         text target "porównywany z claimem z Cognito"
         text role
         uuid horse_id FK "horses, opcjonalnie"
-        uuid box_id FK "boxes, opcjonalnie"
-        text access_role
+        text access_role "np. owner, tenant"
         uuid created_by FK "users"
         timestamptz expires_at "wymagane"
         timestamptz accepted_at
@@ -741,9 +734,6 @@ erDiagram
     horses ||--o{ horse_access : "dostęp"
     stables ||--o{ invitations : "zaprasza"
     horses |o--o{ invitations : "do konia"
-    boxes |o--o{ invitations : "do boksu"
-    boxes ||--o{ box_access : "udostępniony"
-    users ||--o{ box_access : "wynajmuje / widzi"
     devices ||--o{ device_sessions : "sesje"
     users ||--o{ device_sessions : "zalogowany na"
     devices ||--o{ device_box_locks : "blokady"
@@ -814,7 +804,7 @@ erDiagram
     classDef svc_releases fill:#f1f5f9,stroke:#475569
     classDef svc_notifications fill:#fae8ff,stroke:#a21caf
     class stables,stable_locales,stable_settings,boxes,horses,horse_box_history svc_stable
-    class stable_members,horse_access,box_access,invitations svc_access
+    class stable_members,horse_access,invitations svc_access
     class users svc_identity
     class devices,device_sessions,device_box_locks,device_commands,device_alerts svc_devices
     class board_states,board_device_sync svc_board
