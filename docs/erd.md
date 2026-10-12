@@ -35,6 +35,7 @@
    - Najemca widzi online swój boks i konia, który w nim stoi. Może ustawiać flagi i przekazywać informacje dla obsługi oraz zablokować swój boks na tablecie.
    - Dostęp do boksu daje wgląd w konia tylko na czas, gdy koń w tym boksie stoi. Gdy konia przeniesiono, widać go dalej tylko przez `horse_access`.
    - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. po końcu najmu.
+   - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
    - Rola w `box_access`: `tenant` (najemca, może przekazywać informacje) albo `viewer` (tylko podgląd).
 4. **Jedna baza, jeden schemat, właściciel tabeli.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
@@ -87,7 +88,8 @@
   - `NOT NULL`;
   - unikalności, także częściowe;
   - indeksy.
-- **Zakazane w bazie:** RLS, triggery, funkcje, `CHECK`, `DEFAULT`, sekwencje i identity, kolumny generowane, enumy.
+- **Zakazane w bazie:** RLS, triggery, funkcje, `CHECK`, `DEFAULT`, sekwencje i identity, kolumny generowane, enumy, `jsonb` i tablice.
+- **Dane wielowartościowe w osobnych tabelach**, np. etykiety w językach (`*_labels`), pozycje planu karmienia, towarzysze na padoku, ceny planu, zmienione pola w audycie. Dni tygodnia zapisujemy jako maskę bitową `days_mask` (`smallint`, pn = 1 … nd = 64).
 
 ## Mikroserwisy i tabele, które do nich należą
 
@@ -95,19 +97,19 @@
 |---|---|
 | `identity` | `users` |
 | `access` | `stable_members`, `horse_access`, `box_access`, `invitations` |
-| `stable` | `stables`, `boxes`, `horses`, `horse_box_history` |
+| `stable` | `stables`, `stable_locales`, `stable_settings`, `boxes`, `horses`, `horse_box_history` |
 | `devices` | `devices`, `device_sessions`, `device_box_locks`, `device_commands`, `device_alerts` |
-| `board` | `board_states` (cache stanu tablicy), `board_device_sync` |
-| `flags` | `flag_templates`, `horse_flags`, `flag_acknowledgements`, `flag_displays`, `flag_escalations` |
-| `care` | `meal_slots`, `paddocks`, `feeding_plans`, `feeding_checks`, `paddock_plans` |
+| `board` | `board_states` (wersja i `ETag` stanu tablicy), `board_device_sync` |
+| `flags` | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_displays`, `flag_escalations` |
+| `care` | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `feeding_checks`, `paddock_plans`, `paddock_plan_companions` |
 | `health` | `health_events`, `health_attachments` |
 | `rides` | `arenas`, `rides` |
 | `tasks` | `tasks`, `task_occurrences` |
-| `billing` | `billing_accounts`, `billing_plans`, `subscriptions`, `usage_snapshots`, `invoices`, `invoice_lines`, `payments`, `payment_provider_events` |
+| `billing` | `billing_accounts`, `billing_plans`, `billing_plan_prices`, `subscriptions`, `usage_snapshots`, `invoices`, `invoice_lines`, `payments`, `payment_provider_events` |
 | `files` | `files` (metadane; treść w S3) |
-| `releases` | `app_releases` |
+| `releases` | `app_releases`, `app_release_targets` |
 | `notifications` | `notifications` |
-| `audit` | `audit_log` |
+| `audit` | `audit_log`, `audit_log_changes` |
 
 **Crony to osobne mikroserwisy bez własnych tabel.** Czytać mogą wprost z bazy, ale zmiany zlecają serwisom-właścicielom przez API albo kolejki. Idempotencję zapewniają unikalności po stronie tych serwisów, np. `notifications.dedupe_key`.
 
@@ -133,10 +135,10 @@
 - **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `boxes`, `horses`, `horse_flags`, `feeding_plans`, `feeding_checks`, `paddock_plans`, `health_events` (sam typ i termin), `task_occurrences` i `device_box_locks`. Uprawnienia sprawdza w `stable_members`, `horse_access` i `box_access`.
 - **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo jego kolejkę SQS. Zapisy z tabletu i apki (potwierdzenia, odhaczenia) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
 - **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji) służą reakcjom, a nie kopiowaniu danych:
-  - `flag.changed` unieważnia cache `board_states`;
+  - `flag.changed` podbija wersję w `board_states`, więc tablet przy następnym odpytaniu dostaje nowy stan;
   - `horse.left` zamyka flagi, plany i dostępy w serwisach-właścicielach;
   - `subscription.status_changed` zmienia `stables.status`.
-- **Prywatność:** treść notatek `app_only` i opisy wizyt nigdy nie trafiają do `board_states`. Pilnuje tego kod `board` i jego testy.
+- **Prywatność:** treść notatek `app_only` i opisy wizyt nigdy nie trafiają do odpowiedzi `board` dla tabletu. Pilnuje tego kod `board` i jego testy.
 
 ## Legenda
 
@@ -168,9 +170,23 @@ erDiagram
         uuid id PK
         text name
         text timezone "IANA, np. Europe/Warsaw"
-        jsonb locales "pl, uk, en"
         text status "active | suspended"
-        jsonb settings "schemat zod z polem wersji"
+    }
+    stable_locales {
+        uuid stable_id PK, FK
+        text locale PK "pl | uk | en"
+        int sort_order
+    }
+    stable_settings {
+        uuid stable_id PK, FK "1:1 ze stajnią"
+        int warn_offset_min "baner NIEPOTWIERDZONE, np. 30"
+        int notify_offset_min "powiadomienie admina, np. 15"
+        int late_margin_min "flaga po czasie"
+        text author_display "role | initial | name"
+        boolean owner_edits_feeding
+        boolean rides_enabled
+        time maintenance_from "okno instalacji APK"
+        time maintenance_to
     }
     boxes {
         uuid id PK
@@ -250,11 +266,13 @@ erDiagram
         uuid box_id "boxes, opcjonalnie"
         text access_role
         uuid created_by "users"
-        timestamptz expires_at
+        timestamptz expires_at "wymagane"
         timestamptz accepted_at
         uuid accepted_by "users"
         timestamptz revoked_at
     }
+    stables ||--o{ stable_locales : "języki"
+    stables ||--|| stable_settings : "ustawienia"
     stables ||--o{ boxes : "ma"
     stables ||--o{ horses : "ma"
     boxes |o--o| horses : "zajmuje (0..1 : 0..1)"
@@ -296,7 +314,13 @@ erDiagram
         text connectivity "online | offline"
         timestamptz connectivity_changed_at
         timestamptz last_seen_at
-        jsonb last_telemetry "Wi-Fi, bateria, zasilanie, zegar"
+        text wifi_ssid
+        int wifi_rssi
+        int battery_percent
+        boolean power_connected
+        int clock_offset_ms
+        int pending_writes
+        timestamptz telemetry_at
         timestamptz registered_at
         timestamptz retired_at
     }
@@ -329,7 +353,8 @@ erDiagram
         uuid created_by "users"
         timestamptz delivered_at
         timestamptz finished_at
-        jsonb result
+        text result_code
+        text result_message
         timestamptz expires_at
     }
     device_alerts {
@@ -346,10 +371,9 @@ erDiagram
         uuid stable_id "stables"
         uuid horse_id "horses"
         bigint version
-        text etag "z wersji i kubełka horyzontu"
+        text etag "z wersji i kubełka horyzontu; treść składana przy GET"
         timestamptz horizon_from
         timestamptz horizon_to
-        jsonb payload "gotowy stan tablicy"
         timestamptz updated_at
     }
     board_device_sync {
@@ -396,7 +420,6 @@ erDiagram
         uuid id PK
         uuid stable_id "stables"
         text code "unikalny w stajni"
-        jsonb labels "pl, uk, en"
         text icon
         text severity "info | warning | critical"
         text effect "suspend_meal | cancel_paddock | no_riding | none"
@@ -434,6 +457,11 @@ erDiagram
         text cancel_reason
         timestamptz acknowledged_at
     }
+    flag_template_labels {
+        uuid template_id PK, FK
+        text locale PK "pl | uk | en"
+        text label
+    }
     flag_acknowledgements {
         uuid id PK "id zdarzenia z klienta"
         uuid stable_id "stables"
@@ -469,6 +497,7 @@ erDiagram
     meal_slots
     devices
     users
+    flag_templates ||--o{ flag_template_labels : "etykiety"
     flag_templates |o--o{ horse_flags : "szablon"
     horse_flags |o--o| horse_flags : "zastępuje"
     horse_flags ||--o{ flag_acknowledgements : "potwierdzenia"
@@ -500,12 +529,24 @@ erDiagram
         uuid id PK
         uuid stable_id "stables"
         text code "np. breakfast"
-        jsonb labels
         time local_time
-        jsonb days_of_week
+        smallint days_mask "bity: pn=1 ... nd=64"
         date valid_from
         date valid_to
         int sort_order
+    }
+    meal_slot_labels {
+        uuid meal_slot_id PK, FK
+        text locale PK "pl | uk | en"
+        text label
+    }
+    feeds {
+        uuid id PK
+        uuid stable_id "stables"
+        text name "np. owies, siano, suplement X"
+        text kind "feed | supplement | medicine"
+        text default_unit "kg | g | miarka | szt"
+        boolean active
     }
     paddocks {
         uuid id PK
@@ -517,10 +558,17 @@ erDiagram
         uuid stable_id "stables"
         uuid horse_id "horses"
         uuid meal_slot_id FK
-        jsonb items "pasza, ilość, jednostka, suplementy"
         date valid_from
         date valid_to
         timestamptz deleted_at
+    }
+    feeding_plan_items {
+        uuid id PK
+        uuid feeding_plan_id FK
+        uuid feed_id FK
+        numeric quantity
+        text unit
+        int sort_order
     }
     feeding_checks {
         uuid id PK "z klienta"
@@ -542,13 +590,16 @@ erDiagram
         uuid stable_id "stables"
         uuid horse_id "horses"
         uuid paddock_id FK
-        jsonb days_of_week
+        smallint days_mask "bity: pn=1 ... nd=64"
         time start_local
         time end_local
-        jsonb companions "horses"
         date valid_from
         date valid_to
         timestamptz deleted_at
+    }
+    paddock_plan_companions {
+        uuid paddock_plan_id PK, FK
+        uuid horse_id PK "horses"
     }
     health_events {
         uuid id PK
@@ -598,7 +649,7 @@ erDiagram
         uuid horse_id "horses, opcjonalnie"
         uuid box_id "boxes, opcjonalnie"
         timestamptz due_at "zadanie jednorazowe"
-        jsonb days_of_week "zadanie cykliczne"
+        smallint days_mask "zadanie cykliczne; bity pn..nd"
         time local_time
         text assignee_role
         boolean active
@@ -621,9 +672,14 @@ erDiagram
     horses
     boxes
     files
+    meal_slots ||--o{ meal_slot_labels : "etykiety"
     meal_slots ||--o{ feeding_plans : "posiłek"
+    feeding_plans ||--o{ feeding_plan_items : "pozycje"
+    feeds ||--o{ feeding_plan_items : "pasza"
     meal_slots ||--o{ feeding_checks : "posiłek"
     paddocks ||--o{ paddock_plans : "gdzie"
+    paddock_plans ||--o{ paddock_plan_companions : "z kim"
+    horses ||--o{ paddock_plan_companions : "towarzysz"
     horses ||--o{ feeding_plans : "plan"
     horses ||--o{ feeding_checks : "odhaczenia"
     horses ||--o{ paddock_plans : "padok"
@@ -674,7 +730,13 @@ erDiagram
         int min_sdk
         int min_required_version_code
         text status "draft | rolling | complete | halted"
-        jsonb rollout "procent, stajnie, tablety"
+        smallint rollout_percent
+    }
+    app_release_targets {
+        uuid id PK
+        uuid release_id FK
+        uuid stable_id "stables, opcjonalnie"
+        uuid device_id "devices, opcjonalnie"
     }
     notifications {
         uuid id PK
@@ -683,7 +745,8 @@ erDiagram
         uuid recipient_user_id "users, NULL dla zaproszeń"
         text recipient_address "E.164 albo e-mail w chwili wysyłki"
         text template
-        jsonb params
+        text subject "wyrenderowane przy tworzeniu"
+        text body
         uuid related_flag_id "horse_flags"
         uuid related_invitation_id "invitations"
         text dedupe_key UK
@@ -702,13 +765,20 @@ erDiagram
         text action
         text entity_type
         uuid entity_id
-        jsonb changes "przed i po, bez sekretów"
         timestamptz created_at
+    }
+    audit_log_changes {
+        uuid audit_log_id PK, FK
+        text field PK
+        text old_value "bez sekretów"
+        text new_value
     }
     users
     horse_flags
     invitations
     files ||--o| app_releases : "APK w S3"
+    app_releases ||--o{ app_release_targets : "do kogo"
+    audit_log ||--o{ audit_log_changes : "zmienione pola"
     users |o--o{ notifications : "odbiorca"
     horse_flags |o--o{ notifications : "dotyczy"
     invitations |o--o{ notifications : "zaproszenie"
@@ -732,7 +802,11 @@ erDiagram
         uuid stable_id FK, UK "jedno konto na stajnię"
         text legal_name
         text tax_id "NIP"
-        jsonb address
+        text address_line1
+        text address_line2
+        text postal_code
+        text city
+        text country_code "PL"
         text invoice_email
         text payment_provider "do wyboru"
         text provider_customer_id
@@ -743,8 +817,13 @@ erDiagram
         text name
         text currency "PLN"
         text period "month | year"
-        jsonb price_items "np. za boks z koniem, za tablet, minimum"
+        bigint minimum_minor "minimalna kwota w okresie"
         boolean active
+    }
+    billing_plan_prices {
+        uuid plan_id PK, FK
+        text metric PK "boxes_with_horse | active_devices"
+        bigint unit_price_minor "grosze za jednostkę"
     }
     subscriptions {
         uuid id PK
@@ -813,7 +892,7 @@ erDiagram
         text provider
         text provider_event_id UK "idempotencja webhooków"
         text type
-        jsonb payload
+        text payload_s3_key "surowe body webhooka w S3"
         timestamptz received_at
         timestamptz processed_at
     }
@@ -821,6 +900,7 @@ erDiagram
     files
     stables ||--o| billing_accounts : "płaci"
     billing_accounts ||--o{ subscriptions : "subskrypcje"
+    billing_plans ||--o{ billing_plan_prices : "ceny"
     billing_plans ||--o{ subscriptions : "plan"
     stables ||--o{ subscriptions : "abonament"
     subscriptions ||--o{ usage_snapshots : "zużycie"
@@ -845,6 +925,7 @@ erDiagram
   - `outbox_seq` i `outbox_events`; zdarzenia idą wprost do SNS + SQS, bez outboxów;
   - `jobs`, bo crony są serwisami;
   - `boxes.board_version` przechodzi do `board_states.version`.
+- **Bez jsonb:** ustawienia stajni, języki, etykiety, pozycje karmienia, towarzysze na padoku, telemetria tabletu, rollout APK, ceny planów, adres do faktury i zmiany w audycie mają własne kolumny albo tabele. `board_states` nie trzyma gotowej treści tablicy: `board` składa ją przy odpytaniu, a w tabeli zostaje wersja i `ETag`.
 - **Załączniki:** ogólne `attachments` zastępuje `health_attachments`, bo w v1 załączniki są tylko w zdrowiu.
 - **Poza v1, do decyzji:**
   - eksporty danych (`data_exports`, w przyszłości osobny serwis `exports`, który czyta dane wprost z bazy);
