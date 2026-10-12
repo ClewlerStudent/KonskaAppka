@@ -104,6 +104,13 @@
    - Stajnia może mieć kilka hal. Hala to wiersz w `buildings` (nazwa nadana przez admina, kolejność, aktywność). Każdy boks należy do jednej hali (`boxes.building_id`, wymagane).
    - Hala ma własny adres (`address_line1`, `address_line2`, `postal_code`, `city`, `country_code`), bo hale jednej stajni mogą stać pod różnymi adresami. Adres widać w panelu przy hali i w szczegółach boksu.
    - Nowa stajnia dostaje od kodu jedną halę. Dopóki stajnia ma jedną halę, apka, panel, tablet i wyświetlacz nie pokazują podziału na hale.
+   - Adres pierwszej hali to adres podany przy zakładaniu stajni.
+   - Nową halę dodaje admin w panelu web: Boksy i konie → „Dodaj halę”.
+     - Podaje nazwę i adres (może skopiować adres innej hali).
+     - Potem wybiera jedno: dodaje nowe boksy z zakresu numerów wolnych w całej stajni, przenosi istniejące boksy albo zostawia halę pustą.
+     - Serwis `stable` zapisuje halę i boksy w jednej transakcji i dopisuje audyt.
+     - Innym serwisom nic nie trzeba wysyłać: tablet („Zmień boks”) i wyświetlacz widzą nową halę przy najbliższym odpytaniu.
+   - Usunąć można tylko pustą halę. Halę z boksami trzeba najpierw opróżnić (przenieść boksy) albo wyłączyć (`active = false`).
    - Numer boksu (`boxes.label`) jest unikalny w całej stajni, a nie tylko w hali, więc „boks 12” zawsze oznacza jedno miejsce.
    - Przeniesienie boksu do innej hali (np. po przebudowie) to zmiana `building_id`. Koń, historia i zdarzenia zostają przy boksie.
    - Hale widać na liście boksów w apce i panelu (grupy i filtr), przy wyborze boksu na tablecie (zakładki hal) i na wyświetlaczu centralnym (sekcje hal, każda z opcją pełnego ekranu).
