@@ -5,3 +5,4 @@ przy każdym boksie z aktualnymi instrukcjami (karmienie, padok, weterynarz) i p
 
 - [Architektura i analiza techniczna](docs/analiza.md)
 - [Model danych (ERD) do zatwierdzenia](docs/erd.md)
+- [Makiety (kanwas)](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX)
