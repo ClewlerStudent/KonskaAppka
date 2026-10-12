@@ -53,7 +53,7 @@
      - **„Ogarnięte”** (sprzątanie i ścielenie razem): per boks, jedno tapnięcie na tablecie przy boksie albo zaznaczenie kilku boksów w apce i jeden zapis. Wpis trafia do `box_care_events` (`kind = tidy`). Boks ogarnia się codziennie, czasem 2–3 razy dziennie, więc wpisów może być kilka, a „Ogarnięte dziś 07:10” to najnowszy.
      - **„Podano śniadanie”** (tak samo obiad, kolację i każdą porę ze słownika `meal_slots`, np. „Siano 21:00”): jedna akcja dla całej hali w `building_routines` (`kind = meal_served`), z apki obsługi albo z tabletu przy dowolnym boksie tej hali. Etykieta przycisku idzie za porą posiłku. Koń z flagą, która wstrzymuje ten posiłek w jego godzinie, jest pomijany i wypisany jako pominięty. Nie ma potwierdzania karmienia per koń.
      - **„Wyprowadzono na padok”**: jedna akcja dla całej hali (`kind = paddock_out`), też z apki albo z tabletu. Obejmuje konie z planem padoku na teraz i pomija konie z flagą „Nie na padok” obowiązującą w tym czasie.
-     - Zasada spójności: gdzie pokazujemy, kiedy coś zrobiono (posiłek, padok, ogarnięcie), obsługa ma też przycisk, żeby to zapisać. Tablet przy boksie ma więc trzy szybkie akcje: „Ogarnięte” (ten boks), posiłek i padok (cała hala). Klient i wyświetlacz tylko je oglądają.
+     - Zasada spójności: gdzie pokazujemy, kiedy coś zrobiono (posiłek, padok, ogarnięcie), obsługa ma też przycisk, żeby to zapisać. Tablet przy boksie ma więc trzy szybkie akcje: „Ogarnięte” (ten boks), posiłek i padok (cała hala), o ile stajnia ich nie wyłączyła (pkt 16). Klient i wyświetlacz tylko je oglądają.
      - Każdą akcję można cofnąć przez godzinę od zapisu (`cancelled_at`, propozycja), np. gdy ktoś stuknął niewłaściwą halę. Z tabletu akcja nie ma autora, z apki ma.
    - **Poidło to ustawienie boksu** (`boxes.auto_waterer`). Ustawia je admin w szczegółach boksu, a nowy boks ma domyślnie poidło automatyczne (wartość nadaje kod).
      - Przy automatycznym poidle znacznik wody nie wyświetla się nigdzie, bo zawsze jest w porządku.
@@ -168,6 +168,9 @@
        - szybkie przyciski obsługi: „Ogarnięte” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`). „Woda” zależy od poidła boksu (pkt 3);
      - **Widoczność per rola** (`stable_role_features`): admin zaznacza, co pojawia się w panelu klienta, obsługi, instruktora, wsparcia IT i wyświetlacza. Funkcje to stała lista (sekcja „Słowniki”). Admin widzi wszystko.
    - **Wyłączona opcja znika:** kafelek flagi, „namoczyć”, przycisk albo sekcja nie pokazują się klientowi, obsłudze, na tablecie ani na wyświetlaczu. Zgodnie z zasadą spójności z pkt 3 znika też stan tego, czego nie da się zapisać.
+     - Wyłączony szybki przycisk znika razem ze stanem wykonania, np. „Ogarnięte 07:10”, „podane 06:40” albo „Wyprowadzono 10:05”. Plan karmienia zostaje, bo to osobna funkcja (widoczność „Plan karmienia”), a godziny posiłków zostają jako plan dnia (np. „następny posiłek: obiad 12:00”).
+     - Wyłączony „Padok” chowa też plan padoku (godziny i towarzyszy) na tablecie, wyświetlaczu i w karcie konia, bo stajnia nie prowadzi wtedy padoków w aplikacji. Flaga „Nie na padok” zostaje, jeśli jest włączona.
+     - „Woda” przy poidle ręcznym zostaje, bo nie ma przełącznika (pkt 3).
    - Zmiana działa przy najbliższym odpytaniu (apka, tablet, wyświetlacz). Wpisy już zapisane zostają w historii.
    - Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami.
 
