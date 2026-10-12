@@ -144,7 +144,7 @@
 - **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji) służą reakcjom, a nie kopiowaniu danych:
   - `horse.left` zamyka flagi, plany i dostępy w serwisach-właścicielach;
   - `subscription.status_changed` zmienia `stables.status`.
-- **Prywatność:** treść notatek `app_only` i opisy wizyt nigdy nie trafiają do odpowiedzi `board` dla tabletu. Pilnuje tego kod `board` i jego testy.
+- **Widoczność:** notatki flag są widoczne wszędzie, gdzie widać boks albo konia (tablet, apka, panel), bez podziału na „tylko w apce”. Na tablet nie trafiają tylko opisy wizyt z historii zdrowia; pilnuje tego kod `board`.
 
 ## Legenda
 
@@ -300,7 +300,6 @@ erDiagram
         text severity
         text effect
         text note
-        text note_visibility "board | app_only"
         text author_role "owner | staff | admin"
         timestamptz valid_from
         timestamptz valid_to "NULL = do odwołania"
