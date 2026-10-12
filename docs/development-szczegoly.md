@@ -1,6 +1,6 @@
 # eKoniuszy: development, testy i zakupy przed wdrożeniem
 
-> Stan na 2026-10-12, po feedbacku ze stajni (erd.md pkt 3 i 12–15 oraz „Otwarte kwestie”). Model danych i decyzje: [docs/erd.md](erd.md) (v3), paleta kolorów: [docs/paleta.md](paleta.md), wersja zwięzła: [docs/development.md](development.md). Z [docs/analiza.md](analiza.md) (nieaktualna v3) bierzemy tylko szczegóły tabletu. Dokument opisuje, co kupić, jakie konta założyć, co zbudować i jak przetestować system przed wdrożeniem. Nie podaje cen i nie wskazuje, gdzie ani u kogo stoją klaster i baza; o tym decyduje Dawid.
+> Stan na 2026-10-12, po feedbacku ze stajni (erd.md pkt 2, 3 i 12–15 oraz „Otwarte kwestie”). Model danych i decyzje: [docs/erd.md](erd.md) (v3), paleta kolorów: [docs/paleta.md](paleta.md), wersja zwięzła: [docs/development.md](development.md). Z [docs/analiza.md](analiza.md) (nieaktualna v3) bierzemy tylko szczegóły tabletu. Dokument opisuje, co kupić, jakie konta założyć, co zbudować i jak przetestować system przed wdrożeniem. Nie podaje cen i nie wskazuje, gdzie ani u kogo stoją klaster i baza; o tym decyduje Dawid.
 
 **Oznaczenia**
 - **[niepotwierdzone]**: weryfikacja nie znalazła potwierdzenia w źródłach. Rozstrzyga test albo karta produktu sprawdzona przed zakupem.
@@ -314,7 +314,7 @@ Zasilanie przy boksie i Wi-Fi zapewnia stajnia. Kupujemy więc tylko to, czego s
 | Samsung, aktualny | 1 | Najpopularniejsza nakładka systemowa. | — |
 | Xiaomi albo Redmi | 1 | Agresywnie zamyka aplikacje w tle i inaczej uzupełnia kod z SMS. | — |
 | Pixel, najnowszy | 1 | Czysty Android i najnowsze API. | Android 10 lub nowszy jest też potrzebny do weryfikacji urządzenia w Play Console, jeśli konto okaże się osobiste. |
-| Karty SIM na kartę, z pakietem danych | ok. 9 + 2 zapasowe | Po jednej na osobę z danych przykładowych: admin, dwie osoby z obsługi, klienci (Anna, Karolina W., Tomasz L.), zaproszony klient (Marek Nowak), konto Wsparcia IT (`it_support`, propozycja); do tego konto `display`, jeśli loguje się SMS-em. | Sieci: Orange, Play, Plus i T-Mobile oraz 2–3 podmarki albo MVNO (np. nju mobile, Heyah, Virgin Mobile); jeden numer przeniesiony; opcjonalnie numer +380 (sekcja 5). Rejestracja na kartę wymaga danych osoby ([Antyweb](https://antyweb.pl/rejestracja-kart-sim-jak-to-zrobic)). Pilnować ważności kont. Nie używać tych numerów do 2FA kont Apple, Google i AWS. W SMS sandbox AWS mieści się tylko 10 zweryfikowanych numerów. |
+| Karty SIM na kartę, z pakietem danych | ok. 10 + 2 zapasowe | Po jednej na osobę z danych przykładowych: admin, dwie osoby z obsługi, klienci (Anna, Karolina W., Tomasz L., Ewa K.), zaproszony klient (Marek Nowak), konto Wsparcia IT (`it_support`, propozycja); do tego konto `display`, jeśli loguje się SMS-em. | Sieci: Orange, Play, Plus i T-Mobile oraz 2–3 podmarki albo MVNO (np. nju mobile, Heyah, Virgin Mobile); jeden numer przeniesiony; opcjonalnie numer +380 (sekcja 5). Rejestracja na kartę wymaga danych osoby ([Antyweb](https://antyweb.pl/rejestracja-kart-sim-jak-to-zrobic)). Pilnować ważności kont. Nie używać tych numerów do 2FA kont Apple, Google i AWS. W SMS sandbox AWS mieści się tylko 10 zweryfikowanych numerów. |
 | Modem USB LTE z kartą SIM albo telefon z Androidem przekazujący SMS-y do API testów | 1–2 | Automatyczny odczyt prawdziwych SMS-ów (OTP z Cognito, eskalacje) w przebiegu nocnym. | Custom SMS sender omija polskie sieci, więc tego testu nie zastąpi. |
 
 ### 1.5 Przyrządy na stanowisko testowe
@@ -391,7 +391,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
   - decyzję o rotacji refresh tokenu (okno łaski do 60 s). Czy obsługuje ją Amplify albo SDK w React Native, trzeba sprawdzić.
 - [ ] Klient tablet [erd]:
   - tablet nie ma własnego konta: loguje się na nim użytkownik tym samym kontem co w apce, a tablet zostaje zalogowany na stałe. Dlatego ten klient potrzebuje długiego refresh tokenu (wartość: sekcja 5);
-  - token wskazuje użytkownika, ale akcje z tabletu (potwierdzenie flagi, „Ogarnięte”, akcje rutyny hali) zapisujemy bez autora: `source = tablet`, `user_id` NULL, `id` boksu i czas. Serwisy rozpoznają tablet po kliencie Cognito, nie po treści żądania (propozycja);
+  - token wskazuje użytkownika, ale akcje z tabletu (potwierdzenie flagi, „Ogarnięte” i „Woda” przy poidle ręcznym) zapisujemy bez autora: `source = tablet`, `user_id` NULL, `id` boksu i czas. Akcje dla całej hali („Podano śniadanie”, „Wyprowadzono na padok”) robi się w apce obsługi, a tablet pokazuje tylko ich stan [erd]. Serwisy rozpoznają tablet po kliencie Cognito, nie po treści żądania (propozycja);
   - tablet wysyła `id` wybranego boksu, nie numer, bo numer (`boxes.label`) powtarza się w halach.
 - [ ] Klient display: konto techniczne stajni z rolą `display` w `stable_members`, jedno na wszystkie telewizory albo osobne na każdy telewizor [erd]. Tylko odczyt, długi refresh token jak dla tabletu.
 - [ ] Wysyłka SMS jedną z dwóch ścieżek ([ustawienia SMS](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-sms-settings.html)):
@@ -621,10 +621,11 @@ Zasady wspólne:
   - `building_routines`: jedna akcja na halę, posiłek i dzień (`building_id`, `meal_slot_id`, `service_date` przy `kind = meal_served`) oraz jeden padok na halę i dzień (`building_id`, `service_date` przy `kind = paddock_out`) [erd]. Propozycja: dwa częściowe unikalne indeksy z warunkiem `cancelled_at IS NULL`, bo `meal_slot_id` padoku jest `NULL`, a po „Cofnij” akcję trzeba móc zapisać ponownie;
   - `notifications.dedupe_key`, `payment_provider_events.provider_event_id`;
   - `usage_snapshots (subscription_id, period_start, metric)`;
-  - indeks `box_care_events (stable_id, box_id, occurred_at)` do najnowszego „Ogarnięte” (wpisów może być kilka dziennie);
+  - indeks `box_care_events (stable_id, box_id, kind, occurred_at)` do najnowszego „Ogarnięte” i najnowszej „Wody” (wpisów może być kilka dziennie) (propozycja);
   - `horse_flags.valid_from` i `valid_to` są `NOT NULL` (bez „do odwołania”) [erd];
+  - `boxes.auto_waterer` jest `NOT NULL` bez `DEFAULT`: wartość `true` (poidło automatyczne) nadaje kod nowemu boksowi [erd];
   - celowo **bez** unikalności numeru boksu: ani `(stable_id, label)`, ani `(building_id, label)` [erd]. Boksy numeruje się w obrębie hali, więc każda hala może mieć swój boks 1, a boks identyfikuje wyłącznie `boxes.id`. Test katalogu sprawdza, że na `boxes.label` nie ma unikalnego indeksu; zwykły indeks `boxes (stable_id, building_id)` do listy boksów hali (propozycja).
-- [ ] `audit.audit_log.stable_id` bez klucza obcego. Diagram w erd.md ma przy tej kolumnie dopisek „FK” i trzeba go poprawić.
+- [ ] `audit.audit_log.stable_id` bez klucza obcego do `app` [erd].
 - [ ] Przepływ migracji:
   - `drizzle-kit generate`, potem review, squawk i `sql-gate`;
   - plików po scaleniu nie edytujemy;
@@ -662,7 +663,7 @@ Zasady wspólne:
   - `/v1` w ścieżce, w obrębie wersji tylko zmiany addytywne;
   - klienci ignorują nieznane pola, a nieznane wartości mapują na `unknown`;
   - `If-Match` z `version` przy edycji; `ETag` i `If-None-Match` przy odpytywaniu;
-  - id nadane przez klienta i `request_hash` (SHA-256 kanonicznej treści) dla flag, potwierdzeń, „Ogarnięte” (`box_care_events`) i akcji rutyny hali (`building_routines`). Zadania („Biorę”, „Zrobione”) to warunkowa zmiana wiersza `tasks`, bez id zdarzenia (propozycja).
+  - id nadane przez klienta i `request_hash` (SHA-256 kanonicznej treści) dla flag, potwierdzeń, „Ogarnięte” i „Wody” (`box_care_events`) oraz akcji rutyny hali (`building_routines`). Zadania („Biorę”, „Zrobione”) to warunkowa zmiana wiersza `tasks`, bez id zdarzenia (propozycja).
 - [ ] Nagłówki `X-Client` i `X-Client-Version`. Bramka minimalnej wersji nie obejmuje tras `releases`, żeby stary tablet zawsze mógł się zaktualizować.
 - [ ] Zdarzenia:
   - koperta `{id, type, version, occurredAt, stableId, producer, payload}`;
@@ -721,13 +722,13 @@ Zasady wspólne:
   - JWKS w cache;
   - issuer i JWKS z konfiguracji, żeby lokalnie działał stub (3.2).
 - [ ] Rodzaj klienta wynika z `client_id`, nie z nagłówka:
-  - tablet: `source = tablet` i `user_id = NULL` w potwierdzeniach flag, „Ogarnięte” i akcjach rutyny hali [erd];
+  - tablet: `source = tablet` i `user_id = NULL` w potwierdzeniach flag, „Ogarnięte” i „Wodzie” (poidło ręczne) [erd]; akcja całej hali i zadania z klienta tablet dają 403 (propozycja);
   - `display`: tylko odczyt.
 - [ ] `sub` mapuje się na `users.id`. Gdy wiersza brak, serwis zwraca `409 profile_missing`, a klient woła `identity GET /me` [erd].
 - [ ] Role w stajni (`stable_members.role`) [erd]: `admin` (Admin: zarządca albo właściciel stajni), `staff` (Obsługa), `instructor` (Instruktor), `it_support` (Wsparcie IT: techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami), `display` (Wyświetlacz), `client` (Klient: właściciel albo dzierżawca konia).
 - [ ] Uprawnienia czytane z bazy przy każdym żądaniu: `stable_members` oraz `horse_access` (rola `client`) z `valid_from`, `valid_to` i `revoked_at`. Dzięki temu blokada działa od razu, bez czekania na wygaśnięcie tokenu. Klient nie ma osobnego dostępu do boksu: widzi boks, w którym stoi jego koń (`horses.box_id`), i historię tego boksu od otwarcia wpisu konia w `horse_box_history` [erd].
 - [ ] Polityki jako czyste funkcje: rola w stajni × dostęp do konia (boks wynika z konia). Macierz testów rola × akcja. Dla `display` DTO z listą dozwolonych pól.
-- [ ] `X-Box-Id` z tabletu walidowany: boks tej stajni, do którego użytkownik ma dostęp. Nagłówek niesie `boxes.id` (UUID), nigdy numer boksu, bo numer nie jest unikalny. Trafia do `box_id` w potwierdzeniach flag i w „Ogarnięte”.
+- [ ] `X-Box-Id` z tabletu walidowany: boks tej stajni, do którego użytkownik ma dostęp. Nagłówek niesie `boxes.id` (UUID), nigdy numer boksu, bo numer nie jest unikalny. Trafia do `box_id` w potwierdzeniach flag, „Ogarnięte” i „Wodzie”.
 - [ ] Krótki czas życia access tokenu, długi refresh token dla tabletu i wyświetlacza (wartości: sekcja 5).
 
 #### 3.1.10 Izolacja stajni (`packages/tenancy`)
@@ -841,7 +842,7 @@ Zasady wspólne:
   - **Ludzie:**
     - Damian: admin (zarządca);
     - Ola i Piotr: obsługa;
-    - klienci (rola `client`, dostęp przez `horse_access`): Anna (Kasztan i Bella), Karolina W. (Iskra), Tomasz L. (Grom);
+    - klienci (rola `client`, dostęp przez `horse_access`): Anna (Kasztan i Bella), Karolina W. (Iskra), Tomasz L. (Grom), Ewa K. (Sonata);
     - Marek Nowak: oczekujące zaproszenie SMS jako klient do Luny (`invitations.horse_id`, bez boksu);
     - wygasłe zaproszenie dla obsługi;
     - konto `wyswietlacz-korytarz` z rolą `display`;
@@ -854,20 +855,22 @@ Zasady wspólne:
     - padoki A i B;
     - ujeżdżalnia kryta;
     - szablony flag z makiet z domyślnymi godzinami (`default_window`): `bez_sniadania`, `bez_kolacji`, `nie_na_padok`, `derka` (warianty `on` = zakładać, `off` = nie zakładać), `leki`, `wet` [erd].
-  - **Flagi, wszystkie z godzinami:**
-    - Kasztan, „Bez śniadania”: krytyczna, `suspend_meal`, dziś 06:00–10:00, notatka „Wet o 8:00, koń na czczo”; wstrzymane: owies, siano, suplement X. Utworzona o 03:14 przez Annę, potwierdzona o 06:02 na tablecie (`method = tablet`, `box_id` boksu 7 w Hali głównej, `user_id = NULL`);
+  - **Flagi, wszystkie z godzinami** (`author_role`: `client | staff | admin`, z roli autora):
+    - Kasztan, „Bez śniadania”: krytyczna, `suspend_meal`, dziś 06:00–10:00, notatka „Wet o 8:00, koń na czczo”; wstrzymane: owies, siano, suplement X. Utworzona o 03:14 przez Annę (`author_role = client`), potwierdzona o 06:02 na tablecie (`method = tablet`, `box_id` boksu 7 w Hali głównej, `user_id = NULL`);
     - Kasztan, „Nie na padok”: `cancel_paddock`, dziś 14:30–16:00, notatka „Kowal o 15:00”. Utworzona o 03:16 przez Annę, potwierdzona o 06:02 na tablecie;
     - Bella, „Nie na padok”: krytyczna, `cancel_paddock`, dziś, cały dzień (00:00–23:59), utworzona o 01:20, niepotwierdzona, z eskalacjami `board_warning` i `admin_notify` oraz wpisem w `notifications`;
     - Hetman, „Leki rano”: info, dziś 06:00–09:00, potwierdzona o 06:20;
-    - Sonata, „Derka: zakładać” (`variant = on`): dziś 16:00 – jutro 08:00, notatka „przymrozek w nocy”, ustawiona przez klienta o 06:50, potwierdzona o 07:05.
+    - Sonata, „Derka: zakładać” (`variant = on`): dziś 16:00 – jutro 08:00, notatka „przymrozek w nocy”, ustawiona przez klientkę Ewę K. (`author_role = client`) o 06:50, potwierdzona o 07:05; o 07:15 zaczyna się później, więc ma etykietę „Derka: zakładać · od 16:00”.
   - **Karmienie i padok:**
     - plan Kasztana: owies rano 1,5 kg i wieczorem 1,5 kg, siano rano, w południe i wieczorem bez ograniczeń, suplement X rano 1 miarka, wysłodki wieczorem 0,5 kg z `soak = true` i `soak_note` „w 2 l wody”; Hetman: sieczka 1 kg rano, „namoczyć w 3 l wody”;
     - padok A 10:00–14:00: Dukat, Sonata, Grom, Bursztyn; padok B 10:00–16:00: Fala, Kasztan (do 14:30 przez flagę), Rumba; w boksie zostają Iskra, Wicher, Hetman i Mgła; Bella nie wychodzi (flaga).
   - **Rutyna obsługi** (`building_routines`, `box_care_events`):
     - „Podano śniadanie”: Hala główna 06:40 (Ola, apka, pominięty Kasztan przez flagę), Hala nowa 06:50 (Piotr, apka, bez pominięć);
-    - „Wyprowadzono na padok”: dziś jeszcze nie (o 10:00), wczoraj o 10:05;
+    - „Wyprowadzono na padok”: dziś jeszcze nie (o 10:00); wczoraj w Hali głównej o 10:05 (Piotr, apka, z Kasztanem);
+    - „Podano kolację”: wczoraj w Hali głównej o 18:02 (Piotr, apka);
     - „Ogarnięte” dziś 7 z 14 boksów: Hala główna · 1 (07:02), 2 (06:50), 5 (07:05, Piotr, apka), 7 (07:10); Hala nowa · 2 (06:58), 3 (07:12), 5 (07:14); poza boksem 5 Hali głównej z tabletu, bez autora;
-    - wcześniejsze „Ogarnięte”: Hala główna · 3 (wolny) wczoraj 16:10 (Piotr), 4, 6 i 8 wczoraj; Hala nowa · 1 wczoraj 16:10 (Piotr), 4 wczoraj 17:30 (Ola), 6 (wolny) 09.10 14:40 (Piotr).
+    - wcześniejsze „Ogarnięte”: Hala główna · 3 (wolny) wczoraj 16:10 (Piotr), 4, 6 i 8 wczoraj; Hala nowa · 1 wczoraj 16:10 (Piotr), 4 wczoraj 17:30 (Ola), 6 (wolny) 09.10 14:40 (Piotr);
+    - poidło: wszystkie boksy `auto_waterer = true`, poza Hala nowa · boks 5 (Bursztyn, `auto_waterer = false`, bo automat czeka na wymianę; zadanie „Poidło w boksie 5 do wymiany”). „Woda” w tym boksie dziś o 06:55 z tabletu, bez autora (`box_care_events.kind = water`, `source = tablet`).
   - **Zadania jednorazowe** (dodał admin):
     - „Poidło w boksie 5 do wymiany” · Hala nowa · boks 5, dodane przez Damiana wczoraj 18:20, do wzięcia;
     - „Wymienić żarówkę w korytarzu” · Hala główna, wziął Piotr o 07:00, w toku;
@@ -907,7 +910,7 @@ Zasady wspólne:
 - [ ] `/internal/stables/{id}/admins` (idempotentne), `/internal/horses/{id}/left`, `/internal/prune`.
 
 **stable** (`businesses`, `stables`, `stable_locales`, `stable_settings`, `buildings`, `boxes`, `horses`, `horse_box_history`)
-- [ ] Działalność (`businesses`) z kilkoma stajniami (`stables.business_id`): działalność → stajnie → hale → boksy [erd]. Uprawnienia, dane, izolacja i płatności zostają na poziomie stajni; działalność na razie tylko grupuje stajnie (propozycja).
+- [ ] Działalność (`businesses`) z kilkoma stajniami (`stables.business_id`): działalność → stajnie → hale → boksy [erd]. Uprawnienia, dane, izolacja i płatności zostają na poziomie stajni; działalność tylko grupuje stajnie [erd].
 - [ ] `POST /stables`: stajnia (w istniejącej albo nowej działalności), ustawienia i pierwsza hala z adresem stajni; po COMMIT wywołanie `access` i zdarzenie `stable.created`.
 - [ ] Ustawienia z `If-Match`: progi eskalacji, `author_display`, `owner_edits_feeding`, `rides_enabled`, okno instalacji APK.
 - [ ] Hale (`buildings`) [erd]:
@@ -923,7 +926,8 @@ Zasady wspólne:
 - [ ] Boksy:
   - boks identyfikuje `id`; numer (`label`) nie jest unikalny ani w bazie, ani w kodzie: serwis nie sprawdza powtórzeń w hali ani w stajni;
   - `building_id` wymagane; zmiana `building_id` to przeniesienie boksu, a koń, historia i zdarzenia zostają przy boksie;
-  - DTO boksu zawsze niesie `id`, `label` i halę (`buildingId`, nazwa), żeby klienci przy kilku halach pokazywali „Hala nowa · boks 4”.
+  - DTO boksu zawsze niesie `id`, `label`, halę (`buildingId`, nazwa) i `autoWaterer`, żeby klienci przy kilku halach pokazywali „Hala nowa · boks 4”;
+  - poidło to ustawienie boksu (`boxes.auto_waterer`) [erd]: przełącznik „Automatyczne poidło: tak/nie” zmienia tylko admin w szczegółach boksu (apka BoksSzczegoly, panel), z `If-Match` i audytem; nowy boks, także z „Dodaj halę”, dostaje od kodu `true`.
 - [ ] Konie: przypisanie, przeniesienie, zamiana (jedna transakcja z zamknięciem i otwarciem wpisów historii), wyjazd (`left`, zwolnienie boksu, `horse.left`). Przypisanie i przeniesienie przyjmują `boxId`, nie numer.
 - [ ] Testy:
   - dwa równoległe przypisania do jednego boksu dają jedno 409;
@@ -931,6 +935,7 @@ Zasady wspólne:
   - dodanie hali z boksami 1–6 obok hali z boksami 1–8 przechodzi, a każdy boks dostaje własne `id`;
   - dwa boksy o tym samym numerze w jednej hali też przechodzą (kod nie blokuje powtórzeń);
   - przeniesienie boksu do innej hali zachowuje konia, historię i zdarzenia;
+  - nowe boksy mają `auto_waterer = true`; przełącznik poidła zmienia tylko admin, obsługa dostaje 403;
   - usunięcie hali z boksami daje 409;
   - przy jednej hali interfejs nie pokazuje podziału na hale.
 
@@ -941,7 +946,7 @@ Zasady wspólne:
   - Szablon albo `custom_text`.
   - Okno `valid_from`–`valid_to` obowiązkowe, w strefie stajni; „do odwołania” nie ma [erd]. Brak okna albo koniec przed początkiem daje 422 (propozycja). Przy flagach posiłkowych dodatkowo `meal_slot_id` i `service_date`.
   - `variant` dla szablonu `derka`: `on` (zakładać) albo `off` (nie zakładać); dla innych szablonów pusty (propozycja: 422 przy brakującym albo zbędnym wariancie).
-  - `source` (`app` albo `on_behalf_*`).
+  - `source` (`app` albo `on_behalf_*`) i `author_role` (`client | staff | admin`) z roli autora w stajni [erd].
   - Przy zapisie wyliczane `ack_deadline_at`, `warn_at` i `notify_at`, od początku okna [erd].
   - Gdy okno już minęło: `422 target_passed`.
 - [ ] Odwołanie i zastąpienie (`replaces_flag_id`), także zmiana godzin. Status flagi to tylko „potwierdzona HH:MM” albo „niepotwierdzona” [erd].
@@ -957,16 +962,18 @@ Zasady wspólne:
   - noc zmiany czasu;
   - macierz uprawnień.
 
-**care** (10 tabel karmienia, padoków, rutyny hali i „Ogarnięte”)
+**care** (10 tabel karmienia, padoków, rutyny hali, „Ogarnięte” i „Wody”)
 - [ ] Sloty posiłków, harmonogram dnia, pasze, padoki.
 - [ ] Plan karmienia (klient edytuje tylko przy włączonym `owner_edits_feeding`) i plan padoku z towarzyszami. Pozycja planu może mieć „namoczyć” i ile (`soak`, `soak_note`, np. „w 2 l wody”); to wersja prosta, bo model karmienia jest otwartą kwestią [erd].
 - [ ] Szybkie akcje obsługi zamiast odhaczania czynności [erd]:
   - **„Ogarnięte”** (sprzątanie i ścielenie razem): `box_care_events.kind = tidy`, jeden boks jednym tapnięciem z tabletu albo kilka zaznaczonych boksów jednym zapisem z apki (jedno żądanie, wiersz na boks). Kilka wpisów dziennie jest poprawne, a „Ogarnięte dziś 07:10” to najnowszy niecofnięty wpis;
+  - **„Woda”** (tylko boks z poidłem ręcznym, `boxes.auto_waterer = false`) [erd]: `box_care_events.kind = water`, jednym tapnięciem z tabletu tego boksu albo z apki obsługi. Znacznik „Poidło ręczne · woda HH:MM” (w seedzie 06:55) to najnowszy niecofnięty wpis. Dla boksu z poidłem automatycznym zapis daje 409 (propozycja), a odpowiedzi nie mają żadnego pola wody;
+  - **akcje całej hali** („Podano śniadanie / obiad / kolację”, „Wyprowadzono na padok”) zapisuje tylko apka obsługi, z autorem; tablet pokazuje tylko ich stan [erd]. Żądanie akcji hali z klienta tablet daje 403 (propozycja);
   - **„Podano śniadanie / obiad / kolację”**: jeden wiersz `building_routines` (`kind = meal_served`, `meal_slot_id`, `service_date`) na halę. Pominięte konie nie są zapisywane: wynikają z flag `suspend_meal`, których okno obejmuje godzinę posiłku, i wracają w odpowiedzi („bez Kasztana: flaga”);
   - **„Wyprowadzono na padok”**: jeden wiersz na halę i dzień (`kind = paddock_out`). Obejmuje konie z planem padoku na teraz i pomija konie z „Nie na padok” obowiązującą w tym czasie; odpowiedź podaje liczbę koni i pominiętych;
   - drugi zapis tej samej akcji hali tego dnia daje `already_done` z godziną i autorem pierwszego (propozycja);
-  - **„Cofnij”** przez kilka minut ustawia `cancelled_at` (propozycja: 5 min, potem 409); z tabletu akcja nie ma autora (`source = tablet`, `user_id = NULL`), z apki ma;
-  - bez potwierdzania karmienia per koń i bez wody, siana i karmy jako zdarzeń.
+  - **„Cofnij”** przez godzinę od zapisu ustawia `cancelled_at` (propozycja; później 409) [erd]; z tabletu akcja nie ma autora (`source = tablet`, `user_id = NULL`), z apki ma;
+  - bez potwierdzania karmienia per koń i bez siana i karmy jako zdarzeń; woda tylko przy poidle ręcznym.
 - [ ] `/internal/stables/{id}/defaults` (idempotentne).
 - [ ] Konsumuje `horse.left` (zamyka plany, usuwa konia z towarzyszy) i `stable.created`.
 
@@ -986,7 +993,7 @@ Zasady wspólne:
 - [ ] Lista dla obsługi: „Do wzięcia”, „Moje”, „Zrobione dziś”.
 - [ ] „Biorę”: stajenny sam bierze zadanie z listy (`taken_by`, `taken_at`), warunkową zmianą `taken_by IS NULL`; drugie „Biorę” na wzięte zadanie daje 409 z osobą, która je wzięła (propozycja).
 - [ ] „Zrobione”: `done_by`, `done_at`; tylko osoba, która wzięła zadanie, albo admin (propozycja).
-- [ ] Zadania obsługuje apka, bo potrzebna jest osoba; tablet ich nie odhacza [erd]. Admin dodaje zadania w apce (także w panelu: propozycja).
+- [ ] Zadania obsługuje apka, bo potrzebna jest osoba; tablet ich nie pokazuje ani nie odhacza, a `board` nie zwraca ich dla tabletu [erd]. Admin dodaje zadania w apce (także w panelu: propozycja).
 - [ ] Konsumuje `horse.left`: odwołuje otwarte zadania konia (propozycja).
 
 **board** (bez tabel, rola tylko `SELECT`)
@@ -997,17 +1004,18 @@ Zasady wspólne:
   - znacznik pop-upu dla flag `requires_ack` bez potwierdzenia;
   - tabelę karmienia z planu, z oznaczeniem „NAMOCZYĆ” i ile przy pozycjach z `soak`, oraz posiłki wstrzymane przez flagi w ich oknie (WSTRZYMANE);
   - padok z godzinami skróconymi albo odwołanymi przez flagi (`packages/rules`);
-  - rutynę hali: posiłek podany o HH:MM z listą pominiętych, padok;
+  - stan rutyny hali, tylko do odczytu: posiłek podany o HH:MM z listą pominiętych, padok (akcje całej hali robi się w apce obsługi);
   - najnowsze „Ogarnięte” boksu („✓ dziś 07:10”);
-  - „dziś”, czyli wizyty bez opisu; zadania jednorazowe boksu, konia albo hali tylko do podglądu;
-  - historię boksu: tylko flagi (utworzenie, potwierdzenie, odwołanie) i zdarzenia z przycisków obsługi; akcje z tabletu bez autora (`source = tablet`);
-  - bez wody, siana i karmy jako zdarzeń;
+  - przy `auto_waterer = false` znacznik „Poidło ręczne · woda HH:MM” (najnowsza „Woda”) i dostępność akcji „Woda”; przy poidle automatycznym żadnego pola wody;
+  - „dziś”, czyli wizyty bez opisu; bez zadań (tablet zadań nie pokazuje) [erd];
+  - historię boksu: tylko flagi (utworzenie, potwierdzenie, odwołanie) i zdarzenia z przycisków obsługi, także wczorajsze; akcje z tabletu bez autora (`source = tablet`);
+  - bez siana i karmy jako zdarzeń;
   - dla stajni zawieszonej: odpowiedź bez flag, z komunikatem.
 - [ ] `GET …/boxes`: lista do „Zmień boks”, pogrupowana po halach (aktywne hale według `sort_order`), w każdej hali boksy z `id`, numerem i koniem. Sortowanie numerów naturalne, czyli 2 przed 10 (propozycja).
 - [ ] `GET …/display?buildingId=`: bez parametru wszystkie hale w sekcjach, z parametrem jedna hala (pełny ekran); DTO bez danych osobowych. Każdy kafel niesie halę razem z numerem boksu.
   - Na pełnym ekranie hali tylko flagi tej hali, w pasku pilnych także.
   - Skrót pozostałych hal pokazuje wyłącznie liczby, bez treści flag.
-  - Kafel bez posiłków per koń: flagi z godzinami, „Ogarnięte HH:MM” i padok z godzinami; nagłówek hali z rutyną, np. „Śniadanie podane 06:40 · padok 10:00”.
+  - Kafel bez posiłków per koń: flagi z godzinami, „Ogarnięte HH:MM”, padok z godzinami, a przy poidle ręcznym „Poidło ręczne · woda HH:MM”; nagłówek hali z rutyną, np. „Śniadanie podane 06:40 · padok 10:00”.
 - [ ] Lista dnia obsługi (szybkie akcje per hala, „Wymaga potwierdzenia” tylko z flagami, skrót zadań) i historia boksu (propozycja).
 - [ ] `ETag` to hash treści.
   - Czas serwera idzie w nagłówku, nie w treści.
@@ -1087,8 +1095,8 @@ Zasady wspólne:
 - [ ] Odpytywanie z ETag tylko na widocznym ekranie.
 - [ ] Zapisy:
   - flaga wyłącznie online, z jawnym stanem „zapisano na serwerze”;
-  - „Biorę” przy zadaniu wyłącznie online, bo konflikt (zadanie już wzięte) trzeba pokazać od razu (propozycja);
-  - potwierdzenia, „Ogarnięte”, akcje rutyny hali, „Cofnij” i „Zrobione” przez lokalną kolejkę.
+  - „Biorę” przy zadaniu wyłącznie online, bo zajęte zadanie trzeba pokazać od razu (409, gdy ktoś już wziął; propozycja);
+  - pozostałe zapisy (potwierdzenia, „Ogarnięte”, „Woda”, akcje hali, „Cofnij” i „Zrobione”) przez lokalną kolejkę.
 - [ ] Ekrany z makiet:
   - Logowanie;
   - Moje konie (Main);
@@ -1102,12 +1110,12 @@ Zasady wspólne:
   - przy flagach godziny i status; na liście koni najwyżej skrót z przycisków obsługi, bez linii posiłku per koń;
   - StatusFlagi: godziny obowiązywania i oś Ustawiona → Potwierdzona;
   - KartaKonia: plan karmienia z „namoczyć” i ile, „Dziś” (wet 8:00, padok B 10:00–14:30, kowal 15:00), flagi z godzinami;
-  - MojBoks: „Ostatnio” tylko zdarzenia z przycisków obsługi (Ogarnięte, Podano śniadanie/obiad/kolację z pominiętymi, Wyprowadzono na padok), „Historia” tylko flagi (utworzenie, potwierdzenie, odwołanie) i zdarzenia z przycisków.
+  - MojBoks: „Ostatnio” tylko zdarzenia z przycisków obsługi (Ogarnięte, Podano śniadanie/obiad/kolację z pominiętymi, Wyprowadzono na padok); dla Kasztana: Ogarnięte dziś 07:10, Podano śniadanie 06:40 (pominięty: flaga), Wyprowadzono na padok wczoraj 10:05 · Piotr. „Historia” tylko flagi (utworzenie, potwierdzenie, odwołanie) i zdarzenia z przycisków, także wczorajsze (Podano kolację 18:02 · Piotr, padok 10:05 · Piotr).
 - [ ] Obsługa i admin:
   - ListaDnia: na górze „Szybkie akcje” per hala: „Podano śniadanie / obiad / kolację” (po zapisie „✓ 06:40”, pominięci, „Cofnij”), „Wyprowadzono na padok” z liczbą koni i pominiętymi, „Ogarnięte” z licznikiem (7 z 14) otwierające siatkę boksów z zaznaczaniem kilku naraz i jednym zapisem; „Wymaga potwierdzenia” tylko z flagami; bez listy karmienia per koń; skrót zadań;
   - StajennyZadania (zakładka „Zadania”): „Do wzięcia” z „Biorę”, „Moje” z „Zrobione”, „Zrobione dziś”; „+ Dodaj zadanie” widzi tylko admin;
   - StajennyKonie: kafelki szybkiej flagi z Derką, godziny przy flagach;
-  - BoksyAdmin i BoksSzczegoly: „Ogarnięte dziś 07:10” zamiast osobnych czynności, flagi z godzinami, klient przy koniu (Marek Nowak przy Lunie, „zaproszenie czeka”), przyciski „Ogarnięte” i „Przypisz konia”;
+  - BoksyAdmin i BoksSzczegoly: „Ogarnięte dziś 07:10” zamiast osobnych czynności, flagi z godzinami, klient przy koniu (Marek Nowak przy Lunie, „zaproszenie czeka”), przyciski „Ogarnięte” i „Przypisz konia”; przy poidle ręcznym (Hala nowa · boks 5) znacznik „Poidło ręczne · woda 06:55” i przycisk „Woda”, przy automatycznym bez znacznika wody; w BoksSzczegoly admin ma przełącznik „Automatyczne poidło: tak/nie” (wolny boks 6 w Hali nowej: „tak”);
   - Zaproszenie: role Klient (z wyborem konia), Obsługa, Instruktor, Wsparcie IT (z opisem jednym zdaniem).
 - [ ] Ekrany bez makiet: profil (wyloguj wszędzie, usuń konto, język), dodawanie zadania przez admina, jazdy instruktora.
 - [ ] Przy kilku halach zawsze „Hala nowa · boks 4”; przy jednej hali bez podziału. Nawigacja do boksu zawsze po `id`.
@@ -1156,12 +1164,14 @@ Zasady wspólne:
   - **TabletBoks:**
     - nagłówek z numerem boksu i koniem, przy kilku halach zawsze z nazwą hali („Hala nowa · boks 4”), oraz przyciski „Zmień boks” i „Zablokuj ekran” (kłódka);
     - bez informacji, kto jest zalogowany (logowanie i wylogowanie tylko w ukrytych ustawieniach);
-    - baner flagi z godzinami („BEZ ŚNIADANIA · 06:00–10:00”), a pod nim flagi, które zaczną się później („Później: Nie na padok od 14:30 (kowal 15:00)”);
+    - baner flagi z godzinami („BEZ ŚNIADANIA · 06:00–10:00”), a pod nim flagi, które zaczną się później, z etykietą „od HH:MM” („Później: Nie na padok od 14:30 (kowal 15:00)”; Sonata o 07:15: „Derka: zakładać · od 16:00”);
     - KARMIENIE: tabela z planu ze stanem WSTRZYMANE, pozycje do namoczenia wyraźnie oznaczone („Wysłodki 0,5 kg · NAMOCZYĆ 2 l”, wieczór);
     - PADOK z godzinami po skutkach flag, DZIŚ;
-    - BOKS: jeden duży przycisk „OGARNIĘTE” (stan „✓ dziś 07:10”, ponowne tapnięcie zapisuje ponownie) i linia rutyny hali tylko do odczytu („Śniadanie podane 06:40 (bez Kasztana) · Padok B 10:00–14:30”); akcje zbiorcze hali są w apce obsługi (czy także na tablecie: sekcja 5);
+    - BOKS: jeden duży przycisk „OGARNIĘTE” (stan „✓ dziś 07:10”, ponowne tapnięcie zapisuje ponownie) i linia rutyny hali tylko do odczytu („Śniadanie podane 06:40 (bez Kasztana) · Padok B 10:00–14:30”); akcje całej hali robi się w apce obsługi, a tablet pokazuje tylko ich stan [erd];
+    - poidło: przy automatycznym (prawie każdy boks) znacznika wody nie ma; przy ręcznym (Hala nowa · boks 5) znacznik „Poidło ręczne · woda 06:55” i przycisk „WODA” [erd];
+    - bez zadań: tablet ich nie pokazuje ani nie odhacza;
     - HISTORIA: tylko flagi i zdarzenia z przycisków obsługi;
-    - bez wody, siana i ścielenia;
+    - bez siana i ścielenia;
     - stopka „ONLINE · aktualne na HH:MM”, przełącznik PL i UA.
   - **TabletEkranZablokowany** (blokada dotyku na czas mycia albo wycierania) [erd]:
     - „Zablokuj ekran” (kłódka) obok „Zmień boks” włącza blokadę;
@@ -1198,7 +1208,7 @@ Zasady wspólne:
   - interwał według decyzji (sekcja 5), z `If-None-Match`, jitterem i backoffem;
   - sprawdzić, czy odpowiedź 304 dociera do JS;
   - czas brany z nagłówka serwera.
-- [ ] Zapisy (potwierdzenie flagi, „Ogarnięte”, „Cofnij”; zadań tablet nie odhacza):
+- [ ] Zapisy: tylko potwierdzenie flagi, „Ogarnięte”, „Woda” (boks z poidłem ręcznym) i ich „Cofnij”; akcji całej hali i zadań tablet nie zapisuje [erd]:
   - kolejka w SQLite;
   - id nadane przez klienta i `request_hash`;
   - `occurred_at` i `time_quality`;
@@ -1230,7 +1240,7 @@ Zasady wspólne:
   - liczniki;
   - alert o niepotwierdzonej fladze krytycznej;
   - filtry i wyszukiwarka;
-  - tabela boksów z kolumnami: Boks, Koń, Klient (jedna kolumna: właściciel albo dzierżawca konia), Aktywne flagi (z godzinami), Ostatnio ogarnięte, Akcje; bez kolumn innych czynności;
+  - tabela boksów z kolumnami: Boks, Koń, Klient (jedna kolumna: właściciel albo dzierżawca konia), Aktywne flagi (z godzinami), Ostatnio ogarnięte, Akcje; bez kolumn innych czynności; boks z poidłem ręcznym ma znacznik „Poidło ręczne · woda HH:MM” (bez osobnej kolumny), a szczegóły boksu przełącznik „Automatyczne poidło: tak/nie” (admin);
   - sekcje hal z adresem;
   - konie bez boksu (Luna, klient Marek Nowak, „zaproszenie czeka”).
 - [ ] PanelDodajHale: nazwa i adres hali (z kopiowaniem adresu innej hali), potem jedno z trzech: nowe boksy od–do (numeracja w tej hali, domyślnie od 1; numery mogą powtarzać się z innymi halami), przeniesienie istniejących boksów albo pusta hala.
@@ -1246,7 +1256,7 @@ Zasady wspólne:
   - nagłówek z „Teraz”, następnym posiłkiem i zegarem;
   - pasek pilnych flag wszystkich hal;
   - sekcje hal z przyciskiem „Pełny ekran”, w nagłówku hali rutyna („Śniadanie podane 06:40 · padok 10:00”);
-  - kafle boksów bez posiłków per koń: flagi z godzinami, „Ogarnięte HH:MM”, padok z godzinami;
+  - kafle boksów bez posiłków per koń: flagi z godzinami, „Ogarnięte HH:MM”, padok z godzinami; przy poidle ręcznym „Poidło ręczne · woda HH:MM”, przy automatycznym bez znacznika wody;
   - „Dziś w stajni”, ostatnie akcje z przycisków obsługi, zadania jednorazowe.
 - [ ] WyswietlaczHala (pełny ekran jednej hali):
   - większe kafle i większa typografia;
@@ -1288,15 +1298,15 @@ Zasady wspólne:
 - [ ] **Etap 2, stajnia, hale, boksy, konie:** `stable` (działalność → stajnie → hale → boksy), panel (Boksy i konie, Dodaj halę), apka admina.
   - Gotowe, gdy seed z dwiema halami (boksy 1–8 i 1–6) jest widoczny w panelu i w apce z halą przy numerze, dodanie hali z adresem i boksami od 1 działa, a przypisanie, przeniesienie i zamiana koni przechodzą testy współbieżności.
 - [ ] **Etap 3, flagi:** `flags` z obowiązkowymi godzinami, skutkami z okna (`packages/rules`) i Derką, `notifications` z `fake-sms`, `escalation-scheduler`, ekrany klienta (kafelki flag) i obsługi.
-  - Gotowe, gdy scenariusze A-01 i A-02 odtwarzają się od zera, a test wyścigu potwierdzenia z eskalacją jest zielony.
+  - Gotowe, gdy scenariusze A-01, A-02 i A-12 odtwarzają się od zera, a test wyścigu potwierdzenia z eskalacją jest zielony.
 - [ ] **Etap 4, tablica i tablet:** `board` z ETag, kiosk, pop-up, „Zmień boks”, blokada ekranu, kolejka zapisów, `releases`.
-  - Gotowe, gdy flaga z telefonu pojawia się jako pop-up w ustalonym czasie, potwierdzenie i odwołanie usuwają pop-up, „Zmień boks” przełącza między halami i wraca do poprzedniego boksu po 30 s, zablokowany ekran nie reaguje na dotyk (A-14), a APK aktualizuje się bez dotykania tabletu.
+  - Gotowe, gdy flaga z telefonu pojawia się jako pop-up w ustalonym czasie, potwierdzenie i odwołanie usuwają pop-up, „Zmień boks” przełącza między halami i wraca do poprzedniego boksu po 30 s, zablokowany ekran nie reaguje na dotyk (T-30, A-15), a APK aktualizuje się bez dotykania tabletu.
 - [ ] **Etap 5, wyświetlacz:** widok `board` dla wyświetlacza, `/wyswietlacz` z pełnym ekranem hali i przełącznikiem hal, obraz Pi.
   - Gotowe, gdy działa 72 h bez przerwy, wybór hali przetrwa restart, pełny ekran pokazuje tylko flagi tej hali, a w odpowiedziach nie ma danych osobowych.
-- [ ] **Etap 6, karmienie, padok i rutyna obsługi:** `care`; szybkie akcje („Ogarnięte” per boks i kilka naraz, posiłek i padok dla hali z pominiętymi, „Cofnij”); wstrzymany posiłek i skrócony albo odwołany padok na tablicy z okna flag; „NAMOCZYĆ” w tabeli karmienia; ListaDnia i MojBoks; konsumenci `horse.left` i `horse-left-reconciler`.
-  - Gotowe, gdy przechodzi A-12.
+- [ ] **Etap 6, karmienie, padok i rutyna obsługi:** `care`; szybkie akcje („Ogarnięte” per boks i kilka naraz, „Woda” przy poidle ręcznym, posiłek i padok dla hali z pominiętymi, „Cofnij”); przełącznik poidła w `stable`; wstrzymany posiłek i skrócony albo odwołany padok na tablicy z okna flag; „NAMOCZYĆ” w tabeli karmienia; ListaDnia i MojBoks; konsumenci `horse.left` i `horse-left-reconciler`.
+  - Gotowe, gdy przechodzą A-13 i A-16.
 - [ ] **Etap 7, zdrowie, jazdy, zadania:** `health` z `files`, `rides`, `tasks` (zadania jednorazowe, „Biorę”, „Zrobione”, StajennyZadania); crony `health-due-reminders` i `files-gc`.
-  - Gotowe, gdy przechodzi A-13.
+  - Gotowe, gdy przechodzi A-14.
 - [ ] **Etap 8, płatności (bez rozbudowy na PoC):** `billing` na fałszywych adapterach, trzy crony billingu, przejście `subscription.status_changed` → `stables.status`, stan „zawieszona” na tablecie i wyświetlaczu.
 - [ ] **Etap 9, przed stajnią pilotażową:**
   - `audit` i `retention-pruner`;
@@ -1319,7 +1329,7 @@ Zasady wspólne:
 - [ ] **Jednostkowe (Vitest, fast-check).**
   - Reguły flag: obowiązkowe okno `valid_from`–`valid_to` i podpowiedź z `default_window`, `days_mask`, `suspend_meal` tylko dla posiłku w oknie, `cancel_paddock` skracający albo odwołujący padok tylko w oknie (Kasztan: padok B 10:00–14:30), lista pominiętych przy akcjach zbiorczych hali, etykiety „06:00–10:00”, „od 14:30”, „16:00–08:00” i „dziś, cały dzień”, wariant Derki, `replaces_flag_id`, `warn_at` i `notify_at` od początku okna.
   - Noce 25.10.2026 i 28.03.2027.
-  - Składanie odpowiedzi `board`: ta sama treść daje ten sam ETag; w treści nie ma czasu serwera; listy mają deterministyczną kolejność (hale według `sort_order`, boksy w obrębie hali).
+  - Składanie odpowiedzi `board`: ta sama treść daje ten sam ETag; w treści nie ma czasu serwera; listy mają deterministyczną kolejność (hale według `sort_order`, boksy w obrębie hali); przy `auto_waterer = true` odpowiedź nie ma żadnego pola wody; odpowiedź dla tabletu nie ma zadań.
   - Koń i boks: przeniesienie, zamiana, wyjazd; przeniesienie boksu do innej hali (zmiana `building_id`), po którym koń, historia i zdarzenia zostają przy boksie [erd].
   - Hale i numery boksów:
     - boks rozpoznajemy tylko po `id`; żadna funkcja nie szuka boksu po numerze (`boxes.label`), bo numer powtarza się między halami [erd];
@@ -1344,8 +1354,10 @@ Zasady wspólne:
     - „Podano śniadanie” dla Hali głównej zapisuje jeden wiersz `building_routines` i zwraca pominiętego Kasztana (flaga 06:00–10:00 obejmuje 06:30); dla Hali nowej bez pominięć;
     - drugi zapis tego samego posiłku tej hali tego dnia, także równoległy z drugiej repliki, nie tworzy drugiego wiersza; po „Cofnij” (`cancelled_at`) da się zapisać ponownie;
     - „Wyprowadzono na padok” dla Hali nowej pomija Bellę (flaga cały dzień), a Kasztan w Hali głównej jest na padoku do 14:30;
-    - „Ogarnięte” dla kilku zaznaczonych boksów to jeden zapis z wierszem na boks; kolejne „Ogarnięte” tego samego dnia zmienia „ostatnio” na nowszą godzinę; „Cofnij” po terminie daje 409 (propozycja);
-    - z tabletu `user_id = NULL` i `source = tablet`, z apki osoba.
+    - „Ogarnięte” dla kilku zaznaczonych boksów to jeden zapis z wierszem na boks; kolejne „Ogarnięte” tego samego dnia zmienia „ostatnio” na nowszą godzinę; „Cofnij” w ciągu godziny ustawia `cancelled_at`, a po godzinie daje 409 (propozycja);
+    - z tabletu `user_id = NULL` i `source = tablet`, z apki osoba; akcja całej hali z klienta tablet daje 403 i nie tworzy wiersza (propozycja);
+    - „Woda” dla Hala nowa · boks 5 (`auto_waterer = false`) zapisuje wiersz `kind = water`, a znacznik pokazuje najnowszy niecofnięty wpis; „Woda” dla boksu z poidłem automatycznym daje 409 (propozycja) i nie tworzy wiersza.
+  - Przełącznik poidła (serwis `stable`, odczyt przez `board`): admin zmienia `boxes.auto_waterer` z `If-Match` i audytem; obsługa, klient i `it_support` dostają 403; po ustawieniu `true` znacznik i akcja „Woda” znikają z odpowiedzi tabletu, apki, panelu i wyświetlacza przy najbliższym odpytaniu, a po ustawieniu `false` wracają; wpisy `box_care_events` zostają; nowe boksy (także z „Dodaj halę”) mają `true`.
   - Zadania (serwis `tasks`): dwa równoległe „Biorę” na to samo zadanie dają jedno wzięcie i jedno 409; „Zrobione” bez wzięcia albo przez inną osobę niż biorąca jest odrzucane (propozycja); nie-admin nie doda zadania (403).
   - Dostęp klienta: Anna widzi boks 7 Hali głównej (Kasztan) i jego historię od dnia, w którym Kasztan do niego trafił; po przeniesieniu Kasztana widzi nowy boks od dnia przeniesienia, a starego już nie (dostęp do boksu wynika wyłącznie z konia).
   - Dodanie hali (serwis `stable`):
@@ -1398,13 +1410,13 @@ Zasady wspólne:
 
   Progi ustalamy po pierwszym pomiarze bazowym, a przebieg nocny pilnuje regresji.
 - [ ] **Apka mobilna (Maestro, Detox na symulatorze iOS).**
-  - Ścieżki klienta (kafelek flagi z podpowiedzianymi godzinami w najwyżej trzech stuknięciach do zapisu, propozycja), obsługi (szybkie akcje, siatka „Ogarnięte”, „Cofnij”, zadania) i admina z makiet.
+  - Ścieżki klienta (kafelek flagi z podpowiedzianymi godzinami w najwyżej trzech stuknięciach do zapisu, propozycja), obsługi (szybkie akcje, siatka „Ogarnięte”, „Woda” przy poidle ręcznym, „Cofnij”, zadania) i admina z makiet (przełącznik „Automatyczne poidło” w BoksSzczegoly).
   - Flaga wysłana przy zrywanym połączeniu nie tworzy duplikatu, a apka pokazuje stan „nie wysłano”.
   - Języki, duża czcionka systemowa, mały i duży ekran.
   - Przy kilku halach lista boksów w grupach hal z filtrem, a każdy boks z halą przy numerze; wybór boksu wysyła `boxId`. Status flagi tylko „potwierdzona HH:MM” albo „niepotwierdzona”.
   - Na fizycznych iPhone'ach skrypt ręczny przez TestFlight (wsparcie Maestro dla fizycznych iPhone'ów: [niepotwierdzone]).
 - [ ] **Panel web (Playwright: Chromium, Firefox, WebKit).**
-  - Boksy i konie (kolumny Klient, Aktywne flagi z godzinami, Ostatnio ogarnięte). Przy kilku halach każdy boks w tabelach, filtrach, alertach i formularzach przypisania ma halę przy numerze; wyszukanie „4” zwraca dwa boksy z nazwami hal; formularze wysyłają `boxId`.
+  - Boksy i konie (kolumny Klient, Aktywne flagi z godzinami, Ostatnio ogarnięte; znacznik „Poidło ręczne · woda HH:MM” tylko przy Hala nowa · boks 5; przełącznik poidła w szczegółach boksu tylko dla admina). Przy kilku halach każdy boks w tabelach, filtrach, alertach i formularzach przypisania ma halę przy numerze; wyszukanie „4” zwraca dwa boksy z nazwami hal; formularze wysyłają `boxId`.
   - Dodawanie hali (Boksy i konie → „Dodaj halę”):
     - nazwa i adres, także skopiowany z innej hali; adres widać potem przy hali i w szczegółach boksu;
     - wariant „nowe boksy”: zakres od 1 (np. 1–4) zapisuje się bez błędu, choć numery powtarzają się z innymi halami;
@@ -1439,12 +1451,13 @@ Zasady wspólne:
   - Zdarzenie z cudzym `stable_id` jest odrzucane.
   - `X-Box-Id` albo `boxId` boksu stajni B (druga stajnia z seedu ma te same numery boksów) daje 404 i nie tworzy zapisu. Lista „Zmień boks” zawiera tylko hale i boksy stajni zalogowanego użytkownika.
   - Strażnik predykatu `stable_id`, w tym tabele podrzędne przez rodzica.
-  - Druga stajnia z seedu należy do tej samej działalności (`businesses`): wspólna działalność nie daje dostępu między stajniami, a obiekty drugiej stajni dają 404 (propozycja, do czasu decyzji o uprawnieniach na poziomie działalności).
+  - Druga stajnia z seedu należy do tej samej działalności (`businesses`): wspólna działalność nie daje dostępu między stajniami, a obiekty drugiej stajni dają 404, bo uprawnienia i izolacja są na poziomie stajni [erd].
 - [ ] **Role, macierz rola × akcja (to, co dozwolone, i to, co zabronione).**
   - client: flagi swoich koni (ustawienie, zmiana godzin, odwołanie), podgląd boksu, w którym stoi jego koń, i historii tego boksu od dnia, w którym koń do niego trafił; bez szybkich akcji obsługi i bez zadań (403); boks bez jego konia (np. wolny Hala główna · boks 3) daje 404; po `valid_to` albo `revoked_at` traci dostęp.
-  - staff: wszystkie konie, także Luna bez boksu; szybkie akcje obsługi; „Biorę” i „Zrobione” przy zadaniach, ale bez dodawania zadań (403).
-  - admin: hale (z adresem), boksy, zaproszenia, konta `display`, dodawanie i odwoływanie zadań. Dodać halę może tylko admin.
-  - it_support: konfiguracja i diagnostyka tabletów i wyświetlaczy; zapis koni, flag, zaproszeń i zadań daje 403, bez danych osobowych klientów (zakres: sekcja 5).
+  - staff: wszystkie konie, także Luna bez boksu; szybkie akcje obsługi (także „Woda” przy poidle ręcznym); „Biorę” i „Zrobione” przy zadaniach, ale bez dodawania zadań i bez przełącznika poidła (403).
+  - admin: hale (z adresem), boksy (także przełącznik „Automatyczne poidło”), zaproszenia, konta `display`, dodawanie i odwoływanie zadań. Dodać halę może tylko admin.
+  - it_support: konfiguracja i diagnostyka tabletów i wyświetlaczy; zapis koni, flag, zaproszeń i zadań daje 403, bez danych osobowych klientów [erd].
+  - klient Cognito tablet: tylko potwierdzenie flagi, „Ogarnięte” i „Woda” (poidło ręczne) dla boksu z `X-Box-Id`; akcja całej hali i zadania dają 403 (propozycja).
   - display: tylko GET, każdy zapis daje 403.
   - Kombinacje ról: ta sama osoba jako client dwóch koni w różnych halach (Anna: Kasztan i Bella); staff w jednej stajni i client w drugiej.
 - [ ] **Wyświetlacz bez danych osobowych.** Dane-kanarki (unikalne telefony, e-maile, nazwiska) w seedzie. Skan każdej odpowiedzi dla `display` oraz HTML i JS strony `/wyswietlacz` nie może znaleźć kanarka ani wzorca E.164 czy e-maila.
@@ -1547,12 +1560,12 @@ Zasady wspólne:
   - Sprawdzić, czy 304 dociera do JS.
   - Na kolorowym e-inku pop-up z paskiem `t-crit` wymaga pełnego odświeżenia w trybie z kolorem: zmierzyć je osobno i doliczyć do progu.
   - Próg: interwał odpytywania plus render plus odświeżenie EPD.
-- [ ] **T-19 Dotyk.** „POTWIERDZAM”, „OGARNIĘTE”, „Zmień boks”, kłódka „Zablokuj ekran” (także przytrzymanie 3 s) i kafle obsługiwane:
+- [ ] **T-19 Dotyk.** „POTWIERDZAM”, „OGARNIĘTE”, „WODA” (boks z poidłem ręcznym), „Zmień boks”, kłódka „Zablokuj ekran” (także przytrzymanie 3 s) i kafle obsługiwane:
   - gołą, mokrą i brudną dłonią;
   - w każdej parze rękawic;
   - przez folię i przez szybę.
 
-  Do tego przypadkowe dotknięcia (łokieć, koń) oraz mycie i wycieranie zablokowanego ekranu mokrą ścierką i spryskiwaczem: zero zapisów i zero zmian na ekranie, a mokra ścierka nie odblokowuje ekranu (nie „przytrzymuje” kłódki przez 3 s).
+  Do tego przypadkowe dotknięcia (łokieć, koń). Mycie i wycieranie zablokowanego ekranu sprawdza T-30.
 - [ ] **T-20 Czytelność.** Z 1,5 i 2 m, przy oświetleniu zmierzonym luksomierzem (dzień, światło sztuczne, zmierzch, noc), z podświetleniem i bez, przez obudowę. Ocenia kilka osób, także w okularach.
   - **Pola koloru `t-*` na kolorowym e-inku** (Boox Note Air6 C: według źródeł z 1.1 panel Kaleido 3, czyli profil domyślny; potwierdzić na sprzęcie, K-01):
     - baner flagi, WSTRZYMANE i pasek pop-upu w `t-crit` z białym pogrubionym tekstem ≥ 19 px: czytelne z 2 m, biel nie szarzeje od ditheringu;
@@ -1580,6 +1593,14 @@ Zasady wspólne:
   - szybkość odświeżania i dotyk; na kolorowym e-inku osobno czas pełnego odświeżenia w trybie z kolorem i nasycenie pól `t-*`;
   - czy tablet ładuje się w zimnie (jeśli firmware wstrzymuje ładowanie, tablet rozładuje się mimo zasilacza);
   - kondensację po ogrzaniu.
+- [ ] **T-30 Blokada ekranu przy myciu** (na sztuce, przy prawdziwym myciu):
+  - „Zablokuj ekran” obok „Zmień boks”; pasek „EKRAN ZABLOKOWANY · przytrzymaj kłódkę 3 s, aby odblokować” i kółko postępu czytelne z 1,5 m;
+  - mycie i wycieranie zablokowanego ekranu mokrą ścierką i spryskiwaczem: zero zapisów i zero zmian na ekranie; mokra ścierka i woda nie odblokowują ekranu (nie „przytrzymują” kłódki przez 3 s);
+  - odblokowanie przytrzymaniem kłódki 3 s gołą dłonią i w rękawicach (propozycja);
+  - zablokowana tablica dalej się odświeża (zegar, nowa flaga, „Ogarnięte” z apki), przyciski mają przerywaną ramkę, bez szarych wypełnień;
+  - pop-up nowej flagi pojawia się mimo blokady; POTWIERDZAM nie działa do odblokowania;
+  - blokada schodzi sama po 10 min (propozycja), także po restarcie apki ekran jest odblokowany;
+  - zmiana wyglądu przy blokadzie i odblokowaniu nie zostawia „duchów” ani kolorowego śladu (T-21).
 
 **Testy koloru K-01…K-07** (rozszerzają T-20, T-21 i T-22; K-01 i K-05 przechodzą przed zakupem etapu 1; progi ustalić przed testem, sekcja 5):
 - [ ] **K-01 Czytelność pól statusu i drabina jasności.**
@@ -1637,7 +1658,7 @@ Zasady wspólne:
 - [ ] **T-27 Play Protect.** Status certyfikacji (Sklep Play › Informacje) i numer firmware. T-24 powtarzać po aktualizacjach Play services (weryfikacja deweloperów).
 
 **G. Funkcje tabletu**
-- [ ] **T-28 Pop-up, zmiana boksu i blokada ekranu.**
+- [ ] **T-28 Pop-up i „Zmień boks”.**
   - **Pop-up:**
     - kolejka pop-upów, krytyczne pierwsze;
     - godziny flagi w pop-upie („dziś 06:00–10:00”);
@@ -1659,12 +1680,7 @@ Zasady wspólne:
     - POTWIERDZAM zapisuje `box_id` boksu 4 Hali nowej;
     - „OGARNIĘTE” z tabletu Hala główna · boks 4 trafia do id boksu 4 Hali głównej (Sonata);
     - nagłówki obu tabletów zawsze pokazują halę.
-  - **Blokada ekranu** (na sztuce, przy prawdziwym myciu):
-    - „Zablokuj ekran” obok „Zmień boks”; pasek „EKRAN ZABLOKOWANY · przytrzymaj kłódkę 3 s, aby odblokować” i kółko postępu czytelne z 1,5 m;
-    - zablokowana tablica dalej się odświeża (zegar, nowa flaga, „Ogarnięte” z apki), przyciski mają przerywaną ramkę, bez szarych wypełnień;
-    - pop-up nowej flagi pojawia się mimo blokady; POTWIERDZAM nie działa do odblokowania;
-    - blokada schodzi sama po 10 min (propozycja), także po restarcie apki ekran jest odblokowany;
-    - zmiana wyglądu przy blokadzie i odblokowaniu nie zostawia „duchów” ani kolorowego śladu (T-21).
+  - Blokada ekranu: T-30.
 
 **H. Środowisko (stajnia pilotażowa)**
 - [ ] **T-29 Warunki w stajni.**
@@ -1749,7 +1765,7 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
    - [ ] W bazie: `method = tablet`, `user_id` NULL, `box_id` boksu 7 Hali głównej (nie boksu 7 innej hali ani stajni), `audit_log.actor_type = tablet`.
    - [ ] Tabela karmienia: rano owies, siano i suplement X „WSTRZYMANE”; wieczorne wysłodki „0,5 kg · NAMOCZYĆ 2 l” bez wstrzymania, bo kolacja 18:00 jest poza oknem flagi.
    - [ ] O 06:40 Ola stuka „Podano śniadanie” dla Hali głównej: jeden wpis `building_routines` (Ola, apka), Kasztan wypisany jako pominięty („bez Kasztana: flaga”). Tablet boksu 7 pokazuje „Śniadanie podane 06:40 (bez Kasztana) · Padok B 10:00–14:30”.
-   - [ ] Wyświetlacz pokazuje „Hala główna · boks 7”, „06:00–10:00 · potwierdzona 06:02” i „Nie na padok od 14:30”. Historia boksu (tablet i MojBoks Anny) ma flagi z 03:14, 03:16 i 06:02, „Podano śniadanie · Hala główna” 06:40 (pominięci: Kasztan) i „Ogarnięte” 07:10, nic więcej.
+   - [ ] Wyświetlacz pokazuje „Hala główna · boks 7”, „06:00–10:00 · potwierdzona 06:02” i „Nie na padok od 14:30”. Historia boksu (tablet i MojBoks Anny) ma tylko flagi (03:14, 03:16, potwierdzenia 06:02) i zdarzenia z przycisków: dziś „Podano śniadanie · Hala główna” 06:40 (pominięci: Kasztan) i „Ogarnięte” 07:10, wczoraj „Podano kolację · Hala główna” 18:02 (Piotr) i „Wyprowadzono na padok · Hala główna” 10:05 (Piotr); nic więcej.
    - [ ] Na kolorowym e-inku pole `t-crit` banera zmienia się jednym pełnym odświeżeniem przy potwierdzeniu, bez kolorowego śladu (T-21).
    - [ ] O 10:00 „Bez śniadania” kończy się sama: dane w bazie się nie zmieniają, zmienia się odpowiedź i ETag. Eskalacji nie ma. „Wyprowadzono na padok” dla Hali głównej obejmuje Kasztana (padok B); od 14:30 do 16:00 tablet pokazuje „NIE NA PADOK · 14:30–16:00”, więc koń jest na padoku między wizytami.
 2. **A-02 Bella (Hala nowa · boks 4, martwy tablet).**
@@ -1777,7 +1793,7 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
    - [ ] Tablety obu boksów pokazują „wolny”, a w „Zmień boks” oba są oznaczone jako wolne w zakładkach swoich hal.
    - [ ] „OGARNIĘTE” stuknięte na tablecie Hala nowa · boks 6 nie ma autora i trafia do historii tylko tego boksu.
 6. **A-06 Klient.**
-   - [ ] Anna (klientka: Kasztan i Bella) widzi w MojBoks boks Kasztana, Hala główna · boks 7. „Ostatnio” ma tylko zdarzenia z przycisków obsługi (Ogarnięte 07:10, Podano śniadanie 06:40 z „pominięty: flaga”), a „Historia” tylko flagi z potwierdzeniami i zdarzenia z przycisków. Wpisy z apki mają osobę, wpisy z tabletu nie mają.
+   - [ ] Anna (klientka: Kasztan i Bella) widzi w MojBoks boks Kasztana, Hala główna · boks 7. „Ostatnio” ma tylko zdarzenia z przycisków obsługi: Ogarnięte dziś 07:10, Podano śniadanie 06:40 z „pominięty: flaga” i Wyprowadzono na padok wczoraj 10:05 · Piotr. „Historia” ma tylko flagi z potwierdzeniami i zdarzenia z przycisków, także wczorajsze: Podano kolację 18:02 · Piotr i Wyprowadzono na padok 10:05 · Piotr. Wpisy z apki mają osobę, wpisy z tabletu nie mają.
    - [ ] Historia zaczyna się od dnia, w którym Kasztan trafił do boksu 7. Wolnego boksu 3 Anna nie widzi (404), a szybkie akcje obsługi i zadania dają 403. Po `valid_to` albo `revoked_at` dostęp do konia i jego boksu znika.
    - [ ] Marek Nowak akceptuje zaproszenie jako Klient do Luny (`invitations.horse_id`) przed terminem i widzi Lunę; po terminie zaproszenia nie da się zaakceptować.
    - [ ] W Zaproszeniu admin wybiera z ról Klient (z wyborem konia), Obsługa, Instruktor i Wsparcie IT z opisem jednym zdaniem; test słownika odrzuca każdą inną nazwę roli (propozycja).
@@ -1786,7 +1802,7 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
    - [ ] Klient bez dostępu do konia dostaje odmowę.
 8. **A-08 Wyświetlacz z dwiema halami.**
    - [ ] Hala główna: 7 koni, 1 wolny boks (3), 1 flaga krytyczna. Hala nowa: 5 koni, 1 wolny boks (6), 1 flaga niepotwierdzona. Każdy kafel ma halę przy numerze.
-   - [ ] Kafle bez posiłków per koń: flagi z godzinami („06:00–10:00”, „od 14:30”, „od 16:00”), „Ogarnięte HH:MM” i padok z godzinami. Nagłówek Hali głównej: „Śniadanie podane 06:40 · padok 10:00”. Zadania tylko jednorazowe.
+   - [ ] Kafle bez posiłków per koń: flagi z godzinami („06:00–10:00”, „od 14:30”, „od 16:00”), „Ogarnięte HH:MM” i padok z godzinami. Tylko kafel Hala nowa · boks 5 ma „Poidło ręczne · woda 06:55”; pozostałe kafle nie mają znacznika wody. Nagłówek Hali głównej: „Śniadanie podane 06:40 · padok 10:00”. Zadania tylko jednorazowe.
    - [ ] Pełny ekran hali pokazuje tylko flagi tej hali. Przełącznik hal zmienia halę bez wracania do widoku ogólnego. „Wszystkie hale” wraca do widoku ogólnego. Wybór przetrwa restart i zanik prądu (W-29).
    - [ ] Nowa hala dodana w panelu pojawia się najpóźniej po 10 s, a tablety mają nową zakładkę w „Zmień boks” (A-11).
    - [ ] Na ekranie nie ma danych osobowych.
@@ -1805,22 +1821,33 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
     - [ ] Drugi wariant: pusta hala, potem przeniesienie do niej wolnego Hala nowa · boks 6. Boks zachowuje `id` i historię (Wicher do 01.10); tablet z tym boksem pokazuje nową halę w nagłówku.
     - [ ] Usunięcie hali z boksami jest odrzucane; po przeniesieniu boksów z powrotem pustą halę da się usunąć albo wyłączyć.
     - [ ] Hali nie doda nikt poza adminem (403).
-12. **A-12 Rutyna obsługi: szybkie akcje.**
+12. **A-12 Godziny flag i Derka.**
+    - [ ] O 07:15 tablet Hala główna · boks 7 pokazuje „BEZ ŚNIADANIA · 06:00–10:00” i „Później: Nie na padok od 14:30 (kowal 15:00)”. Flaga wstrzymuje tylko śniadanie 06:30, a nie obiad 12:00 ani kolację 18:00; padok B Kasztana jest skrócony do 10:00–14:30, czyli między wetem o 08:00 a kowalem o 15:00.
+    - [ ] Flaga bez `valid_to` albo z końcem przed początkiem jest odrzucana (422, propozycja); wariantu „do odwołania” nie ma.
+    - [ ] Ewa K. (klientka Sonaty) o 06:50 wybiera kafelek „Derka”: podpowiedź 16:00–08:00 i wybór „zakładać / nie zakładać”; zapis z `variant = on` i `author_role = client`, notatka „przymrozek w nocy”. Pop-up na tablecie Hala główna · boks 4, potwierdzenie jak przy innych flagach: „potwierdzona 07:05”.
+    - [ ] O 07:15 tablet, apka i wyświetlacz pokazują „Derka: zakładać · od 16:00”, a od 16:00 „Derka: zakładać · 16:00–08:00”; jutro o 08:00 flaga kończy się sama. `ack_deadline_at`, `warn_at` i `notify_at` liczą się od początku okna.
+13. **A-13 Szybkie akcje obsługi.**
     - [ ] ListaDnia Oli o 07:15: na górze „Szybkie akcje” per hala. „Podano śniadanie” zrobione (✓ 06:40 Hala główna z pominiętym Kasztanem, ✓ 06:50 Hala nowa bez pominięć), z „Cofnij”. „Wyprowadzono na padok” jako następne o 10:00, z liczbą koni (Hala główna 4: Dukat, Sonata, Fala, Kasztan; Hala nowa 3: Grom, Bursztyn, Rumba) i pominiętą Bellą. „Ogarnięte” 7 z 14. „Wymaga potwierdzenia” ma tylko flagi. Listy karmienia per koń nie ma.
     - [ ] Piotr otwiera siatkę „Ogarnięte” Hali głównej, zaznacza boksy 4, 6 i 8 i zapisuje jednym przyciskiem: trzy wpisy `box_care_events` (`kind = tidy`) z Piotrem jako autorem, licznik 10 z 14; tablet Hala główna · boks 4 pokazuje „✓ dziś HH:MM” przy najbliższym odpytaniu.
     - [ ] Na tablecie Hala główna · boks 7 ktoś stuka „OGARNIĘTE” drugi raz tego dnia: nowy wpis bez autora (`source = tablet`), „Ogarnięte dziś” pokazuje nowszą godzinę, a MojBoks Anny ma oba wpisy.
-    - [ ] O 10:00 Ola stuka „Wyprowadzono na padok” dla Hali nowej: jeden wpis `building_routines` (`kind = paddock_out`), Bella wypisana jako pominięta. Drugi zapis tego dnia daje `already_done` (propozycja). „Cofnij” w ciągu kilku minut ustawia `cancelled_at` i przywraca stan „do zrobienia”.
-    - [ ] W apce, na tablecie, w panelu i na wyświetlaczu nie ma wody, siana i karmy jako zdarzeń ani posiłku odhaczanego per koń; nazwy pasz występują tylko w planie karmienia.
-13. **A-13 Zadania jednorazowe.**
+    - [ ] O 10:00 Ola stuka „Wyprowadzono na padok” dla Hali nowej: jeden wpis `building_routines` (`kind = paddock_out`), Bella wypisana jako pominięta. Drugi zapis tego dnia daje `already_done` (propozycja). „Cofnij” w ciągu godziny (propozycja) ustawia `cancelled_at` i przywraca stan „do zrobienia”; po godzinie daje 409. Tablet akcji całej hali nie zapisuje, pokazuje tylko ich stan.
+    - [ ] W apce, na tablecie, w panelu i na wyświetlaczu nie ma siana i karmy jako zdarzeń ani posiłku odhaczanego per koń; nazwy pasz występują tylko w planie karmienia. Wody nie ma przy żadnym boksie z poidłem automatycznym (wyjątek: Hala nowa · boks 5, A-16).
+14. **A-14 Zadania jednorazowe.**
     - [ ] Piotr w zakładce „Zadania” widzi: „Do wzięcia”: „Poidło w boksie 5 do wymiany” · Hala nowa · boks 5 (dodał Damian wczoraj 18:20); „Moje”: „Wymienić żarówkę w korytarzu” · Hala główna (wzięte 07:00); „Zrobione dziś”: „Przywieźć słomę z magazynu” (Ola 06:30). Przycisku „+ Dodaj zadanie” nie ma.
-    - [ ] Piotr stuka „Biorę” przy pierwszym zadaniu: zadanie przechodzi do „Moje” (`taken_by`, `taken_at`). Równoczesne „Biorę” Oli kończy się komunikatem, że zadanie wziął Piotr (409, propozycja).
+    - [ ] Piotr stuka „Biorę” przy pierwszym zadaniu (tylko online): zadanie przechodzi do „Moje” (`taken_by`, `taken_at`). Równoczesne „Biorę” Oli kończy się komunikatem, że zadanie wziął Piotr (409, propozycja).
     - [ ] „Zrobione” przy żarówce: `done_by`, `done_at`; zadanie jest w „Zrobione dziś” u obu osób.
-    - [ ] Damian (admin) dodaje zadanie dla boksu; Ola (obsługa) nie może dodać zadania (403). Tablet nie ma przycisków zadań. Zadań cyklicznych nie ma.
-14. **A-14 Blokada ekranu tabletu (Hala główna · boks 7).**
+    - [ ] Damian (admin) dodaje zadanie dla boksu; Ola (obsługa) nie może dodać zadania (403). Tablet zadań nie pokazuje (`board` nie zwraca ich dla tabletu). Zadań cyklicznych nie ma.
+15. **A-15 Blokada ekranu tabletu (Hala główna · boks 7).**
     - [ ] Ktoś stuka kłódkę „Zablokuj ekran”: pasek „EKRAN ZABLOKOWANY · przytrzymaj kłódkę 3 s, aby odblokować”, przyciski z przerywaną ramką, treść dalej czytelna.
     - [ ] Wycieranie ekranu mokrą ścierką: żadnego zapisu (ani „Ogarnięte”, ani potwierdzenia), boks się nie zmienia, „Zmień boks” się nie otwiera.
     - [ ] Nowa flaga z apki: tablica się odświeża, a pop-up pojawia się mimo blokady; POTWIERDZAM działa dopiero po przytrzymaniu kłódki przez 3 s.
     - [ ] Bez odblokowania blokada schodzi sama po 10 min (propozycja). Blokowanie i odblokowanie nie wysyłają żadnego żądania; serwer o blokadzie nie wie.
+16. **A-16 Poidło ręczne (Hala nowa · boks 5).**
+    - [ ] O 07:15 tablet z wybranym Hala nowa · boks 5 (Bursztyn; w zestawie domowym przez „Zmień boks”) pokazuje „Poidło ręczne · woda 06:55” i przycisk „WODA”. Ten sam znacznik jest w apce (BoksyAdmin, BoksSzczegoly), w panelu i na wyświetlaczu. Wpis 06:55 ma `kind = water`, `source = tablet` i nie ma autora.
+    - [ ] Piotr stuka „Woda” przy tym boksie w apce: nowy wpis z autorem, znacznik pokazuje nowszą godzinę. „Cofnij” w ciągu godziny (propozycja) przywraca „woda 06:55”.
+    - [ ] Boksy z poidłem automatycznym (np. Hala nowa · boks 4, Hala główna · boks 7) nie mają znacznika wody ani przycisku „Woda” na tablecie, w apce, w panelu i na wyświetlaczu; „Woda” wysłana dla takiego boksu daje 409 (propozycja).
+    - [ ] Zadanie „Poidło w boksie 5 do wymiany” jest w apce obsługi („Do wzięcia”), a na tablecie tego boksu go nie ma.
+    - [ ] Przełącznik: po wymianie automatu Damian w BoksSzczegoly ustawia „Automatyczne poidło: tak”. Przy najbliższym odpytaniu znacznik i „Woda” znikają z tabletu, apki, panelu i wyświetlacza; wpisy `box_care_events` zostają w bazie, a audyt ma zmianę. Ola (obsługa) nie zmieni przełącznika (403). Nowy boks z „Dodaj halę” ma poidło automatyczne.
 
 ### 4.5 Stanowisko testowe i kryteria gotowości do wdrożenia
 
@@ -1858,7 +1885,7 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
 - osobny SSID albo zgoda na dodanie urządzeń; brak portalu logowania; ruch wychodzący na port 443;
 - przy telewizorze: gniazdo 230 V, a jeśli się da, gniazdo Ethernet;
 - znana temperatura w miejscach montażu, z informacją, czy hale są ogrzewane;
-- informacja, jak sprząta się korytarz i myje tablety (woda, myjka, środki dezynfekujące), bo od tego zależą klasa IP i to, jak często obsługa używa blokady ekranu (A-14);
+- informacja, jak sprząta się korytarz i myje tablety (woda, myjka, środki dezynfekujące), bo od tego zależą klasa IP i to, jak często obsługa używa blokady ekranu (T-30, A-15);
 - 230 V przy boksach montuje tylko elektryk z uprawnieniami ([IEC 60364-7-705](https://vde-verlag.de/iec-normen/212877/iec-60364-7-705-2006.html)); wymagania normy [niepotwierdzone].
 
 **Kryteria gotowości do wdrożenia**
@@ -1869,7 +1896,7 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
   - migracje N-1 → N;
   - pełna macierz izolacji, bez żadnej trasy bez testu.
 - [ ] Test obciążenia w docelowej skali przeszedł, a wyniki są zapisane jako linia bazowa.
-- [ ] Wszystkie scenariusze A-01…A-14 przechodzą automatycznie, na stanowisku i w stajni pilotażowej.
+- [ ] Wszystkie scenariusze A-01…A-16 przechodzą automatycznie, na stanowisku i w stajni pilotażowej.
 - [ ] **Tablet:**
   - 100% autostartów do Lock Task w serii cykli zasilania;
   - 100% aktualizacji APK udanych albo bezpiecznie przerwanych;
@@ -1877,7 +1904,7 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
   - zero „duchów” odwołanej flagi, także kolorowych śladów pól `t-*`;
   - pola `t-*` czytelne z 1,5 i 2 m, a statusy rozróżnialne bez koloru (kolejność jasności zachowana na ekranie wybranego modelu, kolorowego albo czarno-białego);
   - „Zmień boks” wraca do poprzedniego boksu po 30 s bez wyboru, a zapisy z tabletu trafiają do `id` wybranego boksu także przy tych samych numerach w dwóch halach;
-  - mycie i wycieranie zablokowanego ekranu w stajni pilotażowej nie daje żadnego przypadkowego zapisu ani zmiany boksu (A-14);
+  - mycie i wycieranie zablokowanego ekranu w stajni pilotażowej nie daje żadnego przypadkowego zapisu ani zmiany boksu (T-30, A-15);
   - zero interwencji ręcznych w ostatnich 2 tygodniach testu ciągłego;
   - pamięć bez rosnącego trendu;
   - bateria bez puchnięcia;
@@ -1927,64 +1954,59 @@ Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt
 
 **Zachowanie produktu, potrzebne developmentowi**
 
-16. **Poprawki erd.md.**
-    - Pkt 4 przeczy decyzji o pełnym ekranie: na pełnym ekranie hali tylko flagi tej hali, także w pasku pilnych (dziś erd.md mówi, że pasek „obejmuje wszystkie hale”); skrót innych hal tylko liczbowy.
-    - Pkt 9: „ujeżdżalnie (`arenas`) należą do `rides`”, żeby nie mylić ich z halami-budynkami.
-    - Diagram audytu: `stable_id` bez dopisku „FK”.
-17. Czy koń bez boksu (Luna) jest widoczny na wyświetlaczu, a jeśli tak, to gdzie (propozycja: w osobnej sekcji obok sekcji hal, tylko w widoku wszystkich hal). Na pełnym ekranie hali go nie ma, bo nie należy do żadnej hali.
-18. Dokładny zakres uprawnień roli `it_support` (Wsparcie IT: techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami [erd]): czy widzi tablicę boksów, konta `display` i ukryte ustawienia tabletu, czy zmienia Wi-Fi na tabletach (pkt 32), czy ma dostęp do audytu (pkt 23).
-19. Akcje zbiorcze hali („Podano śniadanie / obiad / kolację”, „Wyprowadzono na padok”) tylko w apce obsługi czy także na tablecie przy boksie. Model dopuszcza tablet (`building_routines.source = tablet`, bez autora) [erd], ale makieta TabletBoks pokazuje tylko linię rutyny hali; zapis całej hali z tabletu jednego boksu łatwo stuknąć przypadkiem (propozycja: tylko apka).
-20. Wyświetlacz w nocy: praca całą dobę czy wygaszanie przez CEC. Od tego zależy klasa monitora (16/7 czy 24/7).
-21. Tablet offline: kolejka zapisów (propozycja; wskazują na nią pola `time_quality` i `request_hash`) czy blokada akcji z komunikatem.
-22. Brak makiet dla trzech stanów: wyświetlacz offline („dane z HH:MM”), stajnia `suspended`, odebrany dostęp. Trzeba ustalić ich wygląd.
-23. `actor_id` w audycie dla akcji z tabletu (`actor_type = tablet`): `NULL` czy `box_id`. Nie `id` zalogowanego użytkownika, bo akcje z tabletu nie mają autora (`source = tablet`) [erd]. Do tego: kto ma dostęp do odczytu audytu.
-24. Złożone odczyty (lista dnia, historia boksu) w `board` (propozycja).
-25. Zakładanie stajni: czy wystarczą idempotentne wywołania z ponowieniami i `stable.created`, czy potrzebny jest cron uzgadniający.
-26. SMS z `notifications` (eskalacje, zaproszenia):
+16. Czy koń bez boksu (Luna) jest widoczny na wyświetlaczu, a jeśli tak, to gdzie (propozycja: w osobnej sekcji obok sekcji hal, tylko w widoku wszystkich hal). Na pełnym ekranie hali go nie ma, bo nie należy do żadnej hali.
+17. **„Cofnij” i blokada ekranu: czasy do potwierdzenia.** „Cofnij” szybkiej akcji obsługi działa przez godzinę od zapisu (`cancelled_at`, propozycja z erd.md pkt 3), a blokada ekranu tabletu sama schodzi po 10 min (propozycja z erd.md pkt 2). Oba czasy są do potwierdzenia; dane z pilotażu (T-30, A-13, A-15) pomogą w decyzji.
+18. Wyświetlacz w nocy: praca całą dobę czy wygaszanie przez CEC. Od tego zależy klasa monitora (16/7 czy 24/7).
+19. Tablet offline: kolejka zapisów (propozycja; wskazują na nią pola `time_quality` i `request_hash`) czy blokada akcji z komunikatem.
+20. Brak makiet dla trzech stanów: wyświetlacz offline („dane z HH:MM”), stajnia `suspended`, odebrany dostęp. Trzeba ustalić ich wygląd.
+21. `actor_id` w audycie dla akcji z tabletu (`actor_type = tablet`): `NULL` czy `box_id`. Nie `id` zalogowanego użytkownika, bo akcje z tabletu nie mają autora (`source = tablet`) [erd]. Do tego: kto ma dostęp do odczytu audytu.
+22. Złożone odczyty (lista dnia, historia boksu) w `board` (propozycja).
+23. Zakładanie stajni: czy wystarczą idempotentne wywołania z ponowieniami i `stable.created`, czy potrzebny jest cron uzgadniający.
+24. SMS z `notifications` (eskalacje, zaproszenia):
     - przez AWS, ze wspólnym limitem, Sender ID i protect configuration, czy przez innego dostawcę;
     - nazwa nadawcy;
     - czy dopuścić numery spoza Polski, np. +380.
-27. Czy zakaz obiektów w bazie obejmuje widoki (`CREATE VIEW`).
-28. Okresy retencji: audyt, `notifications`, pliki `deleted`, `payment_provider_events`.
-29. Domyślne sloty posiłków i szablony flag dla nowej stajni (erd.md wymienia kody szablonów, w tym `derka`, ale nie ich domyślne okna godzin poza przykładami z makiet) oraz domyślna nazwa pierwszej hali, którą kod zakłada razem ze stajnią (adres bierze ze stajni [erd]). Kto dostaje `health-due-reminders`.
-30. Parametry billingu potrzebne w kodzie: definicja metryki w `billing-usage-snapshot` (stan na koniec okresu czy maksimum w okresie) oraz to, czy `InvoiceSystem` w v1 ma prawdziwą integrację (KSeF 2.0). Zależy od otwartej kwestii pkt 49; do jej rozstrzygnięcia billing zostaje na fałszywych adapterach.
-31. **Identyfikatory od nazwy eKoniuszy.** Nazwa produktu jest ustalona (repozytorium nadal nazywa się KonskaAppka). Otwarta jest dokładna postać scope pakietów, bundle ID, `applicationId` i nazw w sklepach. Bundle ID i `applicationId` są nieodwracalne, więc muszą zapaść przed założeniem rekordów.
-32. Kto może zmienić sieć Wi-Fi na tabletach przez ukryte ustawienia, jak się przy tym uwierzytelnia i kto zna hasło.
-33. **Założenia tabletu do potwierdzenia** [erd, pkt 2]:
+25. Czy zakaz obiektów w bazie obejmuje widoki (`CREATE VIEW`).
+26. Okresy retencji: audyt, `notifications`, pliki `deleted`, `payment_provider_events`.
+27. Domyślne sloty posiłków i szablony flag dla nowej stajni (erd.md wymienia kody szablonów, w tym `derka`, ale nie ich domyślne okna godzin poza przykładami z makiet) oraz domyślna nazwa pierwszej hali, którą kod zakłada razem ze stajnią (adres bierze ze stajni [erd]). Kto dostaje `health-due-reminders`.
+28. Parametry billingu potrzebne w kodzie: definicja metryki w `billing-usage-snapshot` (stan na koniec okresu czy maksimum w okresie) oraz to, czy `InvoiceSystem` w v1 ma prawdziwą integrację (KSeF 2.0). Zależy od otwartej kwestii pkt 47; do jej rozstrzygnięcia billing zostaje na fałszywych adapterach.
+29. **Identyfikatory od nazwy eKoniuszy.** Nazwa produktu jest ustalona (repozytorium nadal nazywa się KonskaAppka). Otwarta jest dokładna postać scope pakietów, bundle ID, `applicationId` i nazw w sklepach. Bundle ID i `applicationId` są nieodwracalne, więc muszą zapaść przed założeniem rekordów.
+30. Kto może zmienić sieć Wi-Fi na tabletach przez ukryte ustawienia (np. Wsparcie IT), jak się przy tym uwierzytelnia i kto zna hasło.
+31. **Założenia tabletu do potwierdzenia** [erd, pkt 2]:
     - na tablecie jest zalogowany jeden użytkownik naraz (pilnuje apka);
     - boks może zmienić każdy, kto stoi przy tablecie („Zmień boks” bez dodatkowego uwierzytelnienia);
     - ustawienia tabletu otwiera się dłuższym przytrzymaniem;
     - po wylogowaniu tablet pamięta wybrany boks i wraca do niego po kolejnym logowaniu.
-34. **Zapamiętany boks albo hala, których nie da się pokazać.**
+32. **Zapamiętany boks albo hala, których nie da się pokazać.**
     - Co pokazuje tablet, gdy zapamiętany boks jest w wyłączonej hali (`active = false`) albo nowo zalogowany użytkownik nie ma do niego dostępu (propozycja: tablet od razu otwiera listę „Zmień boks”, bez powrotu po 30 s).
     - Co pokazuje telewizor zapamiętany na pełnym ekranie hali, którą wyłączono albo usunięto (propozycja: wraca do widoku wszystkich hal).
     - Przeniesienie boksu do innej hali niczego tu nie zmienia, bo tablet pamięta `id` boksu, nie numer [erd].
 
 **Parametry testów (progi go/no-go ustalić przed testem)**
 
-35. Interwał odpytywania tabletu („kilka sekund”) i próg opóźnienia flagi w p95.
-36. Minimalna trafność stuknięć w rękawicach.
-37. Model obciążenia: liczba stajni, boksów i hal na stajnię, wyświetlaczy na stajnię, a wśród nich ile pokazuje wszystkie hale, a ile pełny ekran jednej hali.
-38. Czas trwania pilotażu i to, czy musi objąć przymrozki.
-39. Próg rozróżnialności statusów na ekranie tabletu (K-01, T-20): minimalna różnica jasności między sąsiednimi szczeblami drabiny (papier, OK, uwaga, krytyczna, atrament), zmierzona na zdjęciu z kartą szarości (propozycja). Paleta zakłada co najmniej 3 poziomy odstępu na 16; na sprzęcie krzywa sterownika i dithering mogą to zmienić.
+33. Interwał odpytywania tabletu („kilka sekund”) i próg opóźnienia flagi w p95.
+34. Minimalna trafność stuknięć w rękawicach.
+35. Model obciążenia: liczba stajni, boksów i hal na stajnię, wyświetlaczy na stajnię, a wśród nich ile pokazuje wszystkie hale, a ile pełny ekran jednej hali.
+36. Czas trwania pilotażu i to, czy musi objąć przymrozki.
+37. Próg rozróżnialności statusów na ekranie tabletu (K-01, T-20): minimalna różnica jasności między sąsiednimi szczeblami drabiny (papier, OK, uwaga, krytyczna, atrament), zmierzona na zdjęciu z kartą szarości (propozycja). Paleta zakłada co najmniej 3 poziomy odstępu na 16; na sprzęcie krzywa sterownika i dithering mogą to zmienić.
 
 **Sprzęt**
 
-40. **Model tabletu i firmware** (po bramce (B)): zatwierdzona para model + firmware, z zablokowanym aktualizatorem OTA i statusem Play Protect z T-27. Modele kolorowe (Kaleido 3, Gallery 3) i czarno-białe są pełnoprawnymi kandydatami; ekran musi działać na obu rodzajach.
-41. **Model kolorowego e-inka po testach.** Czy zostaje Boox Note Air6 C z zestawu domowego, czy wybieramy inny model, kolorowy albo czarno-biały. Rozstrzygają bramka (B), testy koloru K-01…K-07 oraz T-20, T-21 i T-22 (czytelność pól `t-*`, „duchy” i kolorowe ślady, nasycenie i czas pełnego odświeżenia z kolorem w zimnie). Gdy na Boox nie przejdą T-01 albo T-02, plan B to Samsung Galaxy Tab Active5 (dokupiony dopiero wtedy) albo inny e-ink z działającym DO, kolorowy albo czarno-biały.
-42. **Profil palety `t-*`: Kaleido 3 czy Gallery 3.** Note Air6 C ma według źródeł z 1.1 panel Kaleido 3, więc dostaje profil domyślny; potwierdzić na sprzęcie (K-01, T-20). Profil Gallery 3 podmienia `t-ok`, `t-warn` i `t-crit` na mniej nasycone przy tej samej jasności. Wynik zapisujemy jako parę model → profil w konfiguracji APK. Do decyzji: czy utrzymywać profil Gallery 3, skoro nie kupujemy tabletu z Gallery 3 i nie da się go sprawdzić na sprzęcie (1.1, rekomendacja, pkt 5).
-43. **Czy wymagać obsługi czarno-białych tabletów od pierwszej wersji.** Ekran i tak projektujemy tak, żeby działał na czarno-białym e-inku (drabina jasności i grubość obrysu, `docs/paleta.md`), a testy zrzutów sprawdzają go w szarości. Otwarte jest, czy v1 oficjalnie wspiera czarno-biały model:
+38. **Model tabletu i firmware** (po bramce (B)): zatwierdzona para model + firmware, z zablokowanym aktualizatorem OTA i statusem Play Protect z T-27. Modele kolorowe (Kaleido 3, Gallery 3) i czarno-białe są pełnoprawnymi kandydatami; ekran musi działać na obu rodzajach.
+39. **Model kolorowego e-inka po testach.** Czy zostaje Boox Note Air6 C z zestawu domowego, czy wybieramy inny model, kolorowy albo czarno-biały. Rozstrzygają bramka (B), testy koloru K-01…K-07 oraz T-20, T-21 i T-22 (czytelność pól `t-*`, „duchy” i kolorowe ślady, nasycenie i czas pełnego odświeżenia z kolorem w zimnie). Gdy na Boox nie przejdą T-01 albo T-02, plan B to Samsung Galaxy Tab Active5 (dokupiony dopiero wtedy) albo inny e-ink z działającym DO, kolorowy albo czarno-biały.
+40. **Profil palety `t-*`: Kaleido 3 czy Gallery 3.** Note Air6 C ma według źródeł z 1.1 panel Kaleido 3, więc dostaje profil domyślny; potwierdzić na sprzęcie (K-01, T-20). Profil Gallery 3 podmienia `t-ok`, `t-warn` i `t-crit` na mniej nasycone przy tej samej jasności. Wynik zapisujemy jako parę model → profil w konfiguracji APK. Do decyzji: czy utrzymywać profil Gallery 3, skoro nie kupujemy tabletu z Gallery 3 i nie da się go sprawdzić na sprzęcie (1.1, rekomendacja, pkt 5).
+41. **Czy wymagać obsługi czarno-białych tabletów od pierwszej wersji.** Ekran i tak projektujemy tak, żeby działał na czarno-białym e-inku (drabina jasności i grubość obrysu, `docs/paleta.md`), a testy zrzutów sprawdzają go w szarości. Otwarte jest, czy v1 oficjalnie wspiera czarno-biały model:
     - tak: przed wdrożeniem dokupić Boox Go 10.3 Gen II Lumi, przejść K-06, T-20 i T-21 na prawdziwym czarno-białym panelu i zatwierdzić drugą parę model + firmware;
     - nie: w v1 wariant czarno-biały sprawdzamy tylko na zrzutach przeliczonych na szarość (K-06), a czarno-biały model dochodzi później, po tych samych testach.
-44. Obudowa: otwarty front z folią czy szyba (po T-19); materiał (po próbkach).
-45. Miejsce montażu tabletu (wysokość, odległość odczytu, zasięg konia). Od tego zależy wybór 10,3″ czy 7,8″.
-46. Podświetlenie w nocy: czy włączone, a jeśli tak, to na jakim minimalnym poziomie.
+42. Obudowa: otwarty front z folią czy szyba (po T-19); materiał (po próbkach).
+43. Miejsce montażu tabletu (wysokość, odległość odczytu, zasięg konia). Od tego zależy wybór 10,3″ czy 7,8″.
+44. Podświetlenie w nocy: czy włączone, a jeśli tak, to na jakim minimalnym poziomie.
 
-**Otwarte kwestie z feedbacku stajni** [erd, „Otwarte kwestie”]
+**Otwarte kwestie z feedbacku ze stajni** (pełny opis: [erd.md, „Otwarte kwestie”](erd.md#otwarte-kwestie))
 
-47. **Model karmienia:** pudełko (porcja przygotowana wcześniej), namaczanie (co, w ilu litrach wody, jak długo) i ile. Dziś jest tylko wersja prosta: „namoczyć” i ile przy pozycji planu (`feeding_plan_items.soak`, `soak_note`), a tablet pokazuje „NAMOCZYĆ” w tabeli karmienia. Przed rozbudową nie dodajemy pól ani tabel.
-48. **Ekran dotykowy z blokadą czy zaprogramowany fizyczny przycisk przy boksie.** Dziś tablet ma blokadę dotyku na czas mycia (3.5.2, T-19, T-28, A-14). Alternatywą jest fizyczny przycisk, np. „Ogarnięte”, zamiast dotyku; wpłynąłby na obudowę i montaż (1.2) i na moduł `modules/kiosk` (obsługa przycisku). Do rozstrzygnięcia nic pod to nie kupujemy; dane z T-19 i A-14 w stajni pilotażowej pomogą w decyzji.
-49. **Płatności, faktury, KSeF:** czy to nie za dużo na PoC. Na razie bez rozbudowy: `billing` zostaje jak jest, na poziomie stajni, na fałszywych adapterach (2.11, 3.3); sandbox dostawcy i środowisko KSeF dopiero po decyzji.
+45. **Model karmienia:** pudełko (porcja przygotowana wcześniej), namaczanie (co, w ilu litrach wody, jak długo) i ile. Dziś jest tylko wersja prosta: „namoczyć” i ile przy pozycji planu (`feeding_plan_items.soak`, `soak_note`), a tablet pokazuje „NAMOCZYĆ” w tabeli karmienia. Przed rozbudową nie dodajemy pól ani tabel.
+46. **Ekran dotykowy z blokadą czy zaprogramowany fizyczny przycisk przy boksie.** Dziś tablet ma blokadę dotyku na czas mycia (3.5.2, T-19, T-30, A-15). Alternatywą jest fizyczny przycisk, np. „Ogarnięte”, zamiast dotyku; wpłynąłby na obudowę i montaż (1.2) i na moduł `modules/kiosk` (obsługa przycisku). Do rozstrzygnięcia nic pod to nie kupujemy; dane z T-19, T-30 i A-15 w stajni pilotażowej pomogą w decyzji.
+47. **Płatności, faktury, KSeF:** czy to nie za dużo na PoC. Na razie bez rozbudowy: `billing` zostaje jak jest, na poziomie stajni, na fałszywych adapterach (2.11, 3.3); sandbox dostawcy i środowisko KSeF dopiero po decyzji.
 
 ## Źródła
 
