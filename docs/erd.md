@@ -60,6 +60,7 @@
    - Nie ma osobnych wpisów „siano” i „karma”.
    - Pozycja planu karmienia może mieć informację „namoczyć” i ile (`feeding_plan_items.soak`, `soak_note`, np. „w 2 l wody”). To wersja prosta: model karmienia jest otwartą kwestią.
    - **Historia boksu** to flagi konia (utworzenie, potwierdzenie, odwołanie) i zdarzenia z przycisków obsługi. Widzi ją klient konia, który stoi w boksie (od dnia, w którym koń do niego trafił), obsługa i admin.
+   - **Tablet nie pokazuje historii**, tylko „Ostatnie akcje”: 5 najnowszych wpisów boksu i konia, bez przewijania i bez przycisku „Cała historia”. Pełną historię widać w apce i panelu web.
    - **Klient** (rola `client`) to osoba, która przyprowadza konia do stajni: właściciel albo dzierżawca konia. Dla stajni to ten sam klient.
      - Dostęp ma przez `horse_access` (rola `client`), także przez zaproszenie (`invitations.horse_id`).
      - Widzi swojego konia i boks, w którym koń stoi, oraz ustawia i odwołuje jego flagi.
