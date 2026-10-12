@@ -59,7 +59,7 @@
    - Każda sekcja hali ma przycisk „Pełny ekran”. Hala zajmuje wtedy cały ekran, większymi kaflami, a w panelu bocznym jest skrót pozostałych hal (liczba koni, pilne flagi). Przycisk „Wszystkie hale” wraca do widoku wszystkich.
    - Wybór widoku zapamiętuje przeglądarka na tym telewizorze, tak jak tablet pamięta wybrany boks. Telewizor w hali głównej ustawia się więc raz na pełny ekran tej hali (myszką przy instalacji albo pilotem przez HDMI-CEC). Serwer o tym nie wie i nie potrzeba tabeli wyświetlaczy.
    - Jedno konto `display` może obsłużyć wszystkie telewizory. Admin może też założyć osobne konto na każdy telewizor, jeśli chce blokować je pojedynczo.
-   - Gdy boksów jest dużo, strona zmniejsza kafle do wersji skróconej (numer, koń, flaga, posiłki). Jeśli dalej się nie mieszczą, przełącza strony co 20 s. Pasek pilnych flag zostaje zawsze na górze i obejmuje wszystkie hale.
+   - Gdy boksów jest dużo, strona zmniejsza kafle do wersji skróconej (numer, koń, flaga, posiłki). Jeśli dalej się nie mieszczą, przełącza strony co 20 s. Pasek pilnych flag zostaje zawsze na górze. W widoku wszystkich hal obejmuje wszystkie hale, a na pełnym ekranie tylko tę halę.
    - Nie potrzeba nowych tabel.
 5. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
@@ -93,7 +93,7 @@
      - `board` przy odpytywaniu porównuje wersje w bazie;
      - cron uzgadniający poprawia skutki `horse.left`.
    - E-maile z `notifications` mogą iść przez SES (adapter `EmailSender`).
-9. **Sloty posiłków i padoki należą do `care`, a hale do `rides`**, bo te serwisy z nich korzystają.
+9. **Sloty posiłków i padoki należą do `care`, a kryte ujeżdżalnie (`arenas`) do `rides`**, bo te serwisy z nich korzystają. Ujeżdżalnie to co innego niż hale z boksami (`buildings`).
 10. **Płatności (`billing`).**
    - Płaci stajnia: ma konto rozliczeniowe (dane do faktury) i subskrypcję planu.
    - Comiesięczny cron zapisuje zużycie (np. boksy z koniem). Z niego powstaje faktura z pozycjami, a płatności przychodzą od dostawcy przez webhooki.
@@ -805,7 +805,7 @@ erDiagram
 erDiagram
     audit_log {
         uuid id PK "schemat audit"
-        uuid stable_id FK "stables"
+        uuid stable_id "bez FK do app"
         text service
         text actor_type "user | tablet | operator | system"
         uuid actor_id
