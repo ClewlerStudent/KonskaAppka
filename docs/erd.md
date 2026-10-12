@@ -77,7 +77,7 @@
    - Serwis `identity` tworzy wiersz `users` przy pierwszym uwierzytelnionym żądaniu (upsert po `cognito_sub`).
    - Usunięcie konta to pseudonimizacja w `users` i usunięcie konta w Cognito.
    - Zaproszenie nie ma własnego tokenu: po zalogowaniu przez Cognito serwis `access` dopasowuje zweryfikowany telefon albo e-mail z tokenu do `invitations.target`.
-   - Tablet wysyła token zalogowanego użytkownika i numer wybranego boksu.
+   - Tablet wysyła token zalogowanego użytkownika i identyfikator (`id`) wybranego boksu.
 7. **Pliki w S3.**
    - `files` trzyma metadane, `s3_key` (z prefiksem `stable_id/`) i właściciela (`owner_service`, `owner_id`).
    - Link do pobrania wydaje tylko serwis-właściciel po sprawdzeniu uprawnień. Na przykład `health` sprawdza widoczność wpisu i dostęp do konia, a dopiero potem prosi `files` o krótko ważny presigned URL.
@@ -107,11 +107,11 @@
    - Adres pierwszej hali to adres podany przy zakładaniu stajni.
    - Nową halę dodaje admin w panelu web: Boksy i konie → „Dodaj halę”.
      - Podaje nazwę i adres (może skopiować adres innej hali).
-     - Potem wybiera jedno: dodaje nowe boksy z zakresu numerów wolnych w całej stajni, przenosi istniejące boksy albo zostawia halę pustą.
+     - Potem wybiera jedno: dodaje nowe boksy z zakresu numerów (każda hala numeruje boksy od siebie, np. od 1), przenosi istniejące boksy albo zostawia halę pustą.
      - Serwis `stable` zapisuje halę i boksy w jednej transakcji i dopisuje audyt.
      - Innym serwisom nic nie trzeba wysyłać: tablet („Zmień boks”) i wyświetlacz widzą nową halę przy najbliższym odpytaniu.
    - Usunąć można tylko pustą halę. Halę z boksami trzeba najpierw opróżnić (przenieść boksy) albo wyłączyć (`active = false`).
-   - Numer boksu (`boxes.label`) jest unikalny w całej stajni, a nie tylko w hali, więc „boks 12” zawsze oznacza jedno miejsce.
+   - Boksy numeruje się w obrębie hali, więc każda hala może mieć swój boks 1. Numer (`boxes.label`) nie jest unikalny: baza tego nie pilnuje, a kod nie blokuje powtórzeń. Boks rozpoznajemy po `id`. Gdy stajnia ma więcej niż jedną halę, interfejs zawsze pokazuje halę razem z numerem, np. „Hala nowa · boks 4”.
    - Przeniesienie boksu do innej hali (np. po przebudowie) to zmiana `building_id`. Koń, historia i zdarzenia zostają przy boksie.
    - Hale widać na liście boksów w apce i panelu (grupy i filtr), przy wyborze boksu na tablecie (zakładki hal) i na wyświetlaczu centralnym (sekcje hal, każda z opcją pełnego ekranu).
    - Hale z boksami to co innego niż kryte ujeżdżalnie do jazd (`arenas` w serwisie `rides`).
@@ -241,7 +241,7 @@ erDiagram
         uuid id PK
         uuid stable_id FK
         uuid building_id FK "buildings, hala"
-        text label "unikalny w stajni"
+        text label "numer w hali, bez unikalności"
         boolean active
     }
     horses {
