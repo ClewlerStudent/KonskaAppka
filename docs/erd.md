@@ -47,7 +47,12 @@
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
    - Do potwierdzenia:
      - czy najemca widzi też konia, który stoi w jego boksie.
-4. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
+4. **Wyświetlacz centralny (TV z Raspberry Pi).**
+   - Telewizor z Raspberry Pi otwiera w przeglądarce, w trybie kiosku, stronę panelu web z widokiem wszystkich boksów. Strona sama odpytuje serwer co kilka sekund, tak jak tablet.
+   - Wyświetlacz loguje się raz na konto techniczne stajni z rolą `display` w `stable_members` (np. `wyswietlacz-korytarz`). Konto zakłada admin w ustawieniach; sesję podtrzymuje Cognito, a admin może konto zablokować.
+   - Rola `display` daje tylko odczyt widoku wszystkich boksów: konie, flagi, posiłki, zdarzenia przy boksie. Bez danych osobowych (telefony, e-maile) i bez zapisu.
+   - Nie potrzeba nowych tabel.
+5. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
    - Klucze obce są normalne, także między tabelami różnych serwisów.
    - Dzięki temu nie ma replik ani synchronizacji danych między serwisami. Na przykład `board` składa stan tablicy, czytając wprost konie, flagi i plany karmienia.
@@ -57,17 +62,17 @@
      - Role bazy serwisów mają w schemacie `audit` tylko `INSERT`, bez odczytu, zmiany i usuwania.
      - Czytać i sprzątać po okresie retencji może tylko serwis `audit`.
    - Koszt: zmiana kolumny czytanej przez inne serwisy musi być zgodna wstecz (najpierw dodać, potem usunąć).
-5. **Tożsamość w Cognito.**
+6. **Tożsamość w Cognito.**
    - `users.cognito_sub` wiąże nasz profil z kontem w puli Cognito.
    - Hasła, kody OTP (SMS, TOTP), sesje i tokeny trzyma Cognito. Cognito jest też źródłem prawdy dla telefonu i e-maila, a `users` trzyma ich kopię do powiadomień.
    - Serwis `identity` tworzy wiersz `users` przy pierwszym uwierzytelnionym żądaniu (upsert po `cognito_sub`).
    - Usunięcie konta to pseudonimizacja w `users` i usunięcie konta w Cognito.
    - Zaproszenie nie ma własnego tokenu: po zalogowaniu przez Cognito serwis `access` dopasowuje zweryfikowany telefon albo e-mail z tokenu do `invitations.target`.
    - Tablet wysyła token zalogowanego użytkownika i numer zablokowanego boksu.
-6. **Pliki w S3.**
+7. **Pliki w S3.**
    - `files` trzyma metadane, `s3_key` (z prefiksem `stable_id/`) i właściciela (`owner_service`, `owner_id`).
    - Link do pobrania wydaje tylko serwis-właściciel po sprawdzeniu uprawnień. Na przykład `health` sprawdza widoczność wpisu i dostęp do konia, a dopiero potem prosi `files` o krótko ważny presigned URL.
-7. **Bez WebSocketów.**
+8. **Bez WebSocketów.**
    - Tablet sam regularnie, co kilka sekund, pyta serwis `board` o stan zablokowanego boksu. Serwer nie trzyma żadnego stanu tablic.
    - `board` nie ma własnych tabel: przy każdym zapytaniu składa odpowiedź z danych w bazie. `ETag` to hash odpowiedzi, więc gdy nic się nie zmieniło, tablet dostaje `304`.
    - Wyświetlenie flagi tablet zgłasza z numerem boksu (`flag_displays`).
@@ -80,8 +85,8 @@
      - `board` przy odpytywaniu porównuje wersje w bazie;
      - cron uzgadniający poprawia skutki `horse.left`.
    - E-maile z `notifications` mogą iść przez SES (adapter `EmailSender`).
-8. **Sloty posiłków i padoki należą do `care`, a hale do `rides`**, bo te serwisy z nich korzystają.
-9. **Płatności (`billing`).**
+9. **Sloty posiłków i padoki należą do `care`, a hale do `rides`**, bo te serwisy z nich korzystają.
+10. **Płatności (`billing`).**
    - Płaci stajnia: ma konto rozliczeniowe (dane do faktury) i subskrypcję planu.
    - Comiesięczny cron zapisuje zużycie (np. boksy z koniem). Z niego powstaje faktura z pozycjami, a płatności przychodzą od dostawcy przez webhooki.
    - Kwoty są w groszach (`bigint`).
@@ -240,7 +245,7 @@ erDiagram
         uuid id PK
         uuid stable_id FK "stables"
         uuid user_id FK "users, unikalne ze stable_id"
-        text role "admin | staff | instructor | technician | member"
+        text role "admin | staff | instructor | technician | display | member"
         boolean active
         timestamptz deactivated_at
     }
