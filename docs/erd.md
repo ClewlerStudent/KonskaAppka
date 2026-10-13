@@ -3,7 +3,7 @@
 > Wersja robocza v3 · 2026-10-12, po feedbacku ze stajni. Uwzględnia decyzje:
 > - każdy moduł i każdy cron to osobny mikroserwis w monorepo;
 > - płatności (serwis `billing`);
-> - Cognito jako serwer autoryzacji (OTP przez SMS i TOTP z RFC 6238);
+> - Cognito jako serwer autoryzacji (OTP przez SMS albo e-mail i TOTP z RFC 6238);
 > - pliki w S3;
 > - koń i boks w relacji 0..1 do 0..1 (koń może stać bez boksu, boks bez konia);
 > - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
@@ -92,7 +92,8 @@
    - Koszt: zmiana kolumny czytanej przez inne serwisy musi być zgodna wstecz (najpierw dodać, potem usunąć).
 6. **Tożsamość w Cognito.**
    - `users.cognito_sub` wiąże nasz profil z kontem w puli Cognito.
-   - Hasła, kody OTP (SMS, TOTP), sesje i tokeny trzyma Cognito. Cognito jest też źródłem prawdy dla telefonu i e-maila, a `users` trzyma ich kopię do powiadomień.
+   - Hasła, kody OTP (SMS, e-mail, TOTP), sesje i tokeny trzyma Cognito. Cognito jest też źródłem prawdy dla telefonu i e-maila, a `users` trzyma ich kopię do powiadomień.
+   - Logowanie numerem telefonu albo e-mailem, bez hasła: kod jednorazowy przychodzi SMS-em albo e-mailem. Zaproszenie idzie na numer telefonu (SMS) albo na e-mail (`invitations.channel`).
    - Serwis `identity` tworzy wiersz `users` przy pierwszym uwierzytelnionym żądaniu (upsert po `cognito_sub`).
    - Usunięcie konta to pseudonimizacja w `users` i usunięcie konta w Cognito.
    - Zaproszenie nie ma własnego tokenu: po zalogowaniu przez Cognito serwis `access` dopasowuje zweryfikowany telefon albo e-mail z tokenu do `invitations.target`.
@@ -879,6 +880,7 @@ erDiagram
 ## Zmiany względem modelu z analizy v3
 
 - **Przejmuje Cognito:** `otp_challenges`, `auth_sessions`, `access_tokens`, `refresh_tokens`, `device_auth_challenges`, `rate_limit_buckets`, a także `invitations.token_hash` (zaproszenie dopasowuje się do zweryfikowanego telefonu albo e-maila).
+- **E-mail obok telefonu (13.10.2026):** logowanie numerem telefonu albo e-mailem (kod SMS-em albo e-mailem) i zaproszenia na telefon albo e-mail; bez nowych tabel i kolumn, bo `users.email` i `invitations.channel` już są.
 - **Tablety:**
   - nie ma parowania (`device_pairing_requests`) ani PIN-ów obsługi (`stable_members.pin_verifier`, `stables.service_pin_verifier`): na tablecie zawsze jest zalogowany konkretny użytkownik;
   - nie ma tabel urządzeń (`devices`, `device_boxes`, `device_presence`, komendy, alerty): wybrany boks jest zapamiętany na tablecie, bez blokady, a sesje są w Cognito;
