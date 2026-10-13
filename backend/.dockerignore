@@ -1,0 +1,11 @@
+node_modules
+dist
+.local
+coverage
+*.log
+.git
+.env*
+scripts
+openapi
+Dockerfile
+.dockerignore

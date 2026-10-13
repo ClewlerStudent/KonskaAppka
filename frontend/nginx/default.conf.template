@@ -1,0 +1,65 @@
+# Szablon konfiguracji nginx. Obraz nginx-unprivileged przy starcie podstawia ${ZMIENNE}
+# z env kontenera (tylko zdefiniowane, więc $uri itp. zostają) i zapisuje
+# /etc/nginx/conf.d/default.conf (kontekst http).
+# Port 8080: strona www; port 8081: panel web (SPA). Hosty rozdziela Ingress.
+# Adresy w HTML: build ma znaczniki __EQ_*__, a sub_filter podmienia je na wartości z env,
+# więc jeden obraz działa w każdym środowisku.
+
+server_tokens off;
+
+gzip on;
+gzip_min_length 1024;
+gzip_types text/css application/javascript image/svg+xml application/json;
+
+# add_header w location kasuje nagłówki z server, więc wszystkie nagłówki są na poziomie server,
+# a Cache-Control zależy od ścieżki przez map.
+map $uri $eq_cache_control {
+    ~^/assets/ "public, max-age=31536000, immutable";
+    default "no-cache";
+}
+
+# Strona www (statyczne strony bez JS).
+server {
+    listen 8080;
+    server_name _;
+    root /usr/share/nginx/www;
+    index index.html;
+
+    add_header Cache-Control $eq_cache_control always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'" always;
+
+    sub_filter_once off;
+    sub_filter '__EQ_PANEL_URL__' '${PANEL_URL}';
+    sub_filter '__EQ_CONTACT_EMAIL__' '${CONTACT_EMAIL}';
+
+    location / {
+        try_files $uri $uri/ $uri.html =404;
+    }
+}
+
+# Panel web (SPA): nieznane ścieżki poza /assets/ dostają index.html.
+server {
+    listen 8081;
+    server_name _;
+    root /usr/share/nginx/web;
+    index index.html;
+
+    add_header Cache-Control $eq_cache_control always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' ${API_BASE_URL}; frame-ancestors 'none'; base-uri 'none'; form-action 'self'" always;
+
+    sub_filter_once off;
+    sub_filter '__EQ_API_BASE_URL__' '${API_BASE_URL}';
+    sub_filter '__EQ_WWW_URL__' '${WWW_URL}';
+
+    location /assets/ {
+        try_files $uri =404;
+    }
+
+    location / {
+        try_files $uri /index.html;
+    }
+}

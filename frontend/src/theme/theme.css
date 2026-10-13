@@ -1,0 +1,44 @@
+/* Tokeny kolorów EQUENOR (docs/paleta.md); wartości = src/theme/tokens.ts (pilnuje test). */
+:root {
+  /* LCD */
+  --eq-bg: #f3ece2;
+  --eq-surface: #fffcf7;
+  --eq-sand: #ede3d5;
+  --eq-accent-soft: #f3e2d0;
+  --eq-line: #e0d3c2;
+  --eq-line-strong: #b9a791;
+  --eq-line-input: #907d6a;
+  --eq-ink: #2e241d;
+  --eq-ink-2: #5c4e43;
+  --eq-accent: #8a5230;
+  --eq-accent-strong: #6b3a1e;
+  --eq-on-accent: #fffcf7;
+  --eq-ok-text: #2d523d;
+  --eq-ok-tint: #d4eadc;
+  --eq-ok-line: #407658;
+  --eq-warn-text: #664810;
+  --eq-warn-tint: #f6e3b7;
+  --eq-warn-tint-weak: #fcf4e2;
+  --eq-warn-line: #8c6014;
+  --eq-crit-text: #71251a;
+  --eq-crit-tint: #efcbbf;
+  --eq-crit-line: #86301f;
+  --eq-crit-solid: #86301f;
+  --eq-on-crit: #fffcf7;
+  --eq-scrim: rgba(46, 36, 29, 0.4);
+  --eq-shadow-card: 0 1px 2px rgba(46, 36, 29, 0.06), 0 4px 12px -6px rgba(46, 36, 29, 0.14);
+
+  /* Tablet e-ink (Kaleido 3) */
+  --eq-t-paper: #ffffff;
+  --eq-t-ok: #acda9d;
+  --eq-t-line: #ababab;
+  --eq-t-warn: #d28a21;
+  --eq-t-scrim: #6e6e6e;
+  --eq-t-crit: #9e2a1c;
+  --eq-t-ink-2: #404040;
+  --eq-t-ink: #000000;
+
+  /* Fonty */
+  --eq-font: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --eq-font-tablet: 'Atkinson Hyperlegible', 'Figtree', system-ui, sans-serif;
+}

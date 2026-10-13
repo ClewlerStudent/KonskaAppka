@@ -1,0 +1,4 @@
+# Każdy pakiet (backend/, frontend/) ma własny .gitignore; tu tylko zabezpieczenia w korzeniu.
+/.env
+node_modules/
+.DS_Store

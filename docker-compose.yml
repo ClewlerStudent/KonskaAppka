@@ -1,0 +1,52 @@
+# Lokalne uruchomienie z obrazów (dev). Nieprzetestowane w środowisku bez Dockera: README.md.
+# Start: DEV_DEMO_PASSWORD=… docker compose up --build
+# Panel http://localhost:8081, strona www http://localhost:8080, API auth http://localhost:4010.
+# Kody logowania: docker compose exec auth tail -n 5 /tmp/inbox.jsonl
+name: equenor
+
+services:
+  auth:
+    build: ./backend
+    command: ['npm', 'run', 'start:auth']
+    environment:
+      APP_ENV: dev
+      LOG_LEVEL: info
+      HOST: 0.0.0.0
+      PORT: '8080'
+      JWKS_PORT: '8081'
+      AUTH_ISSUER: http://localhost:4010/auth/v1
+      ALLOWED_ORIGINS: http://localhost:8081
+      SIGNING_KEY_EPHEMERAL: 'true'
+      IDP: fake
+      CODE_SENDER: dev-inbox
+      DEV_INBOX_FILE: /tmp/inbox.jsonl
+      DEV_DEMO_PASSWORD: ${DEV_DEMO_PASSWORD:?Ustaw DEV_DEMO_PASSWORD (min. 10 znaków)}
+    ports:
+      - '127.0.0.1:4010:8080'
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8080/livez']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    environment:
+      WWW_URL: http://localhost:8080
+      PANEL_URL: http://localhost:8081
+      API_BASE_URL: http://localhost:4010
+      CONTACT_EMAIL: kontakt@equenor.example
+    ports:
+      - '127.0.0.1:8080:8080'
+      - '127.0.0.1:8081:8081'
+    depends_on:
+      auth:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8080/']
+      interval: 10s
+      timeout: 3s
+      retries: 5

@@ -1,0 +1,10 @@
+# Trasy otwarte (bez access tokenu). Test contracts.test.ts porównuje tę listę z deskryptorami
+# (kind: 'open'), więc nowa trasa otwarta wymaga zmiany tego pliku w przeglądzie.
+# Sondy /livez i /readyz (kit, bez limitu, poza Ingressem) nie są tu wymienione.
+POST /auth/v1/sign-up
+POST /auth/v1/sign-up/confirm
+POST /auth/v1/sign-up/resend
+POST /auth/v1/login
+POST /auth/v1/login/mfa
+POST /auth/v1/token
+POST /auth/v1/logout

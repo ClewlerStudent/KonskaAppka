@@ -1,0 +1,7 @@
+/* Fonty lokalnie z @fontsource (latin i latin-ext przez unicode-range), bez Google Fonts. */
+@import '@fontsource/figtree/400.css';
+@import '@fontsource/figtree/500.css';
+@import '@fontsource/figtree/600.css';
+@import '@fontsource/figtree/700.css';
+/* Tylko miniatura tabletu na www. */
+@import '@fontsource/atkinson-hyperlegible/700.css';
