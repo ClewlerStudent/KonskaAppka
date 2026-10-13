@@ -26,6 +26,8 @@ Prośba dotyczyła rejestracji i ekranów głównych, więc zaczynamy od ścież
 
 Przed pierwszą falą warto rozstrzygnąć dec. 1, 7, 10, 12, 17 i 18 (sekcja 5). Bez odpowiedzi rysujemy według rekomendacji, z dopiskiem „(propozycja, dec. N)”.
 
+**Stan 13.10.2026:** pierwsza fala jest na kanwie (sekcja „Pierwsza fala”), narysowana według rekomendacji. Numery decyzji i linki tymczasowe (np. „[WWW]/app” → LogowanieNumer, „Ludzie” w PanelPulpit → PanelLudzieWyswietlacze) są w notatkach rzędów. Po decyzjach poprawiamy plansze i podmieniamy linki (3.H).
+
 ## 2. Zasady
 
 ### 2.1 Pliki, stany, linki, kanwa
