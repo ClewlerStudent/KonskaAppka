@@ -1,4 +1,4 @@
-%%{init: {"flowchart": {"curve": "basis", "nodeSpacing": 60, "rankSpacing": 80, "wrappingWidth": 420}, "themeVariables": {"fontSize": "16px"}}}%%
+%%{init: {"flowchart": {"curve": "basis", "nodeSpacing": 45, "rankSpacing": 65, "wrappingWidth": 420}, "themeVariables": {"fontSize": "16px"}}}%%
 flowchart TB
     subgraph K["Aplikacje"]
         direction TB
@@ -14,46 +14,71 @@ flowchart TB
         pz["Pula zespołu EQUENOR<br/>passkey albo hasło + TOTP"]
     end
 
-    AUTH["<b>auth: JEDYNY serwis autoryzacyjny</b><br/>tożsamość, firmy, ludzie, zaproszenia,<br/>macierz widoczności, role platformowe<br/>wydaje i podpisuje tokeny, JWKS,<br/>sesje, lista unieważnień"]
+    AUTH["<b>auth: JEDYNY serwis autoryzacyjny</b><br/>tożsamość, firmy, ludzie, zaproszenia,<br/>macierz widoczności, role platformowe<br/>podpisuje access token (5 min) i refresh token (JWT),<br/>JWKS; bez sesji w bazie"]
     KMS["AWS KMS<br/>klucz podpisu ES256"]
 
-    subgraph S["12 serwisów: weryfikują podpis lokalnie, nie pytają auth o uprawnienia"]
+    subgraph S["Serwisy z API: weryfikują podpis lokalnie, nie pytają auth o uprawnienia"]
         direction LR
-        s1["<b>Dane stajni</b><br/>stable · board · flags · care<br/>health · rides · tasks"]
-        s2["<b>Konto i platforma</b><br/>billing · releases · audit"]
-        nf["<b>notifications</b><br/>/internal, historia wysyłek"]
-        fl["<b>files</b><br/>/internal, metadane dla plt"]
+        subgraph G1["Dane stajni"]
+            s1["stable · dzien<br/>terminarz · board"]
+        end
+        subgraph G2["Konto i platforma"]
+            s2["billing · platform"]
+            fl["<b>files</b><br/>jedyny dostęp do S3"]
+        end
+        subgraph G3["Powiadomienia"]
+            nf["<b>notifications</b><br/>router: reguły, odbiorcy,<br/>treść, historia"]
+        end
     end
 
-    CR["9 cronów<br/>token serwisowy od auth"]
+    subgraph W["Wysyłka (W5): bez tabel i roli bazy, wszystko z kolejki"]
+        direction LR
+        qs[["kolejka sms<br/>SQS FIFO"]] --> sms["<b>sms</b>"]
+        qe[["kolejka email<br/>SQS FIFO"]] --> em["<b>email</b>"]
+    end
+
+    CR["9 cronów<br/>bez tokenów,<br/>kod domeny właściciela;<br/>files-gc sprząta też S3"]
     DB[("PostgreSQL: schematy app i audit<br/>tabele uprawnień czyta tylko auth")]
-    EV[["SNS + SQS<br/>zdarzenia po COMMIT"]]
+    EV[["SNS + SQS<br/>zdarzenia"]]
     S3[("S3<br/>pliki")]
+    AWSSMS["AWS SMS"]
+    SES["AWS SES"]
 
     K -- "1. logowanie" --> C
     K -- "2. wymiana ID tokenu,<br/>odświeżanie" --> AUTH
-    AUTH -.->|"klucze publiczne Cognito,<br/>Admin API: wylogowanie, usuwanie kont"| C
+    AUTH -.->|"klucze publiczne,<br/>Admin API"| C
     AUTH -- "podpis" --> KMS
-    K ==>|"3. żądania<br/>z tokenem<br/>EQUENOR"| S
-    AUTH -.->|"w tle: JWKS,<br/>unieważnienia,<br/>tokeny serwisowe"| S
-    AUTH -.->|"adresy odbiorców<br/>(pobiera notifications)"| nf
-    AUTH <-.->|"token serwisowy;<br/>/internal auth"| CR
-    CR -- "/internal" --> S
-    CR -.->|"odczyt"| DB
-    AUTH --> DB
+    K ==>|"3. żądania<br/>z access tokenem"| S
+    AUTH -.->|"w tle: JWKS,<br/>/internal/recipients"| S
+    AUTH ~~~ CR
     S --> DB
-    AUTH <--> EV
-    EV <--> S
+    AUTH --> DB
+    CR -- "zapis wprost" --> DB
+    s1 <-->|"zdarzenia"| EV
+    s2 <--> EV
+    nf ---|"konsumuje<br/>zdarzenia"| EV
+    AUTH --> EV
+    CR -- "zdarzenia<br/>przed COMMIT" --> EV
     fl --> S3
+    nf -- "gotowe wiadomości" --> W
+    EV -. "sms.result,<br/>email.result" .- W
+    sms --> AWSSMS
+    em --> SES
 
     classDef authc fill:#fde2e4,stroke:#c0392b,stroke-width:2px,color:#000
     classDef svc fill:#e3f0fb,stroke:#2f6fa7,color:#000
+    classDef wrk fill:#efe7f7,stroke:#6b4c9a,color:#000
     classDef cli fill:#eef7e8,stroke:#4f8a3a,color:#000
     classDef ext fill:#f4f4f4,stroke:#777,color:#000
     class AUTH authc
-    class s1,s2,nf,fl svc
+    class s1,s2,fl,nf svc
+    class sms,em wrk
     class apka,panel,tablet,ops cli
-    class pk,pz,KMS,DB,EV,S3,CR ext
+    class pk,pz,KMS,DB,EV,S3,CR,qs,qe,AWSSMS,SES ext
     style K fill:#fbfdf9,stroke:#4f8a3a
     style S fill:#f7fbff,stroke:#2f6fa7
     style C fill:#fafafa,stroke:#777
+    style W fill:#fbf8fe,stroke:#6b4c9a
+    style G1 fill:#ffffff,stroke:#9bbbd8
+    style G2 fill:#ffffff,stroke:#9bbbd8
+    style G3 fill:#ffffff,stroke:#9bbbd8
