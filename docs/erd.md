@@ -8,15 +8,15 @@
 > - pliki w S3;
 > - koń i boks w relacji 0..1 do 0..1 (koń może stać bez boksu, boks bez konia);
 > - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
-> - użytkownik logowany na tabletach; boks wybiera się na tablecie przyciskiem „Zmień boks”, a wybór jest zapamiętany na tablecie (bez blokady i bez tabeli urządzeń); język tablicy też ustawia się na każdym tablecie osobno;
-> - telewizor loguje się zwykłym kontem z rolą Wyświetlacz, bez kont technicznych;
+> - tablet loguje się kontem technicznym z rolą Tablet (jedno na stajnię, propozycja), nie kontem osoby; boks wybiera się na tablecie przyciskiem „Zmień boks”, a wybór jest zapamiętany na tablecie (bez blokady i bez tabeli urządzeń); język tablicy też ustawia się na każdym tablecie osobno;
+> - telewizor loguje się w zwykłym panelu kontem technicznym z rolą Wyświetlacz; widok tablicy wynika z roli;
 > - stajnia może mieć kilka hal z boksami (`buildings`), każda z własnym adresem;
 > - status flagi to tylko „potwierdzona” albo „niepotwierdzona” (w stajni, która wymaga potwierdzeń), bez śledzenia wyświetleń na tablecie;
 > - boks jako kontener: obsługa zapisuje „Ogarnięte” jednym tapnięciem, a posiłki i padok jedną akcją dla całej hali; klient widzi boks swojego konia;
 > - flagi mają godziny od–do i tylko one mogą wymagać potwierdzenia obsługi; czy wymagają, zależy od ustawień stajni;
 > - ustawienia per stajnia: usługi (np. derki, moczenie paszy, szybkie przyciski), potwierdzenia flag, widoczność per rola i powiadomienia;
 > - zakładanie stajni w 2 krokach: stajnia (z konfiguracją każdego boksu), potem powiadomienia;
-> - role: Admin to rola konta firmy (wszystkie stajnie firmy); w stajni: Klient (właściciel albo dzierżawca konia), Obsługa, Instruktor, Wsparcie IT, Wyświetlacz;
+> - role: Admin to rola konta firmy (wszystkie stajnie firmy); w stajni: Klient (właściciel albo dzierżawca konia), Obsługa, Instruktor oraz konta techniczne z rolą Wyświetlacz albo Tablet; Wsparcie IT to zespół EQUENOR, nie rola stajni;
 > - konto firmy → stajnie → hale → boksy (`businesses`);
 > - sesje tylko w Cognito, bez tabel sesji w bazie.
 
@@ -30,15 +30,16 @@
    - Zamiana dwóch koni to jedna transakcja w kodzie: koń A na chwilę bez boksu, koń B do boksu A, koń A do boksu B.
    - Każda zmiana zamyka i otwiera wpisy w `horse_box_history`. Unikalne indeksy pilnują, żeby otwarty był najwyżej jeden wpis na konia i jeden na boks.
    - Relacji pilnuje baza kluczem obcym i unikalnością, bez logiki w bazie.
-2. **Tablet: logowanie użytkownika i wybór boksu, bez tabeli urządzeń.**
-   - Tablet nie ma własnego konta ani wiersza w bazie. Loguje się na nim użytkownik tym samym kontem co w apce; sesja i tokeny są w Cognito.
-   - Jeden użytkownik może być zalogowany na kilku tabletach naraz i wszędzie widzi te same dane, bo decydują jego uprawnienia.
+2. **Tablet: konto techniczne tabletów i wybór boksu, bez tabeli urządzeń.**
+   - Tablet loguje się kontem technicznym z rolą `tablet` w `stable_members` (pkt 14), nie kontem osoby. Propozycja: jedno konto tabletów na stajnię, np. „Tablety Pod Lipami” z e-mailem boksy@stajnielipowe.pl. Zaprasza je admin przez „Zaproś osobę” → „Konto techniczne: Tablet przy boksie” (`invitations.role = tablet`), a loguje się jak każde konto (pkt 6). Tablet nie ma wiersza w bazie; sesja i tokeny są w Cognito.
+   - Jedno konto tabletów jest zalogowane na wszystkich tabletach stajni naraz.
    - Tablet pokazuje jeden boks. Wybrany boks zapamiętuje apka na tablecie. Serwer o tym wyborze nie wie, a jeden boks może być pokazywany na kilku tabletach.
-   - Nie ma blokady boksu. Na tablicy jest przycisk „Zmień boks”, który otwiera listę boksów pogrupowaną po halach. Stuknięcie w boks od razu przełącza tablet. Bez wyboru tablet po 30 s wraca do poprzedniego boksu.
+   - Nie ma blokady boksu. Na tablicy jest przycisk „Zmień boks”, który otwiera listę boksów stajni pogrupowaną po halach. Stuknięcie w boks od razu przełącza tablet. Bez wyboru tablet po 30 s wraca do poprzedniego boksu.
+   - Konto tabletów należy do jednej stajni, więc tablet nie wybiera stajni: od razu po zalogowaniu wybiera się boks.
    - **Język tablicy to ustawienie lokalne tabletu**, tak jak wybrany boks: ustawia się go w ustawieniach tabletu, osobno na każdym tablecie, a przełącznik PL | UA w stopce tablicy zostaje. Wybór zapamiętuje apka na tablecie i wysyła go w zapytaniu do `board` (propozycja). Bez tabeli i bez języków na poziomie stajni. Tłumaczenia nazw (np. pory posiłków po ukraińsku) to opcjonalne etykiety `*_labels` z `locale`; gdy etykiety w danym języku nie ma, tablica pokazuje nazwę po polsku (propozycja).
    - Tablica boksu nie pokazuje, kto jest zalogowany. Logowanie i wylogowanie są w ustawieniach tabletu.
-   - Wylogowanie użytkownika ze wszystkich urządzeń robi Cognito (global sign-out).
-   - Tablety są stale włączone i zalogowane, więc akcji z tabletu (potwierdzenie flagi, „Ogarnięte”, „Woda” przy poidle ręcznym, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu) nie przypisujemy zalogowanej osobie. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
+   - Wylogowanie osoby, także ze wszystkich urządzeń, nie dotyka tabletów. Zgubiony tablet: admin wylogowuje konto tabletów ze wszystkich urządzeń (global sign-out w Cognito) i loguje pozostałe tablety ponownie (propozycja).
+   - Na tablecie jest zalogowane konto techniczne, a nie osoba, więc akcji z tabletu (potwierdzenie flagi, „Ogarnięte”, „Woda” przy poidle ręcznym, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu) nie przypisujemy nikomu. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
    - Status flagi to tylko „potwierdzona” (z godziną) albo „niepotwierdzona”. Tak pokazują go apka, panel, tablet i wyświetlacz. Dotyczy to stajni, która wymaga potwierdzeń (pkt 16). W stajni bez potwierdzeń flaga obowiązuje od razu i nie ma statusu. Nie śledzimy, czy flaga wyświetliła się na tablecie, ani tego, czy tablet działa. Skąd przyszło potwierdzenie (`flag_acknowledgements.method`, `box_id`), zostaje tylko w danych do audytu.
    - **Blokada ekranu (dotyku).**
      - Ekran jest dotykowy, więc przycisk „Zablokuj ekran” (kłódka) włącza blokadę na czas mycia albo wycierania tabletu.
@@ -48,7 +49,7 @@
      - Stan trzyma tylko tablet, bez tabel. To blokada dotyku, a nie blokada boksu (tej nie ma).
    - Bez tabeli urządzeń nie ma zdalnych komend, telemetrii (bateria, Wi-Fi) ani listy tabletów w panelu. Diagnostyka tabletów, jeśli będzie potrzebna, trafia do logów i metryk, nie do bazy.
    - Założenia do potwierdzenia:
-     - na tablecie jest zalogowany jeden użytkownik naraz (pilnuje apka);
+     - na tablecie jest zalogowane jedno konto naraz (pilnuje apka);
      - boks może zmienić każdy, kto stoi przy tablecie;
      - ustawienia tabletu otwiera się dłuższym przytrzymaniem, żeby nikt nie trafił w nie przypadkiem;
      - po wylogowaniu tablet pamięta wybrany boks i język i wraca do nich po kolejnym logowaniu.
@@ -75,8 +76,8 @@
    - Dostęp ma ramy czasowe (`valid_from`, `valid_to`) i można go odebrać (`revoked_at`), np. gdy koń opuszcza stajnię albo kończy się dzierżawa.
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
 4. **Wyświetlacz centralny (TV z Raspberry Pi).**
-   - Telewizor z Raspberry Pi otwiera w przeglądarce, w trybie kiosku, stronę panelu web z widokiem wszystkich boksów. Strona sama odpytuje serwer co kilka sekund, tak jak tablet.
-   - Wyświetlacz loguje się zwykłym kontem z rolą `display` w `stable_members`: numerem telefonu albo e-mailem i kodem z SMS-a albo e-maila, tak jak każde konto (pkt 6). Konto zaprasza admin przez „Zaproś osobę” z rolą Wyświetlacz (`invitations.role = display`). Nie ma kont technicznych, nazw kont ani osobnego formularza wyświetlacza. Sesję podtrzymuje Cognito, a admin blokuje konto jak każde członkostwo (`stable_members.active`).
+   - Telewizor z Raspberry Pi otwiera w przeglądarce, w trybie kiosku, zwykłą stronę logowania panelu web. Strona nie wie, że to telewizor: po zalogowaniu kontem z rolą `display` panel sam pokazuje widok tablicy (wszystkie boksy), bo tak każe rola. Strona sama odpytuje serwer co kilka sekund, tak jak tablet.
+   - Wyświetlacz loguje się kontem technicznym z rolą `display` w `stable_members`: numerem telefonu albo e-mailem i kodem z SMS-a albo e-maila, tak jak każde konto (pkt 6). Konto zaprasza admin przez „Zaproś osobę” → „Konto techniczne: Wyświetlacz” (`invitations.role = display`). Bez osobnego ekranu logowania, adresu technicznego do kodu i formularza wyświetlacza. Sesję podtrzymuje Cognito, a admin blokuje konto jak każde członkostwo (`stable_members.active`).
    - Rola `display` daje tylko odczyt widoku wszystkich boksów: konie, flagi, posiłki, zdarzenia przy boksie. Bez danych osobowych (telefony, e-maile) i bez zapisu.
    - Przy kilku halach strona pokazuje wszystkie hale, każdą w osobnej sekcji.
    - Każda sekcja hali ma przycisk „Pełny ekran”. Hala zajmuje wtedy cały ekran, większymi kaflami, a pasek pilnych flag i panel boczny pokazują tylko tę halę. Przycisk „Wszystkie hale” wraca do widoku wszystkich.
@@ -101,7 +102,7 @@
    - Serwis `identity` tworzy wiersz `users` przy pierwszym uwierzytelnionym żądaniu (upsert po `cognito_sub`).
    - Usunięcie konta to pseudonimizacja w `users` i usunięcie konta w Cognito.
    - Zaproszenie nie ma własnego tokenu: po zalogowaniu przez Cognito serwis `access` dopasowuje zweryfikowany telefon albo e-mail z tokenu do `invitations.target`.
-   - Tablet wysyła token zalogowanego użytkownika, identyfikator (`id`) wybranego boksu i język tablicy (pkt 2).
+   - Tablet wysyła token konta tabletów, identyfikator (`id`) wybranego boksu i język tablicy (pkt 2).
    - Rejestracja konta firmy to pierwsze logowanie (telefon albo e-mail i kod) i formularz z NIP-em (pkt 15).
 7. **Pliki w S3.**
    - `files` trzyma metadane, `s3_key` (z prefiksem `stable_id/`) i właściciela (`owner_service`, `owner_id`).
@@ -166,8 +167,9 @@
      - Admin konta (właściciel albo zarządca) ma dostęp do wszystkich stajni firmy, także nowych, bez przypisywania. Nie potrzebuje wiersza w `stable_members`.
      - Wszystko, co jest „tylko dla admina” (ustawienia stajni, reguły powiadomień, hale, poidło, zadania, zaproszenia), może admin konta, do którego należy stajnia (`stables.business_id`). Admin innego konta firmy tej stajni nie widzi.
      - Pierwszego admina zapisuje rejestracja konta firmy (pkt 15). Dodawanie kolejnych adminów konta jest poza PoC (propozycja).
-   - Pozostałe role przypisuje się per stajnia w `stable_members.role`: `staff` (obsługa), `instructor`, `it_support`, `display` (konto telewizora, pkt 4), `client` (klient, pkt 3). Jedna osoba może mieć członkostwa w kilku stajniach (jedno na stajnię: `stable_id` z `user_id` są unikalne), np. obsługa w dwóch stajniach tej samej firmy; apka przełącza wtedy stajnię.
-   - **Wsparcie IT** (`it_support`, dawniej „serwisant”, co myliło się z weterynarzem): techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami.
+   - Pozostałe role przypisuje się per stajnia w `stable_members.role`: role osób `staff` (obsługa), `instructor`, `client` (klient, pkt 3) oraz role kont technicznych `display` (telewizor, pkt 4) i `tablet` (tablety przy boksach, pkt 2). Jedna osoba może mieć członkostwa w kilku stajniach (jedno na stajnię: `stable_id` z `user_id` są unikalne), np. obsługa w dwóch stajniach tej samej firmy; apka przełącza wtedy stajnię.
+   - **Konto techniczne** to konto z rolą `display` albo `tablet`: w zaproszeniu osobna grupa ról, w Ludziach filtr „Konta techniczne”. Osobnej tabeli nie ma, to zwykłe konto w Cognito i `users`. Ma członkostwo w jednej stajni i nie łączy się z rolami osób (propozycja).
+   - **Wsparcie IT** (dawniej „serwisant”) to zespół EQUENOR, a nie rola stajni: stajnia go nie zaprasza ani nie konfiguruje. Dostęp nadajemy jako operator (propozycja): ukryte ustawienia i diagnostyka tabletu oraz diagnostyka w panelu, bez danych koni i klientów.
 15. **Konto firmy (B2B) → stajnie → hale → boksy.**
    - Zakładamy wyłącznie konta firm. Konto firmy to wiersz w `businesses`:
      - `tax_id`: NIP, z unikalnym indeksem, więc 1 konto = 1 NIP. Drugą rejestrację z tym samym NIP-em odrzuca indeks, a panel mówi „Ten NIP ma już konto w EQUENOR”;
@@ -186,14 +188,14 @@
        - moczenie paszy, czyli „namoczyć” i ile (`stable_settings.soak_enabled`);
        - pozostałe flagi, każda osobno (`flag_templates.active`);
        - szybkie przyciski obsługi: „Ogarnięte” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`). „Woda” zależy od poidła boksu (pkt 3);
-     - **Widoczność per rola** (`stable_role_features`): admin zaznacza, co pojawia się w panelu klienta, obsługi, instruktora, wsparcia IT i wyświetlacza. Funkcje to stała lista (sekcja „Słowniki”). Admin widzi wszystko.
+     - **Widoczność per rola** (`stable_role_features`): admin zaznacza, co pojawia się w panelu klienta, obsługi, instruktora i wyświetlacza; tablet idzie za obsługą (propozycja). Funkcje to stała lista (sekcja „Słowniki”). Admin widzi wszystko.
      - **Powiadomienia** (`notification_rules`): które zdarzenia, do kogo i jakim kanałem; ustawia się je w drugim kroku zakładania stajni (pkt 17).
    - **Wyłączona opcja znika:** kafelek flagi, „namoczyć”, przycisk albo sekcja nie pokazują się klientowi, obsłudze, na tablecie ani na wyświetlaczu. Zgodnie z zasadą spójności z pkt 3 znika też stan tego, czego nie da się zapisać.
      - Wyłączony szybki przycisk znika razem ze stanem wykonania, np. „Ogarnięte dziś 07:10”, „podane 06:40” albo „Wyprowadzono na padok wczoraj 10:05”. Plan karmienia zostaje, bo to osobna funkcja (widoczność `feeding_plan`), a godziny posiłków zostają jako plan dnia (np. „Następny posiłek: obiad 12:00”).
      - Wyłączony „Padok” chowa też plan padoku (godziny i towarzyszy) wszędzie: na tablecie, wyświetlaczu i w apce (lista koni, karta konia), bo stajnia nie prowadzi wtedy padoków w aplikacji. Flaga „Nie na padok” zostaje, jeśli jest włączona; podpowiada wtedy okno „dziś, cały dzień” (propozycja).
      - „Woda” przy poidle ręcznym zostaje, bo nie ma przełącznika (pkt 3). Sekcja „Szybkie akcje” na tablecie znika, gdy nie ma w niej żadnego przycisku; w boksie z poidłem ręcznym zostaje z samą „Wodą”.
    - Zmiana działa przy najbliższym odpytaniu (apka, tablet, wyświetlacz). Wpisy już zapisane zostają w „Historii” (apka, panel web), ale „Ostatnie akcje” na tablecie i wyświetlaczu oraz „Ostatnio” w apce pomijają zdarzenia wyłączonych przycisków, bo to też stan wykonania.
-   - Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami. „Załóż stajnię” nie pyta o potwierdzenia flag; zmienia się je potem w „Ustawieniach stajni”. Domyślna widoczność per rola jest otwarta: wszystko także dla wyświetlacza i wsparcia IT czy węższa, np. jak w Stajni Pod Lipami (development.md §5 pkt 27).
+   - Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami. „Załóż stajnię” nie pyta o potwierdzenia flag; zmienia się je potem w „Ustawieniach stajni”. Domyślna widoczność per rola jest otwarta: wszystko także dla wyświetlacza czy węższa, np. jak w Stajni Pod Lipami (development.md §5 pkt 27).
 17. **Zakładanie stajni i powiadomienia.**
    - „Załóż stajnię” (panel web, admin konta) ma 2 kroki, a zapis jest na końcu drugiego:
      - Krok 1 „Stajnia”: dane stajni, adres pierwszej hali i boksy z konfiguracją każdego boksu (pkt 11). Bez pytania o NIP i dane firmy (są w koncie firmy), języki tabletów (pkt 2) i potwierdzenia flag (pkt 16).
@@ -341,7 +343,7 @@ erDiagram
     }
     stable_role_features {
         uuid stable_id PK, FK "stables"
-        text role PK "client | staff | instructor | it_support | display"
+        text role PK "client | staff | instructor | display"
         text feature PK "stała lista, np. feeding_plan, tasks"
         boolean visible
     }
@@ -407,7 +409,7 @@ erDiagram
         uuid id PK
         uuid stable_id FK "stables"
         uuid user_id FK "users, unikalne ze stable_id"
-        text role "staff | instructor | it_support | display | client"
+        text role "staff | instructor | client | display | tablet"
         boolean active
         timestamptz deactivated_at
     }
@@ -922,8 +924,8 @@ erDiagram
 - `box_care_events.kind`: `tidy` („Ogarnięte”, czyli sprzątanie i ścielenie razem) i `water` („Woda”, tylko w boksie z poidłem ręcznym, `boxes.auto_waterer = false`). Siana i karmy nie odnotowujemy.
 - `building_routines.kind`: `meal_served` („Podano śniadanie / obiad / kolację”, z `meal_slot_id`), `paddock_out` („Wyprowadzono na padok”).
 - `flag_templates`: domyślne szablony wstawiane przez kod: `bez_sniadania`, `bez_kolacji`, `nie_na_padok`, `derka` (warianty `on` = zakładać, `off` = nie zakładać), `leki`, `wet`. Admin może dodać własne.
-- `stable_role_features.feature` (stała lista na PoC): `flags` (flagi i kafelki), `feeding_plan` (plan karmienia), `routine` (szybkie akcje i ich stan), `box_history` (historia boksu), `tasks` (zadania), `health` (wizyty i zdrowie), `rides` (jazdy), `device_diagnostics` (diagnostyka tabletów i wyświetlaczy).
-- `stable_members.role` (i `invitations.role`): `staff` (Obsługa), `instructor` (Instruktor), `it_support` (Wsparcie IT), `display` (Wyświetlacz: zwykłe konto telewizora), `client` (Klient). Admin (zarządca albo właściciel) nie jest rolą w stajni, tylko rolą konta firmy (`business_admins`).
+- `stable_role_features.feature` (stała lista na PoC): `flags` (flagi i kafelki), `feeding_plan` (plan karmienia), `routine` (szybkie akcje i ich stan), `box_history` (historia boksu), `tasks` (zadania), `health` (wizyty i zdrowie), `rides` (jazdy).
+- `stable_members.role` (i `invitations.role`): role osób `staff` (Obsługa), `instructor` (Instruktor), `client` (Klient); role kont technicznych `display` (Wyświetlacz: telewizor) i `tablet` (Tablet: tablety przy boksach). Admin (zarządca albo właściciel) nie jest rolą w stajni, tylko rolą konta firmy (`business_admins`).
 - `notification_rules.event` (stała lista na PoC): `flag_unacknowledged` (flaga niepotwierdzona w terminie, czyli eskalacja; tylko flagi z `requires_ack`), `flag_created_by_client` (klient ustawił flagę), `invitation_accepted` (zaproszenie przyjęte), `invitation_expired` (zaproszenie wygasło nieprzyjęte), `invoice_issued` (wystawiona faktura), `payment_failed` (nieudana płatność).
 - `notification_rules.recipient_role`: `admin` (admini konta firmy, do którego należy stajnia), `staff` (obsługa tej stajni). `notification_rules.channel`: `sms`, `email`.
 - `horse_flags.source`: `app` (właściciel w apce) albo flaga wpisana w imieniu właściciela: `on_behalf_phone`, `on_behalf_sms`, `on_behalf_in_person`.
@@ -936,18 +938,19 @@ erDiagram
 - **Języki tabletów per tablet (13.10.2026):** odpada `stable_locales`. Język tablicy to ustawienie lokalne tabletu, bez tabeli; etykiety `*_labels` z `locale` zostają jako opcjonalne tłumaczenia nazw.
 - **Konfiguracja boksów przy tworzeniu (13.10.2026):** w „Załóż stajnię” i „Dodaj halę” każdy boks od razu ma numer i poidło; kolejne ustawienia boksu dojdą jako kolumny `boxes`. Bez zmian w tabelach.
 - **Zakładanie stajni w 2 krokach (13.10.2026):** bez pytania o potwierdzenia flag (nowa stajnia ma je włączone, zmienia się je w „Ustawieniach stajni”); drugi krok to powiadomienia, nowa tabela `notification_rules` (propozycja) w serwisie `stable` i cron `invitation-expiry-notifier` (propozycja). Termin eskalacji zostaje w `stable_settings.notify_offset_min`.
-- **Wyświetlacz to zwykłe konto (13.10.2026):** telewizor loguje się telefonem albo e-mailem i kodem, a konto zaprasza się przez „Zaproś osobę” z rolą Wyświetlacz. Odpadają konta techniczne i nazwy kont; tabele bez zmian.
+- **Konta techniczne: Wyświetlacz i Tablet (13.10.2026):** telewizor loguje się w zwykłym panelu kontem technicznym z rolą `display`, telefonem albo e-mailem i kodem, a widok tablicy wynika z roli; bez osobnego adresu strony telewizora i adresu technicznego do kodu. Tablety logują się kontem technicznym z rolą `tablet` (nowa wartość `stable_members.role`; jedno konto na stajnię, propozycja), więc tablet nie wybiera stajni. Oba konta zaprasza się przez „Zaproś osobę”; bez nowych tabel.
+- **Wsparcie IT poza stajnią (13.10.2026):** `it_support` znika ze `stable_members.role` i `invitations.role`, a `device_diagnostics` ze `stable_role_features`; Wsparcie IT to zespół EQUENOR z dostępem operatora (propozycja).
 - **Admin to rola konta firmy (13.10.2026):** nowa tabela `business_admins` (propozycja) w serwisie `stable`; admin konta ma dostęp do wszystkich stajni firmy, także nowych. `stable_members.role` traci `admin`, a pozostałe role przypisuje się per stajnia (osoba może być w kilku stajniach).
 - **Nazwa produktu (13.10.2026):** EQUENOR (wcześniej robocza nazwa eKoniuszy), hasło „Equestrian Management, Refined”; bez zmian w tabelach.
-- **Strona główna przed logowaniem (13.10.2026):** publiczna strona www z prezentacją produktu i blogiem; bez tabel w `app` (wpisy jako treść statyczna strony, propozycja).
+- **Strona główna przed logowaniem (13.10.2026):** publiczna strona www, sama prezentacja produktu (statyczna strona, bez bloga i CMS); bez tabel w `app`.
 - **Tablety:**
-  - nie ma parowania (`device_pairing_requests`) ani PIN-ów obsługi (`stable_members.pin_verifier`, `stables.service_pin_verifier`): na tablecie zawsze jest zalogowany konkretny użytkownik;
+  - nie ma parowania (`device_pairing_requests`) ani PIN-ów obsługi (`stable_members.pin_verifier`, `stables.service_pin_verifier`): na tablecie jest zalogowane konto techniczne tabletów;
   - nie ma tabel urządzeń (`devices`, `device_boxes`, `device_presence`, komendy, alerty): wybrany boks jest zapamiętany na tablecie, bez blokady, a sesje są w Cognito;
 - **Hale:** tekstowe `boxes.building` zastępuje tabela `buildings` (z adresem hali) i klucz `boxes.building_id`.
 - **Feedback ze stajni:**
   - rutyna obsługi to szybkie akcje: „Ogarnięte” per boks (`box_care_events.kind = tidy`) oraz posiłek i padok dla całej hali (`building_routines`). Odpadają `feeding_checks` (karmienie per koń), `box_care_types` i `box_care_type_labels` (osobne czyszczenie, ścielenie, siano i karma); woda zostaje tylko dla boksów z poidłem ręcznym (`boxes.auto_waterer`);
   - flagi mają wymagane godziny od–do i wariant (`horse_flags.variant`, flaga „Derka”); `feeding_plan_items` dostaje „namoczyć” i ile;
-  - jedna rola Klient zamiast właściciela konia i najemcy miejsca: odpada `box_access`, a `invitations` traci `box_id` i `access_role`; „serwisant” to teraz Wsparcie IT (`it_support`);
+  - jedna rola Klient zamiast właściciela konia i najemcy miejsca: odpada `box_access`, a `invitations` traci `box_id` i `access_role`; „serwisant” to teraz Wsparcie IT, zespół EQUENOR poza rolami stajni;
   - zadania są jednorazowe: odpadają `task_occurrences` i cron `task-occurrence-generator`;
   - dochodzi `businesses` (konto firmy → stajnie → hale → boksy);
   - ustawienia per stajnia: nowe kolumny w `stable_settings` (potwierdzenia, moczenie, szybkie przyciski), nowa tabela `stable_role_features` (widoczność per rola), `horse_flags.requires_ack` zamiast `flag_templates.requires_ack`.
