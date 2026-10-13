@@ -1,0 +1,197 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Ramka pola: 1 px line-input; przy fokusie 2 px w akcencie (drugi piksel cieniem, bez skoku). */
+.control {
+  display: flex;
+  align-items: stretch;
+  min-height: 48px;
+  border: 1px solid var(--eq-line-input);
+  border-radius: 12px;
+  background: var(--eq-surface);
+  overflow: hidden;
+}
+
+.control:focus-within {
+  border-color: var(--eq-accent);
+  box-shadow: 0 0 0 1px var(--eq-accent);
+}
+
+.control[data-invalid='true'] {
+  border-color: var(--eq-crit-line);
+}
+
+.control[data-invalid='true']:focus-within {
+  box-shadow: 0 0 0 1px var(--eq-crit-line);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 12px;
+  font-size: 16px;
+  color: var(--eq-ink);
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
+.strong {
+  font-weight: 600;
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.prefix {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-right: 1px solid var(--eq-line);
+  background: var(--eq-bg);
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.reveal {
+  flex: none;
+  min-width: 44px;
+  border: none;
+  background: none;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--eq-accent);
+  cursor: pointer;
+}
+
+.reveal:hover {
+  color: var(--eq-accent-strong);
+}
+
+.reveal:focus-visible {
+  outline-offset: -3px;
+}
+
+/* Przełącznik „Telefon | E-mail” i „Polski | Українська | English”. */
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(var(--segments, 2), minmax(0, 1fr));
+  gap: 4px;
+  background: var(--eq-sand);
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.segment {
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--eq-ink-2);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 6px;
+  cursor: pointer;
+}
+
+.segment[aria-pressed='true'] {
+  border-color: var(--eq-line-input);
+  background: var(--eq-surface);
+  color: var(--eq-accent);
+  font-weight: 700;
+}
+
+.segment:hover[aria-pressed='false'] {
+  color: var(--eq-ink);
+}
+
+.segments2 {
+  --segments: 2;
+}
+
+.segments3 {
+  --segments: 3;
+}
+
+/* Kod: N komórek po jednej cyfrze. */
+.code {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.codeLegend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.codeCells {
+  display: grid;
+  grid-template-columns: repeat(var(--cells), minmax(0, 1fr));
+  gap: 8px;
+}
+
+.codeCells6 {
+  --cells: 6;
+}
+
+.codeCells8 {
+  --cells: 8;
+  gap: 6px;
+}
+
+.codeCell {
+  display: block;
+  min-width: 0;
+}
+
+.codeInput {
+  width: 100%;
+  height: 56px;
+  border: 1px solid var(--eq-line-input);
+  border-radius: 12px;
+  background: var(--eq-surface);
+  color: var(--eq-ink);
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  padding: 0;
+  font-variant-numeric: tabular-nums;
+  caret-color: var(--eq-accent);
+}
+
+.codeInput:focus,
+.codeInput:focus-visible {
+  outline: none;
+  border-color: var(--eq-accent);
+  box-shadow: 0 0 0 1px var(--eq-accent);
+}
+
+.codeCells8 .codeInput {
+  font-size: 22px;
+}

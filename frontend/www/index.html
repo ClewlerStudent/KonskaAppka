@@ -12,14 +12,650 @@
     <title>EQUENOR · Equestrian Management, Refined</title>
   </head>
   <body>
-    <main>
-      <h1><span class="eq-wordmark">EQUENOR</span></h1>
-      <p class="eq-tagline" lang="en">Equestrian Management, Refined</p>
-      <p>
-        <a href="%VITE_PANEL_URL%/sign-up">Załóż konto firmy</a>
-        <a href="%VITE_PANEL_URL%/login">Zaloguj się</a>
-      </p>
-      <p><a href="mailto:%VITE_CONTACT_EMAIL%">%VITE_CONTACT_EMAIL%</a></p>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="/" aria-label="EQUENOR, strona główna">
+          <span class="brand__mark" aria-hidden="true">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.9"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              focusable="false"
+            >
+              <path d="M7 20.5C5.1 18.6 4 15.6 4 12.5a8 8 0 0 1 16 0c0 3.1-1.1 6.1-3 8" />
+              <path d="M5 20.5h3.5M15.5 20.5H19" />
+              <path d="M7.5 9.5v.5M16.5 9.5v.5M6.8 14v.5M17.2 14v.5" />
+            </svg>
+          </span>
+          <span class="brand__text">
+            <span class="brand__name eq-wordmark">EQUENOR</span>
+            <span class="brand__tagline eq-tagline" lang="en">Equestrian Management, Refined</span>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__text">
+          <h1 id="hero-title" class="hero__title">
+            <span class="hero__wordmark eq-wordmark">EQUENOR</span>
+            <span class="hero__tagline eq-tagline" lang="en">Equestrian Management, Refined</span>
+          </h1>
+          <p class="hero__lead">
+            Klient ustawia flagę w&nbsp;apce, a&nbsp;tablet przy boksie pokazuje ją od razu,
+            z&nbsp;godzinami.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="%VITE_PANEL_URL%/sign-up">Załóż konto firmy</a>
+            <a class="btn btn--secondary" href="%VITE_PANEL_URL%/login">Zaloguj się</a>
+          </div>
+        </div>
+
+        <!-- Ilustracja: HTML i CSS (bez obrazków), dwa warianty przełączane szerokością ekranu. -->
+        <figure
+          class="hero__art"
+          role="img"
+          aria-label="Telefon klienta z flagą Bez śniadania 06:00–10:00 i tablet na drzwiach boksu 7 z tą samą flagą"
+        >
+          <div class="hero__floor" aria-hidden="true"></div>
+
+          <div class="art art--full" aria-hidden="true">
+            <div class="door">
+              <div class="door__bars"></div>
+              <div class="door__rail"></div>
+              <div class="door__boards"></div>
+              <div class="door__brace"></div>
+              <div class="door__number">7</div>
+            </div>
+
+            <div class="tab">
+              <div class="tab__head">
+                <span class="tab__title">BOKS 7 · KASZTAN</span>
+                <span class="tab__sub">Hala główna · 07:15</span>
+              </div>
+              <div class="tab__band">
+                <span class="tab__flag">BEZ ŚNIADANIA</span>
+                <span class="tab__hours">06:00–10:00 · wet o 8:00</span>
+                <span class="tab__chip">
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                  </svg>
+                  POTWIERDZONA 06:02
+                </span>
+              </div>
+              <div class="tab__label">KARMIENIE</div>
+              <div class="tab__table">
+                <span>Pasza</span><span>Rano</span><span>Wieczór</span> <span>Owies</span
+                ><span class="tab__stop">WSTRZ.</span><span>1,5 kg</span> <span>Siano</span
+                ><span class="tab__stop">WSTRZ.</span><span>bez ogr.</span> <span>Wysłodki</span
+                ><span>—</span><span>0,5 kg</span>
+              </div>
+              <div class="tab__buttons">
+                <span class="tab__btn">BOKS<br />GOTOWY</span>
+                <span class="tab__btn">ŚNIADANIE</span>
+                <span class="tab__btn tab__btn--todo">PADOK</span>
+              </div>
+            </div>
+
+            <div class="ph">
+              <span class="ph__notch"></span>
+              <span class="ph__brand eq-wordmark">EQUENOR</span>
+              <div class="ph__card">
+                <div class="ph__horse">
+                  <span class="ph__avatar">K</span>
+                  <span class="ph__horse-text">
+                    <span class="ph__name">Kasztan</span>
+                    <span class="ph__place">Hala główna · boks 7</span>
+                  </span>
+                </div>
+                <div class="ph__flag">
+                  <span class="ph__row">
+                    <span class="ph__flag-title">Bez śniadania</span>
+                    <span class="ph__time">06:00–10:00</span>
+                  </span>
+                  <span class="ph__note">wet o 8:00, koń na czczo</span>
+                </div>
+                <span class="ph__ok">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M8 12.5l2.5 2.5L16 9.5" />
+                  </svg>
+                  potwierdzona 06:02
+                </span>
+                <div class="ph__plan">
+                  <span class="ph__row">
+                    <span class="ph__plan-title">Nie na padok</span>
+                    <span class="ph__time">14:30–16:00</span>
+                  </span>
+                  <span class="ph__note ph__note--muted">kowal o 15:00</span>
+                </div>
+              </div>
+              <span class="ph__section">Szybka flaga</span>
+              <div class="ph__tiles">
+                <span class="ph__tile ph__tile--crit">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M4 11h16a8 8 0 0 1-16 0z" />
+                    <path d="M3 3l18 18" />
+                  </svg>
+                  Bez śniadania
+                </span>
+                <span class="ph__tile ph__tile--warn">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M5 20V6l2-2 2 2v14M15 20V6l2-2 2 2v14M3 10h18M3 15h18" />
+                  </svg>
+                  Nie na padok
+                </span>
+                <span class="ph__tile">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M3 5h18" />
+                    <path d="M6 5v12c2 1.5 4 1.5 6 0s4-1.5 6 0V5" />
+                  </svg>
+                  Derka
+                </span>
+                <span class="ph__tile">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M6 3v6a4 4 0 0 0 8 0V3" />
+                    <path d="M10 13v3a5 5 0 0 0 10 0v-2" />
+                    <circle cx="20" cy="12" r="2" />
+                  </svg>
+                  Wet
+                </span>
+                <span class="ph__tile">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <rect
+                      x="3"
+                      y="8.5"
+                      width="18"
+                      height="7"
+                      rx="3.5"
+                      transform="rotate(-45 12 12)"
+                    />
+                    <path d="M9.5 9.5l5 5" />
+                  </svg>
+                  Leki
+                </span>
+                <span class="ph__tile">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Inna flaga
+                </span>
+              </div>
+              <div class="ph__nav">
+                <span class="ph__nav-item ph__nav-item--active">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M4 10l8-6 8 6v10H4z" />
+                    <path d="M9 20v-6h6v6" />
+                  </svg>
+                  Konie
+                </span>
+                <span class="ph__nav-item">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M5 21V4h11l-2 4 2 4H5" />
+                  </svg>
+                  Flagi
+                </span>
+                <span class="ph__nav-item">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3 2" />
+                  </svg>
+                  Historia
+                </span>
+                <span class="ph__nav-item">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 21a8 8 0 0 1 16 0" />
+                  </svg>
+                  Profil
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="art art--compact" aria-hidden="true">
+            <div class="door">
+              <div class="door__bars"></div>
+              <div class="door__rail"></div>
+              <div class="door__boards"></div>
+              <div class="door__brace"></div>
+              <div class="door__number">7</div>
+            </div>
+
+            <div class="tab">
+              <div class="tab__head">
+                <span class="tab__title">BOKS 7 · KASZTAN</span>
+                <span class="tab__sub">Hala główna</span>
+              </div>
+              <div class="tab__band">
+                <span class="tab__flag">BEZ ŚNIADANIA</span>
+                <span class="tab__hours">06:00–10:00</span>
+                <span class="tab__chip">
+                  <svg
+                    width="9"
+                    height="9"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                  </svg>
+                  POTWIERDZONA
+                </span>
+              </div>
+              <div class="tab__table">
+                <span>Owies</span><span class="tab__stop">WSTRZ.</span> <span>Siano</span
+                ><span class="tab__stop">WSTRZ.</span>
+              </div>
+              <div class="tab__buttons">
+                <span class="tab__btn"></span>
+                <span class="tab__btn"></span>
+                <span class="tab__btn tab__btn--todo"></span>
+              </div>
+            </div>
+
+            <div class="ph">
+              <span class="ph__notch"></span>
+              <span class="ph__brand eq-wordmark">EQUENOR</span>
+              <div class="ph__card">
+                <span class="ph__horse-text">
+                  <span class="ph__name">Kasztan</span>
+                  <span class="ph__place">Hala główna · boks 7</span>
+                </span>
+                <div class="ph__flag">
+                  <span class="ph__flag-title">Bez śniadania</span>
+                  <span class="ph__time">06:00–10:00</span>
+                  <span class="ph__note">wet o 8:00, koń na czczo</span>
+                </div>
+                <span class="ph__ok">
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M8 12.5l2.5 2.5L16 9.5" />
+                  </svg>
+                  potwierdzona 06:02
+                </span>
+                <div class="ph__plan">
+                  <span class="ph__plan-title">Nie na padok</span>
+                  <span class="ph__time">14:30–16:00</span>
+                  <span class="ph__note ph__note--muted">kowal o 15:00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </figure>
+      </section>
+
+      <section class="section" aria-labelledby="screens-title">
+        <h2 id="screens-title" class="section__title">Jedna stajnia, cztery ekrany</h2>
+        <ul class="screens">
+          <li class="screen">
+            <div class="screen__art screen__art--bottom" aria-hidden="true">
+              <div class="mini mini--bottom">
+                <div class="mini-app">
+                  <span class="mini-app__bar"></span>
+                  <span class="mini-app__flag"></span>
+                  <span class="mini-app__ok"></span>
+                  <span class="mini-app__plan"></span>
+                  <span class="mini-app__keys"><span></span><span></span><span></span></span>
+                </div>
+              </div>
+            </div>
+            <div class="screen__text">
+              <h3 class="screen__name">Apka w&nbsp;telefonie</h3>
+              <p class="screen__desc">Flagi klientów i&nbsp;szybkie akcje obsługi.</p>
+            </div>
+          </li>
+
+          <li class="screen">
+            <div class="screen__art" aria-hidden="true">
+              <div class="mini">
+                <div class="mini-tab">
+                  <span class="mini-tab__bar"></span>
+                  <span class="mini-tab__band"></span>
+                  <span class="mini-tab__table"></span>
+                  <span class="mini-tab__keys">
+                    <span class="mini-tab__key"></span>
+                    <span class="mini-tab__key"></span>
+                    <span class="mini-tab__key mini-tab__key--todo"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="screen__text">
+              <h3 class="screen__name">Tablet przy boksie</h3>
+              <p class="screen__desc">Flaga i&nbsp;karmienie przy samym koniu.</p>
+            </div>
+          </li>
+
+          <li class="screen">
+            <div class="screen__art" aria-hidden="true">
+              <div class="mini">
+                <div class="mini-tv">
+                  <span class="mini-tv__head"></span>
+                  <span class="mini-tv__tile"></span>
+                  <span class="mini-tv__tile"></span>
+                  <span class="mini-tv__tile"></span>
+                  <span class="mini-tv__tile mini-tv__tile--warn"></span>
+                  <span class="mini-tv__tile mini-tv__tile--crit"></span>
+                  <span class="mini-tv__tile"></span>
+                  <span class="mini-tv__tile"></span>
+                  <span class="mini-tv__tile mini-tv__tile--empty"></span>
+                </div>
+                <div class="mini-tv__legs"><span></span><span></span></div>
+              </div>
+            </div>
+            <div class="screen__text">
+              <h3 class="screen__name">Telewizor w&nbsp;korytarzu</h3>
+              <p class="screen__desc">Wszystkie hale na jednym ekranie.</p>
+            </div>
+          </li>
+
+          <li class="screen">
+            <div class="screen__art" aria-hidden="true">
+              <div class="mini">
+                <div class="mini-web">
+                  <span class="mini-web__titlebar"><span></span><span></span><span></span></span>
+                  <span class="mini-web__body">
+                    <span class="mini-web__nav">
+                      <span class="mini-web__logo"></span>
+                      <span class="mini-web__line"></span>
+                      <span class="mini-web__line"></span>
+                      <span class="mini-web__line"></span>
+                    </span>
+                    <span class="mini-web__main">
+                      <span class="mini-web__head"></span>
+                      <span class="mini-web__cards"><span></span><span></span><span></span></span>
+                      <span class="mini-web__table"></span>
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="screen__text">
+              <h3 class="screen__name">Panel web dla admina</h3>
+              <p class="screen__desc">Hale, boksy, ludzie i&nbsp;ustawienia.</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="section" aria-labelledby="flags-title">
+        <h2 id="flags-title" class="section__title">Flagi z godzinami</h2>
+        <!-- Na szerokim ekranie oś czasu, na wąskim lista; oba warianty ukryte przed czytnikiem. -->
+        <figure
+          class="flags"
+          role="img"
+          aria-label="Flaga Bez śniadania 06:00–10:00: śniadanie o 06:30 wstrzymane, obiad o 12:00 i kolacja o 18:00 bez zmian."
+        >
+          <div class="timeline" aria-hidden="true">
+            <div class="timeline__axis">
+              <span>06:00</span><span>08:00</span><span>10:00</span><span>12:00</span>
+              <span>14:00</span><span>16:00</span><span>18:00</span><span>20:00</span>
+            </div>
+            <div class="timeline__track">
+              <span class="timeline__flag">
+                <span class="timeline__flag-title">Bez śniadania</span>
+                <span class="timeline__flag-time">06:00–10:00</span>
+              </span>
+            </div>
+            <div class="timeline__track timeline__track--events">
+              <span class="timeline__mark timeline__mark--crit timeline__at-0630"></span>
+              <span class="chip chip--crit timeline__chip timeline__at-0630">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  focusable="false"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M5.6 5.6l12.8 12.8" />
+                </svg>
+                06:30 śniadanie wstrzymane
+              </span>
+              <span class="timeline__mark timeline__at-1200"></span>
+              <span class="chip timeline__chip timeline__at-1200">12:00 obiad</span>
+              <span class="timeline__mark timeline__at-1800"></span>
+              <span class="chip timeline__chip timeline__at-1800">18:00 kolacja</span>
+            </div>
+          </div>
+
+          <ol class="flag-list" aria-hidden="true">
+            <li>
+              <span class="flag-list__time">06:00</span>
+              <span class="flag-list__flag">
+                <span class="flag-list__flag-title">Bez śniadania</span>
+                <span class="flag-list__flag-time">06:00–10:00</span>
+              </span>
+            </li>
+            <li>
+              <span class="flag-list__time">06:30</span>
+              <span class="chip chip--crit">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  focusable="false"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M5.6 5.6l12.8 12.8" />
+                </svg>
+                śniadanie wstrzymane
+              </span>
+            </li>
+            <li>
+              <span class="flag-list__time">12:00</span>
+              <span class="chip">obiad</span>
+            </li>
+            <li>
+              <span class="flag-list__time">18:00</span>
+              <span class="chip">kolacja</span>
+            </li>
+          </ol>
+        </figure>
+      </section>
     </main>
+
+    <footer id="kontakt" class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__top">
+          <span class="brand">
+            <span class="brand__mark" aria-hidden="true">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                focusable="false"
+              >
+                <path d="M7 20.5C5.1 18.6 4 15.6 4 12.5a8 8 0 0 1 16 0c0 3.1-1.1 6.1-3 8" />
+                <path d="M5 20.5h3.5M15.5 20.5H19" />
+                <path d="M7.5 9.5v.5M16.5 9.5v.5M6.8 14v.5M17.2 14v.5" />
+              </svg>
+            </span>
+            <span class="brand__text">
+              <span class="brand__name eq-wordmark">EQUENOR</span>
+              <span class="brand__tagline eq-tagline" lang="en"
+                >Equestrian Management, Refined</span
+              >
+            </span>
+          </span>
+          <div class="site-footer__contact">
+            <a class="site-footer__email" href="mailto:%VITE_CONTACT_EMAIL%"
+              >%VITE_CONTACT_EMAIL%</a
+            >
+            <!-- Linki do sklepów dojdą po publikacji aplikacji. -->
+            <div class="stores">
+              <a class="store" role="link" aria-disabled="true"
+                >App Store<span class="eq-visually-hidden"> (wkrótce)</span></a
+              >
+              <a class="store" role="link" aria-disabled="true"
+                >Google Play<span class="eq-visually-hidden"> (wkrótce)</span></a
+              >
+            </div>
+          </div>
+        </div>
+        <div class="site-footer__bottom">
+          <span class="site-footer__copy">© 2026 EQUENOR</span>
+          <nav class="site-footer__nav" aria-label="Informacje">
+            <a href="/polityka-prywatnosci.html">Polityka prywatności</a>
+            <a href="/regulamin.html">Regulamin</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

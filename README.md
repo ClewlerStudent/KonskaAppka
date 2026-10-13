@@ -32,24 +32,36 @@ Struktura opisana w docs/development-szczegoly.md 3.1.1 (pnpm, Turborepo, `packa
 
 Node 22.22 (`.nvmrc`) i npm 10. Docker tylko do obrazów i `docker compose`.
 
-### Uruchomienie (dev)
+### Uruchomienie lokalne (dev)
+
+Trzy terminale. Najpierw backend (klucz podpisu i env dev są w `backend/.local/`, poza gitem):
 
 ```sh
-# backend: klucz podpisu i .local/dev.env (poza gitem; wypisuje hasło kont demo)
 cd backend
 npm ci
-npm run dev:setup
-npm run dev:auth          # auth na http://localhost:4010 (JWKS: 4011)
-npm run dev:inbox         # ostatnie kody, które auth „wysłał” SMS-em albo e-mailem
-
-# frontend (drugi terminal)
-cd frontend
-npm ci
-npm run dev:web           # panel: http://localhost:5173 (proxy /auth → localhost:4010)
-npm run dev:www           # strona www: http://localhost:5174
+npm run dev:setup         # raz: .local/signing-key.pem (ES256) i .local/dev.env; wypisuje hasło kont demo
+npm run dev:auth          # auth: http://localhost:4010 (trasy /auth/v1/…), JWKS: http://localhost:4011
 ```
 
-W dev i testach auth używa fałszywego dostawcy tożsamości (`IDP=fake`, dane w pamięci) zamiast ZITADEL, a kody zapisuje do skrzynki `backend/.local/inbox.jsonl` zamiast wysyłać. Restart auth czyści konta i sesje: trzeba zalogować się ponownie.
+Potem panel i strona www:
+
+```sh
+cd frontend
+npm ci
+npm run dev:web           # panel: http://localhost:5173 (Vite przekazuje /auth do localhost:4010)
+npm run dev:www           # strona www: http://localhost:5174 (przyciski prowadzą do panelu)
+```
+
+Auth bez trybu watch, tak jak w obrazie: `npm run build`, a potem `npm run start:auth` z env z `.local/dev.env` (np. `set -a; . .local/dev.env; set +a; npm run start:auth`).
+
+### Logowanie w dev
+
+1. Otwórz http://localhost:5173 (albo „Zaloguj się” na stronie www).
+2. Wpisz telefon konta demo (np. Ola: `607 000 218`) i hasło `DEV_DEMO_PASSWORD` z `backend/.local/dev.env`.
+3. Kod MFA odczytaj w `backend/`: `npm run dev:inbox` (ostatnie 5 wiadomości; `npm run dev:inbox -- 20` pokazuje więcej).
+4. Po wpisaniu kodu panel pokazuje „Witaj w EQUENOR, Ola”. „Wyloguj” wraca do logowania.
+
+W dev i testach auth używa fałszywego dostawcy tożsamości (`IDP=fake`, dane w pamięci) zamiast ZITADEL. Kody nie wychodzą jako SMS ani e-mail: auth dopisuje je do skrzynki `backend/.local/inbox.jsonl` (`DEV_INBOX_FILE`). Rejestracja („Załóż konto”) działa tak samo: kod potwierdzenia (8 cyfr) jest w tej skrzynce.
 
 ### Konta demo
 
@@ -73,23 +85,58 @@ Fikcyjne kontakty, hasło wszystkich kont to `DEV_DEMO_PASSWORD` z `backend/.loc
 
 ### Sprawdzenia
 
-W obu katalogach: `npm run check` (typecheck, ESLint, Prettier, Vitest; w backendzie także aktualność `openapi/*.json`). Po zmianie kontraktu: `npm run openapi` w `backend/` i `npm run gen:api` we `frontend/` (oba pliki wynikowe są w repo).
+W obu katalogach: `npm run check` (typecheck, ESLint, Prettier, Vitest; w backendzie także aktualność `openapi/*.json`) i `npm run build`. Po zmianie kontraktu: `npm run openapi` w `backend/` i `npm run gen:api` we `frontend/` (oba pliki wynikowe są w repo).
 
-E2E (Playwright, Chromium z `PLAYWRIGHT_BROWSERS_PATH`): `npm run e2e` we `frontend/`, po `npm ci` w obu katalogach. Konfiguracja sama uruchamia auth (`npm --prefix ../backend run serve:auth`), panel i stronę www na portach E2E.
+E2E (Playwright, Chromium z `PLAYWRIGHT_BROWSERS_PATH`): `npm run e2e` we `frontend/`, po `npm ci` w obu katalogach. Konfiguracja sama uruchamia auth (`npm --prefix ../backend run serve:auth`, klucz efemeryczny, skrzynka `frontend/e2e/.tmp/inbox.jsonl`), panel i stronę www na portach E2E. Testy:
+
+- `e2e/auth.spec.ts`: panel z prawdziwym auth (logowanie Damiana, Oli i Marty, zły kod i hasło, ciasteczko, przeładowanie, wylogowanie, rejestracja);
+- `e2e/panel.spec.ts`: panel na atrapie API (te same ekrany, 1440 i 390 px);
+- `e2e/www.spec.ts`: strona www (treść, linki do panelu, układ 1440 i 390 px, brak żądań poza localhost).
+
+E2E podnosi limity żądań auth (`RATE_LIMIT_FACTOR=10`, dozwolone tylko poza prod), bo loguje to samo konto kilkanaście razy w 15 minut.
 
 ### Obrazy Docker
 
-- `backend/Dockerfile`: wieloetapowy, w obrazie tylko zależności produkcyjne i `dist/`, użytkownik `node`, system plików może być tylko do odczytu (zapis w `/tmp`). Ten sam obraz uruchamia każdy serwis inną komendą: `npm run start:auth` (później `start:stables` itd.); bez komendy wypisuje listę skryptów.
-- `frontend/Dockerfile`: build panelu i strony www, potem `nginxinc/nginx-unprivileged`. Adresy (`WWW_URL`, `PANEL_URL`, `API_BASE_URL`, `CONTACT_EMAIL`) podaje env kontenera, a nginx wstawia je do HTML przy serwowaniu, więc jeden obraz działa w każdym środowisku. W produkcji Ingress kieruje host www na port 8080, a host panelu na 8081.
-- `docker-compose.yml` (dev): auth z obrazu backendu (klucz efemeryczny, kody w `/tmp/inbox.jsonl` kontenera) i frontend. Start: `DEV_DEMO_PASSWORD=… docker compose up --build`, kody: `docker compose exec auth tail -n 5 /tmp/inbox.jsonl`. PostgreSQL dojdzie razem z bazą danych.
+**Backend: jeden obraz, serwis wybiera komenda z `package.json`.** `backend/Dockerfile` jest wieloetapowy: w obrazie są tylko zależności produkcyjne i `dist/`, proces działa jako `node`, a system plików może być tylko do odczytu (zapis w `/tmp`).
 
-Obrazy i compose są **nieprzetestowane**: środowisko, w którym powstały, nie ma demona Dockera. Sprawdzone są tylko kroki budowania (npm ci, build) poza Dockerem, `docker compose config` i konfiguracja nginx (`nginx -t` i odpowiedzi na wyrenderowanym szablonie).
+```sh
+docker build -t equenor-backend backend
+docker run --rm equenor-backend                          # bez komendy: lista skryptów (npm run)
+docker run --rm -p 4010:8080 --read-only --tmpfs /tmp \
+  -e APP_ENV=dev -e AUTH_ISSUER=http://localhost:4010/auth/v1 -e ALLOWED_ORIGINS=http://localhost:8081 \
+  -e SIGNING_KEY_EPHEMERAL=true -e IDP=fake -e CODE_SENDER=dev-inbox -e DEV_INBOX_FILE=/tmp/inbox.jsonl \
+  -e DEV_DEMO_PASSWORD=… equenor-backend npm run start:auth
+```
+
+Każdy serwis to `src/services/<serwis>/main.ts` i skrypt `start:<serwis>` (`exec node dist/services/<serwis>/main.js`); dziś jest `start:auth`, później `start:stables`, `start:operations` itd. W Kubernetes każdy Deployment używa tego samego obrazu z inną komendą, np. `command: ["npm", "run", "start:auth"]`. SIGTERM dochodzi przez `tini` i `npm` do procesu serwisu, który kończy się łagodnie (`/readyz` daje 503, potem zamknięcie połączeń).
+
+Auth celowo nie wystartuje z `APP_ENV=prod`, dopóki nie ma adaptera ZITADEL i kolejek kodów: fałszywe adaptery, klucz efemeryczny, `LOG_PRETTY` i `RATE_LIMIT_FACTOR` ≠ 1 są w prod zabronione. Za Ingressem trzeba ustawić `TRUST_PROXY=true`, inaczej limity na IP liczą adres Ingressu.
+
+**Frontend: build panelu i strony www, potem `nginxinc/nginx-unprivileged`** (www na porcie 8080, panel na 8081). Adresy (`WWW_URL`, `PANEL_URL`, `API_BASE_URL`, `CONTACT_EMAIL`) podaje env kontenera, a nginx wstawia je do HTML przy serwowaniu, więc jeden obraz działa w każdym środowisku. W produkcji Ingress kieruje host www na port 8080, a host panelu na 8081.
+
+```sh
+docker build -t equenor-frontend frontend
+docker run --rm -p 8080:8080 -p 8081:8081 \
+  -e WWW_URL=http://localhost:8080 -e PANEL_URL=http://localhost:8081 -e API_BASE_URL=http://localhost:4010 \
+  equenor-frontend
+```
+
+**`docker-compose.yml` (dev):** auth z obrazu backendu (`npm run start:auth`, klucz efemeryczny, kody w `/tmp/inbox.jsonl` kontenera) i frontend. Start: `DEV_DEMO_PASSWORD=… docker compose up --build`, potem panel http://localhost:8081 i www http://localhost:8080. Kody: `docker compose exec auth tail -n 5 /tmp/inbox.jsonl`. PostgreSQL dojdzie razem z bazą danych.
+
+Obrazy i compose są **nieprzetestowane w Dockerze**: środowisko, w którym powstały, nie ma demona Dockera. Sprawdzone bez Dockera:
+
+- `docker compose config`;
+- kroki obu Dockerfile na kontekstach odfiltrowanych według `.dockerignore` (`npm ci`, build, `npm ci --omit=dev`);
+- auth uruchomiony z takiego układu `npm run start:auth` z env z compose, w tym łagodne zamknięcie po SIGTERM;
+- szablon nginx wyrenderowany jak w obrazie (tylko zdefiniowane zmienne) w lokalnym nginx 1.24: nagłówki CSP i cache, podstawione adresy, fallback SPA;
+- pełne logowanie w Chromium jak w compose (www :8080 → panel :8081 → auth :4010 przez CORS, kod, PanelWitaj, przeładowanie, wylogowanie), bez naruszeń CSP.
 
 ### Klucz podpisu tokenów
 
-W dev `npm run dev:setup` generuje klucz ES256 do `backend/.local/` (poza gitem). W produkcji klucz to sekret z pliku (`SIGNING_KEY_FILE`) albo env (`SIGNING_KEY_PEM`); w repo nie ma żadnych sekretów.
+W dev `npm run dev:setup` generuje klucz ES256 do `backend/.local/signing-key.pem` (poza gitem; `.gitignore` pomija też `*.pem` i `.local/` w całym repo). W produkcji klucz to sekret z pliku (`SIGNING_KEY_FILE`) albo env (`SIGNING_KEY_PEM`); w repo nie ma żadnych sekretów.
 
 ### Znane ograniczenia dev
 
-- Stan auth jest w pamięci: po restarcie trzeba zalogować się ponownie.
+- Stan auth jest w pamięci: po restarcie auth trzeba zalogować się ponownie (stare ciasteczko dostaje `session_revoked`).
 - Ciasteczko `__Secure-eq_rt` (`Secure`) Chromium przyjmuje na `http://localhost` (sprawdzone); Safari może go nie zapisać, wtedy po przeładowaniu panelu trzeba zalogować się ponownie.
+- Przy otwarciu panelu bez sesji konsola przeglądarki pokazuje 401 z `POST /auth/v1/token`: to ciche sprawdzenie sesji z ciasteczka, po którym panel przechodzi do logowania.

@@ -68,6 +68,8 @@ export default defineConfig({
         CODE_SENDER: 'dev-inbox',
         DEV_INBOX_FILE: inboxFile,
         DEV_DEMO_PASSWORD: demoPassword,
+        // Damian loguje się w E2E kilkanaście razy w 15 minut z jednego IP (limit: 10 na login).
+        RATE_LIMIT_FACTOR: '10',
       },
     },
     {

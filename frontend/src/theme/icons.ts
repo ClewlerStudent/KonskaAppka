@@ -61,6 +61,8 @@ export const icons = {
   check: { shapes: [path('M5 12.5l4.5 4.5L19 7.5')], strokeWidth: 3 },
   checkCircle: { shapes: [circle(12, 12, 9), path('M8 12.5l2.5 2.5L16 9.5')], strokeWidth: 2 },
   ban: { shapes: [circle(12, 12, 9), path('M5.6 5.6l12.8 12.8')] },
+  /** Komunikat błędu w panelu. */
+  alert: { shapes: [circle(12, 12, 9), path('M12 7.5v5.5'), path('M12 16.5v.5')] },
   clock: { shapes: [circle(12, 12, 9), path('M12 7v5l3 2')] },
   home: { shapes: [path('M4 10l8-6 8 6v10H4z'), path('M9 20v-6h6v6')] },
   flag: { shapes: [path('M5 21V4h11l-2 4 2 4H5')] },

@@ -3,6 +3,7 @@ dist/
 coverage/
 test-results/
 playwright-report/
+blob-report/
 e2e/.tmp/
 .env.local
 .env.*.local

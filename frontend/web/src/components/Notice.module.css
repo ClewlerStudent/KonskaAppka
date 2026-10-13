@@ -1,0 +1,36 @@
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.notice svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.error {
+  background: var(--eq-crit-tint);
+  border-color: var(--eq-crit-line);
+  color: var(--eq-crit-text);
+}
+
+.info {
+  background: var(--eq-ok-tint);
+  border-color: var(--eq-ok-line);
+  color: var(--eq-ok-text);
+}
+
+.notice a {
+  color: inherit;
+}
+
+.notice a:hover {
+  color: inherit;
+}

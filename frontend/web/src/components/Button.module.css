@@ -1,0 +1,100 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:disabled {
+  cursor: default;
+}
+
+.primary {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: var(--eq-accent);
+  color: var(--eq-on-accent);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--eq-accent-strong);
+  color: var(--eq-on-accent);
+}
+
+.primary:disabled {
+  opacity: 0.7;
+}
+
+.secondary {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border-color: var(--eq-line-input);
+  background: var(--eq-surface);
+  color: var(--eq-ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.secondary:hover:not(:disabled) {
+  border-color: var(--eq-ink-2);
+  background: var(--eq-bg);
+  color: var(--eq-ink);
+}
+
+/* „Wyślij kod ponownie”: bez tła; nieaktywny w ink-2, aktywny w akcencie. */
+.quiet {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 8px;
+  background: none;
+  color: var(--eq-accent);
+  font-size: 14px;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.quiet:hover:not(:disabled) {
+  color: var(--eq-accent-strong);
+}
+
+.quiet:disabled {
+  color: var(--eq-ink-2);
+}
+
+/* Linki tekstowe pod przyciskiem i polami: min. 44 px wysokości celu dotyku. */
+.textLink {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.textLinkRow {
+  display: flex;
+  justify-content: center;
+  font-size: 15px;
+}
+
+/* „Nie pamiętam hasła” pod polem: zwarty wiersz, cel dotyku 44 px przez padding. */
+.textLinkEnd {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 14px;
+  margin-top: -4px;
+}
+
+.textLinkEnd a {
+  display: inline-block;
+  padding: 12px 0;
+  margin: -12px 0;
+  font-weight: 600;
+}

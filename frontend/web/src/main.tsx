@@ -3,19 +3,22 @@ import { createRoot } from 'react-dom/client';
 import '../../src/theme/theme.css';
 import '../../src/theme/fonts.css';
 import '../../src/theme/base.css';
-import { brand } from '../../src/theme';
+import { createAuthApi } from '../../src/api/auth-api';
+import { readConfig } from './config';
+import { App, createAppRouter } from './router';
+import { createSession } from './session/session';
+import { createSignInFlow } from './session/sign-in-flow';
 
-// Szkielet panelu; ekrany logowania i router dochodzą w kolejnym kroku.
 const root = document.getElementById('root');
 if (!root) throw new Error('#root not found');
 
+const config = readConfig();
+const api = createAuthApi(config.apiBaseUrl);
+const services = { api, config, session: createSession(api), flow: createSignInFlow() };
+const router = createAppRouter(services);
+
 createRoot(root).render(
   <StrictMode>
-    <main>
-      <p className="eq-wordmark">{brand.wordmark}</p>
-      <p className="eq-tagline" lang="en">
-        {brand.tagline}
-      </p>
-    </main>
+    <App services={services} router={router} />
   </StrictMode>,
 );

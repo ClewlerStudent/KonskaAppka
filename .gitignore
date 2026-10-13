@@ -1,4 +1,25 @@
-# Każdy pakiet (backend/, frontend/) ma własny .gitignore; tu tylko zabezpieczenia w korzeniu.
+# Każdy pakiet (backend/, frontend/) ma własny .gitignore; tu zabezpieczenia dla całego repo.
+
+# Sekrety: klucz podpisu dev jest w backend/.local/, produkcyjny dostarcza env albo plik.
 /.env
+.env.local
+.env.*.local
+.local/
+*.pem
+*.key
+*.p8
+*.p12
+
+# Skrzynki kodów dev (backend: .local/inbox.jsonl, E2E: frontend/e2e/.tmp/).
+inbox.jsonl
+outbox.jsonl
+
+# Zależności, build, wyniki testów.
 node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+*.log
 .DS_Store
