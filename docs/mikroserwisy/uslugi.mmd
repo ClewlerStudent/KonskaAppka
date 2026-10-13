@@ -1,87 +1,58 @@
-%%{init: {"flowchart": {"curve": "basis", "nodeSpacing": 45, "rankSpacing": 65, "wrappingWidth": 420}, "themeVariables": {"fontSize": "16px"}}}%%
+%%{init: {"flowchart": {"curve": "basis", "nodeSpacing": 30, "rankSpacing": 60, "wrappingWidth": 420}, "themeVariables": {"fontSize": "16px"}}}%%
 flowchart TB
-    subgraph K["Aplikacje"]
-        direction TB
-        apka["Apka mobilna<br/>Admin konta, Obsługa,<br/>Instruktor, Klient"]
-        panel["Panel web<br/>Admin konta, Wyświetlacz (TV)"]
-        tablet["Tablet przy boksie<br/>konto techniczne Tablet"]
-        ops["Panel ops i opctl<br/>admin globalny EQUENOR<br/>osobny host"]
-    end
+    APPS["<b>Aplikacje</b><br/>apka mobilna · panel web i TV · tablet przy boksie · panel zespołu EQUENOR"]
 
-    subgraph C["AWS Cognito: tylko uwierzytelnia"]
-        direction TB
-        pk["Pula klientów<br/>kod SMS albo e-mail"]
-        pz["Pula zespołu EQUENOR<br/>passkey albo hasło + TOTP"]
-    end
+    COG["AWS Cognito<br/>kody SMS / e-mail<br/>(tylko przez auth)"]
+    AUTH["<b>auth</b><br/>jedyny serwis autoryzacyjny<br/>logowanie, wydaje tokeny JWT"]
+    KMS["AWS KMS<br/>klucz podpisu"]
 
-    AUTH["<b>auth: JEDYNY serwis autoryzacyjny</b><br/>tożsamość, firmy, ludzie, zaproszenia,<br/>macierz widoczności, role platformowe<br/>podpisuje access token (5 min) i refresh token (JWT),<br/>JWKS; bez sesji w bazie"]
-    KMS["AWS KMS<br/>klucz podpisu ES256"]
-
-    subgraph S["Serwisy z API: weryfikują podpis lokalnie, nie pytają auth o uprawnienia"]
+    subgraph DOM["Serwisy: tylko sprawdzają podpis tokenu"]
         direction LR
-        subgraph G1["Dane stajni"]
-            s1["stable · dzien · terminarz"]
-            bd["board<br/>tylko odczyt"]
-        end
-        subgraph G2["Konto i platforma"]
-            bl["billing"]
-            pl["platform"]
-            fl["<b>files</b><br/>jedyny dostęp do S3"]
-        end
+        stables["<b>stables</b><br/>stajnie, hale,<br/>boksy, konie"]
+        operations["<b>operations</b><br/>flagi, opieka,<br/>zadania"]
+        schedule["<b>schedule</b><br/>zdrowie, jazdy"]
+        board["<b>board</b><br/>tablica<br/>tabletu i TV"]
+        billing["<b>billing</b><br/>płatności,<br/>faktury"]
+        platform["<b>platform</b><br/>wydania APK,<br/>audyt"]
+        files["<b>files</b><br/>pliki w S3"]
+        billing ~~~ platform ~~~ files
+        stables ~~~ operations ~~~ schedule ~~~ board
     end
 
-    CR["9 cronów<br/>bez tokenów,<br/>kod domeny właściciela;<br/>files-gc sprząta też S3"]
-    DB[("PostgreSQL: schematy app i audit<br/>tabele uprawnień czyta tylko auth")]
-    EV[["SNS + SQS<br/>zdarzenia"]]
-    S3[("S3<br/>pliki")]
+    CRON["<b>9 cronów</b><br/>piszą wprost do bazy"]
+    DB[("PostgreSQL")]
+    BUS[["SNS + SQS<br/>zdarzenia"]]
 
-    subgraph N["Powiadomienia (W5): sms i email bez tabel i roli bazy, wszystko z kolejki"]
-        direction TB
-        nf["<b>notifications</b><br/>router: reguły, odbiorcy,<br/>treść, historia"]
-        qs[["kolejka sms<br/>SQS FIFO"]] --> sms["<b>sms</b>"]
-        qe[["kolejka email<br/>SQS FIFO"]] --> em["<b>email</b>"]
+    subgraph NOTE["Powiadomienia"]
+        direction LR
+        notifications["<b>notifications</b><br/>komu i co wysłać<br/>(adresy z auth)"]
+        sms["<b>sms</b><br/>z kolejki → AWS SMS<br/>bez bazy"]
+        email["<b>email</b><br/>z kolejki → AWS SES<br/>bez bazy"]
     end
-    AWSSMS["AWS SMS"]
-    SES["AWS SES"]
 
-    K -- "1. logowanie" --> C
-    K -- "2. wymiana ID tokenu,<br/>odświeżanie" --> AUTH
-    AUTH -.->|"klucze publiczne,<br/>Admin API"| C
+    APPS -- "1. logowanie kodem,<br/>odświeżanie tokenu" --> AUTH
+    AUTH -- "kod, weryfikacja" --> COG
+    APPS == "2. żądania z tokenem JWT" ==> DOM
     AUTH -- "podpis" --> KMS
-    K ==>|"3. żądania<br/>z access tokenem"| S
-    AUTH -.-|"serwisy pobierają JWKS<br/>(port jwks)"| S
-    AUTH ---|"/internal: koń wyjechał<br/>(woła stable)"| s1
-    s1 -.->|"/internal: pliki<br/>(też billing, platform)"| fl
-    S -- "zapis właściciela" --> DB
+    AUTH -. "klucz publiczny:<br/>serwisy same sprawdzają JWT" .-> DOM
     AUTH --> DB
-    CR -- "zapis wprost<br/>(manifest)" --> DB
-    s1 <-->|"zdarzenia"| EV
-    bl <--> EV
-    AUTH --> EV
-    CR -- "zdarzenia<br/>przed COMMIT" --> EV
-    EV -- "konsumuje zdarzenia" --> nf
-    nf -- "gotowe wiadomości" --> qs
-    nf --> qe
-    nf -->|"/internal/recipients"| AUTH
-    sms -. "sms.result" .-> EV
-    em -. "email.result" .-> EV
-    fl --> S3
-    sms --> AWSSMS
-    em --> SES
+    DOM --> DB
+    DOM -- "zdarzenia" --> BUS
+    CRON -- "zapis" --> DB
+    CRON -- "zdarzenia" --> BUS
+    BUS --> notifications
+    notifications -- "kolejka" --> sms
+    notifications -- "kolejka" --> email
 
-    classDef authc fill:#fde2e4,stroke:#c0392b,stroke-width:2px,color:#000
-    classDef svc fill:#e3f0fb,stroke:#2f6fa7,color:#000
-    classDef wrk fill:#efe7f7,stroke:#6b4c9a,color:#000
-    classDef cli fill:#eef7e8,stroke:#4f8a3a,color:#000
-    classDef ext fill:#f4f4f4,stroke:#777,color:#000
+    classDef authc fill:#fde2e4,stroke:#c0392b,stroke-width:2px,color:#111
+    classDef svc fill:#e3f0fb,stroke:#2f6fa7,color:#111
+    classDef ntf fill:#fff4dc,stroke:#b7791f,color:#111
+    classDef cli fill:#eef7e8,stroke:#4f8a3a,color:#111
+    classDef ext fill:#f4f4f4,stroke:#888,color:#111
     class AUTH authc
-    class s1,bd,bl,pl,fl,nf svc
-    class sms,em wrk
-    class apka,panel,tablet,ops cli
-    class pk,pz,KMS,DB,EV,S3,CR,qs,qe,AWSSMS,SES ext
-    style K fill:#fbfdf9,stroke:#4f8a3a
-    style S fill:#f7fbff,stroke:#2f6fa7
-    style C fill:#fafafa,stroke:#777
-    style N fill:#fbf8fe,stroke:#6b4c9a
-    style G1 fill:#ffffff,stroke:#9bbbd8
-    style G2 fill:#ffffff,stroke:#9bbbd8
+    class stables,operations,schedule,board,billing,platform,files svc
+    class notifications,sms,email ntf
+    class APPS cli
+    class COG,KMS,DB,BUS,CRON ext
+    style DOM fill:#f7fbff,stroke:#2f6fa7
+    style NOTE fill:#fffbf2,stroke:#b7791f
