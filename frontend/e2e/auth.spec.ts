@@ -173,15 +173,16 @@ test.describe('panel web with the auth service', () => {
       await passwordField(page).fill(password);
       await submit(page, 'Zaloguj się').click();
       await enterMfaCode(page, email, after);
-      await expect(
-        page.getByRole('heading', { name: 'Witaj w EQUENOR, Jan Brzoza' }),
-      ).toBeVisible();
+      // Rejestracja zbiera imię i nazwisko; PanelWitaj wita samym imieniem.
+      await expect(page.getByRole('heading', { name: 'Witaj w EQUENOR, Jan' })).toBeVisible();
     });
 
     test('„Nie pamiętam hasła” is a placeholder', async ({ page }) => {
       await page.goto(`${webUrl}/login`);
       await page.getByRole('link', { name: 'Nie pamiętam hasła' }).click();
-      await expect(page.getByText('Reset hasła będzie dostępny wkrótce.')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Nie pamiętam hasła' })).toBeVisible();
+      await page.getByRole('link', { name: 'Wróć do logowania' }).click();
+      await expect(page).toHaveURL(/\/login$/);
     });
   });
 });

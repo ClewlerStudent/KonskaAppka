@@ -14,6 +14,9 @@ import { MemoryUserRepository } from './users/memory-users.js';
 
 // Start serwisu auth: npm run dev:auth (tsx, .local/dev.env), serve:auth (E2E), start:auth (obraz).
 
+/** Powyżej typowego czasu złego hasła u dostawcy tożsamości (sieć i skrót hasła). */
+const CREDENTIAL_CHECK_MIN_MS = 400;
+
 function readEnv(): AuthEnv {
   try {
     return loadEnv(authEnvSchema);
@@ -53,6 +56,7 @@ async function main(): Promise<void> {
       jwksPort: env.JWKS_PORT,
       trustProxy: env.TRUST_PROXY,
       rateLimitFactor: env.RATE_LIMIT_FACTOR,
+      credentialCheckMinMs: CREDENTIAL_CHECK_MIN_MS,
     },
     logger,
     clock,

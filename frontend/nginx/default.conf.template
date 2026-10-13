@@ -28,7 +28,7 @@ server {
     add_header Cache-Control $eq_cache_control always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'" always;
 
     sub_filter_once off;
     sub_filter '__EQ_PANEL_URL__' '${PANEL_URL}';
@@ -40,6 +40,7 @@ server {
 }
 
 # Panel web (SPA): nieznane ścieżki poza /assets/ dostają index.html.
+# CSP bez skryptów i stylów inline, z Trusted Types (sprawdza e2e/panel.spec.ts na buildzie).
 server {
     listen 8081;
     server_name _;
@@ -49,7 +50,7 @@ server {
     add_header Cache-Control $eq_cache_control always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' ${API_BASE_URL}; frame-ancestors 'none'; base-uri 'none'; form-action 'self'" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' ${API_BASE_URL}; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; require-trusted-types-for 'script'; trusted-types 'none'" always;
 
     sub_filter_once off;
     sub_filter '__EQ_API_BASE_URL__' '${API_BASE_URL}';

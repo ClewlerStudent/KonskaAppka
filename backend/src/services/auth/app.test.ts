@@ -30,7 +30,14 @@ interface TokenBody {
   refreshToken?: string;
 }
 
-async function setup(options: { port?: number; jwksPort?: number } = {}) {
+interface SetupOptions {
+  port?: number;
+  jwksPort?: number;
+  trustProxy?: readonly string[];
+  credentialCheckMinMs?: number;
+}
+
+async function setup(options: SetupOptions = {}) {
   const clock = createFakeClock();
   const logLines: string[] = [];
   const logger = createLogger(
@@ -51,8 +58,9 @@ async function setup(options: { port?: number; jwksPort?: number } = {}) {
       host: '127.0.0.1',
       port: options.port ?? 4010,
       jwksPort: options.jwksPort ?? 4011,
-      trustProxy: false,
+      trustProxy: options.trustProxy ?? [],
       rateLimitFactor: 1,
+      credentialCheckMinMs: options.credentialCheckMinMs ?? 0,
     },
     logger,
     clock,
@@ -440,6 +448,45 @@ describe('auth: login', () => {
     expect(t.codes.messages).toHaveLength(0);
   });
 
+  it('answers an unknown account, a wrong password and sign-ups no sooner than the floor', async () => {
+    const floor = 80;
+    const t = await setup({ credentialCheckMinMs: floor });
+    const timed = async (url: string, body: unknown) => {
+      const start = performance.now();
+      const res = await t.post(url, body);
+      return { status: res.statusCode, ms: performance.now() - start };
+    };
+    const results = [
+      await timed('/auth/v1/login', {
+        login: 'nikt@example.com',
+        password: 'zle-haslo-123',
+        clientId: 'web',
+      }),
+      await timed('/auth/v1/login', {
+        login: DAMIAN_PHONE,
+        password: 'zle-haslo-123',
+        clientId: 'web',
+      }),
+      await timed('/auth/v1/sign-up', {
+        login: DAMIAN_PHONE,
+        password: 'dobre-haslo-123',
+        displayName: 'Damian',
+        locale: 'pl',
+        clientId: 'web',
+      }),
+      await timed('/auth/v1/sign-up', {
+        login: 'nowa@example.com',
+        password: 'dobre-haslo-123',
+        displayName: 'Nowa',
+        locale: 'pl',
+        clientId: 'web',
+      }),
+    ];
+    expect(results.map((r) => r.status)).toEqual([401, 401, 202, 202]);
+    // Zapas 2 ms na zaokrąglenie timerów.
+    for (const { ms } of results) expect(ms).toBeGreaterThanOrEqual(floor - 2);
+  });
+
   it('sends the MFA code to the account channel, also when logging in by e-mail', async () => {
     const t = await setup();
     const damian = await t.startLogin('damian@stajnielipowe.pl');
@@ -534,6 +581,49 @@ describe('auth: login', () => {
         })
       ).statusCode,
     ).toBe(200);
+  });
+
+  it('limits MFA attempts per login token: the 11th in 5 minutes gets 429', async () => {
+    const t = await setup();
+    const started = await t.startLogin(DAMIAN_PHONE);
+    const bad = started.code === '000000' ? '111111' : '000000';
+    // Inny zapis nagłówka nie daje nowego licznika: trasa go odrzuca bez pytania dostawcy.
+    for (const spaced of [`Login  ${started.loginToken}`, `Login   ${started.loginToken}`]) {
+      const res = await t.post('/auth/v1/login/mfa', { code: bad }, { authorization: spaced });
+      expect(res.json()).toMatchObject({ status: 401, code: 'invalid_token' });
+    }
+    for (let i = 0; i < 10; i++) {
+      const res = await t.mfa(started.loginToken, bad);
+      // Zły kod: 401 invalid_code, po 5 złych kodach dostawca blokuje konto (403); limit liczy dalej.
+      expect(res.json<{ code: string }>().code).toBe(i < 4 ? 'invalid_code' : 'account_locked');
+    }
+    const limited = await t.mfa(started.loginToken, started.code);
+    expect(limited.statusCode).toBe(429);
+    expect(Number(limited.headers['retry-after'])).toBeGreaterThan(0);
+  });
+
+  it('behind a proxy takes the client address the proxy added, not the ones the client sent', async () => {
+    // inject łączy się z 127.0.0.1, czyli „z proxy”.
+    const t = await setup({ trustProxy: ['127.0.0.1'] });
+    const statuses: number[] = [];
+    for (let i = 0; i < 31; i++) {
+      // Lewe wpisy X-Forwarded-For podaje klient; proxy dopisuje prawdziwy adres na końcu.
+      const res = await t.post(
+        '/auth/v1/login',
+        { login: `osoba${i}@example.com`, password: 'zle-haslo-123', clientId: 'web' },
+        { 'x-forwarded-for': `10.0.${i}.1, 203.0.113.7` },
+      );
+      statuses.push(res.statusCode);
+    }
+    expect(statuses.slice(0, 30).every((status) => status === 401)).toBe(true);
+    expect(statuses[30]).toBe(429);
+    // Inny klient za tym samym proxy ma własny licznik.
+    const other = await t.post(
+      '/auth/v1/login',
+      { login: 'ktos@example.com', password: 'zle-haslo-123', clientId: 'web' },
+      { 'x-forwarded-for': '10.0.0.1, 203.0.113.8' },
+    );
+    expect(other.statusCode).toBe(401);
   });
 
   it('checks the browser origin and the app of the account', async () => {
@@ -752,8 +842,9 @@ describe('auth: setup without fake helpers', () => {
         host: '127.0.0.1',
         port: 0,
         jwksPort: 0,
-        trustProxy: false,
+        trustProxy: [],
         rateLimitFactor: 1,
+        credentialCheckMinMs: 0,
       },
       logger: createLogger({ service: 'auth', level: 'silent' }),
       clock,

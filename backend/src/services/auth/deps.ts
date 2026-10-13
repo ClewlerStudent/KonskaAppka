@@ -16,8 +16,14 @@ export interface AuthConfig {
   readonly host: string;
   readonly port: number;
   readonly jwksPort: number;
-  readonly trustProxy: boolean;
+  /** Adresy albo podsieci proxy przed serwisem (TRUST_PROXY). */
+  readonly trustProxy: readonly string[];
   readonly rateLimitFactor: number;
+  /**
+   * Najkrótszy czas odpowiedzi logowania i rejestracji (ms): nieznane konto, złe hasło
+   * i istniejący kontakt odpowiadają po tym samym czasie. W testach 0.
+   */
+  readonly credentialCheckMinMs: number;
 }
 
 /** Zależności serwisu auth; main.ts składa je z env, testy z adapterów w pamięci. */

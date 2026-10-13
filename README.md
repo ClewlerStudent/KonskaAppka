@@ -63,6 +63,8 @@ Auth bez trybu watch, tak jak w obrazie: `npm run build`, a potem `npm run start
 
 W dev i testach auth używa fałszywego dostawcy tożsamości (`IDP=fake`, dane w pamięci) zamiast ZITADEL. Kody nie wychodzą jako SMS ani e-mail: auth dopisuje je do skrzynki `backend/.local/inbox.jsonl` (`DEV_INBOX_FILE`). Rejestracja („Załóż konto”) działa tak samo: kod potwierdzenia (8 cyfr) jest w tej skrzynce.
 
+Logowanie hasłem i trasy rejestracji odpowiadają najwcześniej po 400 ms, także przy błędzie: nieznane konto, złe hasło i zajęty kontakt dają tę samą treść i ten sam czas odpowiedzi.
+
 ### Konta demo
 
 Fikcyjne kontakty, hasło wszystkich kont to `DEV_DEMO_PASSWORD` z `backend/.local/dev.env`. Kontakty są już potwierdzone.
@@ -82,6 +84,7 @@ Fikcyjne kontakty, hasło wszystkich kont to `DEV_DEMO_PASSWORD` z `backend/.loc
 | auth JWKS (wewnętrzny) | 4011 | 4111 | 8081 | niepublikowany |
 | panel web | 5173 | 5273 | 8081 (nginx) | 127.0.0.1:8081 |
 | strona www | 5174 | 5274 | 8080 (nginx) | 127.0.0.1:8080 |
+| panel web zbudowany (CSP w E2E) | — | 5275 | — | — |
 
 ### Sprawdzenia
 
@@ -90,7 +93,7 @@ W obu katalogach: `npm run check` (typecheck, ESLint, Prettier, Vitest; w backen
 E2E (Playwright, Chromium z `PLAYWRIGHT_BROWSERS_PATH`): `npm run e2e` we `frontend/`, po `npm ci` w obu katalogach. Konfiguracja sama uruchamia auth (`npm --prefix ../backend run serve:auth`, klucz efemeryczny, skrzynka `frontend/e2e/.tmp/inbox.jsonl`), panel i stronę www na portach E2E. Testy:
 
 - `e2e/auth.spec.ts`: panel z prawdziwym auth (logowanie Damiana, Oli i Marty, zły kod i hasło, ciasteczko, przeładowanie, wylogowanie, rejestracja);
-- `e2e/panel.spec.ts`: panel na atrapie API (te same ekrany, 1440 i 390 px);
+- `e2e/panel.spec.ts`: panel na atrapie API (te same ekrany, 1440 i 390 px), a na końcu zbudowany panel (`dist/e2e-web`, `vite preview`) z CSP z `nginx/default.conf.template`, łącznie z Trusted Types: przepływ logowania nie może dać żadnego naruszenia CSP;
 - `e2e/www.spec.ts`: strona www (treść, linki do panelu, układ 1440 i 390 px, brak żądań poza localhost).
 
 E2E podnosi limity żądań auth (`RATE_LIMIT_FACTOR=10`, dozwolone tylko poza prod), bo loguje to samo konto kilkanaście razy w 15 minut.
@@ -110,7 +113,7 @@ docker run --rm -p 4010:8080 --read-only --tmpfs /tmp \
 
 Każdy serwis to `src/services/<serwis>/main.ts` i skrypt `start:<serwis>` (`exec node dist/services/<serwis>/main.js`); dziś jest `start:auth`, później `start:stables`, `start:operations` itd. W Kubernetes każdy Deployment używa tego samego obrazu z inną komendą, np. `command: ["npm", "run", "start:auth"]`. SIGTERM dochodzi przez `tini` i `npm` do procesu serwisu, który kończy się łagodnie (`/readyz` daje 503, potem zamknięcie połączeń).
 
-Auth celowo nie wystartuje z `APP_ENV=prod`, dopóki nie ma adaptera ZITADEL i kolejek kodów: fałszywe adaptery, klucz efemeryczny, `LOG_PRETTY` i `RATE_LIMIT_FACTOR` ≠ 1 są w prod zabronione. Za Ingressem trzeba ustawić `TRUST_PROXY=true`, inaczej limity na IP liczą adres Ingressu.
+Auth celowo nie wystartuje z `APP_ENV=prod`, dopóki nie ma adaptera ZITADEL i kolejek kodów: fałszywe adaptery, klucz efemeryczny, `LOG_PRETTY` i `RATE_LIMIT_FACTOR` ≠ 1 są w prod zabronione. Za Ingressem ustaw `TRUST_PROXY` na adresy albo podsieci proxy przed podem (np. CIDR podsieci ALB i ingress-nginx: `TRUST_PROXY=10.0.0.0/16`, po przecinku kilka), inaczej limity na IP liczą adres proxy. Adres klienta to pierwszy od prawej wpis `X-Forwarded-For` spoza tej listy. `TRUST_PROXY=true` jest odrzucane, bo lewe wpisy podaje klient i mógłby nimi obejść limity; liczby przeskoków Fastify nie obsługuje (nie ufa wtedy nikomu).
 
 **Frontend: build panelu i strony www, potem `nginxinc/nginx-unprivileged`** (www na porcie 8080, panel na 8081). Adresy (`WWW_URL`, `PANEL_URL`, `API_BASE_URL`, `CONTACT_EMAIL`) podaje env kontenera, a nginx wstawia je do HTML przy serwowaniu, więc jeden obraz działa w każdym środowisku. W produkcji Ingress kieruje host www na port 8080, a host panelu na 8081.
 
@@ -128,7 +131,7 @@ Obrazy i compose są **nieprzetestowane w Dockerze**: środowisko, w którym pow
 - `docker compose config`;
 - kroki obu Dockerfile na kontekstach odfiltrowanych według `.dockerignore` (`npm ci`, build, `npm ci --omit=dev`);
 - auth uruchomiony z takiego układu `npm run start:auth` z env z compose, w tym łagodne zamknięcie po SIGTERM;
-- szablon nginx wyrenderowany jak w obrazie (tylko zdefiniowane zmienne) w lokalnym nginx 1.24: nagłówki CSP i cache, podstawione adresy, fallback SPA;
+- szablon nginx wyrenderowany jak w obrazie (tylko zdefiniowane zmienne) w lokalnym nginx 1.24: nagłówki CSP i cache, podstawione adresy, fallback SPA (CSP z Trusted Types sprawdza też E2E na zbudowanym panelu);
 - pełne logowanie w Chromium jak w compose (www :8080 → panel :8081 → auth :4010 przez CORS, kod, PanelWitaj, przeładowanie, wylogowanie), bez naruszeń CSP.
 
 ### Klucz podpisu tokenów
@@ -140,3 +143,4 @@ W dev `npm run dev:setup` generuje klucz ES256 do `backend/.local/signing-key.pe
 - Stan auth jest w pamięci: po restarcie auth trzeba zalogować się ponownie (stare ciasteczko dostaje `session_revoked`).
 - Ciasteczko `__Secure-eq_rt` (`Secure`) Chromium przyjmuje na `http://localhost` (sprawdzone); Safari może go nie zapisać, wtedy po przeładowaniu panelu trzeba zalogować się ponownie.
 - Przy otwarciu panelu bez sesji konsola przeglądarki pokazuje 401 z `POST /auth/v1/token`: to ciche sprawdzenie sesji z ciasteczka, po którym panel przechodzi do logowania.
+- Po 5 złych kodach MFA konto jest zablokowane (403 `account_locked`) do restartu auth, a reset hasła jeszcze nie działa: „Nie pamiętam hasła” to na razie zaślepka (PanelResetHasla w kolejnym kroku).

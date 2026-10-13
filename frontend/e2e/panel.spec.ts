@@ -1,8 +1,11 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { MFA_CODE, MOCK_PASSWORD, SIGN_UP_CODE, mockAuth } from './helpers/mock-auth';
 
 // Panel web na atrapie API (page.route): logowanie hasłem i kodem MFA, PanelWitaj, wylogowanie,
-// rejestracja. Przepływ z prawdziwym backendem auth: auth.spec.ts. Zrzuty: test-results/.
+// rejestracja; na końcu zbudowany panel z CSP z szablonu nginx. Przepływ z prawdziwym backendem
+// auth: auth.spec.ts. Zrzuty: test-results/.
 
 const webUrl = requireEnv('E2E_WEB_URL');
 
@@ -195,7 +198,7 @@ test.describe('panel web (mocked auth)', () => {
     await submit(page, 'Zaloguj się').click();
     await typeCode(page, MFA_CODE);
     await submit(page, 'Zaloguj się').click();
-    await expect(page.getByRole('heading', { name: 'Witaj w EQUENOR, Jan Brzoza' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Witaj w EQUENOR, Jan' })).toBeVisible();
   });
 
   test('guards: /welcome without a session goes to login; forgot password is a placeholder', async ({
@@ -208,6 +211,61 @@ test.describe('panel web (mocked auth)', () => {
     await expect(page).toHaveURL(/\/login$/);
     await page.getByRole('link', { name: 'Nie pamiętam hasła' }).click();
     await expect(page.getByRole('heading', { name: 'Nie pamiętam hasła' })).toBeVisible();
-    await expect(page.getByText('Reset hasła będzie dostępny wkrótce.')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Wróć do logowania' })).toBeVisible();
+  });
+});
+
+/** CSP panelu z szablonu nginx (server na porcie 8081); API pod tym samym originem. */
+function panelCsp(): string {
+  const template = readFileSync(
+    fileURLToPath(new URL('../nginx/default.conf.template', import.meta.url)),
+    'utf8',
+  );
+  const panelServer = template.slice(template.indexOf('listen 8081;'));
+  const csp = /add_header Content-Security-Policy "([^"]+)"/.exec(panelServer)?.[1];
+  if (!csp) throw new Error('Brak CSP panelu w nginx/default.conf.template.');
+  return csp.replace(' ${API_BASE_URL}', '');
+}
+
+test.describe('built panel under the production CSP', () => {
+  test('logs in, reloads and logs out without CSP or Trusted Types violations', async ({
+    page,
+  }) => {
+    const webBuildUrl = requireEnv('E2E_WEB_BUILD_URL');
+    const csp = panelCsp();
+    expect(csp).toContain("require-trusted-types-for 'script'");
+    const violations: string[] = [];
+    page.on('console', (message) => {
+      // „Refused to … Content Security Policy…” i „This document requires 'TrustedHTML'…”.
+      if (/Content Security Policy|Trusted(HTML|Script|Type)/i.test(message.text())) {
+        violations.push(message.text());
+      }
+    });
+    page.on('pageerror', (error) => violations.push(error.message));
+
+    await mockAuth(page);
+    // Zarejestrowana później trasa działa pierwsza: dokumenty dostają CSP, reszta idzie do atrapy.
+    await page.route('**/*', async (route) => {
+      if (route.request().resourceType() !== 'document') return route.fallback();
+      const response = await route.fetch();
+      return route.fulfill({
+        response,
+        headers: { ...response.headers(), 'content-security-policy': csp },
+      });
+    });
+
+    await page.goto(`${webBuildUrl}/`);
+    await expect(page).toHaveURL(/\/login$/);
+    await submitPhoneLogin(page);
+    await typeCode(page, MFA_CODE);
+    await submit(page, 'Zaloguj się').click();
+    await expect(page.getByRole('heading', { name: 'Witaj w EQUENOR, Damian' })).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole('heading', { name: 'Witaj w EQUENOR, Damian' })).toBeVisible();
+    await page.getByRole('button', { name: 'Wyloguj' }).click();
+    await expect(page).toHaveURL(/\/login$/);
+    await page.getByRole('link', { name: 'Załóż konto' }).click();
+    await expect(page).toHaveURL(/\/sign-up$/);
+    expect(violations).toEqual([]);
   });
 });

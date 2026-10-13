@@ -6,10 +6,11 @@ import { defineConfig, devices } from '@playwright/test';
 // E2E: backend auth (FAKE IdP, skrzynka dev w pliku), panel i www na portach E2E.
 // Wymaga `npm ci` w backend/ i frontend/. Przeglądarki: PLAYWRIGHT_BROWSERS_PATH (bez playwright install).
 // Testy biorą adresy, hasło kont demo i ścieżkę skrzynki z env E2E_* (nie importują tego pliku).
-const ports = { auth: 4110, jwks: 4111, web: 5273, www: 5274 };
+const ports = { auth: 4110, jwks: 4111, web: 5273, www: 5274, webBuild: 5275 };
 const e2eUrls = {
   web: `http://localhost:${ports.web}`,
   www: `http://localhost:${ports.www}`,
+  webBuild: `http://localhost:${ports.webBuild}`,
 };
 
 const tmpDir = fileURLToPath(new URL('./e2e/.tmp/', import.meta.url));
@@ -25,6 +26,7 @@ const demoPassword = (process.env.E2E_DEMO_PASSWORD ??= randomBytes(12).toString
 process.env.E2E_INBOX_FILE = inboxFile;
 process.env.E2E_WEB_URL = e2eUrls.web;
 process.env.E2E_WWW_URL = e2eUrls.www;
+process.env.E2E_WEB_BUILD_URL = e2eUrls.webBuild;
 
 export default defineConfig({
   testDir: 'e2e',
@@ -86,6 +88,15 @@ export default defineConfig({
       url: e2eUrls.www,
       reuseExistingServer: false,
       env: { VITE_PANEL_URL: e2eUrls.web },
+    },
+    {
+      // Zbudowany panel (bez skryptów Vite dev) do sprawdzenia CSP z szablonu nginx.
+      command:
+        'npm run build:web -- --outDir ../dist/e2e-web --logLevel warn && ' +
+        `npm run preview:web -- --outDir ../dist/e2e-web --port ${ports.webBuild} --strictPort`,
+      url: e2eUrls.webBuild,
+      reuseExistingServer: false,
+      env: { VITE_API_BASE_URL: '', VITE_WWW_URL: e2eUrls.www },
     },
   ],
 });

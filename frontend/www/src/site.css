@@ -475,10 +475,13 @@ body {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 16px 8px;
+  gap: 16px 4px;
 }
 
-/* Wąsko: e-mail obok znaku (albo pod nim, gdy adres jest długi), sklepy w osobnym rzędzie. */
+/*
+ * Wąsko: e-mail obok znaku, sklepy w osobnym rzędzie. Przy 390 px obok znaku mieści się adres
+ * do ok. 142 px (np. kontakt@equenor.pl w 15 px); dłuższy przechodzi pod znak.
+ */
 .site-footer__contact {
   display: contents;
 }

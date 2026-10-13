@@ -269,12 +269,12 @@ describe('WelcomeScreen and routing', () => {
     expect(app.pathname()).toBe('/login');
   });
 
-  it('shows the e-mail when the account has no phone', async () => {
+  it('greets by first name and shows the e-mail when the account has no phone', async () => {
     const api = createFakeApi();
     api.getMe.mockResolvedValue(
       ok({
         id: '0199c6a0-0000-7000-8000-000000000004',
-        displayName: 'Marta',
+        displayName: ' Marta  Kowalska-Wiśniewska ',
         locale: 'pl',
         contact: { phoneMasked: null, emailMasked: 'm•••@stajnielipowe.pl' },
         businesses: [],
@@ -324,7 +324,7 @@ describe('WelcomeScreen and routing', () => {
 
   it('placeholders: forgot password and the business sign-up', async () => {
     renderApp('/forgot-password');
-    await screen.findByText('Reset hasła będzie dostępny wkrótce.');
+    await screen.findByRole('heading', { name: 'Nie pamiętam hasła' });
     expect(screen.getByRole('link', { name: 'Wróć do logowania' })).toHaveAttribute(
       'href',
       '/login',

@@ -15,7 +15,6 @@ export function ForgotPasswordScreen() {
         <h1 id="forgot-title" className={styles.title}>
           Nie pamiętam hasła
         </h1>
-        <p className={styles.subtitle}>Reset hasła będzie dostępny wkrótce.</p>
       </div>
       <div className={linkStyles.row}>
         <Link to="/login" className={linkStyles.textLink}>

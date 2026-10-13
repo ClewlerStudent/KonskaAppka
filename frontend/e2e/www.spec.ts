@@ -164,13 +164,29 @@ test('matches the mockup layout', async ({ page, isMobile }, testInfo) => {
     await expect(page.locator('.flag-list')).toBeHidden();
   }
 
+  // Stopka: e-mail w jednym rzędzie ze znakiem (adres z .env ma realną długość).
+  const footerRow = await page.evaluate(() => {
+    const top = (selector: string) =>
+      document.querySelector(`.site-footer__top ${selector}`)?.getBoundingClientRect();
+    const brand = top('.brand');
+    const email = top('.site-footer__email');
+    return brand && email
+      ? Math.abs(brand.top + brand.height / 2 - (email.top + email.height / 2))
+      : -1;
+  });
+  expect(footerRow).toBeGreaterThanOrEqual(0);
+  expect(footerRow).toBeLessThan(4);
+
   await page.screenshot({
     path: testInfo.outputPath(`www-${testInfo.project.name}.png`),
     fullPage: true,
   });
 });
 
-test('has no horizontal scroll from 390 to 1440 px', async ({ page, isMobile }) => {
+test('has no horizontal scroll from 390 to 1440 px; one-column hero art is centered', async ({
+  page,
+  isMobile,
+}) => {
   test.skip(isMobile, 'Szerokości sprawdza projekt desktop.');
   await openHome(page);
   for (const width of [390, 480, 639, 640, 768, 1024, 1239, 1240, 1440]) {
@@ -179,6 +195,18 @@ test('has no horizontal scroll from 390 to 1440 px', async ({ page, isMobile }) 
       () => document.documentElement.scrollWidth - window.innerWidth,
     );
     expect(overflow, `${width} px`).toBeLessThanOrEqual(0);
+    if (width >= 640 && width < 1240) {
+      // Hero w jednej kolumnie: ilustracja na środku sekcji, nie przy lewej krawędzi.
+      const offset = await page.evaluate(() => {
+        const frame = document.querySelector('.hero')?.getBoundingClientRect();
+        const art = document.querySelector('.art--full')?.getBoundingClientRect();
+        return frame && art
+          ? Math.abs(frame.left + frame.width / 2 - (art.left + art.width / 2))
+          : -1;
+      });
+      expect(offset, `${width} px`).toBeGreaterThanOrEqual(0);
+      expect(offset, `${width} px`).toBeLessThan(1);
+    }
   }
 });
 

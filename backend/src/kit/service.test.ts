@@ -71,6 +71,17 @@ const broken = defineRoute({
   errors: [],
 });
 
+const leaky = defineRoute({
+  operationId: 'leaky',
+  method: 'GET',
+  path: '/test/v1/leaky',
+  summary: 'odpowiedź z polami spoza kontraktu',
+  responses: {
+    200: { description: 'ok', schema: z.object({ ok: z.boolean(), items: z.array(Ok) }) },
+  },
+  errors: [],
+});
+
 const internalPing = defineRoute({
   kind: 'internal',
   operationId: 'internalPing',
@@ -112,6 +123,10 @@ async function setup(overrides: Partial<ServiceOptions> = {}) {
   service.route(broken, () =>
     Promise.resolve({ status: 200, body: { ok: 'tak' } as unknown as { ok: boolean } }),
   );
+  service.route(leaky, () => {
+    const body = { ok: true, secret: 'tajne-pole', items: [{ ok: true, tokenVersion: 3 }] };
+    return Promise.resolve({ status: 200, body });
+  });
   service.route(internalPing, () => Promise.resolve({ status: 200, body: { ok: true } }));
   await service.ready();
   const token = (patch: Record<string, unknown> = {}) =>
@@ -253,6 +268,33 @@ describe('createService: problem+json', () => {
     });
     const broken = await inject({ method: 'GET', url: '/test/v1/broken', headers: auth });
     expect(broken.json()).toMatchObject({ status: 500, code: 'internal_error' });
+  });
+
+  it('never sends fields outside the contract: 500 outside prod, stripped and logged in prod', async () => {
+    const test = await setup();
+    const auth = { authorization: `Bearer ${await test.token()}` };
+    const failed = await test.inject({ method: 'GET', url: '/test/v1/leaky', headers: auth });
+    expect(failed.json()).toMatchObject({ status: 500, code: 'internal_error' });
+    expect(failed.body).not.toContain('tajne-pole');
+
+    const lines: string[] = [];
+    const prod = await setup({
+      appEnv: 'prod',
+      logger: createLogger(
+        { service: 'test', level: 'info' },
+        { write: (line) => lines.push(line) },
+      ),
+    });
+    const res = await prod.inject({
+      method: 'GET',
+      url: '/test/v1/leaky',
+      headers: { authorization: `Bearer ${await prod.token()}` },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ ok: true, items: [{ ok: true }] });
+    const logged = lines.find((line) => line.includes('outside the contract'));
+    expect(logged).toContain('"extraFields":["secret","items.0.tokenVersion"]');
+    expect(lines.join('\n')).not.toContain('tajne-pole');
   });
 
   it('turns ApiError into its status and headers', async () => {

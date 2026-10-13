@@ -30,18 +30,44 @@ export class ResponseContractError extends Error {
   }
 }
 
-/** Sprawdza odpowiedź z kontraktem (poza prod); zwraca treść po schemacie (bez nadmiarowych pól). */
-export function checkResponse(route: AnyRoute, status: number, body: unknown): unknown {
+export interface CheckedResponse {
+  /** Treść po schemacie: bez pól spoza kontraktu. */
+  readonly body: unknown;
+  /** Ścieżki pól spoza kontraktu (bez wartości), które schemat wyciął. */
+  readonly extraFields: readonly string[];
+}
+
+/** Sprawdza odpowiedź z kontraktem; niezgodny kształt albo status to ResponseContractError (500). */
+export function checkResponse(route: AnyRoute, status: number, body: unknown): CheckedResponse {
   const spec = route.responses[status];
   if (!spec) throw new ResponseContractError(route, status, 'status not in contract');
   if (!spec.schema) {
     if (body !== undefined) throw new ResponseContractError(route, status, 'unexpected body');
-    return undefined;
+    return { body: undefined, extraFields: [] };
   }
   const result = spec.schema.safeParse(body);
   if (!result.success) {
     const paths = result.error.issues.map((issue) => issue.path.join('.') || '(root)');
     throw new ResponseContractError(route, status, `invalid at ${paths.join(', ')}`);
   }
-  return result.data;
+  return { body: result.data, extraFields: extraFields(body, result.data, []) };
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null) return false;
+  const proto: unknown = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
+
+/** Pola obecne w `input`, których nie ma w `output` (wyniku parsowania schematem). */
+function extraFields(input: unknown, output: unknown, path: readonly string[]): string[] {
+  if (Array.isArray(input) && Array.isArray(output)) {
+    return input.flatMap((item, i) => extraFields(item, output[i], [...path, String(i)]));
+  }
+  if (!isPlainObject(input) || !isPlainObject(output)) return [];
+  return Object.entries(input).flatMap(([key, value]) => {
+    if (value === undefined) return [];
+    if (!(key in output)) return [[...path, key].join('.')];
+    return extraFields(value, output[key], [...path, key]);
+  });
 }

@@ -6,6 +6,11 @@ import { Icon } from '../components/Icon';
 import styles from './screens.module.css';
 import { useSignedIn } from './signed-in';
 
+/** Rejestracja zbiera imię i nazwisko, a PanelWitaj wita samym imieniem. */
+function firstName(displayName: string): string {
+  return displayName.trim().split(/\s+/)[0] || displayName;
+}
+
 /** PanelWitaj: osoba bez konta firmy i członkostwa (startView = welcome). */
 export function WelcomeScreen() {
   useDocumentTitle('Witaj · EQUENOR');
@@ -25,7 +30,7 @@ export function WelcomeScreen() {
             <Icon name="horseshoe" size={28} />
           </div>
           <h1 id="welcome-title" className={styles.welcomeTitle} ref={titleRef} tabIndex={-1}>
-            Witaj w EQUENOR, {me.displayName}
+            Witaj w EQUENOR, {firstName(me.displayName)}
           </h1>
         </div>
         <ButtonLink to="/business/new" icon="plus">

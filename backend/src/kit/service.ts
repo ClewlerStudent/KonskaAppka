@@ -10,7 +10,7 @@ import Fastify, {
 import { CLIENT_HEADER } from '../contracts/common.js';
 import type { Principal } from '../lib/auth/claims.js';
 import type { AccessTokenVerifier } from '../lib/auth/verify.js';
-import { authenticate } from './authenticate.js';
+import { authenticate, loginTokenFromHeader } from './authenticate.js';
 import { systemClock, type Clock } from './clock.js';
 import type { AppEnv } from './env.js';
 import type { Logger } from './logger.js';
@@ -27,7 +27,7 @@ import {
   type RouteQuery,
   type RouteReply,
 } from './route.js';
-import { checkResponse, parseInput } from './validation.js';
+import { checkResponse, parseInput, ResponseContractError } from './validation.js';
 
 /**
  * Szablon serwisu: instancja Fastify na port zewnętrzny (trasy zewnętrzne i otwarte, CORS,
@@ -49,7 +49,8 @@ export interface ServiceOptions {
   /** Porty wewnętrzne po nazwie z deskryptora (`internal.port`), np. `{ jwks: 8081 }`. */
   readonly internalPorts?: Readonly<Record<string, number>>;
   readonly allowedOrigins: readonly string[];
-  readonly trustProxy?: boolean;
+  /** Adresy albo podsieci proxy, którym ufamy w X-Forwarded-For (TRUST_PROXY); pusta: bez proxy. */
+  readonly trustProxy?: readonly string[];
   readonly clock?: Clock;
   readonly bodyLimit?: number;
   /** Mnożnik limitów żądań (dev i test). */
@@ -108,7 +109,8 @@ function createInstance(options: ServiceOptions): FastifyInstance {
     bodyLimit: options.bodyLimit ?? DEFAULT_BODY_LIMIT,
     requestTimeout: REQUEST_TIMEOUT_MS,
     routerOptions: { maxParamLength: 100 },
-    trustProxy: options.trustProxy ?? false,
+    // Lista proxy, nigdy `true`: lewe wpisy X-Forwarded-For podaje klient.
+    trustProxy: options.trustProxy?.length ? [...options.trustProxy] : false,
     forceCloseConnections: 'idle',
   }) as unknown as FastifyInstance;
 
@@ -205,10 +207,11 @@ export async function createService(options: ServiceOptions): Promise<Service> {
           typeof body === 'object' && body !== null && 'login' in body ? body.login : undefined;
         return typeof login === 'string' ? loginRateKey(login) : undefined;
       }
-      case 'loginToken':
-        return createHash('sha256')
-          .update(req.headers.authorization ?? '')
-          .digest('base64url');
+      case 'loginToken': {
+        // Nagłówek w innej postaci trasa odrzuca, zanim zapyta dostawcę tożsamości.
+        const token = loginTokenFromHeader(req);
+        return token === null ? undefined : createHash('sha256').update(token).digest('base64url');
+      }
     }
   }
 
@@ -261,7 +264,23 @@ export async function createService(options: ServiceOptions): Promise<Service> {
         handler: async (req, reply) => {
           const ctx = await prepare(route, req, reply);
           const { status, body } = await handler(ctx);
-          const out = options.appEnv === 'prod' ? body : checkResponse(route, status, body);
+          const checked = checkResponse(route, status, body);
+          if (checked.extraFields.length > 0) {
+            // Pola spoza kontraktu nie wychodzą nigdzie; poza prod to błąd, żeby testy go pokazały.
+            const fields = checked.extraFields.join(', ');
+            if (options.appEnv !== 'prod') {
+              throw new ResponseContractError(
+                route,
+                status,
+                `fields outside the contract: ${fields}`,
+              );
+            }
+            req.log.error(
+              { operationId: route.operationId, extraFields: checked.extraFields },
+              'response fields outside the contract were stripped',
+            );
+          }
+          const out = checked.body;
           reply.code(status);
           return out === undefined ? reply.send() : reply.send(out);
         },
