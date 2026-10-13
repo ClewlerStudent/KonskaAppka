@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Ustawienia stajni</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8A5230}a:hover{color:#6B3A1E}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 900px; box-sizing: border-box; background: #F3ECE2; color: #2E241D; font-family: Figtree, system-ui, sans-serif; line-height: 1.3">
+
+<header style="background: #FFFCF7; border-bottom: 1px solid #E0D3C2">
+<div style="max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 14px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.01em; color: #2E241D"><span style="letter-spacing: 0.16em; font-weight: 700">EQUENOR</span></span>
+<span aria-hidden="true" style="width: 1px; height: 24px; background: #E0D3C2"></span>
+<a href="PanelUstawieniaBrzozowa.dc.html" aria-label="Zmień stajnię: Stajnia Pod Lipami" style="display: flex; align-items: center; gap: 4px; padding: 0 4px; font-size: 15px; font-weight: 600; color: #2E241D; text-decoration: none; min-height: 44px">
+Stajnia Pod Lipami
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</a>
+</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<button type="button" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px 0 6px; border-radius: 999px; border: 1px solid #907D6A; background: #FFFCF7; font: inherit; font-size: 14px; font-weight: 600; color: #2E241D">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 16px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px">D</span>
+Damian (admin)
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</button>
+</div>
+</div>
+</header>
+
+<div style="max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 24px 20px 40px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+<nav aria-label="Menu panelu" style="flex: 0 0 240px; width: 240px; box-sizing: border-box">
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+<li><a href="PanelPulpit.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+Pulpit</a></li>
+<li><a href="PanelBoksy.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10l8-6 8 6v10H4z"/><path d="M9 20v-6h6v6"/></svg>
+Boksy</a></li>
+<li><a href="PanelBoksy.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20c-1.3-2.4-2-5-2-7.5a8 8 0 0 1 16 0c0 2.5-.7 5.1-2 7.5h-3c1-2.3 1.5-4.8 1.5-7a4.5 4.5 0 0 0-9 0c0 2.2.5 4.7 1.5 7z"/></svg>
+Konie</a></li>
+<li><a href="PanelLudzieWyswietlacze.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14a6.5 6.5 0 0 1 3.5 6"/></svg>
+Ludzie</a></li>
+<li><a href="PanelPlatnosci.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><path d="M7 14.5h4"/></svg>
+Płatności</a></li>
+<li><a href="PanelUstawieniaStajni.dc.html" aria-current="page" style="position: relative; min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid #E0D3C2; background: #FFFCF7; font-size: 15px; font-weight: 700; text-decoration: none; color: {{accent}}">
+<span aria-hidden="true" style="position: absolute; left: -1px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: {{accent}}"></span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9"/><path d="M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3"/><path d="M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>
+Ustawienia</a></li>
+</ul>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700; line-height: 32px">Ustawienia · Stajnia Pod Lipami</h1>
+<button type="button" style="min-height: 44px; padding: 0 22px; border-radius: 12px; border: none; background: {{accent}}; font: inherit; font-size: 15px; font-weight: 700; color: #FFFCF7">Zapisz</button>
+</div>
+
+<div style="display: grid; grid-template-columns: minmax(0, 440fr) minmax(0, 524fr); gap: 16px; align-items: start">
+
+<section aria-labelledby="uslugi-title" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="uslugi-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Usługi</h2>
+<div role="group" aria-labelledby="g-potw" style="display: flex; flex-direction: column; gap: 6px">
+<h3 id="g-potw" style="margin: 0; font-size: 13px; font-weight: 700; line-height: 16px; color: #5C4E43">Potwierdzenia</h3>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="potw-label" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Flagi wymagają potwierdzenia</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="potw-label" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+</div>
+</div>
+<div role="group" aria-labelledby="g-opieka" style="display: flex; flex-direction: column; gap: 6px">
+<h3 id="g-opieka" style="margin: 0; font-size: 13px; font-weight: 700; line-height: 16px; color: #5C4E43">Opieka</h3>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="u-derka" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Derki</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="u-derka" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="u-moczenie" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Moczenie paszy</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="u-moczenie" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+</div>
+</div>
+<div role="group" aria-labelledby="g-flagi" style="display: flex; flex-direction: column; gap: 6px">
+<h3 id="g-flagi" style="margin: 0; font-size: 13px; font-weight: 700; line-height: 16px; color: #5C4E43">Flagi</h3>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="u-bez_sniadania" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Bez śniadania</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="u-bez_sniadania" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="u-bez_kolacji" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Bez kolacji</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="u-bez_kolacji" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="u-nie_na_padok" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Nie na padok</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="u-nie_na_padok" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="u-wet" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Wet</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="u-wet" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="u-leki" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Leki</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="u-leki" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+</div>
+</div>
+<div role="group" aria-labelledby="g-przyciski" style="display: flex; flex-direction: column; gap: 6px">
+<h3 id="g-przyciski" style="margin: 0; font-size: 13px; font-weight: 700; line-height: 16px; color: #5C4E43">Szybkie przyciski obsługi</h3>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="u-boks-gotowy" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Boks gotowy</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="u-boks-gotowy" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="u-posilek" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Posiłek</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="u-posilek" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 6px 10px 6px 12px; background: #F3ECE2; border: 1px solid #E0D3C2; border-radius: 12px">
+<span id="u-padok" style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600">Padok</span>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="u-padok" style="flex: none; width: 52px; height: 32px; box-sizing: border-box; padding: 3px; border: none; border-radius: 999px; background: {{accent}}; display: flex; justify-content: flex-end; align-items: center">
+<span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #FFFCF7"></span>
+</button>
+</div>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="widocznosc-title" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="widocznosc-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Widoczność per rola</h2>
+<div style="border: 1px solid #E0D3C2; border-radius: 12px; overflow: hidden">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px">
+<thead>
+<tr>
+<th scope="col" rowspan="2" style="padding: 8px 10px 8px 12px; font-size: 12px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2; text-align: left; vertical-align: bottom">Funkcja</th>
+<td colspan="3" style="padding: 0"></td>
+<th scope="colgroup" colspan="2" style="padding: 8px 4px 6px; border-left: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2; font-size: 12px; font-weight: 700; color: #5C4E43; text-align: center; line-height: 1.2; white-space: nowrap">Konta techniczne</th>
+</tr>
+<tr>
+<th scope="col" style="padding: 6px 6px 8px; font-size: 12px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2; text-align: center; line-height: 1.2; vertical-align: bottom; white-space: nowrap">Klient</th>
+<th scope="col" style="padding: 6px 6px 8px; font-size: 12px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2; text-align: center; line-height: 1.2; vertical-align: bottom; white-space: nowrap">Obsługa</th>
+<th scope="col" style="padding: 6px 6px 8px; font-size: 12px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2; text-align: center; line-height: 1.2; vertical-align: bottom; white-space: nowrap">Instruktor</th>
+<th scope="col" style="border-left: 1px solid #E0D3C2; padding: 6px 6px 8px; font-size: 12px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2; text-align: center; line-height: 1.2; vertical-align: bottom; white-space: nowrap">Tablet</th>
+<th scope="col" style="padding: 6px 6px 8px; font-size: 12px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2; text-align: center; line-height: 1.2; vertical-align: bottom; white-space: nowrap">Wyświetlacz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row" style="padding: 4px 10px 4px 12px; font-size: 14px; font-weight: 600; text-align: left; line-height: 1.25; border-bottom: 1px solid #E0D3C2;">Flagi</th>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Klient: Flagi" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Obsługa: Flagi" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Instruktor: Flagi" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-left: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Tablet: Flagi" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Wyświetlacz: Flagi" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+</tr>
+<tr>
+<th scope="row" style="padding: 4px 10px 4px 12px; font-size: 14px; font-weight: 600; text-align: left; line-height: 1.25; border-bottom: 1px solid #E0D3C2;">Plan karmienia</th>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Klient: Plan karmienia" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Obsługa: Plan karmienia" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="false" aria-label="Instruktor: Plan karmienia" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; border: 2px solid #907D6A; background: #FFFCF7"></span></button></td>
+<td style="padding: 1px 2px; border-left: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Tablet: Plan karmienia" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Wyświetlacz: Plan karmienia" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+</tr>
+<tr>
+<th scope="row" style="padding: 4px 10px 4px 12px; font-size: 14px; font-weight: 600; text-align: left; line-height: 1.25; border-bottom: 1px solid #E0D3C2;">Szybkie akcje i ich stan</th>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Klient: Szybkie akcje i ich stan" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Obsługa: Szybkie akcje i ich stan" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="false" aria-label="Instruktor: Szybkie akcje i ich stan" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; border: 2px solid #907D6A; background: #FFFCF7"></span></button></td>
+<td style="padding: 1px 2px; border-left: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Tablet: Szybkie akcje i ich stan" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Wyświetlacz: Szybkie akcje i ich stan" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+</tr>
+<tr>
+<th scope="row" style="padding: 4px 10px 4px 12px; font-size: 14px; font-weight: 600; text-align: left; line-height: 1.25; border-bottom: 1px solid #E0D3C2;">Historia boksu</th>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Klient: Historia boksu" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Obsługa: Historia boksu" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="false" aria-label="Instruktor: Historia boksu" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; border: 2px solid #907D6A; background: #FFFCF7"></span></button></td>
+<td style="padding: 1px 2px; border-left: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Tablet: Historia boksu" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="false" aria-label="Wyświetlacz: Historia boksu" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; border: 2px solid #907D6A; background: #FFFCF7"></span></button></td>
+</tr>
+<tr>
+<th scope="row" style="padding: 4px 10px 4px 12px; font-size: 14px; font-weight: 600; text-align: left; line-height: 1.25; border-bottom: 1px solid #E0D3C2;">Zadania</th>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="false" aria-label="Klient: Zadania" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; border: 2px solid #907D6A; background: #FFFCF7"></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Obsługa: Zadania" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="false" aria-label="Instruktor: Zadania" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; border: 2px solid #907D6A; background: #FFFCF7"></span></button></td>
+<td style="padding: 1px 2px; border-left: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Tablet: Zadania" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Wyświetlacz: Zadania" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+</tr>
+<tr>
+<th scope="row" style="padding: 4px 10px 4px 12px; font-size: 14px; font-weight: 600; text-align: left; line-height: 1.25; border-bottom: 1px solid #E0D3C2;">Zdrowie i wizyty</th>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Klient: Zdrowie i wizyty" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Obsługa: Zdrowie i wizyty" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="false" aria-label="Instruktor: Zdrowie i wizyty" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; border: 2px solid #907D6A; background: #FFFCF7"></span></button></td>
+<td style="padding: 1px 2px; border-left: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Tablet: Zdrowie i wizyty" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-bottom: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="false" aria-label="Wyświetlacz: Zdrowie i wizyty" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; border: 2px solid #907D6A; background: #FFFCF7"></span></button></td>
+</tr>
+<tr>
+<th scope="row" style="padding: 4px 10px 4px 12px; font-size: 14px; font-weight: 600; text-align: left; line-height: 1.25">Jazdy</th>
+<td style="padding: 1px 2px; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Klient: Jazdy" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Obsługa: Jazdy" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Instruktor: Jazdy" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; border-left: 1px solid #E0D3C2; text-align: center"><button type="button" role="checkbox" aria-checked="true" aria-label="Tablet: Jazdy" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFCF7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button></td>
+<td style="padding: 1px 2px; text-align: center"><button type="button" role="checkbox" aria-checked="false" aria-label="Wyświetlacz: Jazdy" style="width: 44px; height: 40px; border: none; background: none; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 6px; border: 2px solid #907D6A; background: #FFFCF7"></span></button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#8A5230","options":["#8A5230","#665A40","#744A5A","#5E5B40"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#8A5230' };
+}
+}
+</script>
+</body>
+</html>

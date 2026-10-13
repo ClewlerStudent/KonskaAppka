@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Pulpit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8A5230}a:hover{color:#6B3A1E}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 900px; box-sizing: border-box; background: #F3ECE2; color: #2E241D; font-family: Figtree, system-ui, sans-serif; line-height: 1.3">
+
+<header style="background: #FFFCF7; border-bottom: 1px solid #E0D3C2">
+<div style="max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 14px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.01em; color: #2E241D"><span style="letter-spacing: 0.16em; font-weight: 700">EQUENOR</span></span>
+<span aria-hidden="true" style="width: 1px; height: 24px; background: #E0D3C2"></span>
+<button type="button" aria-haspopup="menu" aria-label="Zmień stajnię: Stajnia Pod Lipami" style="display: flex; align-items: center; gap: 4px; border: none; background: none; padding: 0 4px; font: inherit; font-size: 15px; font-weight: 600; color: #2E241D; min-height: 44px">
+Stajnia Pod Lipami
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<button type="button" aria-haspopup="menu" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px 0 6px; border-radius: 999px; border: 1px solid #907D6A; background: #FFFCF7; font: inherit; font-size: 14px; font-weight: 600; color: #2E241D">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 16px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px">D</span>
+Damian (admin)
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</button>
+</div>
+</div>
+</header>
+
+<div style="max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 24px 20px 40px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+<nav aria-label="Menu panelu" style="flex: 0 0 240px; width: 240px; box-sizing: border-box">
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+<li><a href="PanelPulpit.dc.html" aria-current="page" style="position: relative; min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid #E0D3C2; background: #FFFCF7; font-size: 15px; font-weight: 700; text-decoration: none; color: {{accent}}">
+<span aria-hidden="true" style="position: absolute; left: -1px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: {{accent}}"></span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+Pulpit</a></li>
+<li><a href="PanelBoksy.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10l8-6 8 6v10H4z"/><path d="M9 20v-6h6v6"/></svg>
+Boksy</a></li>
+<li><a href="PanelBoksy.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20c-1.3-2.4-2-5-2-7.5a8 8 0 0 1 16 0c0 2.5-.7 5.1-2 7.5h-3c1-2.3 1.5-4.8 1.5-7a4.5 4.5 0 0 0-9 0c0 2.2.5 4.7 1.5 7z"/></svg>
+Konie</a></li>
+<li><a href="PanelLudzieWyswietlacze.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14a6.5 6.5 0 0 1 3.5 6"/></svg>
+Ludzie</a></li>
+<li><a href="PanelPlatnosci.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><path d="M7 14.5h4"/></svg>
+Płatności</a></li>
+<li><a href="PanelUstawieniaStajni.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9"/><path d="M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3"/><path d="M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>
+Ustawienia</a></li>
+</ul>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700; line-height: 32px">Pulpit · Stajnia Pod Lipami</h1>
+<p style="margin: 0; font-size: 14px; color: #5C4E43">stan na wt 13.10.2026, 07:15</p>
+</div>
+
+<div role="alert" style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 14px 16px; border-radius: 16px; background: #F6E3B7">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: #FFFCF7; color: #664810; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17v.01"/></svg>
+</span>
+<div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<strong style="font-size: 15px; font-weight: 700; color: #664810">Bella · Hala nowa · boks 4 · Nie na padok · dziś, cały dzień</strong>
+<span style="font-size: 13px; color: #664810">Niepotwierdzona od 01:20 · wysłano Ci SMS i e-mail</span>
+</div>
+<a href="PanelBoksy.dc.html" style="min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; font-size: 14px; font-weight: 600; text-decoration: none; color: #2E241D">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>
+Zobacz flagę</a>
+</div>
+
+<ul aria-label="Stajnia w liczbach" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px">
+<li style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20V9.5L12 4l9 5.5V20"/><path d="M3 20h18"/><path d="M7 20v-7h10v7"/><path d="M12 13v7"/></svg>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 13px; font-weight: 600; color: #5C4E43">Hale</span>
+<span style="font-size: 26px; font-weight: 700; line-height: 30px; font-variant-numeric: tabular-nums">2</span>
+</span>
+</li>
+<li style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10l8-6 8 6v10H4z"/><path d="M9 20v-6h6v6"/></svg>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 13px; font-weight: 600; color: #5C4E43">Boksy</span>
+<span style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 26px; font-weight: 700; line-height: 30px; font-variant-numeric: tabular-nums">14</span><span style="font-size: 13px; color: #5C4E43">2 wolne</span></span>
+</span>
+</li>
+<li style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20c-1.3-2.4-2-5-2-7.5a8 8 0 0 1 16 0c0 2.5-.7 5.1-2 7.5h-3c1-2.3 1.5-4.8 1.5-7a4.5 4.5 0 0 0-9 0c0 2.2.5 4.7 1.5 7z"/></svg>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 13px; font-weight: 600; color: #5C4E43">Konie</span>
+<span style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 26px; font-weight: 700; line-height: 30px; font-variant-numeric: tabular-nums">13</span><span style="font-size: 13px; color: #5C4E43">12 w boksach</span></span>
+</span>
+</li>
+<li style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20c-1.3-2.4-2-5-2-7.5a8 8 0 0 1 16 0c0 2.5-.7 5.1-2 7.5h-3c1-2.3 1.5-4.8 1.5-7a4.5 4.5 0 0 0-9 0c0 2.2.5 4.7 1.5 7z" stroke-dasharray="3 2.5"/></svg>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 13px; font-weight: 600; color: #5C4E43">Konie bez boksu</span>
+<span style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 26px; font-weight: 700; line-height: 30px; font-variant-numeric: tabular-nums">1</span><span style="font-size: 13px; color: #5C4E43">Luna</span></span>
+</span>
+</li>
+</ul>
+
+<section aria-labelledby="hale-title" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+<h2 id="hale-title" style="margin: 0; font-size: 17px; font-weight: 700; line-height: 22px">Dziś w halach</h2>
+<span style="font-size: 13px; color: #5C4E43; font-variant-numeric: tabular-nums">następny posiłek: obiad 12:00</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch">
+
+<article aria-labelledby="hala-glowna" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 4px 16px 12px; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div style="min-height: 44px; display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; border-bottom: 1px solid #E0D3C2">
+<h3 id="hala-glowna" style="margin: 0; font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; line-height: 18px">Hala główna</h3>
+<span style="font-size: 13px; color: #5C4E43">boksy 1–8 · 7 koni</span>
+</div>
+<div style="padding: 10px 0; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M12 7V4"/></svg></span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600">Podano śniadanie</span>
+<span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; background: #D4EADC; color: #2D523D; font-size: 12px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>06:40 · Ola</span>
+</div>
+<span style="display: flex; align-items: center; gap: 4px; padding-left: 40px; font-size: 12px; color: #71251A"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#86301F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>pominięty Kasztan (Główna 7): flaga „Bez śniadania”</span>
+</div>
+<div style="padding: 10px 0; border-bottom: 1px solid #E0D3C2; display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V6l2-2 2 2v14M15 20V6l2-2 2 2v14M3 10h18M3 15h18"/></svg></span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600">Wyprowadzono na padok</span>
+<span style="font-size: 13px; color: #5C4E43; white-space: nowrap; font-variant-numeric: tabular-nums">następne 10:00 · 4 konie</span>
+</div>
+<div style="padding: 10px 0 2px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l-5 9"/><path d="M7.5 12h9l2 9h-13z"/><path d="M10 16.5V21M14 16.5V21"/></svg></span>
+<span id="og-glowna" style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600">Gotowe boksy</span>
+<span style="font-size: 15px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">4 z 8</span>
+</div>
+<div role="progressbar" aria-labelledby="og-glowna" aria-valuemin="0" aria-valuemax="8" aria-valuenow="4" style="margin-left: 40px; height: 8px; border-radius: 999px; background: #EDE3D5; overflow: hidden">
+<div style="width: 50%; height: 100%; border-radius: 999px; background: #2D523D"></div>
+</div>
+</div>
+</article>
+
+<article aria-labelledby="hala-nowa" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 4px 16px 12px; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div style="min-height: 44px; display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; border-bottom: 1px solid #E0D3C2">
+<h3 id="hala-nowa" style="margin: 0; font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; line-height: 18px">Hala nowa</h3>
+<span style="font-size: 13px; color: #5C4E43">boksy 1–6 · 5 koni</span>
+</div>
+<div style="padding: 10px 0; border-bottom: 1px solid #E0D3C2; display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M12 7V4"/></svg></span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600">Podano śniadanie</span>
+<span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; background: #D4EADC; color: #2D523D; font-size: 12px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>06:50 · Piotr</span>
+</div>
+<div style="padding: 10px 0; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V6l2-2 2 2v14M15 20V6l2-2 2 2v14M3 10h18M3 15h18"/></svg></span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600">Wyprowadzono na padok</span>
+<span style="font-size: 13px; color: #5C4E43; white-space: nowrap; font-variant-numeric: tabular-nums">następne 10:00 · 3 konie</span>
+</div>
+<span style="display: flex; align-items: center; gap: 4px; padding-left: 40px; font-size: 12px; color: #664810"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8C6014" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>pominięta Bella (Nowa 4): flaga „Nie na padok”</span>
+</div>
+<div style="padding: 10px 0; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l-5 9"/><path d="M7.5 12h9l2 9h-13z"/><path d="M10 16.5V21M14 16.5V21"/></svg></span>
+<span id="og-nowa" style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600">Gotowe boksy</span>
+<span style="font-size: 15px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">3 z 6</span>
+</div>
+<div role="progressbar" aria-labelledby="og-nowa" aria-valuemin="0" aria-valuemax="6" aria-valuenow="3" style="margin-left: 40px; height: 8px; border-radius: 999px; background: #EDE3D5; overflow: hidden">
+<div style="width: 50%; height: 100%; border-radius: 999px; background: #2D523D"></div>
+</div>
+</div>
+<div style="padding: 10px 0 2px; display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3.5 4.5 6 7.7 6 11a6 6 0 0 1-12 0c0-3.3 2.5-6.5 6-11z"/></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 15px; font-weight: 600">Poidło ręczne · boks 5</span>
+<span style="font-size: 12px; color: #5C4E43">Bursztyn</span>
+</span>
+<span style="font-size: 13px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums">woda 06:55</span>
+</div>
+</article>
+
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start">
+
+<div style="min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section aria-labelledby="flagi-title" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14); overflow: hidden">
+<div style="padding: 14px 16px 10px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<h2 id="flagi-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Flagi dziś</h2>
+<span style="font-size: 13px; color: #5C4E43">5 flag · 1 niepotwierdzona</span>
+</div>
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left">
+<thead>
+<tr>
+<th scope="col" style="padding: 8px 8px 8px 16px; font-size: 13px; font-weight: 600; color: #5C4E43; border-top: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2">Koń</th>
+<th scope="col" style="padding: 8px; font-size: 13px; font-weight: 600; color: #5C4E43; border-top: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2">Flaga</th>
+<th scope="col" style="padding: 8px; font-size: 13px; font-weight: 600; color: #5C4E43; border-top: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2">Godziny</th>
+<th scope="col" style="padding: 8px 16px 8px 8px; font-size: 13px; font-weight: 600; color: #5C4E43; border-top: 1px solid #E0D3C2; border-bottom: 1px solid #E0D3C2">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background: #FCF4E2">
+<th scope="row" style="padding: 8px 8px 8px 16px; border-bottom: 1px solid #E0D3C2; text-align: left; font-weight: 400">
+<span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 14px; font-weight: 700">Bella</span><span style="font-size: 12px; color: #5C4E43; white-space: nowrap">Hala nowa · boks 4</span></span>
+</th>
+<td style="padding: 8px; border-bottom: 1px solid #E0D3C2"><span style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: #86301F; color: #FFFCF7; font-size: 13px; font-weight: 700; white-space: nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>Nie na padok</span></td>
+<td style="padding: 8px; border-bottom: 1px solid #E0D3C2; font-size: 13px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">dziś, cały dzień</td>
+<td style="padding: 8px 16px 8px 8px; border-bottom: 1px solid #E0D3C2"><span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #664810; white-space: nowrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17v.01"/></svg>niepotwierdzona</span></td>
+</tr>
+<tr>
+<th scope="row" style="padding: 8px 8px 8px 16px; border-bottom: 1px solid #E0D3C2; text-align: left; font-weight: 400">
+<span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 14px; font-weight: 700">Kasztan</span><span style="font-size: 12px; color: #5C4E43; white-space: nowrap">Hala główna · boks 7</span></span>
+</th>
+<td style="padding: 8px; border-bottom: 1px solid #E0D3C2"><span style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: #86301F; color: #FFFCF7; font-size: 13px; font-weight: 700; white-space: nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M3 3l18 18"/></svg>Bez śniadania</span></td>
+<td style="padding: 8px; border-bottom: 1px solid #E0D3C2; font-size: 13px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">06:00–10:00</td>
+<td style="padding: 8px 16px 8px 8px; border-bottom: 1px solid #E0D3C2"><span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #2D523D; white-space: nowrap; font-variant-numeric: tabular-nums"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>potwierdzona 06:02</span></td>
+</tr>
+<tr>
+<th scope="row" style="padding: 8px 8px 8px 16px; border-bottom: 1px solid #E0D3C2; text-align: left; font-weight: 400">
+<span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 14px; font-weight: 700">Hetman</span><span style="font-size: 12px; color: #5C4E43; white-space: nowrap">Hala główna · boks 8</span></span>
+</th>
+<td style="padding: 8px; border-bottom: 1px solid #E0D3C2"><span style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: #EDE3D5; color: #2E241D; font-size: 13px; font-weight: 700; white-space: nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8.5" width="18" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M9.5 9.5l5 5"/></svg>Leki rano</span></td>
+<td style="padding: 8px; border-bottom: 1px solid #E0D3C2; font-size: 13px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">06:00–09:00</td>
+<td style="padding: 8px 16px 8px 8px; border-bottom: 1px solid #E0D3C2"><span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #2D523D; white-space: nowrap; font-variant-numeric: tabular-nums"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>potwierdzona 06:20</span></td>
+</tr>
+<tr>
+<th scope="row" style="padding: 8px 8px 8px 16px; border-bottom: 1px solid #E0D3C2; text-align: left; font-weight: 400">
+<span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 14px; font-weight: 700">Kasztan</span><span style="font-size: 12px; color: #5C4E43; white-space: nowrap">Hala główna · boks 7</span></span>
+</th>
+<td style="padding: 8px; border-bottom: 1px solid #E0D3C2"><span style="display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; border: 1.5px dashed #B9A791; background: #FFFCF7; color: #2E241D; font-size: 13px; font-weight: 700; white-space: nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>Nie na padok</span></td>
+<td style="padding: 8px; border-bottom: 1px solid #E0D3C2; white-space: nowrap; font-variant-numeric: tabular-nums"><span style="font-size: 13px; font-weight: 700">od 14:30</span> <span style="font-size: 12px; color: #5C4E43">do 16:00</span></td>
+<td style="padding: 8px 16px 8px 8px; border-bottom: 1px solid #E0D3C2"><span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #2D523D; white-space: nowrap; font-variant-numeric: tabular-nums"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>potwierdzona 06:02</span></td>
+</tr>
+<tr>
+<th scope="row" style="padding: 8px 8px 8px 16px; text-align: left; font-weight: 400">
+<span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 14px; font-weight: 700">Sonata</span><span style="font-size: 12px; color: #5C4E43; white-space: nowrap">Hala główna · boks 4</span></span>
+</th>
+<td style="padding: 8px"><span style="display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; border: 1.5px dashed #B9A791; background: #FFFCF7; color: #2E241D; font-size: 13px; font-weight: 700; white-space: nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18"/><path d="M6 5v12c2 1.5 4 1.5 6 0s4-1.5 6 0V5"/></svg>Derka: zakładać</span></td>
+<td style="padding: 8px; white-space: nowrap; font-variant-numeric: tabular-nums"><span style="font-size: 13px; font-weight: 700">od 16:00</span> <span style="font-size: 12px; color: #5C4E43">do 08:00</span></td>
+<td style="padding: 8px 16px 8px 8px"><span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #2D523D; white-space: nowrap; font-variant-numeric: tabular-nums"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>potwierdzona 07:05</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+<section aria-labelledby="zadania-title" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<h2 id="zadania-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Zadania</h2>
+<span style="font-size: 13px; color: #5C4E43">3 dziś</span>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+<li style="display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-bottom: 1px solid #E0D3C2">
+<span style="font-size: 15px; font-weight: 600">Poidło w boksie 5 do wymiany</span>
+<span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+<span style="padding: 2px 8px; border-radius: 999px; background: #EDE3D5; color: #2E241D; font-size: 12px; font-weight: 700; white-space: nowrap">do wzięcia</span>
+<span style="font-size: 12px; color: #5C4E43">Hala nowa · boks 5</span>
+</span>
+</li>
+<li style="display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-bottom: 1px solid #E0D3C2">
+<span style="font-size: 15px; font-weight: 600">Wymienić żarówkę w korytarzu</span>
+<span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+<span style="padding: 2px 8px; border-radius: 999px; background: #EDE3D5; color: #2E241D; font-size: 12px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">w toku · Piotr 07:00</span>
+<span style="font-size: 12px; color: #5C4E43">Hala główna</span>
+</span>
+</li>
+<li style="display: flex; flex-direction: column; gap: 4px; padding: 10px 0 4px">
+<span style="font-size: 15px; font-weight: 600">Przywieźć słomę z magazynu</span>
+<span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+<span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: #D4EADC; color: #2D523D; font-size: 12px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>zrobione 06:30 · Ola</span>
+</span>
+</li>
+</ul>
+</section>
+</div>
+
+<div style="min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section aria-labelledby="wizyty-title" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 14px 16px 6px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<h2 id="wizyty-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Wizyty i jazdy</h2>
+<span style="font-size: 13px; color: #5C4E43">dziś</span>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+<li style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #E0D3C2">
+<span style="width: 56px; flex: none; box-sizing: border-box; padding: 6px 0; border-radius: 10px; background: #EDE3D5; text-align: center; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums">08:00</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 15px; font-weight: 600">Wet · Kasztan</span>
+<span style="font-size: 12px; color: #5C4E43">Hala główna · boks 7 · na czczo</span>
+</span>
+</li>
+<li style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #E0D3C2">
+<span style="width: 56px; flex: none; box-sizing: border-box; padding: 6px 0; border-radius: 10px; background: #EDE3D5; text-align: center; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums">15:00</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 15px; font-weight: 600">Kowal · Kasztan</span>
+<span style="font-size: 12px; color: #5C4E43">Hala główna · boks 7</span>
+</span>
+</li>
+<li style="display: flex; align-items: center; gap: 12px; padding: 10px 0">
+<span style="width: 56px; flex: none; box-sizing: border-box; padding: 6px 0; border-radius: 10px; background: #EDE3D5; text-align: center; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums">16:00</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 15px; font-weight: 600">Jazda · Iskra</span>
+<span style="font-size: 12px; color: #5C4E43">Hala główna · boks 1 · kryta ujeżdżalnia</span>
+</span>
+</li>
+</ul>
+</section>
+
+<section aria-labelledby="sub-title" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 6px 16px 14px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div style="display: flex; align-items: center; gap: 10px">
+<h2 id="sub-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Subskrypcja</h2>
+<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #D4EADC; color: #2D523D; font-size: 13px; font-weight: 700"><span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 999px; background: #2D523D"></span>Aktywna</span>
+<a href="PanelPlatnosci.dc.html" style="margin-left: auto; min-height: 44px; display: inline-flex; align-items: center; gap: 2px; padding: 0 0 0 4px; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; white-space: nowrap">Płatności
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+</div>
+<p style="margin: 0; font-size: 14px; color: #5C4E43; font-variant-numeric: tabular-nums">Plan <strong style="color: #2E241D; font-weight: 700">Stajnia</strong> · następna faktura <strong style="color: #2E241D; font-weight: 700">01.11.2026</strong></p>
+</section>
+
+<section aria-labelledby="ludzie-title" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<h2 id="ludzie-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Ludzie</h2>
+<span style="font-size: 13px; color: #5C4E43">zaproszenia: 1 czeka · 1 wygasło</span>
+</div>
+<ul aria-label="Członkowie według ról" style="list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; flex-wrap: wrap">
+<li style="padding: 3px 9px; border-radius: 999px; background: #EDE3D5; font-size: 12px; font-weight: 600; white-space: nowrap">Admin 1</li>
+<li style="padding: 3px 9px; border-radius: 999px; background: #EDE3D5; font-size: 12px; font-weight: 600; white-space: nowrap">Obsługa 2</li>
+<li style="padding: 3px 9px; border-radius: 999px; background: #EDE3D5; font-size: 12px; font-weight: 600; white-space: nowrap">Klienci 4</li>
+<li style="padding: 3px 9px; border-radius: 999px; background: #EDE3D5; font-size: 12px; font-weight: 600; white-space: nowrap">Instruktor 1</li>
+<li style="padding: 3px 9px; border-radius: 999px; background: #EDE3D5; font-size: 12px; font-weight: 600; white-space: nowrap">Konta techniczne 2</li>
+</ul>
+<ul aria-label="Zaproszenia" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border-top: 1px solid #E0D3C2">
+<li style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #E0D3C2">
+<span aria-hidden="true" style="width: 32px; height: 32px; flex: none; border-radius: 16px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px">M</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 14px; font-weight: 700">Marek Nowak</span>
+<span style="font-size: 12px; color: #5C4E43">Klient · Luna</span>
+</span>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px; text-align: right">
+<span style="font-size: 12px; font-weight: 700; color: #664810">czeka</span>
+<span style="font-size: 12px; color: #5C4E43; white-space: nowrap">ważne do czw 15.10</span>
+</span>
+</li>
+<li style="display: flex; align-items: center; gap: 10px; padding: 8px 0 0">
+<span aria-hidden="true" style="width: 32px; height: 32px; flex: none; border-radius: 16px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 14px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">+48 512 *** 908</span>
+<span style="font-size: 12px; color: #5C4E43">Obsługa · wygasło 08.10</span>
+</span>
+<button type="button" style="min-height: 44px; padding: 0 4px; border: none; background: none; font: inherit; font-size: 13px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; white-space: nowrap">Wyślij ponownie</button>
+</li>
+</ul>
+<a href="PanelZaprosOsobe.dc.html" style="align-self: flex-start; min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; font-size: 14px; font-weight: 600; text-decoration: none; color: #2E241D">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+Zaproś osobę</a>
+</section>
+</div>
+
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#8A5230","options":["#8A5230","#665A40","#744A5A","#5E5B40"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#8A5230' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+# Generates the tablet "Zmień boks" picker (replaces the old lock screen).
+import sys
+out = sys.argv[1]
+def btn(no, name, current=False):
+    free = name is None
+    if current:
+        return f'''<a href="TabletBoks.dc.html" aria-current="true" style="min-height: 104px; box-sizing: border-box; border: 4px solid #1E1B18; border-radius: 12px; background: #1E1B18; color: #F8F6F1; text-decoration: none; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 8px 12px">
+<span style="display: flex; align-items: center; justify-content: space-between; gap: 6px">
+<span style="font-size: 26px; font-weight: 700">Boks {no}</span>
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+</span>
+<span style="font-size: 22px; font-weight: 700">{name}</span>
+<span style="font-size: 17px; font-weight: 700; letter-spacing: 0.06em">TERAZ</span>
+</a>'''
+    st = ('border: 2px dashed #5B5650; background: #EFEBE3; color: #5B5650' if free
+          else 'border: 2px solid #1E1B18; background: #F8F6F1; color: #1E1B18')
+    return f'''<a href="TabletBoks.dc.html" style="min-height: 104px; box-sizing: border-box; border-radius: 12px; {st}; text-decoration: none; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 10px 12px">
+<span style="font-size: 26px; font-weight: 700">Boks {no}</span>
+<span style="font-size: 22px">{'wolny' if free else name}</span>
+</a>'''
+
+boxes = ''.join([btn(1, 'Iskra'), btn(2, 'Dukat'), btn(3, None), btn(4, 'Sonata'),
+                 btn(5, 'Wicher'), btn(6, 'Fala'), btn(7, 'Kasztan', True), btn(8, 'Hetman')])
+
+tab_on = 'background: #1E1B18; color: #F8F6F1'
+tab_off = 'background: #F8F6F1; color: #1E1B18'
+tab = 'flex: 1; min-height: 72px; box-sizing: border-box; border: none; font: inherit; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 14px'
+
+html = f'''<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Zmiana boksu na tablecie</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&amp;display=swap">
+<style>
+body{{margin:0}}
+a{{color:#1E1B18}}a:hover{{color:#5B5650}}
+</style>
+</helmet>
+<div style="width: 702px; height: 936px; box-sizing: border-box; background: #EFEBE3; color: #1E1B18; font-family: Atkinson Hyperlegible, system-ui, sans-serif; line-height: 1.2; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px 12px; border-bottom: 3px solid #1E1B18">
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<h1 id="wybor-tytul" style="margin: 0; font-size: 46px; font-weight: 700; line-height: 1.05">Zmień boks</h1>
+<p style="margin: 0; font-size: 22px; color: #5B5650">Teraz: <strong style="color: #1E1B18">boks 7 · Kasztan</strong></p>
+</div>
+<a href="TabletBoks.dc.html" style="flex-shrink: 0; min-height: 64px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 16px; border: 2px solid #1E1B18; border-radius: 12px; background: #F8F6F1; color: #1E1B18; text-decoration: none; font-size: 22px; font-weight: 700">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
+Anuluj</a>
+</header>
+
+<main style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 16px; padding: 18px 24px 14px; overflow: hidden">
+
+<div role="tablist" aria-label="Hale" style="display: flex; border: 3px solid #1E1B18; border-radius: 14px; overflow: hidden">
+<button type="button" role="tab" aria-selected="true" style="{tab}; {tab_on}">
+<span style="font-size: 26px; font-weight: 700">Hala główna</span>
+<span style="font-size: 20px">boksy 1–8</span>
+</button>
+<button type="button" role="tab" aria-selected="false" style="{tab}; {tab_off}; border-left: 3px solid #1E1B18">
+<span style="font-size: 26px; font-weight: 700">Hala nowa</span>
+<span style="font-size: 20px">boksy 1–6</span>
+</button>
+</div>
+
+<nav role="tabpanel" aria-labelledby="wybor-tytul" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+{boxes}
+</nav>
+
+<p style="margin: 0; display: flex; align-items: flex-start; gap: 10px; font-size: 22px; line-height: 1.3">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg>
+<span>Stuknij boks, a tablet od razu pokaże jego tablicę. Wybór zapisuje się tylko na tym tablecie.</span>
+</p>
+
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-size: 22px; font-weight: 700">Bez wyboru powrót do boksu 7 za 30 s</p>
+<div aria-hidden="true" style="height: 14px; border: 2px solid #1E1B18; border-radius: 999px; overflow: hidden; background: #F8F6F1">
+<div style="width: 100%; height: 100%; background: #1E1B18"></div>
+</div>
+</div>
+</main>
+
+<footer style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 4px 24px; border-top: 3px solid #1E1B18">
+<p style="flex: 1 1 auto; min-width: 0; margin: 0; display: flex; align-items: center; gap: 8px; font-size: 20px">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 20v-4h-4"/></svg>
+<span><strong>ONLINE</strong> · aktualne na 07:15</span>
+</p>
+<div role="group" aria-label="Język tablicy" style="flex-shrink: 0; display: flex; border: 2px solid #1E1B18; border-radius: 12px; overflow: hidden">
+<button type="button" aria-pressed="true" style="min-width: 72px; min-height: 64px; border: none; background: #1E1B18; color: #F8F6F1; font: inherit; font-size: 22px; font-weight: 700">PL</button>
+<button type="button" aria-pressed="false" style="min-width: 72px; min-height: 64px; border: none; border-left: 2px solid #1E1B18; background: #F8F6F1; color: #1E1B18; font: inherit; font-size: 22px; font-weight: 700">UA</button>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{{"$preview":{{"width":702,"height":936}}}}'>
+class Component extends DCLogic {{
+renderVals() {{
+return {{}};
+}}
+}}
+</script>
+</body>
+</html>
+'''
+open(out, 'w', encoding='utf-8').write(html)
+print('written', len(html))

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Lista dnia</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8A5230}a:hover{color:#6B3A1E}
+</style>
+</helmet>
+<div style="width: 390px; height: 960px; box-sizing: border-box; background: #F3ECE2; color: #2E241D; font-family: Figtree, system-ui, sans-serif; line-height: 1.25; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px 8px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.01em; color: #2E241D"><span style="letter-spacing: 0.16em; font-weight: 700">EQUENOR</span></span>
+<a href="ListaDniaBrzozowa.dc.html" aria-label="Stajnia Pod Lipami: przełącz na Stajnię Brzozową" style="display: flex; align-items: center; gap: 4px; border: none; background: none; padding: 0; font: inherit; font-size: 15px; font-weight: 600; color: #2E241D; min-height: 28px; text-decoration: none">
+Stajnia Pod Lipami
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</a>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px">
+<span style="font-size: 13px; font-weight: 600; color: #5C4E43">Zalogowana: Ola</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; background: #D4EADC; color: #2D523D; font-size: 12px; font-weight: 600">
+<span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 999px; background: #2D523D"></span>
+online · aktualne na 07:15</span>
+</div>
+</header>
+
+<main style="flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 6px 20px 12px; overflow: hidden">
+<h1 style="margin: 0; font-size: 24px; font-weight: 700; line-height: 30px">Dziś · wt 13.10</h1>
+
+<section id="akcje" aria-labelledby="akcje-title" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px">
+<h2 id="akcje-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Szybkie akcje</h2>
+<span style="font-size: 13px; color: #5C4E43; white-space: nowrap">jedno tapnięcie na halę</span>
+</div>
+<div style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 0 12px; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+
+<div style="padding: 2px 0 10px; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 4px">
+<div style="min-height: 44px; display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M12 7V4"/></svg>
+</span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600">Podano śniadanie</span>
+<button type="button" aria-label="Cofnij: Podano śniadanie · Hala główna 06:40" style="min-height: 44px; padding: 0 4px; border: none; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+Cofnij</button>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; background: #D4EADC; color: #2D523D; font-size: 12px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+Główna 06:40 · Ola</span>
+<span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; background: #D4EADC; color: #2D523D; font-size: 12px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+Nowa 06:50 · Piotr</span>
+</div>
+<span style="display: flex; align-items: center; gap: 4px; font-size: 12px; color: #71251A">
+<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#86301F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>
+pominięty Kasztan (Główna 7): flaga „Bez śniadania”</span>
+</div>
+
+<div style="padding: 10px 0; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V6l2-2 2 2v14M15 20V6l2-2 2 2v14M3 10h18M3 15h18"/></svg>
+</span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600">Wyprowadzono na padok</span>
+<span style="font-size: 12px; color: #5C4E43; white-space: nowrap; font-variant-numeric: tabular-nums">następne 10:00</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" aria-label="Wyprowadzono na padok · Hala główna · 4 konie" style="min-height: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid {{accent}}; background: #FFFCF7; color: {{accent}}; font: inherit; font-size: 14px; font-weight: 700; white-space: nowrap">Główna · 4 konie</button>
+<button type="button" aria-label="Wyprowadzono na padok · Hala nowa · 3 konie" style="min-height: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid {{accent}}; background: #FFFCF7; color: {{accent}}; font: inherit; font-size: 14px; font-weight: 700; white-space: nowrap">Nowa · 3 konie</button>
+</div>
+<span style="display: flex; align-items: center; gap: 4px; font-size: 12px; color: #664810">
+<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8C6014" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>
+pominięta Bella (Nowa 4): flaga „Nie na padok”</span>
+</div>
+
+<div style="padding: 2px 0 12px; display: flex; flex-direction: column; gap: 4px">
+<div style="min-height: 44px; display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; border-radius: 10px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l-5 9"/><path d="M7.5 12h9l2 9h-13z"/><path d="M10 16.5V21M14 16.5V21"/></svg>
+</span>
+<span id="ogarniete-label" style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums">Ogarnięte: 7 z 14</span>
+<button type="button" aria-haspopup="dialog" style="min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid {{accent}}; background: #FFFCF7; color: {{accent}}; font: inherit; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>
+Zaznacz boksy</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div role="progressbar" aria-labelledby="ogarniete-label" aria-valuemin="0" aria-valuemax="14" aria-valuenow="7" style="flex: 1; height: 8px; border-radius: 999px; background: #EDE3D5; overflow: hidden">
+<div style="width: 50%; height: 100%; border-radius: 999px; background: #2D523D"></div>
+</div>
+<span style="font-size: 12px; color: #5C4E43; white-space: nowrap; font-variant-numeric: tabular-nums">Główna 4 z 8 · Nowa 3 z 6</span>
+</div>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="potw-title" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between">
+<h2 id="potw-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Wymaga potwierdzenia</h2>
+<span style="font-size: 13px; color: #5C4E43">1 flaga</span>
+</div>
+
+<article style="background: #F6E3B7; border-radius: 16px; padding: 12px 12px 12px 14px; display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 600; color: #2E241D">Hala nowa · boks 4 · Bella</span>
+<span style="font-size: 16px; font-weight: 700; color: #664810; line-height: 20px">Nie na padok</span>
+<span style="font-size: 13px; font-weight: 700; color: #2E241D">dziś, cały dzień</span>
+<span style="display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #664810">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17v.01"/></svg>
+Krytyczna · niepotwierdzona</span>
+</div>
+<button type="button" style="min-height: 44px; padding: 0 12px; border-radius: 12px; border: none; background: {{accent}}; color: #FFFCF7; font: inherit; font-size: 14px; font-weight: 700; white-space: nowrap">Potwierdzam</button>
+</article>
+</section>
+
+<section aria-labelledby="flagi-title" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between">
+<h2 id="flagi-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Flagi dziś</h2>
+<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #2D523D">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+potwierdzone</span>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0 12px; background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; display: flex; flex-direction: column; font-size: 13px">
+<li style="min-height: 32px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #E0D3C2">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#86301F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M3 3l18 18"/></svg>
+<span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span style="font-weight: 700">Bez śniadania</span> · Kasztan, Główna 7</span>
+<span style="font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">06:00–10:00</span>
+</li>
+<li style="min-height: 32px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #E0D3C2">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5C4E43" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><rect x="3" y="8.5" width="18" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M9.5 9.5l5 5"/></svg>
+<span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span style="font-weight: 700">Leki rano</span> · Hetman, Główna 8</span>
+<span style="font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">06:00–09:00</span>
+</li>
+<li style="min-height: 32px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #E0D3C2">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C6014" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M5 20V6l2-2 2 2v14M15 20V6l2-2 2 2v14M3 10h18M3 15h18"/></svg>
+<span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span style="font-weight: 700">Nie na padok</span> · Kasztan, Główna 7</span>
+<span style="font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">od 14:30</span>
+</li>
+<li style="min-height: 32px; display: flex; align-items: center; gap: 8px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5C4E43" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M3 5h18"/><path d="M6 5v12c2 1.5 4 1.5 6 0s4-1.5 6 0V5"/></svg>
+<span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span style="font-weight: 700">Derka: zakładać</span> · Sonata, Główna 4</span>
+<span style="font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums">od 16:00</span>
+</li>
+</ul>
+</section>
+
+<section id="zadania" aria-labelledby="zadania-title" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
+<h2 id="zadania-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Zadania</h2>
+<a href="StajennyZadania.dc.html" style="min-height: 44px; margin: -12px 0; display: inline-flex; align-items: center; gap: 2px; padding: 0 0 0 4px; font-size: 13px; font-weight: 600; white-space: nowrap; text-underline-offset: 3px">
+1 do wzięcia · 1 w toku
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+</div>
+<div style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div aria-hidden="true" style="width: 36px; height: 36px; flex: none; border-radius: 18px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg>
+</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Poidło w boksie 5 do wymiany</span>
+<span style="font-size: 12px; color: #5C4E43">Hala nowa · boks 5 · do wzięcia</span>
+</div>
+<button type="button" style="min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid {{accent}}; background: #FFFCF7; color: {{accent}}; font: inherit; font-size: 14px; font-weight: 700; white-space: nowrap">Biorę</button>
+</div>
+</section>
+</main>
+
+<nav aria-label="Główna nawigacja" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid #E0D3C2; background: #FFFCF7; padding: 6px 8px 14px">
+<a href="ListaDnia.dc.html" aria-current="page" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; font-weight: 700; text-decoration: none; color: {{accent}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+Dziś</a>
+<a href="StajennyKonie.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20c-1.3-2.4-2-5-2-7.5a8 8 0 0 1 16 0c0 2.5-.7 5.1-2 7.5h-3c1-2.3 1.5-4.8 1.5-7a4.5 4.5 0 0 0-9 0c0 2.2.5 4.7 1.5 7z"/></svg>
+Konie</a>
+<a href="StajennyZadania.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10"/><path d="M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5 2.5-2.5M3.5 18l1.5 1.5 2.5-2.5"/></svg>
+Zadania</a>
+<a href="Logowanie.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+Profil</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#8A5230","options":["#8A5230","#665A40","#744A5A","#5E5B40"]},"$preview":{"width":390,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#8A5230' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Boksy i konie · bez przycisków obsługi</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8A5230}a:hover{color:#6B3A1E}
+</style>
+</helmet>
+<div style="width: 390px; height: 1160px; box-sizing: border-box; background: #F3ECE2; color: #2E241D; font-family: Figtree, system-ui, sans-serif; line-height: 1.25; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 8px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.01em; color: #2E241D"><span style="letter-spacing: 0.16em; font-weight: 700">EQUENOR</span></span>
+<button type="button" style="display: flex; align-items: center; gap: 4px; border: none; background: none; padding: 0; font: inherit; font-size: 15px; font-weight: 600; color: #2E241D; min-height: 28px">
+Stajnia Pod Lipami
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</button>
+</div>
+<button type="button" aria-label="Powiadomienia, 1 nowe" style="position: relative; width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E0D3C2; background: #FFFCF7; color: #2E241D; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+<span aria-hidden="true" style="position: absolute; top: 9px; right: 10px; width: 9px; height: 9px; border-radius: 999px; background: #86301F; border: 2px solid #FFFCF7"></span>
+</button>
+</header>
+
+<main style="flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 6px 20px 12px; overflow: hidden">
+<h1 style="margin: 0; font-size: 24px; font-weight: 700; line-height: 30px">Boksy i konie</h1>
+
+<label style="min-height: 48px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Szukaj boksu, konia lub osoby</span>
+<input type="search" placeholder="Szukaj boksu, konia lub osoby" style="flex: 1; min-width: 0; min-height: 44px; border: none; background: transparent; font: inherit; font-size: 15px; color: #2E241D; outline-offset: 2px">
+</label>
+
+<div role="group" aria-label="Filtr boksów" style="display: flex; flex-wrap: wrap; gap: 6px">
+<button type="button" aria-pressed="true" style="min-height: 36px; padding: 0 12px; border-radius: 999px; font: inherit; font-size: 13px; font-weight: 600; border: none; background: {{accent}}; color: #FFFCF7">Wszystkie · 14</button>
+<button type="button" aria-pressed="false" style="min-height: 36px; padding: 0 12px; border-radius: 999px; font: inherit; font-size: 13px; font-weight: 600; border: 1px solid #907D6A; background: #FFFCF7; color: #2E241D">Z koniem · 12</button>
+<button type="button" aria-pressed="false" style="min-height: 36px; padding: 0 12px; border-radius: 999px; font: inherit; font-size: 13px; font-weight: 600; border: 1px solid #907D6A; background: #FFFCF7; color: #2E241D">Wolne · 2</button>
+<button type="button" aria-pressed="false" style="min-height: 36px; padding: 0 12px; border-radius: 999px; font: inherit; font-size: 13px; font-weight: 600; border: 1px solid #907D6A; background: #FFFCF7; color: #2E241D">Koń bez boksu · 1</button>
+</div>
+
+<section aria-labelledby="lista-title" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between">
+<h2 id="lista-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Boksy</h2>
+<span style="font-size: 13px; color: #5C4E43">wg hal i numerów</span>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0; background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column">
+
+<li aria-hidden="false" style="padding: 8px 12px 6px; background: #F3ECE2; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 2px">
+<span style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px"><span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #2E241D">Hala główna</span><span style="font-size: 12px; color: #5C4E43">boksy 1–8</span></span>
+<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #5C4E43"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>ul. Lipowa 12, Konstancin-Jeziorna</span>
+</li>
+<li style="padding: 3px 12px 3px; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 6px">
+<div style="min-height: 44px; display: flex; align-items: center; gap: 10px">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">1</span></span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Iskra</span>
+<div style="display: flex; flex: none; gap: 2px">
+<button type="button" aria-label="Przenieś konia Iskra z boksu 1 w Hali głównej" style="min-height: 44px; padding: 0 8px; border: none; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przenieś</button>
+<a href="KartaKoniaBezAkcji.dc.html" aria-label="Szczegóły boksu 1 w Hali głównej, Iskra" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; font-size: 14px; font-weight: 600; text-decoration: none">Szczegóły</a>
+</div>
+</div>
+</li>
+
+<li style="padding: 3px 12px 3px; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 6px">
+<div style="min-height: 44px; display: flex; align-items: center; gap: 10px">
+<span style="width: 36px; height: 36px; flex: none; box-sizing: border-box; border-radius: 12px; border: 1px dashed #E0D3C2; background: #F3ECE2; color: #5C4E43; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">3</span></span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: #5C4E43; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Wolny</span>
+<div style="display: flex; flex: none; gap: 2px">
+<button type="button" aria-label="Przypisz konia do boksu 3 w Hali głównej" style="min-height: 44px; padding: 0 8px; border: none; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przypisz konia</button>
+<a href="BoksSzczegoly.dc.html" aria-label="Szczegóły boksu 3 w Hali głównej" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; font-size: 14px; font-weight: 600; text-decoration: none">Szczegóły</a>
+</div>
+</div>
+</li>
+
+<li style="padding: 3px 12px 6px; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 6px">
+<div style="min-height: 44px; display: flex; align-items: center; gap: 10px">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">7</span></span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Kasztan</span>
+<div style="display: flex; flex: none; gap: 2px">
+<button type="button" aria-label="Przenieś konia Kasztan z boksu 7 w Hali głównej" style="min-height: 44px; padding: 0 8px; border: none; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przenieś</button>
+<a href="KartaKoniaBezAkcji.dc.html" aria-label="Szczegóły boksu 7 w Hali głównej, Kasztan" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; font-size: 14px; font-weight: 600; text-decoration: none">Szczegóły</a>
+</div>
+</div>
+<ul aria-label="Aktywne flagi boksu 7 w Hali głównej" style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px">
+<li style="display: inline-flex; align-items: center; gap: 5px; max-width: 100%; box-sizing: border-box; padding: 4px 9px; border-radius: 999px; background: #EDE3D5; color: #2E241D; font-size: 12px; font-weight: 500">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2D523D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+<span><span style="font-weight: 700">Bez śniadania</span> <span style="font-variant-numeric: tabular-nums">06:00–10:00</span> · potwierdzona 06:02</span></li>
+<li style="display: inline-flex; align-items: center; gap: 5px; max-width: 100%; box-sizing: border-box; padding: 3px 8px; border-radius: 999px; border: 1.5px dashed #B9A791; background: #FFFCF7; color: #2E241D; font-size: 12px; font-weight: 500">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2D523D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+<span><span style="font-weight: 700">Nie na padok</span> <span style="font-variant-numeric: tabular-nums">od 14:30</span> · potwierdzona 06:02</span></li>
+</ul>
+</li>
+
+<li aria-hidden="false" style="padding: 8px 12px 6px; background: #F3ECE2; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 2px">
+<span style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px"><span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #2E241D">Hala nowa</span><span style="font-size: 12px; color: #5C4E43">boksy 1–6</span></span>
+<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #5C4E43"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>ul. Polna 3, Konstancin-Jeziorna</span>
+</li>
+<li style="padding: 3px 12px 3px; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 6px">
+<div style="min-height: 44px; display: flex; align-items: center; gap: 10px">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">1</span></span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Grom</span>
+<div style="display: flex; flex: none; gap: 2px">
+<button type="button" aria-label="Przenieś konia Grom z boksu 1 w Hali nowej" style="min-height: 44px; padding: 0 8px; border: none; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przenieś</button>
+<a href="KartaKoniaBezAkcji.dc.html" aria-label="Szczegóły boksu 1 w Hali nowej, Grom" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; font-size: 14px; font-weight: 600; text-decoration: none">Szczegóły</a>
+</div>
+</div>
+</li>
+
+<li style="padding: 3px 12px 6px; border-bottom: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 6px">
+<div style="min-height: 44px; display: flex; align-items: center; gap: 10px">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">4</span></span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Bella</span>
+<div style="display: flex; flex: none; gap: 2px">
+<button type="button" aria-label="Przenieś konia Bella z boksu 4 w Hali nowej" style="min-height: 44px; padding: 0 8px; border: none; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przenieś</button>
+<a href="KartaKoniaBezAkcji.dc.html" aria-label="Szczegóły boksu 4 w Hali nowej, Bella" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; font-size: 14px; font-weight: 600; text-decoration: none">Szczegóły</a>
+</div>
+</div>
+<ul aria-label="Aktywne flagi boksu 4 w Hali nowej" style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px">
+<li style="display: inline-flex; align-items: center; gap: 5px; max-width: 100%; box-sizing: border-box; padding: 4px 9px; border-radius: 999px; background: #F6E3B7; color: #664810; font-size: 12px; font-weight: 600">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17v.01"/></svg>
+<span><span style="font-weight: 700">Nie na padok</span> · dziś, cały dzień · niepotwierdzona</span></li>
+</ul>
+</li>
+
+<li style="padding: 3px 12px 3px; display: flex; flex-direction: column; gap: 6px">
+<div style="min-height: 44px; display: flex; align-items: center; gap: 10px">
+<span style="width: 36px; height: 36px; flex: none; box-sizing: border-box; border-radius: 12px; border: 1px dashed #E0D3C2; background: #F3ECE2; color: #5C4E43; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">6</span></span>
+<span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: #5C4E43; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Wolny</span>
+<div style="display: flex; flex: none; gap: 2px">
+<button type="button" aria-label="Przypisz konia do boksu 6 w Hali nowej" style="min-height: 44px; padding: 0 8px; border: none; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przypisz konia</button>
+<a href="BoksSzczegoly.dc.html" aria-label="Szczegóły boksu 6 w Hali nowej" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; font-size: 14px; font-weight: 600; text-decoration: none">Szczegóły</a>
+</div>
+</div>
+</li>
+</ul>
+</section>
+
+<section aria-labelledby="bez-boksu-title" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between">
+<h2 id="bez-boksu-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Konie bez boksu</h2>
+<span style="font-size: 13px; color: #5C4E43">2 wolne boksy</span>
+</div>
+<article style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 20px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px">L</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<div style="display: flex; align-items: center; gap: 6px">
+<span style="font-size: 15px; font-weight: 600">Luna</span>
+<span style="padding: 2px 8px; border-radius: 999px; background: #EDE3D5; color: #5C4E43; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase">Nowy koń</span>
+</div>
+<span style="display: flex; align-items: center; gap: 4px; font-size: 12px; color: #2E241D"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5C4E43" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span><span style="color: #5C4E43">Klient:</span> <span style="font-weight: 600">Marek Nowak</span></span></span>
+<span style="font-size: 12px; color: #5C4E43">zaproszenie czeka</span>
+<span style="font-size: 12px; color: #5C4E43">Dodana 12.10</span>
+</div>
+<button type="button" aria-label="Przypisz boks: Luna" style="min-height: 44px; padding: 0 12px; border-radius: 12px; border: none; background: {{accent}}; color: #FFFCF7; font: inherit; font-size: 14px; font-weight: 700; white-space: nowrap">Przypisz boks</button>
+</article>
+</section>
+</main>
+
+<nav aria-label="Główna nawigacja" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid #E0D3C2; background: #FFFCF7; padding: 6px 8px 14px">
+<a href="BoksyAdminBezAkcji.dc.html" aria-current="page" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; font-weight: 700; text-decoration: none; color: {{accent}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10M15 10v10"/></svg>
+Boksy</a>
+<a href="Zaproszenie.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/></svg>
+Ludzie</a>
+<a href="PanelPlatnosci.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><path d="M7 14.5h4"/></svg>
+Płatności</a>
+<a href="PanelUstawieniaBezAkcji.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+Ustawienia</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#8A5230","options":["#8A5230","#665A40","#744A5A","#5E5B40"]},"$preview":{"width":390,"height":1160}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#8A5230' };
+}
+}
+</script>
+</body>
+</html>

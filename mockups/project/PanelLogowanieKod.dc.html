@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Kod SMS do panelu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8A5230}a:hover{color:#6B3A1E}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 900px; box-sizing: border-box; background: #F3ECE2; color: #2E241D; font-family: Figtree, system-ui, sans-serif; line-height: 1.3; display: flex; flex-direction: column">
+
+<main style="flex: 1; width: 100%; max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 24px 20px; display: flex; align-items: center; justify-content: center">
+
+<section aria-labelledby="login-title" style="flex: 0 0 440px; width: 440px; max-width: 100%; box-sizing: border-box; background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 20px; padding: 32px 32px 28px; display: flex; flex-direction: column; gap: 24px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<div aria-hidden="true" style="width: 60px; height: 60px; border-radius: 30px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 20.5C5.1 18.6 4 15.6 4 12.5a8 8 0 0 1 16 0c0 3.1-1.1 6.1-3 8"/><path d="M5 20.5h3.5M15.5 20.5H19"/><path d="M7.5 9.5v.5M16.5 9.5v.5M6.8 14v.5M17.2 14v.5"/></svg>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 4px">
+<span style="font-size: 28px; font-weight: 700; line-height: 1; color: #2E241D; white-space: nowrap"><span style="letter-spacing: 0.16em; margin-right: -0.16em; font-weight: 700">EQUENOR</span></span>
+<span lang="en" style="font-size: 14px; font-weight: 500; line-height: 1.15; color: #5C4E43">Equestrian Management, Refined</span>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 id="login-title" style="margin: 0; font-size: 24px; font-weight: 700; line-height: 30px">Wpisz kod z SMS</h1>
+<p style="margin: 0; font-size: 15px; line-height: 1.45; color: #5C4E43">Wysłaliśmy kod na <strong style="color: #2E241D; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums">+48 602 *** 145</strong>. <a href="PanelLogowanie.dc.html" style="font-weight: 600; text-decoration-thickness: 1.5px; text-underline-offset: 3px; display: inline-block; padding: 12px 0; margin: -12px 0; white-space: nowrap">Zmień numer</a></p>
+</div>
+
+<form style="margin: 0; display: flex; flex-direction: column; gap: 16px">
+<fieldset style="margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 8px; min-width: 0">
+<legend style="padding: 0; margin-bottom: 6px; font-size: 14px; font-weight: 600">Kod z SMS</legend>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px">
+<label style="position: relative; display: block">
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Cyfra 1 z 6</span>
+<input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="1" value="4" style="width: 100%; height: 56px; box-sizing: border-box; border: 1px solid #907D6A; border-radius: 12px; background: #FFFCF7; color: #2E241D; font: inherit; font-size: 24px; font-weight: 700; text-align: center; padding: 0; font-variant-numeric: tabular-nums">
+</label>
+<label style="position: relative; display: block">
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Cyfra 2 z 6</span>
+<input type="text" inputmode="numeric" maxlength="1" value="8" style="width: 100%; height: 56px; box-sizing: border-box; border: 1px solid #907D6A; border-radius: 12px; background: #FFFCF7; color: #2E241D; font: inherit; font-size: 24px; font-weight: 700; text-align: center; padding: 0; font-variant-numeric: tabular-nums">
+</label>
+<label style="position: relative; display: block">
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Cyfra 3 z 6</span>
+<input type="text" inputmode="numeric" maxlength="1" value="2" style="width: 100%; height: 56px; box-sizing: border-box; border: 1px solid #907D6A; border-radius: 12px; background: #FFFCF7; color: #2E241D; font: inherit; font-size: 24px; font-weight: 700; text-align: center; padding: 0; font-variant-numeric: tabular-nums">
+</label>
+<label style="position: relative; display: block">
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Cyfra 4 z 6</span>
+<input type="text" inputmode="numeric" maxlength="1" value="9" style="width: 100%; height: 56px; box-sizing: border-box; border: 1px solid #907D6A; border-radius: 12px; background: #FFFCF7; color: #2E241D; font: inherit; font-size: 24px; font-weight: 700; text-align: center; padding: 0; font-variant-numeric: tabular-nums">
+</label>
+<label style="position: relative; display: block">
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Cyfra 5 z 6</span>
+<input type="text" inputmode="numeric" maxlength="1" value="" style="width: 100%; height: 56px; box-sizing: border-box; border: 2px solid {{accent}}; border-radius: 12px; background: #FFFCF7; color: #2E241D; font: inherit; font-size: 24px; font-weight: 700; text-align: center; padding: 0; font-variant-numeric: tabular-nums">
+</label>
+<label style="position: relative; display: block">
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Cyfra 6 z 6</span>
+<input type="text" inputmode="numeric" maxlength="1" value="" style="width: 100%; height: 56px; box-sizing: border-box; border: 1px solid #907D6A; border-radius: 12px; background: #FFFCF7; color: #2E241D; font: inherit; font-size: 24px; font-weight: 700; text-align: center; padding: 0; font-variant-numeric: tabular-nums">
+</label>
+</div>
+</fieldset>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<a href="PanelWitaj.dc.html" style="min-height: 52px; border-radius: 14px; background: {{accent}}; color: #FFFCF7; text-decoration: none; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700">Zaloguj się</a>
+<button type="button" disabled style="min-height: 44px; border: none; background: none; font: inherit; font-size: 14px; font-weight: 600; color: #5C4E43; display: flex; align-items: center; justify-content: center; gap: 6px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 1.5"/><path d="M10 2.5h4"/></svg>
+<span>Wyślij kod ponownie za <span style="font-variant-numeric: tabular-nums">0:42</span></span></button>
+</div>
+</form>
+
+</section>
+
+
+</main>
+
+<footer style="width: 100%; max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 8px 20px 24px; display: flex; justify-content: center; gap: 20px; font-size: 13px">
+<a href="StronaGlowna.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 4px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Strona EQUENOR</a>
+<a style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 4px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; cursor: pointer">Regulamin</a>
+<a style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 4px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; cursor: pointer">Polityka prywatności</a>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#8A5230","options":["#8A5230","#665A40","#744A5A","#5E5B40"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#8A5230' };
+}
+}
+</script>
+</body>
+</html>

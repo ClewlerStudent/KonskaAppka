@@ -1,0 +1,788 @@
+{
+ "v": 3,
+ "attachments": {},
+ "boards": {
+  "AdminDzis.dc.html": {
+   "h": 1160,
+   "title": "P1 · Admin w apce: Dziś",
+   "w": 390,
+   "x": 2350,
+   "y": 19442
+  },
+  "BoksSzczegoly.dc.html": {
+   "h": 844,
+   "title": "Admin/obsługa: szczegóły boksu (ustawienie poidła)",
+   "w": 390,
+   "x": 1410,
+   "y": 1420
+  },
+  "BoksyAdmin.dc.html": {
+   "h": 1160,
+   "title": "Admin: boksy i konie w halach",
+   "w": 390,
+   "x": 470,
+   "y": 1420
+  },
+  "BoksyAdminBezAkcji.dc.html": {
+   "h": 1160,
+   "title": "Bez przycisków: admin, boksy i konie",
+   "w": 390,
+   "x": 1880,
+   "y": 8236
+  },
+  "BrakDostepu.dc.html": {
+   "h": 844,
+   "title": "P1 · Apka: brak dostępu (wygasłe zaproszenie)",
+   "w": 390,
+   "x": 940,
+   "y": 19442
+  },
+  "InstruktorJazdy.dc.html": {
+   "h": 844,
+   "title": "P1 · Instruktor: jazdy (start)",
+   "w": 390,
+   "x": 2820,
+   "y": 19442
+  },
+  "KartaKonia.dc.html": {
+   "h": 1000,
+   "title": "Karta konia (dziś, karmienie z namaczaniem)",
+   "w": 390,
+   "x": 1410,
+   "y": 0
+  },
+  "KartaKoniaBezAkcji.dc.html": {
+   "h": 1000,
+   "title": "Bez przycisków: karta konia (bez planu padoku)",
+   "w": 390,
+   "x": 940,
+   "y": 8236
+  },
+  "ListaDnia.dc.html": {
+   "h": 960,
+   "title": "Obsługa: dziś (szybkie akcje dla hali)",
+   "w": 390,
+   "x": 0,
+   "y": 1420
+  },
+  "ListaDniaBezAkcji.dc.html": {
+   "h": 960,
+   "title": "Bez przycisków: obsługa, dziś",
+   "w": 390,
+   "x": 1410,
+   "y": 8236
+  },
+  "ListaDniaBrzozowa.dc.html": {
+   "h": 960,
+   "title": "Obsługa (Ola) po przełączeniu: Stajnia Brzozowa",
+   "w": 390,
+   "x": 470,
+   "y": 6736
+  },
+  "Logowanie.dc.html": {
+   "h": 844,
+   "title": "Logowanie kodem SMS",
+   "w": 390,
+   "x": 2350,
+   "y": 0
+  },
+  "LogowanieNumer.dc.html": {
+   "h": 844,
+   "title": "P1 · Apka: logowanie (telefon albo e-mail)",
+   "w": 390,
+   "x": 0,
+   "y": 19442
+  },
+  "Main.dc.html": {
+   "h": 844,
+   "title": "Klient: moje konie",
+   "w": 390,
+   "x": 0,
+   "y": 0
+  },
+  "MainBezAkcji.dc.html": {
+   "h": 844,
+   "title": "Bez przycisków: klient, moje konie",
+   "w": 390,
+   "x": 0,
+   "y": 8236
+  },
+  "MainBrzozowa.dc.html": {
+   "h": 844,
+   "title": "Klient (Anna) po przełączeniu: Stajnia Brzozowa",
+   "w": 390,
+   "x": 0,
+   "y": 6736
+  },
+  "MainLuna.dc.html": {
+   "h": 844,
+   "title": "P1 · Klient: pierwszy ekran (Luna bez boksu)",
+   "w": 390,
+   "x": 1880,
+   "y": 19442
+  },
+  "MapaNawigacjiRol.dc.html": {
+   "expand": "fill",
+   "h": 3011,
+   "title": "P1 · Mapa nawigacji ról (start i pasek każdej roli)",
+   "w": 1440,
+   "x": 0,
+   "y": 11136
+  },
+  "MojBoks.dc.html": {
+   "h": 844,
+   "title": "Klient: mój boks",
+   "w": 390,
+   "x": 1880,
+   "y": 0
+  },
+  "MojBoksBezAkcji.dc.html": {
+   "h": 844,
+   "title": "Bez przycisków: klient, mój boks (tylko flagi)",
+   "w": 390,
+   "x": 470,
+   "y": 8236
+  },
+  "PanelBoksy.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "Panel web: boksy, konie i klienci w halach",
+   "w": 1440,
+   "x": 0,
+   "y": 4236
+  },
+  "PanelBoksyBezAkcji.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "Bez przycisków: panel web, boksy i konie",
+   "w": 1440,
+   "x": 1520,
+   "y": 9636
+  },
+  "PanelDodajHale.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "Panel web: nowa hala (admin)",
+   "w": 1440,
+   "x": 0,
+   "y": 5236
+  },
+  "PanelLogowanie.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "P1 · Panel: logowanie (telefon albo e-mail)",
+   "w": 1440,
+   "x": 0,
+   "y": 14747
+  },
+  "PanelLogowanieKod.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "P1 · Panel: kod logowania (Damian, SMS)",
+   "w": 1440,
+   "x": 1520,
+   "y": 14747
+  },
+  "PanelLudzieWyswietlacze.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "P1 · Panel: Ludzie, konta techniczne",
+   "w": 1440,
+   "x": 1520,
+   "y": 21202
+  },
+  "PanelPlatnosci.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "Panel web: subskrypcja i faktury",
+   "w": 1440,
+   "x": 1520,
+   "y": 4236
+  },
+  "PanelPulpit.dc.html": {
+   "expand": "fill",
+   "h": 1365,
+   "title": "P1 · Panel: pulpit admina",
+   "w": 1440,
+   "x": 0,
+   "y": 21202
+  },
+  "PanelPulpitStart.dc.html": {
+   "expand": "fill",
+   "h": 1071,
+   "title": "P1 · Panel: pierwsze kroki nowej stajni",
+   "w": 1440,
+   "x": 0,
+   "y": 17669
+  },
+  "PanelRejestracjaFirmy.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "P1 · Panel: konto firmy",
+   "w": 1440,
+   "x": 0,
+   "y": 15847
+  },
+  "PanelUstawieniaBezAkcji.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "Bez przycisków: panel web, ustawienia stajni (Ogarnięte, posiłek, padok wyłączone)",
+   "w": 1440,
+   "x": 0,
+   "y": 9636
+  },
+  "PanelUstawieniaBrzozowa.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "Panel web: ustawienia Stajni Brzozowej",
+   "w": 1440,
+   "x": 1722,
+   "y": 6736
+  },
+  "PanelUstawieniaStajni.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "Panel web: ustawienia stajni (Pod Lipami, pełna opcja)",
+   "w": 1440,
+   "x": 1520,
+   "y": 5236
+  },
+  "PanelWitaj.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "P1 · Panel: pierwsze logowanie",
+   "w": 1440,
+   "x": 3040,
+   "y": 14747
+  },
+  "PanelZalozPowiadomienia.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "P1 · Panel: załóż stajnię, krok 2: Powiadomienia",
+   "w": 1440,
+   "x": 3040,
+   "y": 15847
+  },
+  "PanelZalozStajnie.dc.html": {
+   "expand": "fill",
+   "h": 1517,
+   "title": "P1 · Panel: załóż stajnię, krok 1: Stajnia",
+   "w": 1440,
+   "x": 1520,
+   "y": 15847
+  },
+  "PanelZaprosOsobe.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "P1 · Panel: zaproś osobę (Paweł, Obsługa)",
+   "w": 1440,
+   "x": 1520,
+   "y": 17669
+  },
+  "StajennyKonie.dc.html": {
+   "h": 960,
+   "title": "Obsługa: wszystkie konie",
+   "w": 390,
+   "x": 1880,
+   "y": 1420
+  },
+  "StajennyZadania.dc.html": {
+   "h": 960,
+   "title": "Obsługa: zadania (biorę / zrobione)",
+   "w": 390,
+   "x": 2350,
+   "y": 1420
+  },
+  "StatusFlagi.dc.html": {
+   "h": 844,
+   "title": "Klient: status flagi",
+   "w": 390,
+   "x": 940,
+   "y": 0
+  },
+  "StronaGlowna.dc.html": {
+   "expand": "fill",
+   "h": 2103,
+   "title": "P1 · Strona www (prezentacja)",
+   "w": 1440,
+   "x": 0,
+   "y": 26203
+  },
+  "StronaGlownaTelefon.dc.html": {
+   "h": 1885,
+   "title": "P1 · Strona www w telefonie",
+   "w": 390,
+   "x": 1520,
+   "y": 26203
+  },
+  "SzybkaFlaga.dc.html": {
+   "h": 844,
+   "title": "Klient: nowa flaga (kafelki + godziny)",
+   "w": 390,
+   "x": 470,
+   "y": 0
+  },
+  "TabletBoks.dc.html": {
+   "h": 936,
+   "title": "Tablet: tablica boksu (szybkie akcje, blokada ekranu)",
+   "w": 702,
+   "x": 0,
+   "y": 2880
+  },
+  "TabletBoksBezAkcji.dc.html": {
+   "h": 936,
+   "title": "Bez przycisków: tablet boksu 7 (Kasztan)",
+   "w": 702,
+   "x": 2350,
+   "y": 8236
+  },
+  "TabletBoksBrzozowa.dc.html": {
+   "h": 936,
+   "title": "Tablet w Stajni Brzozowej (bez potwierdzeń)",
+   "w": 702,
+   "x": 940,
+   "y": 6736
+  },
+  "TabletEkranZablokowany.dc.html": {
+   "h": 936,
+   "title": "Tablet: ekran zablokowany (mycie)",
+   "w": 702,
+   "x": 2766,
+   "y": 2880
+  },
+  "TabletLogowanie.dc.html": {
+   "h": 936,
+   "title": "P1 · Tablet: logowanie kontem technicznym",
+   "w": 702,
+   "x": 0,
+   "y": 24667
+  },
+  "TabletLogowanieKod.dc.html": {
+   "h": 936,
+   "title": "P1 · Tablet: kod z e-maila",
+   "w": 702,
+   "x": 782,
+   "y": 24667
+  },
+  "TabletPierwszyBoks.dc.html": {
+   "h": 936,
+   "title": "P1 · Tablet: wybór boksu",
+   "w": 702,
+   "x": 2346,
+   "y": 24667
+  },
+  "TabletPopup.dc.html": {
+   "h": 936,
+   "title": "Tablet: pop-up nowej flagi",
+   "w": 702,
+   "x": 1564,
+   "y": 2880
+  },
+  "TabletUstawienia.dc.html": {
+   "h": 936,
+   "title": "P1 · Tablet: ukryte ustawienia",
+   "w": 702,
+   "x": 3128,
+   "y": 24667
+  },
+  "TabletZmianaBoksu.dc.html": {
+   "h": 936,
+   "title": "Tablet: zmiana boksu (bez blokady)",
+   "w": 702,
+   "x": 782,
+   "y": 2880
+  },
+  "WiadomosciSms.dc.html": {
+   "h": 844,
+   "title": "P1 · Treści SMS i e-maili (zaproszenie, eskalacja, kod)",
+   "w": 390,
+   "x": 470,
+   "y": 19442
+  },
+  "WyswietlaczCentralny.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "Wyświetlacz centralny: wszystkie hale (TV + Raspberry Pi)",
+   "w": 1600,
+   "x": 3040,
+   "y": 4236
+  },
+  "WyswietlaczHala.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "Wyświetlacz: pełny ekran jednej hali",
+   "w": 1600,
+   "x": 3040,
+   "y": 5236
+  },
+  "WyswietlaczHalaBezAkcji.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "Bez przycisków: wyświetlacz, Hala nowa na pełnym ekranie",
+   "w": 1600,
+   "x": 3040,
+   "y": 9636
+  },
+  "WyswietlaczKod.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "P1 · Telewizor: kod z e-maila",
+   "w": 1600,
+   "x": 1680,
+   "y": 23167
+  },
+  "WyswietlaczLogowanie.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "title": "P1 · Telewizor: zwykłe logowanie panelu (konto techniczne)",
+   "w": 1600,
+   "x": 0,
+   "y": 23167
+  },
+  "Zaproszenie.dc.html": {
+   "h": 844,
+   "title": "Admin: zaproszenie",
+   "w": 390,
+   "x": 940,
+   "y": 1420
+  },
+  "ZaproszeniePrzyjmij.dc.html": {
+   "h": 844,
+   "title": "P1 · Apka: przyjęcie zaproszenia (Marek)",
+   "w": 390,
+   "x": 1410,
+   "y": 19442
+  }
+ },
+ "createdOnFiles": {
+  "at": "2026-10-12T12:05:00Z",
+  "v": 1
+ },
+ "designSystems": [],
+ "launch": {
+  "view": "canvas"
+ },
+ "notes": {
+  "bezakcji_rules": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Przyciski obsługi wyłączone (Ustawienia stajni → Usługi):\n• te same konie i flagi co w Pod Lipami, wt 13.10 07:15,\n• znika przycisk i stan wykonania: „Ogarnięte HH:MM”, „podane 06:40”, „Wyprowadzono na padok”,\n• wyłączony padok chowa też plan padoku; flaga „Nie na padok” zostaje,\n• zostają flagi z potwierdzeniami, plan karmienia z NAMOCZYĆ, godziny posiłków i zadania,\n• „Woda” nie ma przełącznika: zostaje przy poidle ręcznym (Hala nowa · boks 5),\n• historia i ostatnie akcje: tylko flagi (i woda).\n• zablokowany tablet, wyświetlacz wszystkich hal i szczegóły boksu wyglądają w tym wariancie tak samo; linki z wariantu prowadzą do ich pełnej wersji.",
+   "w": 360,
+   "x": 3132,
+   "y": 8236
+  },
+  "box_change_rules": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Zmiana boksu na tablecie:\n• bez blokady: na tablicy jest przycisk „Zmień boks”,\n• boksy w zakładkach hal, stuknięcie przełącza od razu,\n• bez wyboru tablet wraca do poprzedniego boksu po 30 s,\n• wybór pamięta tablet; tablica nie pokazuje, kto jest zalogowany.\n• zamiast historii tablet pokazuje 5 ostatnich akcji; pełna historia jest w apce i panelu.",
+   "w": 340,
+   "x": 2346,
+   "y": 3340
+  },
+  "display_rules": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Wyświetlacz centralny:\n• telewizor z Raspberry Pi otwiera zwykłą stronę logowania panelu,\n• konto techniczne z rolą Wyświetlacz: po zalogowaniu od razu widok tablicy, tylko odczyt, bez danych osobowych,\n• domyślnie wszystkie hale; „Pełny ekran” pokazuje jedną halę i tylko jej flagi,\n• wybór widoku pamięta przeglądarka telewizora,\n• odpytuje serwer co 10 s.",
+   "w": 360,
+   "x": 4720,
+   "y": 4236
+  },
+  "fala1_apka_dec": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Przełącznik stajni „▾” tylko przy kilku stajniach (Damian, Ola, Anna, Marta). Rekomendacje do potwierdzenia: „Przyjmij” przy zaproszeniu, pasek admina, jazdy tylko do podglądu, bez dzwonka, admin potwierdza flagi w apce.",
+   "w": 380,
+   "x": 3760,
+   "y": 19442
+  },
+  "fala1_decyzje": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Rozstrzygnięte 13.10.2026:\n• logowanie telefonem albo e-mailem, kod SMS-em albo e-mailem,\n• tylko firmy: konto firmy, potem stajnie; admin konta widzi wszystkie stajnie, reszta per stajnia,\n• zakładanie stajni: „Stajnia”, potem „Powiadomienia”,\n• konta techniczne: Wyświetlacz (telewizor) i Tablet (tablety, jedno konto na stajnię); zwykłe logowanie, od razu swój widok,\n• Wsparcie IT to zespół EQUENOR, nie rola stajni,\n• język ustawia każdy tablet,\n• bez objaśnień w interfejsie.\nDo potwierdzenia: pasek admina w apce (Dziś | Boksy | Zadania | Ludzie | Profil), panel web tylko dla admina.",
+   "w": 420,
+   "x": 1520,
+   "y": 11136
+  },
+  "fala1_linki": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Linki tymczasowe:\n• „Ludzie” w menu panelu → PanelLudzieWyswietlacze,\n• „Konie” w menu panelu → PanelBoksy,\n• kafle Hali nowej w TabletPierwszyBoks → TabletBoks (Kasztan),\n• „Zaproś osobę” w PanelLudzieWyswietlacze (Pod Lipami) → PanelZaprosOsobe (Brzozowa, Paweł),\n• starsze ekrany apki (BoksyAdmin, Zaproszenie, Logowanie) mają jeszcze stary pasek admina i TOTP.\n[WWW] i [PANEL]: adresy do czasu wyboru domeny.",
+   "w": 420,
+   "x": 1520,
+   "y": 12136
+  },
+  "fala1_panel_dec": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Konta techniczne są w Ludziach (filtr „Konta techniczne”): Telewizor korytarz (Wyświetlacz) i Tablety Pod Lipami (Tablet). Zaprasza się je przez „Zaproś osobę”.\nDo poprawki w starszej makiecie: WyswietlaczCentralny pokazuje wizyty i jazdę, choć wyświetlacz ich nie widzi.",
+   "w": 380,
+   "x": 3040,
+   "y": 21202
+  },
+  "fala1_stajnia_dec": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Damian (admin konta „Stajnie Lipowe sp. z o.o.”) rejestruje konto firmy 07.09 i dodaje Stajnię Brzozową 01.10. Nowa stajnia ma wszystko włączone, także potwierdzenia flag. Paweł: Obsługa tylko w Brzozowej.",
+   "w": 380,
+   "x": 4560,
+   "y": 14747
+  },
+  "fala1_tablet_dec": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Tablet loguje się kontem technicznym „Tablety Pod Lipami” (rola Tablet), nie kontem osoby. Konto ma jedną stajnię, więc po kodzie od razu wybór boksu. Język ustawia każdy tablet. Ukryte ustawienia: przytrzymanie stopki (propozycja).",
+   "w": 380,
+   "x": 3910,
+   "y": 24667
+  },
+  "fala1_tv_dec": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Telewizor otwiera zwykłą stronę logowania panelu i loguje się kontem technicznym „Telewizor korytarz” (rola Wyświetlacz). Po kodzie od razu widok wszystkich hal.",
+   "w": 380,
+   "x": 3360,
+   "y": 23167
+  },
+  "fala1_www_dec": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Strona przed logowaniem: sama prezentacja, bez bloga. „Zaloguj się” i „Załóż konto firmy” → PanelLogowanie.",
+   "w": 380,
+   "x": 1990,
+   "y": 26203
+  },
+  "flag_status_rules": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Flagi (apka, panel, tablet, wyświetlacz):\n• tylko flagi mogą wymagać potwierdzenia obsługi; czy wymagają, zależy od ustawień stajni,\n• status: „potwierdzona HH:MM” albo „niepotwierdzona”,\n• każda flaga ma godziny od–do (np. 06:00–10:00); flaga, która zacznie się później, ma „od 14:30”,\n• skutki liczone z godzin: wet 8:00 i kowal 15:00, a między nimi padok,\n• „Derka”: zakładać / nie zakładać.",
+   "w": 340,
+   "x": 2820,
+   "y": 0
+  },
+  "open_questions": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Otwarte kwestie (docs/erd.md):\n• model karmienia: pudełko, namaczanie, ile,\n• ekran dotykowy z blokadą czy zaprogramowany fizyczny przycisk przy boksie,\n• płatności, faktury, KSeF: czy to nie za dużo na PoC (na razie bez rozbudowy).",
+   "w": 360,
+   "x": 3640,
+   "y": 0
+  },
+  "palette_note": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Paleta EQUENOR „Len, koniak i cegła” (docs/paleta.md):\n• akcent koniak tylko na tym, co klikalne,\n• kolor niosą 3 statusy: OK (szałwia), uwaga (bursztyn), krytyczna (cegła); info jest neutralne,\n• każdy status: ikona + słowo + jasność, nigdy sam kolor,\n• tablet: kolor tylko w dużych polach, czarny lub biały tekst; ten sam ekran działa na czarno-białym e-inku.",
+   "w": 340,
+   "x": 3240,
+   "y": 0
+  },
+  "popup_rules": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Pop-up nowej flagi na tablecie (tylko w stajni z włączonymi potwierdzeniami):\n• pojawia się przy pierwszym odpytaniu po utworzeniu flagi, z godzinami flagi,\n• znika po POTWIERDZAM,\n• znika też, gdy klient albo obsługa odwoła flagę, przy najbliższym odpytaniu,\n• kilka nowych flag = kolejka pop-upów, krytyczne pierwsze,\n• przy zablokowanym ekranie pop-up też się pokazuje; żeby potwierdzić, trzeba odblokować.",
+   "w": 340,
+   "x": 2346,
+   "y": 2880
+  },
+  "roles_rules": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Role:\n• Admin: rola konta firmy, wszystkie stajnie,\n• Obsługa, Instruktor, Klient: per stajnia (można w kilku),\n• konta techniczne: Wyświetlacz (telewizor), Tablet (tablety przy boksach),\n• Wsparcie IT: zespół EQUENOR, poza stajnią.",
+   "w": 360,
+   "x": 2820,
+   "y": 1900
+  },
+  "routine_rules": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Rutyna obsługi: jak najmniej klikania:\n• „Ogarnięte” (sprzątanie + ścielenie): 1 tapnięcie na boks,\n• „Podano śniadanie” i „Wyprowadzono na padok”: 1 tapnięcie na całą halę; konie z flagą są pominięte i wypisane,\n• te same przyciski są na tablecie przy boksie (sekcja „Szybkie akcje”): gdzie pokazujemy, kiedy coś zrobiono, tam obsługa może to zapisać,\n• poidło to ustawienie boksu: przy automatycznym nie ma znacznika wody; boks z poidłem ręcznym ma znacznik „Poidło ręczne” i akcję „Woda”,\n• bez karmienia per koń,\n• każdą akcję można cofnąć przez godzinę,\n• zadania są jednorazowe: dodaje admin, stajenny bierze („Biorę”) i oznacza „Zrobione”.\n• które przyciski są w stajni, ustawia admin w „Ustawieniach stajni”.",
+   "w": 360,
+   "x": 2820,
+   "y": 1420
+  },
+  "row_app": {
+   "kind": "title1",
+   "maxW": 2740,
+   "text": "Apka mobilna: klient (właściciel albo dzierżawca konia)",
+   "w": 240,
+   "x": 0,
+   "y": -300
+  },
+  "row_bezakcji": {
+   "kind": "title1",
+   "maxW": 4640,
+   "text": "Wariant Stajni Pod Lipami: przyciski obsługi wyłączone (Ogarnięte, posiłek, padok)",
+   "w": 240,
+   "x": 0,
+   "y": 7936
+  },
+  "row_brzozowa": {
+   "kind": "title1",
+   "maxW": 3162,
+   "text": "Druga stajnia: Stajnia Brzozowa (mała, bez derek, moczenia, padoku i potwierdzeń)",
+   "w": 240,
+   "x": 0,
+   "y": 6436
+  },
+  "row_fala1": {
+   "kind": "title1",
+   "maxW": 4640,
+   "text": "Pierwsza fala (P1): konto firmy i stajnie, zaproszenia, ekrany główne ról, konta techniczne, strona www",
+   "w": 240,
+   "x": 0,
+   "y": 10836
+  },
+  "row_fala1_apka": {
+   "kind": "title1",
+   "maxW": 4640,
+   "text": "Apka: logowanie, zaproszenie, ekrany główne ról (Pod Lipami, wt 13.10 07:15)",
+   "w": 240,
+   "x": 0,
+   "y": 19142
+  },
+  "row_fala1_panel": {
+   "kind": "title1",
+   "maxW": 4640,
+   "text": "Panel web: pulpit admina i konta techniczne w Ludziach (Damian, Pod Lipami)",
+   "w": 240,
+   "x": 0,
+   "y": 20902
+  },
+  "row_fala1_stajnia": {
+   "kind": "title1",
+   "maxW": 4640,
+   "text": "Konto firmy i nowa stajnia (panel web): Damian rejestruje konto firmy (pn 07.09) i dodaje Stajnię Brzozową (czw 01.10)",
+   "w": 240,
+   "x": 0,
+   "y": 14447
+  },
+  "row_fala1_tablet": {
+   "kind": "title1",
+   "maxW": 4640,
+   "text": "Tablet: pierwsze uruchomienie (konto techniczne „Tablety Pod Lipami”)",
+   "w": 240,
+   "x": 0,
+   "y": 24367
+  },
+  "row_fala1_tv": {
+   "kind": "title1",
+   "maxW": 4640,
+   "text": "Telewizor: zwykłe logowanie panelu kontem technicznym „Telewizor korytarz”",
+   "w": 240,
+   "x": -581,
+   "y": 22897
+  },
+  "row_fala1_www": {
+   "kind": "title1",
+   "maxW": 4640,
+   "text": "Strona www przed logowaniem (prezentacja)",
+   "w": 240,
+   "x": 0,
+   "y": 25903
+  },
+  "row_staff": {
+   "kind": "title1",
+   "maxW": 2740,
+   "text": "Apka mobilna: obsługa i admin",
+   "w": 240,
+   "x": 0,
+   "y": 1120
+  },
+  "row_tablet": {
+   "kind": "title1",
+   "maxW": 3920,
+   "text": "Tablet e-ink przy boksie (kolorowy albo czarno-biały)",
+   "w": 240,
+   "x": 0,
+   "y": 2580
+  },
+  "row_web": {
+   "kind": "title1",
+   "maxW": 4640,
+   "text": "Panel web i wyświetlacz centralny",
+   "w": 240,
+   "x": 0,
+   "y": 3936
+  },
+  "screen_lock_rules": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Blokada ekranu tabletu:\n• przycisk z kłódką przy „Zmień boks” blokuje dotyk na czas mycia i wycierania,\n• tablica dalej się odświeża,\n• odblokowanie: przytrzymanie kłódki przez 3 s,\n• blokada sama zdejmuje się po 10 min (propozycja),\n• stan trzyma tylko tablet.",
+   "w": 340,
+   "x": 3548,
+   "y": 2880
+  },
+  "settings_rules": {
+   "fill": "orange",
+   "size": 24,
+   "text": "Ustawienia stajni (admin, per stajnia):\n• usługi: derki, moczenie, flagi, szybkie przyciski; wyłączona opcja znika wszędzie,\n• „Flagi wymagają potwierdzenia”: wyłączone = flaga obowiązuje od razu,\n• widoczność per rola: Klient, Obsługa, Instruktor oraz konta techniczne Tablet i Wyświetlacz; admin widzi wszystko.",
+   "w": 360,
+   "x": 3242,
+   "y": 6736
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "SzybkaFlaga.dc.html",
+  "StatusFlagi.dc.html",
+  "KartaKonia.dc.html",
+  "MojBoks.dc.html",
+  "Logowanie.dc.html",
+  "ListaDnia.dc.html",
+  "StajennyKonie.dc.html",
+  "StajennyZadania.dc.html",
+  "BoksyAdmin.dc.html",
+  "Zaproszenie.dc.html",
+  "BoksSzczegoly.dc.html",
+  "TabletPopup.dc.html",
+  "TabletEkranZablokowany.dc.html",
+  "TabletBoks.dc.html",
+  "TabletZmianaBoksu.dc.html",
+  "PanelBoksy.dc.html",
+  "PanelDodajHale.dc.html",
+  "PanelPlatnosci.dc.html",
+  "WyswietlaczCentralny.dc.html",
+  "WyswietlaczHala.dc.html",
+  "PanelUstawieniaStajni.dc.html",
+  "MainBrzozowa.dc.html",
+  "ListaDniaBrzozowa.dc.html",
+  "TabletBoksBrzozowa.dc.html",
+  "PanelUstawieniaBrzozowa.dc.html",
+  "MainBezAkcji.dc.html",
+  "MojBoksBezAkcji.dc.html",
+  "KartaKoniaBezAkcji.dc.html",
+  "ListaDniaBezAkcji.dc.html",
+  "BoksyAdminBezAkcji.dc.html",
+  "TabletBoksBezAkcji.dc.html",
+  "PanelUstawieniaBezAkcji.dc.html",
+  "PanelBoksyBezAkcji.dc.html",
+  "WyswietlaczHalaBezAkcji.dc.html",
+  "MapaNawigacjiRol.dc.html",
+  "PanelLogowanie.dc.html",
+  "PanelLogowanieKod.dc.html",
+  "PanelWitaj.dc.html",
+  "PanelRejestracjaFirmy.dc.html",
+  "PanelZalozStajnie.dc.html",
+  "PanelZalozPowiadomienia.dc.html",
+  "PanelPulpitStart.dc.html",
+  "PanelZaprosOsobe.dc.html",
+  "LogowanieNumer.dc.html",
+  "WiadomosciSms.dc.html",
+  "BrakDostepu.dc.html",
+  "ZaproszeniePrzyjmij.dc.html",
+  "MainLuna.dc.html",
+  "AdminDzis.dc.html",
+  "InstruktorJazdy.dc.html",
+  "PanelPulpit.dc.html",
+  "PanelLudzieWyswietlacze.dc.html",
+  "WyswietlaczLogowanie.dc.html",
+  "WyswietlaczKod.dc.html",
+  "TabletLogowanie.dc.html",
+  "TabletLogowanieKod.dc.html",
+  "TabletPierwszyBoks.dc.html",
+  "TabletUstawienia.dc.html",
+  "StronaGlowna.dc.html",
+  "StronaGlownaTelefon.dc.html"
+ ],
+ "pages": [],
+ "title": "EQUENOR makiety"
+}

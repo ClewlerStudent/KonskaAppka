@@ -410,7 +410,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
 - [ ] TOTP to w Cognito MFA typu software token. Logowanie bez hasła i MFA wykluczają się dla tego samego użytkownika ([MFA](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html)). Decyzja przed etapem 1 (sekcja 5).
 - [ ] Atrybutów logowania nie da się zmienić po utworzeniu puli ([atrybuty](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html)), więc pule dev i test muszą dać się odtworzyć z kodu.
 - [ ] Sesje i blokada konta:
-  - global sign-out unieważnia wszystkie refresh tokeny konta ([unieważnianie tokenów](https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html)). Tablety mają własne konto techniczne, więc wylogowanie osoby ich nie dotyka; global sign-out konta tabletów wylogowuje wszystkie tablety stajni [erd]. Zgubiony tablet: admin blokuje konto techniczne tabletów (wylogowanie ze wszystkich urządzeń), a pozostałe tablety loguje ponownie kodem (propozycja, sekcja 5 pkt 5);
+  - global sign-out unieważnia wszystkie refresh tokeny konta ([unieważnianie tokenów](https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html)). Tablety mają własne konto techniczne, więc wylogowanie osoby ich nie dotyka; global sign-out konta tabletów wylogowuje wszystkie tablety stajni [erd]. Zgubiony tablet: admin blokuje konto techniczne tabletów w Ludziach („Zablokuj”: global sign-out i blokada w `stable_members`, erd.md pkt 14), potem je odblokowuje i loguje pozostałe tablety ponownie kodem (propozycja, sekcja 5 pkt 5);
   - access token sprawdzany lokalnie działa aż do wygaśnięcia;
   - `AdminDisableUser` unieważnia access tokeny tylko dla wywołań do Cognito ([API](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminDisableUser.html)), dlatego blokadę sprawdzamy też w `stable_members`.
 - [ ] Tylko dla pul dev i test, na decyzję Dawida: wyzwalacz custom SMS sender (Lambda + KMS, [dokumentacja](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-custom-sms-sender.html), [przykład AWS](https://github.com/aws-samples/amazon-cognito-user-pool-development-and-testing-with-sms-redirected-to-email)), który przekierowuje kody do skrzynki testowej. W produkcji nigdy, bo to logika poza mikroserwisami.
@@ -859,6 +859,7 @@ Zasady wspólne:
     - widoczność per rola:
       - klient: `flags`, `feeding_plan`, `routine`, `box_history`, `health`, `rides`;
       - obsługa: wszystko;
+      - tablet: `flags`, `feeding_plan`, `routine`, `health`, bez `rides`; `tasks` i `box_history` tabletu nie dotyczą [erd];
       - wyświetlacz: `flags`, `feeding_plan`, `routine`, `tasks`;
       - instruktor: `flags` i `rides` (propozycja, jak na makiecie PanelUstawieniaStajni; arkusz zmian tego nie podaje).
   - **Hale** (każda z własnym adresem, boksy numerowane w obrębie hali od 1):
@@ -917,7 +918,7 @@ Zasady wspólne:
       - Derka: nie (szablon `derka` nieaktywny); moczenie: nie (`soak_enabled = false`);
       - flagi: Bez śniadania, Bez kolacji, Nie na padok, Wet, Leki (aktywne szablony);
       - przyciski: „Ogarnięte” i posiłek; padok wyłączony (`paddock_out_enabled = false`), bo konie stoją w systemie padokowo-boksowym i wychodzą same;
-      - widoczność per rola: klient `flags`, `routine`, `box_history`, `health` (bez planu karmienia i jazd); obsługa `flags`, `feeding_plan`, `routine`, `box_history`, `health` (bez zadań i jazd); wyświetlacz: nic (stajnia nie ma wyświetlacza); instruktor `flags` i `rides` (propozycja, jak na makiecie PanelUstawieniaBrzozowa).
+      - widoczność per rola: klient `flags`, `routine`, `box_history`, `health` (bez planu karmienia i jazd); obsługa `flags`, `feeding_plan`, `routine`, `box_history`, `health` (bez zadań i jazd); tablet `flags`, `feeding_plan`, `routine`, `health`; wyświetlacz: nic (stajnia nie ma wyświetlacza); instruktor `flags` i `rides` (propozycja, jak na makiecie PanelUstawieniaBrzozowa).
     - Słowniki: posiłki jak w Pod Lipami, 06:30, 12:00 i 18:00; szablony flag jak wyżej. Plan karmienia Komety bez „namoczyć”: owies (rano, wieczorem 1 kg), siano (bez ograniczeń), musli wieczorem 0,5 kg (jak na makiecie TabletBoksBrzozowa).
     - Dziś (wt 13.10, 07:15):
       - Kometa: „Bez śniadania” 06:00–09:00, notatka „dentysta o 8:30”, ustawiona przez Annę (`author_role = client`) o 05:50, `requires_ack = false`: obowiązuje od razu, bez statusu, bez terminów potwierdzenia i bez eskalacji;
@@ -954,7 +955,7 @@ Zasady wspólne:
   - Zaproszenie klienta wskazuje konia (`horse_id`, wymagane dla klienta), bez boksu i bez osobnej roli dostępu [erd].
   - Wymagane `expires_at`, domyślnie 7 dni.
   - „Wyślij ponownie” tworzy nowe zaproszenie.
-  - Zaakceptowanie zaproszenia dopasowuje się wyłącznie do zweryfikowanego telefonu albo e-maila z tokenu (e-mail bez rozróżniania wielkości liter, propozycja). Członkostwo i dostęp do konia powstają w jednej transakcji.
+  - Zaproszenie dopasowuje się samo po zalogowaniu, bez ekranu „Przyjmij” [erd]: `GET /me/memberships` porównuje zweryfikowany telefon albo e-mail z tokenu (e-mail bez rozróżniania wielkości liter, propozycja) z ważnymi zaproszeniami i od razu zapisuje członkostwo, klientowi także dostęp do konia, w jednej transakcji z `accepted_at` (zdarzenie `invitation.accepted`). To samo przy najbliższym odświeżeniu u osoby już zalogowanej (zaproszenie do kolejnej stajni). Wygasłe (`expires_at`) albo odwołane (`revoked_at`) zaproszenie się nie dopasowuje.
 - [ ] Dostęp klienta do konia: `horse_access` z rolą `client` (właściciel albo dzierżawca konia), `valid_to` np. równe końcowi dzierżawy, `revoked_at`, gdy koń opuszcza stajnię. Osobnego dostępu do boksu nie ma: boks i jego historię (od dnia, w którym koń do niego trafił) klient widzi przez konia [erd].
 - [ ] `/internal/horses/{id}/left`, `/internal/prune`. Pierwszego admina konta zapisuje `stable` przy rejestracji konta firmy, więc `access` nie ma do tego trasy.
 
@@ -970,7 +971,7 @@ Zasady wspólne:
 - [ ] Ustawienia z `If-Match`: progi eskalacji, `author_display`, `owner_edits_feeding`, `rides_enabled`, okno instalacji APK.
 - [ ] **„Ustawienia stajni”** (konfiguracja per stajnia, erd.md pkt 16), tylko admin konta firmy (Damian w obu stajniach); obsługa, klient, instruktor i konta techniczne tej stajni dostają 403, a osoba bez dostępu do stajni (Paweł w Pod Lipami) i admin innej firmy 404. Na PoC przełączniki gotowych opcji, bez własnych reguł:
   - `GET …/settings` i `PATCH …/settings` z `If-Match` i audytem: „Flagi wymagają potwierdzenia” (`flags_require_ack`), moczenie paszy (`soak_enabled`), przyciski „Ogarnięte” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`) [erd]. „Woda” nie ma przełącznika, zależy od poidła boksu [erd];
-  - `GET …/role-features` i `PUT …/role-features` z `If-Match` i audytem: macierz ról `client | staff | instructor | display` × funkcji ze stałej listy `flags`, `feeding_plan`, `routine`, `box_history`, `tasks`, `health`, `rides` [erd]; `tablet` idzie za `staff` (propozycja). `admin` nie występuje w macierzy, bo widzi wszystko; nieznana rola albo funkcja daje 422 (propozycja);
+  - `GET …/role-features` i `PUT …/role-features` z `If-Match` i audytem: macierz ról `client | staff | instructor | tablet | display` × funkcji ze stałej listy `flags`, `feeding_plan`, `routine`, `box_history`, `tasks`, `health`, `rides` [erd]; `tasks` i `box_history` nie dotyczą roli `tablet` (bez wierszy, w panelu pola nieaktywne) [erd]. `admin` nie występuje w macierzy, bo widzi wszystko; nieznana rola albo funkcja i `tablet` z `tasks` albo `box_history` dają 422 (propozycja);
   - flagi włącza się i wyłącza przez `flag_templates.active` (także Derkę, szablon `derka`) [erd]; tę tabelę zapisuje serwis `flags`, więc panel wysyła przełączniki flag do `flags`, a resztę do `stable`. Jeden przycisk „Zapisz” w panelu robi dwa żądania; przy błędzie jednego panel mówi, która część się nie zapisała (propozycja);
   - `GET …/features` (propozycja): efektywna konfiguracja dla roli zalogowanego użytkownika w tej stajni (`stableFeatures` z `packages/rules`): kafelki flag, „namoczyć”, przyciski, tryb potwierdzeń i widoczne funkcje. Apka czyta ją po wyborze stajni i przy odpytywaniu z ETag;
   - zmiana działa przy najbliższym odpytaniu apki, tabletów i wyświetlacza, bez zdarzeń [erd]; wpisy już zapisane zostają w historii; przełącznik potwierdzeń dotyczy tylko nowych flag (`horse_flags.requires_ack`, serwis `flags`).
@@ -1087,7 +1088,7 @@ Zasady wspólne:
   - bez danych zalogowanego konta: tablica nie pokazuje, kto jest zalogowany;
   - znacznik pop-upu tylko dla flag `requires_ack` bez potwierdzenia; flaga zapisana w stajni bez potwierdzeń pop-upu nie ma [erd];
   - tabelę karmienia z planu, z oznaczeniem „NAMOCZYĆ” i ile przy pozycjach z `soak` (tylko przy `soak_enabled`; inaczej bez „namoczyć”), oraz posiłki wstrzymane przez flagi w ich oknie (WSTRZYMANE);
-  - konfigurację stajni (`stableFeatures` z `packages/rules`) [erd]: wyłączona opcja nie trafia do odpowiedzi razem ze swoim stanem (zasada spójności), np. bez „NAMOCZYĆ”, bez przycisku „PADOK” i bez planu padoku (godziny, towarzysze) przy `paddock_out_enabled = false`, a przy wszystkich trzech przyciskach wyłączonych bez „SZYBKIE AKCJE” (TabletBoksBezAkcji); plan karmienia zostaje, bo to osobna funkcja (`feeding_plan`); sekcje filtrowane widocznością roli `staff`, bo konto `tablet` nie ma kolumny w macierzy (propozycja, sekcja 5);
+  - konfigurację stajni (`stableFeatures` z `packages/rules`) [erd]: wyłączona opcja nie trafia do odpowiedzi razem ze swoim stanem (zasada spójności), np. bez „NAMOCZYĆ”, bez przycisku „PADOK” i bez planu padoku (godziny, towarzysze) przy `paddock_out_enabled = false`, a przy wszystkich trzech przyciskach wyłączonych bez „SZYBKIE AKCJE” (TabletBoksBezAkcji); plan karmienia zostaje, bo to osobna funkcja (`feeding_plan`); sekcje filtrowane widocznością roli `tablet` (kolumna „Tablet” w macierzy) [erd];
   - „SZYBKIE AKCJE” (do trzech przycisków, tylko włączone w ustawieniach stajni; w Stajni Brzozowej „OGARNIĘTE” i posiłek) [erd]:
     - najnowsze „Ogarnięte” boksu („dziś 07:10”, ten boks);
     - posiłek hali: etykieta według pory z `meal_slots` („Śniadanie”, „Obiad”, „Kolacja”, np. „Siano”), stan („podane 06:40” z listą pominiętych) i następny posiłek („potem obiad 12:00”);
@@ -1190,7 +1191,7 @@ Zasady wspólne:
   - pozostałe zapisy (potwierdzenia, „Ogarnięte”, „Woda”, akcje hali, „Cofnij” i „Zrobione”) przez lokalną kolejkę.
 - [ ] Ekrany z makiet:
   - Logowanie (przełącznik „Telefon | E-mail”);
-  - bez stajni: ZaproszeniePrzyjmij, gdy czeka zaproszenie (dopasowuje się samo po zalogowaniu), albo BrakDostepu: „Brak dostępu do stajni”, „Zaloguj się innym kontem”, „Wyloguj”; bez próśb do admina, bez pokazywania numeru i telefonu stajni;
+  - po zalogowaniu: zaproszenie dopasowuje się samo, bez „Przyjmij”; nowe konto podaje tylko imię i język (ZaproszeniePrzyjmij, „Dalej”), potem start roli; bez członkostwa i ważnego zaproszenia BrakDostepu: „Brak dostępu do stajni” i jeden przycisk „Zaloguj się innym kontem”; bez próśb do admina, bez pokazywania numeru i telefonu stajni;
   - Moje konie (Main), także MainBrzozowa (klientka Anna po przełączeniu na Stajnię Brzozową);
   - SzybkaFlaga, StatusFlagi, KartaKonia;
   - MojBoks;
@@ -1311,7 +1312,7 @@ Zasady wspólne:
   - bez wybranego boksu;
   - boks wolny;
   - ekran zablokowany (dotyk);
-  - brak uprawnień (konto bez roli `tablet` albo zablokowane konto tabletów);
+  - brak uprawnień (konto bez roli `tablet` albo zablokowane konto tabletów; po blokadzie do wygaśnięcia access tokenu, potem ekran logowania, erd.md pkt 14);
   - stajnia zawieszona;
   - brak sieci;
   - wymagana aktualizacja.
@@ -1369,7 +1370,7 @@ Zasady wspólne:
   - zakładka „Ustawienia” w nawigacji panelu, w nagłówku przełącznik stajni („Stajnia Pod Lipami ▾”);
   - sekcja „Potwierdzenia flag”: przełącznik „Flagi wymagają potwierdzenia” (włączone: nowa flaga → pop-up na tablecie → „Potwierdzono flagę”, status u klienta, eskalacja do admina; wyłączone: flaga obowiązuje od razu i od razu stoi w banerze tabletu, bez pop-upu, statusu oczekiwania, sekcji „Wymaga potwierdzenia” i eskalacji); w interfejsie bez opisów trybów i dopisków;
   - sekcja „Usługi”: przełączniki derek (flaga „Derka”) i moczenia paszy („namoczyć” + ile), flag (Bez śniadania, Bez kolacji, Nie na padok, Wet, Leki) i szybkich przycisków (Ogarnięte, Posiłek, Padok z opisem „przycisk i plan padoku”, ten sam na wszystkich trzech ekranach ustawień); „Woda” bez przełącznika (ustawienie boksu); bez dopisków;
-  - sekcja „Widoczność per rola”: macierz z checkboxami, funkcje Flagi, Plan karmienia, Szybkie akcje i ich stan, Historia boksu, Zadania, Zdrowie i wizyty, Jazdy × role Klient, Obsługa, Instruktor, Wyświetlacz (bez kolumny Wsparcia IT i wiersza diagnostyki); „Admin widzi wszystko”; w Stajni Brzozowej pusta kolumna Wyświetlacz; w PanelUstawieniaBezAkcji wiersz „Szybkie akcje i ich stan” z checkboxami jak w Pod Lipami;
+  - sekcja „Widoczność per rola”: macierz z checkboxami, funkcje Flagi, Plan karmienia, Szybkie akcje i ich stan, Historia boksu, Zadania, Zdrowie i wizyty, Jazdy × role Klient, Obsługa, Instruktor, Tablet, Wyświetlacz (kolumna Tablet w miejscu Wsparcia IT, z nieaktywnymi polami Zadania i Historia boksu; bez wiersza diagnostyki); „Admin widzi wszystko”; w Stajni Brzozowej pusta kolumna Wyświetlacz; w PanelUstawieniaBezAkcji wiersz „Szybkie akcje i ich stan” z checkboxami jak w Pod Lipami;
   - przycisk „Zapisz”; zapis z `If-Match` do `stable` (ustawienia i widoczność) i `flags` (aktywne szablony), obsługa 412;
   - przełączniki i checkboxy jako `role="switch"` i `role="checkbox"` z etykietami, obsługiwane klawiaturą (propozycja).
 - [ ] Przy kilku halach każdy boks w tabelach, filtrach, alertach i formularzach przypisania ma halę razem z numerem; wybór boksu w formularzach wysyła `boxId`.
@@ -1423,7 +1424,7 @@ Zasady wspólne:
 
 #### 3.5.5 Strona www (przed logowaniem)
 - [ ] Publiczna strona produktu: sama prezentacja, bez bloga i CMS (sekcja 5, „Rozstrzygnięte”). Makiety: StronaGlowna (1440), StronaGlownaTelefon (390).
-- [ ] Treść: hero (nazwa, hasło, jedno zdanie, CTA), cztery ekrany (apka, tablet, telewizor, panel) z obrazem i jednym zdaniem, przykład flag z godzinami, kontakt i CTA, stopka; link „Zaloguj się” do panelu. Bez drobnych zalet, ogólników i treści instruktażowych. Bez danych stajni, bez logowania i bez API aplikacji.
+- [ ] Treść w 4 blokach: (1) hero: „EQUENOR” z hasłem pod spodem, jedno zdanie, „Załóż konto firmy” i „Zaloguj się” (oba do panelu), jeden duży obraz produktu; (2) cztery ekrany: apka, tablet przy boksie, telewizor, panel, każdy obraz, nazwa i jedno zdanie; (3) jeden przykład flagi z godzinami; (4) stopka z kontaktem. Bez bloga, CMS i pozycji „Blog” w menu, bez drobnych zalet, ogólników i treści instruktażowych. Bez danych stajni, bez logowania i bez API aplikacji.
 - [ ] Kolory i znak „EQUENOR” (z hasłem pod spodem w nagłówku i stopce) z `docs/paleta.md` (tokeny LCD, przez `packages/theme`, propozycja); układ od 390 do 1440 px.
 - [ ] Statyczna strona (sekcja 5 pkt 51). Propozycja: statyczny generator w monorepo (`apps/www`), build w CI, hosting statyczny na domenie głównej (2.10). Hosting wybiera Dawid.
 - [ ] Na stronie mogą żyć polityka prywatności, strona wsparcia i strona usuwania konta, których wymagają Apple i Google (2.7, 2.8) (propozycja).
@@ -1435,7 +1436,7 @@ Zasady wspólne:
   - **B, bramka sprzętowa tabletu:** punkty (B) z 4.3.1 (T-01…T-04, T-08, T-13, T-24, T-25) oraz testy koloru K-01 i K-05 na Boox Note Air6 C, na sztucznych odpowiedziach `board`, z paletą `t-*` w profilu właściwym dla ekranu. Kończy się decyzją: model zostaje albo bierzemy plan B. Planem B jest Samsung Galaxy Tab Active5, dokupiony dopiero wtedy, gdy T-01 albo T-02 nie przejdą na Boox; ten sam moduł DO przechodzi na nim T-01…T-03, co oddziela błąd naszego kodu od ograniczeń firmware e-ink. Innym wyjściem jest kolejny model e-ink z działającym DO, kolorowy albo czarno-biały.
   - **C, spike Cognito:** lista z 3.2.
 - [ ] **Etap 1, logowanie i konto firmy:** `identity`, `access` (role osób z `client`, konta techniczne `display` i `tablet`, admin konta firmy, przypisania per stajnia, zaproszenia SMS-em albo e-mailem), `auth` i `authz`, logowanie telefonem albo e-mailem w apce i w panelu, rejestracja konta firmy z NIP (`POST /businesses`).
-  - Gotowe, gdy działa logowanie na puli dev oboma kanałami, rejestracja konta firmy z NIP przechodzi A-22, zaakceptowanie zaproszenia tworzy członkostwo (dla klienta także dostęp do konia), a macierz izolacji dla tych tras jest zielona, także między dwoma kontami firm.
+  - Gotowe, gdy działa logowanie na puli dev oboma kanałami, rejestracja konta firmy z NIP przechodzi A-22, zaproszenie dopasowane po zalogowaniu (bez „Przyjmij”) tworzy członkostwo (dla klienta także dostęp do konia), a macierz izolacji dla tych tras jest zielona, także między dwoma kontami firm.
 - [ ] **Etap 2, stajnia, hale, boksy, konie:** `stable` (konto firmy → stajnie → hale → boksy), „Załóż stajnię” w 2 krokach z regułami powiadomień (`notification_rules`) i boksami z ustawieniami, ustawienia stajni i widoczność per rola (`stable_settings`, `stable_role_features`, `GET …/features`), panel (PanelRejestracjaFirmy, PanelZalozStajnie, PanelZalozPowiadomienia, Boksy i konie, Dodaj halę, Ustawienia stajni), apka admina, przełącznik stajni w apce.
   - Gotowe, gdy seed z dwiema halami (boksy 1–8 i 1–6) jest widoczny w panelu i w apce z halą przy numerze, dodanie hali z adresem i boksami od 1 działa, a przypisanie, przeniesienie i zamiana koni przechodzą testy współbieżności; obie stajnie z seedu mają swoje ustawienia, a ekran „Ustawienia stajni” zmienia je tylko admin konta firmy; druga stajnia bez NIP i przypisania per stajnia przechodzą A-23.
 - [ ] **Etap 3, flagi:** `flags` z obowiązkowymi godzinami, skutkami z okna (`packages/rules`) i Derką, `requires_ack` kopiowanym z ustawień stajni, szablonami włączanymi w „Ustawieniach stajni”, `notifications` z `fake-sms`, `escalation-scheduler` (tylko flagi z `requires_ack`), ekrany klienta (kafelki flag) i obsługi.
@@ -1641,14 +1642,14 @@ Zasady wspólne:
   - Link po terminie daje 403; tokenem stajni A nie da się dostać linku do pliku stajni B.
   - Upload z ograniczonym typem i rozmiarem, z kontrolą `sha256`.
 - [ ] **Zaproszenia.**
-  - Nie da się ich zaakceptować po `expires_at` ani po `revoked_at`, ani zaakceptować drugi raz.
+  - Ani wygasłe (`expires_at`), ani odwołane (`revoked_at`) zaproszenie się nie dopasowuje, a ponowne dopasowanie tego samego zaproszenia nie tworzy drugiego członkostwa.
   - Dopasowanie tylko do zweryfikowanego kontaktu; formaty `+48 600…`, `600…` i `0048…` dają ten sam wynik, a e-mail pisany wielkimi i małymi literami też (propozycja).
   - Zaproszenie e-mailem nie daje dostępu osobie, która ma ten sam numer, ale inny e-mail, i odwrotnie.
   - Numer przydzielony przez operatora nowej osobie nie przejmuje dostępów poprzedniego właściciela.
 - [ ] **Sesje.**
   - Po global sign-out zmierzyć czas do utraty dostępu na telefonie i w panelu (konto osoby), na tablecie (konto tabletów) i na wyświetlaczu (konto telewizora).
   - Wylogowanie osoby ze wszystkich urządzeń (np. Oli) nie wylogowuje żadnego tabletu ani telewizora.
-  - Zgubiony tablet: admin blokuje konto techniczne tabletów w Ludziach („Zablokuj”: global sign-out i blokada w `stable_members`). Zmierzyć czas, po którym każdy tablet stajni pokazuje ekran logowania bez starych flag; po odblokowaniu pozostałe tablety logują się ponownie kodem i wracają do swoich boksów i języka, a zgubiony bez nowego kodu nie wraca (propozycja).
+  - Zgubiony tablet: admin blokuje konto techniczne tabletów w Ludziach („Zablokuj”: global sign-out i blokada w `stable_members`). Zmierzyć czas, po którym każdy tablet stajni pokazuje TabletBrakUprawnien bez starych flag (najbliższe odpytanie), i czas do ekranu logowania (wygaśnięcie access tokenu); po odblokowaniu pozostałe tablety logują się ponownie kodem i wracają do swoich boksów i języka, a zgubiony bez nowego kodu nie wraca (propozycja).
   - Skradziony tablet czyta tablicę najwyżej przez czas życia access tokenu.
   - Blokada konta telewizora (rola Wyświetlacz) przez admina: zmierzyć czas do zniknięcia danych; sprawdzane także w członkostwie.
   - Wygaśnięcie refresh tokenu (pula testowa ze skróconą ważnością) daje czytelny ekran logowania, bez zamrożonych danych.
@@ -1979,7 +1980,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 6. **A-06 Klient.**
    - [ ] Anna (klientka: Kasztan i Bella) widzi w MojBoks boks Kasztana, Hala główna · boks 7. „Ostatnio” ma tylko zdarzenia z przycisków obsługi: Ogarnięte dziś 07:10, Podano śniadanie 06:40 z „pominięty: flaga” i Wyprowadzono na padok wczoraj 10:05 · Piotr. „Historia” ma tylko flagi z potwierdzeniami i zdarzenia z przycisków, także wczorajsze: Podano kolację 18:02 · Piotr i Wyprowadzono na padok 10:05 · Piotr. Wpisy z apki mają osobę, wpisy z tabletu nie mają.
    - [ ] Historia zaczyna się od dnia, w którym Kasztan trafił do boksu 7. Wolnego boksu 3 Anna nie widzi (404), a szybkie akcje obsługi i zadania dają 403. Po `valid_to` albo `revoked_at` dostęp do konia i jego boksu znika.
-   - [ ] Marek Nowak akceptuje zaproszenie jako Klient do Luny (`invitations.horse_id`) przed terminem i widzi Lunę; po terminie zaproszenia nie da się zaakceptować.
+   - [ ] Marek Nowak loguje się przed terminem: zaproszenie jako Klient do Luny (`invitations.horse_id`) dopasowuje się samo, bez „Przyjmij”; Marek podaje imię i język (ZaproszeniePrzyjmij) i widzi Lunę. Po terminie wygasłe zaproszenie się nie dopasowuje (BrakDostepu).
    - [ ] W Zaproszeniu admin wybiera rolę osoby: Klient (z wyborem konia), Obsługa albo Instruktor, a w panelu także konto techniczne (Wyświetlacz, Tablet przy boksie); test słownika odrzuca każdą inną nazwę roli, także Wsparcie IT (propozycja).
 7. **A-07 Obsługa.**
    - [ ] Ola ustawia flagi dla Iskry (Hala główna · boks 1), Groma (Hala nowa · boks 1) i Luny, z godzinami, oraz zmienia plan karmienia (pozycja z „namoczyć” i ile). Klient widzi flagę, a tablet pokazuje pop-up: tablet Hala główna · boks 1 tylko dla Iskry, tablet Hala nowa · boks 1 tylko dla Groma. Flaga Luny bez boksu nie trafia na żaden tablet.
@@ -2068,7 +2069,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
       - obsługa: Ola w Pod Lipami ma wszystko, z zadaniami; w Stajni Brzozowej (Ola i Paweł) bez zadań i jazd;
       - instruktor (Marta, w obu stajniach): flagi i jazdy (propozycja, jak na makietach);
       - wyświetlacz Pod Lipami: flagi, plan karmienia, szybkie akcje i ich stan, zadania, bez zdrowia i historii boksu; Stajnia Brzozowa wyświetlacza nie ma;
-      - tablet: widoczność obsługi (propozycja, sekcja 5);
+      - tablet (konto „Tablety Pod Lipami” i „Tablety Brzozowa”): flagi, plan karmienia, szybkie akcje i ich stan, zdrowie, bez jazd; zadań i historii boksu tablet nie pokazuje [erd];
       - admin konta firmy (Damian, w obu stajniach): wszystko, niezależnie od macierzy.
     - [ ] Damian odznacza klientowi „Plan karmienia”: przy najbliższym odpytaniu KartaKonia Anny w Pod Lipami nie ma planu, a trasa planu daje jej 403 (propozycja); po zaznaczeniu plan wraca. Zaznaczenie klientowi „Zadania” pokazuje Annie listę zadań, ale „Biorę” dalej daje 403, bo widoczność nie dodaje uprawnień (propozycja).
     - [ ] Ustawienia Pod Lipami nie zmieniają widoku Anny i Oli w Stajni Brzozowej.
@@ -2087,12 +2088,12 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 24. **A-24 Telewizor na koncie technicznym (Stajnia Pod Lipami).**
     - [ ] Damian w „Zaproś osobę” wybiera „Konto techniczne: Wyświetlacz” i kanał e-mail: tv.korytarz@stajnielipowe.pl, nazwa „Telewizor korytarz”. Osobnego formularza wyświetlacza nie ma.
     - [ ] Telewizor otwiera zwykłą stronę logowania panelu (WyswietlaczLogowanie): „Telefon | E-mail” → e-mail → WyswietlaczKod z kodem z e-maila. Ekran pokazuje adres tylko zamaskowany (t•••@stajnielipowe.pl); potem panel od razu pokazuje widok wszystkich hal (A-08), bo tak każe rola.
-    - [ ] W Ludziach „Telewizor korytarz · konto techniczne · Wyświetlacz” jest w filtrze „Konta techniczne”. Blokada konta: przy najbliższym odpytaniu TV pokazuje „Wyświetlacz zablokowany” (WyswietlaczZablokowany), bez starych flag; odblokowanie w panelu → Ludzie.
+    - [ ] W Ludziach „Telewizor korytarz · konto techniczne · Wyświetlacz” jest w filtrze „Konta techniczne”. Blokada konta („Zablokuj”, erd.md pkt 14): przy najbliższym odpytaniu TV pokazuje „Wyświetlacz zablokowany” (WyswietlaczZablokowany), bez starych flag, a po wygaśnięciu access tokenu stronę logowania; po odblokowaniu w panelu → Ludzie TV loguje się ponownie kodem i wraca do zapamiętanego widoku.
     - [ ] Każdy zapis tym kontem daje 403; odpowiedzi nie mają danych osobowych. Stajnia Brzozowa nie ma wyświetlacza.
 25. **A-25 Konto techniczne tabletów i język tablicy.**
     - [ ] Damian w „Zaproś osobę” wybiera „Konto techniczne: Tablet przy boksie” i kanał e-mail: boksy@stajnielipowe.pl, nazwa „Tablety Pod Lipami” (propozycja). W Ludziach „Tablety Pod Lipami · konto techniczne · Tablet” jest w filtrze „Konta techniczne”.
     - [ ] Tablet Hala nowa · boks 5 loguje się tym kontem przez „TELEFON | E-MAIL”: e-mail i kod z e-maila. Po kodzie od razu TabletPierwszyBoks z zakładkami hal, bez wyboru stajni; w ukrytych ustawieniach KONTO „Tablety Pod Lipami · konto techniczne”; tablica nie pokazuje konta. Konto Oli na tablecie dostaje TabletBrakUprawnien, a wylogowanie Oli ze wszystkich urządzeń nie dotyka tabletów.
-    - [ ] Zgubiony tablet (propozycja): Damian w Ludziach blokuje „Tablety Pod Lipami”. Przy najbliższym odpytaniu wszystkie tablety stajni pokazują ekran logowania, bez starych flag. Po odblokowaniu pozostałe tablety logują się ponownie kodem i wracają do swoich boksów i języka; zapisy z zablokowanego konta dają 403.
+    - [ ] Zgubiony tablet (propozycja): Damian w Ludziach blokuje „Tablety Pod Lipami” („Zablokuj”, erd.md pkt 14). Przy najbliższym odpytaniu wszystkie tablety stajni pokazują TabletBrakUprawnien („TO KONTO NIE MA JUŻ DOSTĘPU DO TEJ STAJNI”), bez starych flag, a po wygaśnięciu access tokenu ekran logowania. Po odblokowaniu pozostałe tablety logują się ponownie kodem i wracają do swoich boksów i języka, a zgubiony bez kodu nie wraca; zapisy z zablokowanego konta dają 403.
     - [ ] W ukrytych ustawieniach tego tabletu ktoś wybiera język UA: tablica jest po ukraińsku (pory posiłków z etykiet `*_labels`, gdy są), a tablet Hala główna · boks 7 dalej po polsku. Język zostaje po restarcie i ponownym logowaniu; serwer o nim nie wie, a stajnia nie ma ustawienia języków.
 
 ### 4.5 Stanowisko testowe i kryteria gotowości do wdrożenia
@@ -2179,12 +2180,12 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 **Rozstrzygnięte 13.10.2026** (decyzje właściciela produktu; mają pierwszeństwo przed wcześniejszymi propozycjami)
 - **Logowanie i e-mail.** Oprócz telefonów obsługujemy e-maile: logowanie w apce, panelu, na tablecie i TV numerem telefonu albo e-mailem, kod SMS-em albo e-mailem (`SMS_OTP`, `EMAIL_OTP`, e-maile przez SES), konta bez hasła; zaproszenia SMS-em albo e-mailem (2.4, 2.6, 3.5). TOTP bez zmian, dalej otwarte (pkt 1).
 - **Tylko B2B.** Konto to konto firmy z NIP; jedno konto, jeden NIP. NIP podaje się raz, przy rejestracji (PanelRejestracjaFirmy), jako zwykłe pole formularza, bez objaśnień; „Ten NIP ma już konto w EQUENOR” tylko jako błąd. „Załóż stajnię” nie pyta o NIP ani o działalność (3.3 `stable`).
-- **Admin konta firmy.** Admin ma dostęp do wszystkich stajni firmy, także nowych, bez przypisywania. Pozostałe role przypisuje się per stajnia; jedna osoba może mieć kilka stajni (3.1.9, 3.3 `access`). Zaproszenie dopasowuje się samo po zalogowaniu: PanelWitaj bez „Czekasz na zaproszenie?”, BrakDostepu bez próśb do admina i bez numeru (3.5.1, 3.5.3).
+- **Admin konta firmy.** Admin ma dostęp do wszystkich stajni firmy, także nowych, bez przypisywania. Pozostałe role przypisuje się per stajnia; jedna osoba może mieć kilka stajni (3.1.9, 3.3 `access`). Zaproszenie dopasowuje się samo po zalogowaniu, bez ekranu „Przyjmij” (wygasłe się nie dopasowuje; 3.3 `access`): PanelWitaj bez „Czekasz na zaproszenie?”, BrakDostepu bez próśb do admina i bez numeru (3.5.1, 3.5.3).
 - **Telewizor.** Konto techniczne z rolą Wyświetlacz, telefon albo e-mail i kod, zaproszenie przez „Zaproś osobę” → „Konto techniczne: Wyświetlacz”; bez osobnego formularza (pkt 3). Telewizor otwiera zwykłą stronę logowania panelu, bez osobnego adresu; strona nie rozpoznaje urządzenia, a po zalogowaniu panel pokazuje widok tablicy według roli. W Ludziach zwykły wiersz w filtrze „Konta techniczne”, bez instrukcji podłączania. Wybór widoku dalej pamięta przeglądarka (3.5.4).
 - **Interfejs bez objaśnień.** Zostają etykiety, wartości, przyciski i komunikaty stanu; zdania objaśniające i dopiski znikają (3.5).
 - **Język tablicy per tablet.** Bez języków na poziomie stajni (bez `stable_locales`); tłumaczenia nazw zostają jako opcjonalne etykiety (3.5.2).
-- **Tablet na koncie technicznym.** Tablet loguje się kontem technicznym z rolą Tablet (jedno na stajnię, propozycja), nie kontem osoby. Konto ma jedną stajnię, więc po zalogowaniu od razu wybór boksu, bez wyboru stajni (3.5.2, pkt 5).
-- **Wsparcie IT poza stajnią.** Zespół EQUENOR, nie rola stajni: znika z zaproszeń, macierzy widoczności, listy członków i apki; zostaje dostęp do ukrytych ustawień i diagnostyki tabletu oraz diagnostyki w panelu (operator, pkt 8, propozycja). Czy rola w ogóle zostaje: do potwierdzenia.
+- **Tablet na koncie technicznym.** Tablet loguje się kontem technicznym z rolą Tablet (jedno na stajnię, propozycja), nie kontem osoby. Konto ma jedną stajnię, więc po pierwszym logowaniu od razu wybór boksu, bez wyboru stajni (3.5.2, pkt 5). W macierzy widoczności własna kolumna „Tablet”, bez zadań i historii boksu (pkt 50).
+- **Wsparcie IT poza stajnią.** Zespół EQUENOR, nie rola stajni: znika z zaproszeń, macierzy widoczności, listy członków i apki; zostaje dostęp do ukrytych ustawień i diagnostyki tabletu oraz diagnostyka w panelu web dla zespołu EQUENOR (narzędzie operatora, poza panelem stajni; pkt 8, propozycja).
 - **Boksy z ustawieniami przy tworzeniu** (Załóż stajnię, „Dodaj halę”): lista boksów z numerem, poidłem i „Więcej ustawień ›”, akcja „Ustaw dla wszystkich” (3.3 `stable`).
 - **Zakładanie stajni w 2 krokach.** Krok 1 bez pytania o potwierdzenia flag (nowa stajnia ma wszystko włączone, także potwierdzenia), krok 2 powiadomienia: zdarzenia, odbiorcy, kanał SMS albo e-mail (`notification_rules`).
 - **Strona www przed logowaniem:** sama prezentacja, bez bloga i CMS (3.5.5, pkt 51).
@@ -2272,8 +2273,8 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 **Konfiguracja per stajnia** (erd.md pkt 16; do potwierdzenia przed etapem 2)
 
 48. **Wyłączenie flagi przy flagach, które już trwają.** erd.md mówi, że wyłączona opcja znika razem ze swoim stanem. Propozycja: przy wyłączeniu szablonu (np. Derki) znika kafelek i nie da się zapisać nowej flagi, ale flagi, które już trwają, obowiązują i są widoczne do końca okna (bezpieczeństwo konia, np. trwająca „Bez śniadania” przed wetem). Alternatywa: ukrycie także trwających flag.
-49. **Domyślna widoczność per rola dla nowej stajni.** erd.md: „wszystko włączone, łącznie z potwierdzeniami”; decyzja z 13.10 potwierdza to dla ustawień nowej stajni (zakładanie nie pyta o potwierdzenia), ale nie mówi o macierzy ról. Czy to dotyczy też macierzy ról (np. `display` widzi wszystkie funkcje; uprawnienia ról i tak ograniczają zapis), czy nowa stajnia dostaje węższą macierz, np. jak Stajnia Pod Lipami (propozycja do decyzji).
-50. **Widoczność na tablecie.** Konto tabletów (`tablet`) nie ma kolumny w macierzy. Propozycja: tablet używa widoczności roli Obsługa (`staff`) w tej stajni. Do tego: widoczność instruktora w danych demo (arkusz jej nie podaje; propozycja: Flagi i Jazdy, jak na makietach).
+49. **Domyślna widoczność per rola dla nowej stajni.** erd.md: „wszystko włączone, łącznie z potwierdzeniami”; decyzja z 13.10 potwierdza to dla ustawień nowej stajni (zakładanie nie pyta o potwierdzenia), ale nie mówi o macierzy ról. Czy to dotyczy też macierzy ról (np. `display` widzi wszystkie funkcje, a `tablet` wszystkie poza zadaniami i historią boksu; uprawnienia ról i tak ograniczają zapis), czy nowa stajnia dostaje węższą macierz, np. jak Stajnia Pod Lipami (propozycja do decyzji).
+50. **Widoczność na tablecie.** Rozstrzygnięte 13.10.2026: konto tabletów (`tablet`) ma własną kolumnę „Tablet” w macierzy, w miejscu Wsparcia IT [erd]; `tasks` i `box_history` go nie dotyczą (3.3 `stable`, `board`). Otwarta zostaje widoczność instruktora w danych demo (arkusz jej nie podaje; propozycja: Flagi i Jazdy, jak na makietach).
 
 **Konto firmy i strona www** (po decyzjach z 13.10.2026)
 

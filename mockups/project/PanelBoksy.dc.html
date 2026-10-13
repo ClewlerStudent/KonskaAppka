@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Boksy i konie</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8A5230}a:hover{color:#6B3A1E}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 900px; box-sizing: border-box; background: #F3ECE2; color: #2E241D; font-family: Figtree, system-ui, sans-serif; line-height: 1.3">
+
+<header style="background: #FFFCF7; border-bottom: 1px solid #E0D3C2">
+<div style="max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 14px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.01em; color: #2E241D"><span style="letter-spacing: 0.16em; font-weight: 700">EQUENOR</span></span>
+<span aria-hidden="true" style="width: 1px; height: 24px; background: #E0D3C2"></span>
+<button type="button" style="display: flex; align-items: center; gap: 4px; border: none; background: none; padding: 0 4px; font: inherit; font-size: 15px; font-weight: 600; color: #2E241D; min-height: 44px">
+Stajnia Pod Lipami
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<button type="button" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px 0 6px; border-radius: 999px; border: 1px solid #907D6A; background: #FFFCF7; font: inherit; font-size: 14px; font-weight: 600; color: #2E241D">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 16px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px">D</span>
+Damian (admin)
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</button>
+</div>
+</div>
+</header>
+
+<div style="max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 24px 20px 40px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+<nav aria-label="Menu panelu" style="flex: 0 0 240px; width: 240px; box-sizing: border-box">
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+<li><a href="PanelPulpit.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+Pulpit</a></li>
+<li><a href="PanelBoksy.dc.html" aria-current="page" style="position: relative; min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid #E0D3C2; background: #FFFCF7; font-size: 15px; font-weight: 700; text-decoration: none; color: {{accent}}">
+<span aria-hidden="true" style="position: absolute; left: -1px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: {{accent}}"></span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10l8-6 8 6v10H4z"/><path d="M9 20v-6h6v6"/></svg>
+Boksy</a></li>
+<li><a href="PanelBoksy.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20c-1.3-2.4-2-5-2-7.5a8 8 0 0 1 16 0c0 2.5-.7 5.1-2 7.5h-3c1-2.3 1.5-4.8 1.5-7a4.5 4.5 0 0 0-9 0c0 2.2.5 4.7 1.5 7z"/></svg>
+Konie</a></li>
+<li><a href="PanelLudzieWyswietlacze.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14a6.5 6.5 0 0 1 3.5 6"/></svg>
+Ludzie</a></li>
+<li><a href="PanelPlatnosci.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><path d="M7 14.5h4"/></svg>
+Płatności</a></li>
+<li><a href="PanelUstawieniaStajni.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; font-size: 15px; font-weight: 600; text-decoration: none; color: #5C4E43">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9"/><path d="M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3"/><path d="M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>
+Ustawienia</a></li>
+</ul>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700; line-height: 32px">Boksy i konie</h1>
+<p style="margin: 0; font-size: 14px; color: #5C4E43">2 hale · 14 boksów · 13 koni · stan na wt 13.10.2026, 07:15</p>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<a href="PanelDodajHale.dc.html" style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; font-size: 14px; font-weight: 600; text-decoration: none; color: #2E241D">Dodaj halę</a>
+<button type="button" style="min-height: 44px; display: flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; font: inherit; font-size: 14px; font-weight: 600; color: #2E241D">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+Dodaj konia</button>
+<button type="button" style="min-height: 44px; display: flex; align-items: center; gap: 6px; padding: 0 16px; border-radius: 12px; border: none; background: {{accent}}; font: inherit; font-size: 14px; font-weight: 700; color: #FFFCF7">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+Dodaj boks</button>
+</div>
+</div>
+
+<ul aria-label="Podsumowanie boksów i koni" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px">
+<li style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10l8-6 8 6v10H4z"/><path d="M9 20v-6h6v6"/></svg>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 13px; font-weight: 600; color: #5C4E43">Boksy</span>
+<span style="font-size: 26px; font-weight: 700; line-height: 30px">14</span>
+</span>
+</li>
+<li style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20c-1.3-2.4-2-5-2-7.5a8 8 0 0 1 16 0c0 2.5-.7 5.1-2 7.5h-3c1-2.3 1.5-4.8 1.5-7a4.5 4.5 0 0 0-9 0c0 2.2.5 4.7 1.5 7z"/></svg>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 13px; font-weight: 600; color: #5C4E43">Konie w boksach</span>
+<span style="font-size: 26px; font-weight: 700; line-height: 30px">12</span>
+</span>
+</li>
+<li style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20c-1.3-2.4-2-5-2-7.5a8 8 0 0 1 16 0c0 2.5-.7 5.1-2 7.5h-3c1-2.3 1.5-4.8 1.5-7a4.5 4.5 0 0 0-9 0c0 2.2.5 4.7 1.5 7z" stroke-dasharray="3 2.5"/></svg>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 13px; font-weight: 600; color: #5C4E43">Konie bez boksu</span>
+<span style="font-size: 26px; font-weight: 700; line-height: 30px">1</span>
+</span>
+</li>
+<li style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex: none; box-sizing: border-box; border-radius: 12px; border: 1px dashed #E0D3C2; background: #F3ECE2; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10l8-6 8 6v10H4z"/><path d="M12 11v6M9 14h6"/></svg>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 13px; font-weight: 600; color: #5C4E43">Wolne boksy</span>
+<span style="font-size: 26px; font-weight: 700; line-height: 30px">2</span>
+</span>
+</li>
+</ul>
+
+<div role="alert" style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 14px 16px; border-radius: 16px; background: #F6E3B7">
+<span aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: #FFFCF7; color: #664810; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17v.01"/></svg>
+</span>
+<div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<strong style="font-size: 15px; font-weight: 700; color: #664810">Flaga krytyczna dla Belli (boks 4 · Hala nowa) jest niepotwierdzona</strong>
+<span style="font-size: 13px; color: #664810">Nie na padok · dziś, cały dzień · ustawiona 01:20 · admin powiadomiony. Obsługa widzi ją przy boksie i na liście dnia w apce.</span>
+</div>
+<a href="StatusFlagi.dc.html" style="min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; font-size: 14px; font-weight: 600; text-decoration: none; color: #2E241D">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>
+Zobacz flagę</a>
+</div>
+
+<section aria-labelledby="lista-boksow" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+<h2 id="lista-boksow" style="margin: 0; font-size: 17px; font-weight: 700; line-height: 22px">Wszystkie boksy</h2>
+<label style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 6px; padding: 0 10px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; font-size: 13px; font-weight: 600; color: #2E241D">
+Hala
+<select style="min-height: 40px; border: none; background: transparent; font: inherit; font-size: 13px; font-weight: 700; color: #2E241D">
+<option selected>Wszystkie hale</option>
+<option>Hala główna</option>
+<option>Hala nowa</option>
+</select>
+</label>
+<div role="group" aria-label="Filtr boksów" style="display: flex; gap: 6px; flex-wrap: wrap">
+<button type="button" aria-pressed="true" style="min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1px solid {{accent}}; background: #FFFCF7; font: inherit; font-size: 13px; font-weight: 700; color: {{accent}}">Wszystkie · 14</button>
+<button type="button" aria-pressed="false" style="min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1px solid #907D6A; background: #FFFCF7; font: inherit; font-size: 13px; font-weight: 600; color: #2E241D">Z flagą · 4</button>
+<button type="button" aria-pressed="false" style="min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1px solid #907D6A; background: #FFFCF7; font: inherit; font-size: 13px; font-weight: 600; color: #2E241D">Wolne · 2</button>
+</div>
+</div>
+<label style="min-height: 44px; width: 300px; max-width: 100%; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; color: #5C4E43">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Szukaj boksu, konia lub osoby</span>
+<input type="search" placeholder="Szukaj boksu, konia lub osoby" style="flex: 1; min-width: 0; min-height: 42px; border: none; background: transparent; font: inherit; font-size: 14px; color: #2E241D; outline-offset: 2px">
+</label>
+</div>
+
+<div style="overflow-x: auto; background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<table style="width: 100%; min-width: 940px; border-collapse: collapse; font-size: 14px; text-align: left">
+<thead>
+<tr>
+<th scope="col" style="padding: 10px 8px 10px 14px; font-size: 13px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2">Boks</th>
+<th scope="col" style="padding: 10px 8px; font-size: 13px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2">Koń</th>
+<th scope="col" style="padding: 10px 8px; font-size: 13px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2">Klient</th>
+<th scope="col" style="padding: 10px 8px; font-size: 13px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2">Aktywne flagi</th>
+<th scope="col" style="padding: 10px 8px; font-size: 13px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2">Ostatnio ogarnięte</th>
+<th scope="col" style="padding: 10px 14px 10px 8px; font-size: 13px; font-weight: 600; color: #5C4E43; border-bottom: 1px solid #E0D3C2">Akcje</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<th scope="rowgroup" colspan="6" style="padding: 10px 14px 8px; background: #F3ECE2; border-bottom: 1px solid #E0D3C2; text-align: left">
+<div style="display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; font-weight: 400">
+<span style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #2E241D">Hala główna</span>
+<span style="font-size: 13px; color: #5C4E43">boksy 1–8 · 7 koni · 1 wolny</span>
+<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #5C4E43"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>ul. Lipowa 12, Konstancin-Jeziorna</span>
+<button type="button" style="margin-left: auto; min-height: 36px; padding: 0 10px; border: none; border-radius: 10px; background: none; font: inherit; font-size: 13px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Edytuj halę</button>
+</div>
+</th>
+</tr>
+
+<tr>
+<th scope="row" style="padding: 6px 8px 6px 14px; border-bottom: 1px solid #E0D3C2">
+<span style="width: 36px; height: 36px; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">1</span></span>
+</th>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2; font-weight: 700">Iskra</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">Karolina W.</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2; color: #5C4E43">Brak</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; flex-direction: column; gap: 2px"><span>dziś 07:02</span><span style="font-size: 12px; color: #5C4E43">z tabletu</span></div>
+</td>
+<td style="padding: 6px 14px 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; gap: 0; flex-wrap: wrap">
+<a href="SzybkaFlaga.dc.html" aria-label="Flaga dla Iskry (boks 1 · Hala główna)" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; font-size: 14px; font-weight: 600; text-decoration: none; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Flaga</a>
+<button type="button" aria-label="Przenieś Iskrę z boksu 1 (Hala główna)" style="min-height: 44px; padding: 0 6px; border: none; border-radius: 10px; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przenieś</button>
+<a href="MojBoks.dc.html" aria-label="Szczegóły boksu 1 (Hala główna)" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; font-size: 14px; font-weight: 600; text-decoration: none; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Szczegóły</a>
+</div>
+</td>
+</tr>
+
+<tr>
+<th scope="row" style="padding: 6px 8px 6px 14px; border-bottom: 1px solid #E0D3C2">
+<span style="width: 36px; height: 36px; box-sizing: border-box; border-radius: 12px; border: 1px dashed #E0D3C2; background: #F3ECE2; color: #5C4E43; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">3</span></span>
+</th>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2"><span style="padding: 2px 8px; border-radius: 999px; background: #EDE3D5; color: #5C4E43; font-size: 12px; font-weight: 700; white-space: nowrap">Wolny</span></td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2; color: #5C4E43">Brak</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2; color: #5C4E43">Brak</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; flex-direction: column; gap: 2px"><span>wczoraj 16:10</span><span style="font-size: 12px; color: #5C4E43">Piotr</span></div>
+</td>
+<td style="padding: 6px 14px 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; gap: 0; flex-wrap: wrap">
+<button type="button" aria-label="Przypisz konia do boksu 3 (Hala główna)" style="min-height: 44px; padding: 0 6px; border: none; border-radius: 10px; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przypisz konia</button>
+<a href="BoksSzczegoly.dc.html" aria-label="Szczegóły boksu 3 (Hala główna)" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; font-size: 14px; font-weight: 600; text-decoration: none; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Szczegóły</a>
+</div>
+</td>
+</tr>
+
+<tr>
+<th scope="row" style="padding: 6px 8px 6px 14px; border-bottom: 1px solid #E0D3C2">
+<span style="width: 36px; height: 36px; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">7</span></span>
+</th>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2; font-weight: 700">Kasztan</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">Anna</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px">
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 3px">
+<span style="display: flex; align-items: center; gap: 4px 8px; flex-wrap: wrap"><span style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: #86301F; color: #FFFCF7; font-size: 13px; font-weight: 700; white-space: nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>Bez śniadania</span><span style="font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap">06:00–10:00</span></span>
+<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #2D523D"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>potwierdzona 06:02</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 3px">
+<span style="display: flex; align-items: center; gap: 4px 8px; flex-wrap: wrap"><span style="display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; border: 1.5px dashed #B9A791; background: #FFFCF7; color: #2E241D; font-size: 13px; font-weight: 700; white-space: nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>Nie na padok</span><span style="font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap">od 14:30</span><span style="font-size: 12px; color: #5C4E43; white-space: nowrap">do 16:00</span></span>
+<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #2D523D"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>potwierdzona 06:02</span>
+</div>
+</div>
+</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; flex-direction: column; gap: 2px"><span>dziś 07:10</span><span style="font-size: 12px; color: #5C4E43">z tabletu</span></div>
+</td>
+<td style="padding: 6px 14px 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; gap: 0; flex-wrap: wrap">
+<a href="SzybkaFlaga.dc.html" aria-label="Flaga dla Kasztana (boks 7 · Hala główna)" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; font-size: 14px; font-weight: 600; text-decoration: none; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Flaga</a>
+<button type="button" aria-label="Przenieś Kasztana z boksu 7 (Hala główna)" style="min-height: 44px; padding: 0 6px; border: none; border-radius: 10px; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przenieś</button>
+<a href="MojBoks.dc.html" aria-label="Szczegóły boksu 7 (Hala główna)" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; font-size: 14px; font-weight: 600; text-decoration: none; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Szczegóły</a>
+</div>
+</td>
+</tr>
+
+<tr>
+<th scope="rowgroup" colspan="6" style="padding: 14px 14px 8px; background: #F3ECE2; border-bottom: 1px solid #E0D3C2; text-align: left">
+<div style="display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; font-weight: 400">
+<span style="font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #2E241D">Hala nowa</span>
+<span style="font-size: 13px; color: #5C4E43">boksy 1–6 · 5 koni · 1 wolny</span>
+<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #5C4E43"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>ul. Polna 3, Konstancin-Jeziorna</span>
+<button type="button" style="margin-left: auto; min-height: 36px; padding: 0 10px; border: none; border-radius: 10px; background: none; font: inherit; font-size: 13px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Edytuj halę</button>
+</div>
+</th>
+</tr>
+
+<tr>
+<th scope="row" style="padding: 6px 8px 6px 14px; border-bottom: 1px solid #E0D3C2">
+<span style="width: 36px; height: 36px; border-radius: 12px; background: #EDE3D5; color: #6B3A1E; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">1</span></span>
+</th>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2; font-weight: 700">Grom</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">Tomasz L.</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2; color: #5C4E43">Brak</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; flex-direction: column; gap: 2px"><span>wczoraj 16:10</span><span style="font-size: 12px; color: #5C4E43">Piotr</span></div>
+</td>
+<td style="padding: 6px 14px 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; gap: 0; flex-wrap: wrap">
+<a href="SzybkaFlaga.dc.html" aria-label="Flaga dla Groma (boks 1 · Hala nowa)" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; font-size: 14px; font-weight: 600; text-decoration: none; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Flaga</a>
+<button type="button" aria-label="Przenieś Groma z boksu 1 (Hala nowa)" style="min-height: 44px; padding: 0 6px; border: none; border-radius: 10px; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przenieś</button>
+<a href="MojBoks.dc.html" aria-label="Szczegóły boksu 1 (Hala nowa)" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; font-size: 14px; font-weight: 600; text-decoration: none; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Szczegóły</a>
+</div>
+</td>
+</tr>
+
+<tr style="background: #FCF4E2">
+<th scope="row" style="padding: 6px 8px 6px 14px; border-bottom: 1px solid #E0D3C2">
+<span style="width: 36px; height: 36px; border-radius: 12px; background: #F6E3B7; color: #664810; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">4</span></span>
+</th>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2; font-weight: 700">Bella</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">Anna</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 3px">
+<span style="display: flex; align-items: center; gap: 4px 8px; flex-wrap: wrap"><span style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: #86301F; color: #FFFCF7; font-size: 13px; font-weight: 700; white-space: nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>Nie na padok</span><span style="font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap">dziś, cały dzień</span></span>
+<span style="font-size: 12px; color: #5C4E43">ustawiona 01:20</span>
+<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #664810"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17v.01"/></svg>niepotwierdzona</span>
+</div>
+</td>
+<td style="padding: 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; flex-direction: column; gap: 2px"><span>wczoraj 17:30</span><span style="font-size: 12px; color: #5C4E43">Ola</span></div>
+</td>
+<td style="padding: 6px 14px 6px 8px; border-bottom: 1px solid #E0D3C2">
+<div style="display: flex; gap: 0; flex-wrap: wrap">
+<a href="SzybkaFlaga.dc.html" aria-label="Flaga dla Belli (boks 4 · Hala nowa)" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; font-size: 14px; font-weight: 600; text-decoration: none; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Flaga</a>
+<button type="button" aria-label="Przenieś Bellę z boksu 4 (Hala nowa)" style="min-height: 44px; padding: 0 6px; border: none; border-radius: 10px; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przenieś</button>
+<a href="MojBoks.dc.html" aria-label="Szczegóły boksu 4 (Hala nowa)" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; font-size: 14px; font-weight: 600; text-decoration: none; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Szczegóły</a>
+</div>
+</td>
+</tr>
+
+<tr>
+<th scope="row" style="padding: 6px 8px 6px 14px">
+<span style="width: 36px; height: 36px; box-sizing: border-box; border-radius: 12px; border: 1px dashed #E0D3C2; background: #F3ECE2; color: #5C4E43; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Boks</span> <span style="font-size: 15px; font-weight: 700">6</span></span>
+</th>
+<td style="padding: 6px 8px"><span style="padding: 2px 8px; border-radius: 999px; background: #EDE3D5; color: #5C4E43; font-size: 12px; font-weight: 700; white-space: nowrap">Wolny</span></td>
+<td style="padding: 6px 8px; color: #5C4E43">Brak</td>
+<td style="padding: 6px 8px; color: #5C4E43">Brak</td>
+<td style="padding: 6px 8px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span>09.10 14:40</span><span style="font-size: 12px; color: #5C4E43">Piotr</span></div>
+</td>
+<td style="padding: 6px 14px 6px 8px">
+<div style="display: flex; gap: 0; flex-wrap: wrap">
+<button type="button" aria-label="Przypisz konia do boksu 6 (Hala nowa)" style="min-height: 44px; padding: 0 6px; border: none; border-radius: 10px; background: none; font: inherit; font-size: 14px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Przypisz konia</button>
+<a href="BoksSzczegoly.dc.html" aria-label="Szczegóły boksu 6 (Hala nowa)" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; font-size: 14px; font-weight: 600; text-decoration: none; color: {{accent}}; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px">Szczegóły</a>
+</div>
+</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+<p style="margin: 0; font-size: 13px; color: #5C4E43">Pokazano 6 z 14 boksów. W boksie stoi najwyżej jeden koń.</p>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px">
+
+<section aria-labelledby="bez-boksu-title" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<h2 id="bez-boksu-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Konie bez boksu</h2>
+<span style="font-size: 13px; color: #5C4E43">wolne boksy: główna 3, nowa 6</span>
+</div>
+<article style="display: flex; flex-direction: column; gap: 12px; padding: 12px; border-radius: 14px; background: #F3ECE2; border: 1px solid #E0D3C2">
+<div style="display: flex; align-items: center; gap: 10px">
+<div aria-hidden="true" style="width: 40px; height: 40px; flex: none; border-radius: 20px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px">L</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<div style="display: flex; align-items: center; gap: 6px">
+<h3 style="margin: 0; font-size: 15px; font-weight: 700; line-height: 20px">Luna</h3>
+<span style="padding: 2px 8px; border-radius: 999px; background: #EDE3D5; color: #5C4E43; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase">Nowy koń</span>
+</div>
+<span style="font-size: 13px; color: #5C4E43">Dodana 12.10 · bez boksu</span>
+<span style="font-size: 13px; color: #5C4E43">Klient: <span style="font-weight: 600; color: #2E241D">Marek Nowak</span> · <span style="font-weight: 600; color: #664810">zaproszenie czeka</span></span>
+</div>
+</div>
+<div style="display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap">
+<label style="flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #5C4E43">
+Wolny boks dla Luny
+<select style="min-height: 44px; box-sizing: border-box; width: 100%; padding: 0 10px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; font: inherit; font-size: 14px; font-weight: 500; color: #2E241D">
+<option value="">Wybierz boks</option>
+<option value="glowna-3">Boks 3 · Hala główna</option>
+<option value="nowa-6">Boks 6 · Hala nowa</option>
+</select>
+</label>
+<button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: none; background: {{accent}}; font: inherit; font-size: 14px; font-weight: 700; color: #FFFCF7; white-space: nowrap">Przypisz boks</button>
+</div>
+</article>
+<p style="margin: 0; font-size: 13px; color: #5C4E43">Koń bez boksu nie pojawia się na tablicy żadnego boksu. Flagi i karmienie Luny obsługa widzi w apce.</p>
+</section>
+
+<section aria-labelledby="przyciski-title" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h2 id="przyciski-title" style="margin: 0; font-size: 16px; font-weight: 700; line-height: 20px">Przyciski obsługi</h2>
+<p style="margin: 0; font-size: 13px; color: #5C4E43">Rutyna bez odhaczania przy każdym koniu. Każdy wpis trafia do historii boksu, którą widzi też klient. Potwierdzenia wymagają tylko flagi, i tylko gdy stajnia ma je włączone w ustawieniach.</p>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+<li style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #E0D3C2">
+<span aria-hidden="true" style="width: 32px; height: 32px; flex: none; border-radius: 10px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l-5 9"/><path d="M7.5 12h9l2 9h-13z"/><path d="M10 16.5V21M14 16.5V21"/></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 15px; font-weight: 600">Ogarnięte</span>
+<span style="font-size: 13px; color: #5C4E43">Jedno tapnięcie na boks: na tablecie albo kilka boksów naraz w apce. Liczy się ostatni wpis.</span>
+</span>
+<span style="flex: none; padding: 2px 8px; border-radius: 999px; background: #EDE3D5; color: #5C4E43; font-size: 12px; font-weight: 700; white-space: nowrap">boks</span>
+</li>
+<li style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #E0D3C2">
+<span aria-hidden="true" style="width: 32px; height: 32px; flex: none; border-radius: 10px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h16l-2 9H6z"/><path d="M8 10V8a4 4 0 0 1 8 0v2"/></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 15px; font-weight: 600">Podano śniadanie · obiad · kolację</span>
+<span style="font-size: 13px; color: #5C4E43">Cała hala naraz (06:30, 12:00, 18:00). Konie z flagą w tym oknie są pomijane i wypisane.</span>
+</span>
+<span style="flex: none; padding: 2px 8px; border-radius: 999px; background: #EDE3D5; color: #5C4E43; font-size: 12px; font-weight: 700; white-space: nowrap">hala</span>
+</li>
+<li style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #E0D3C2">
+<span aria-hidden="true" style="width: 32px; height: 32px; flex: none; border-radius: 10px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V6l2-2 2 2v14M15 20V6l2-2 2 2v14M3 10h18M3 15h18"/></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 15px; font-weight: 600">Wyprowadzono na padok</span>
+<span style="font-size: 13px; color: #5C4E43">Cała hala naraz: konie z planem padoku na teraz, bez flagi „Nie na padok”.</span>
+</span>
+<span style="flex: none; padding: 2px 8px; border-radius: 999px; background: #EDE3D5; color: #5C4E43; font-size: 12px; font-weight: 700; white-space: nowrap">hala</span>
+</li>
+<li style="min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 8px 0">
+<span aria-hidden="true" style="width: 32px; height: 32px; flex: none; border-radius: 10px; background: #EDE3D5; color: #6B3A1E; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3.5 4.5 6 7.7 6 11a6 6 0 0 1-12 0c0-3.3 2.5-6.5 6-11z"/></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 15px; font-weight: 600">Woda</span>
+<span style="font-size: 13px; color: #5C4E43">Tylko w boksie z poidłem ręcznym (ustawienie boksu). Przy automatycznym poidle znacznika wody nie ma.</span>
+</span>
+<span style="flex: none; padding: 2px 8px; border-radius: 999px; background: #EDE3D5; color: #5C4E43; font-size: 12px; font-weight: 700; white-space: nowrap">boks</span>
+</li>
+</ul>
+<p style="margin: 0; padding-top: 10px; border-top: 1px solid #E0D3C2; font-size: 13px; color: #5C4E43">Każdą akcję można cofnąć przez godzinę („Cofnij”). Wpis z tabletu nie ma autora, wpis z apki ma.</p>
+</section>
+
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#8A5230","options":["#8A5230","#665A40","#744A5A","#5E5B40"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#8A5230' };
+}
+}
+</script>
+</body>
+</html>

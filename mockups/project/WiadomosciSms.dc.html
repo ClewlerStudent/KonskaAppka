@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Wiadomości SMS i e-mail</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8A5230}a:hover{color:#6B3A1E}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F3ECE2; color: #2E241D; font-family: Figtree, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="display: flex; align-items: center; gap: 12px; padding: 16px 20px 12px; background: #FFFCF7; border-bottom: 1px solid #E0D3C2">
+<div aria-hidden="true" style="width: 44px; height: 44px; flex: none; border-radius: 22px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 20.5C5.1 18.6 4 15.6 4 12.5a8 8 0 0 1 16 0c0 3.1-1.1 6.1-3 8"/><path d="M5 20.5h3.5M15.5 20.5H19"/><path d="M7.5 9.5v.5M16.5 9.5v.5M6.8 14v.5M17.2 14v.5"/></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h1 style="margin: 0; font-size: 17px; font-weight: 700">EQUENOR</h1>
+<span style="font-size: 13px; color: #5C4E43">Przykładowe SMS-y i e-maile</span>
+</div>
+</header>
+
+<main style="flex: 1; display: flex; flex-direction: column; gap: 28px; padding: 20px 20px 16px; overflow: hidden">
+
+<div role="group" aria-labelledby="sms-title" style="display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; align-items: center; gap: 10px; margin-bottom: -8px"><h2 id="sms-title" style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #5C4E43">SMS</h2><div aria-hidden="true" style="flex: 1; height: 1px; background: #E0D3C2"></div></div>
+
+<section aria-label="Zaproszenie klienta" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 13px">
+<span><strong style="font-weight: 700">Zaproszenie klienta</strong><span style="color: #5C4E43"> · do Marka Nowaka</span></span>
+<span style="color: #5C4E43; white-space: nowrap">pn 12.10 · 10:05</span>
+</div>
+<p style="margin: 0; max-width: 316px; box-sizing: border-box; padding: 10px 14px; border-radius: 16px 16px 16px 4px; background: #FFFCF7; border: 1px solid #E0D3C2; font-size: 15px; line-height: 1.4; color: #2E241D">Stajnia Pod Lipami zaprasza Cię do EQUENOR jako klienta (koń: Luna). Pobierz aplikację: <a href="LogowanieNumer.dc.html" style="color: {{accent}}; text-decoration: underline; text-underline-offset: 2px">[WWW]/app</a> i zaloguj się tym numerem. Ważne do 15.10.</p>
+</section>
+
+<section aria-label="Flaga niepotwierdzona" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 13px">
+<span><strong style="font-weight: 700">Flaga niepotwierdzona</strong><span style="color: #5C4E43"> · do Damiana (admin)</span></span>
+<span style="color: #5C4E43; white-space: nowrap">dziś · 01:21</span>
+</div>
+<p style="margin: 0; max-width: 316px; box-sizing: border-box; padding: 10px 14px; border-radius: 16px 16px 16px 4px; background: #FFFCF7; border: 1px solid #E0D3C2; font-size: 15px; line-height: 1.4; color: #2E241D">EQUENOR: Stajnia Pod Lipami · Bella · Hala nowa · boks 4 · „Nie na padok” niepotwierdzona. Sprawdź tablet albo potwierdź w aplikacji.</p>
+</section>
+
+<section aria-label="Kod logowania" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 13px">
+<span><strong style="font-weight: 700">Kod logowania</strong><span style="color: #5C4E43"> · do Anny</span></span>
+<span style="color: #5C4E43; white-space: nowrap">dziś · 07:14</span>
+</div>
+<p style="margin: 0; align-self: flex-start; max-width: 316px; box-sizing: border-box; padding: 10px 14px; border-radius: 16px 16px 16px 4px; background: #FFFCF7; border: 1px solid #E0D3C2; font-size: 15px; line-height: 1.4; color: #2E241D">Kod EQUENOR: 482913</p>
+</section>
+</div>
+
+<div role="group" aria-labelledby="email-title" style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 10px"><h2 id="email-title" style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #5C4E43">E-mail</h2><div aria-hidden="true" style="flex: 1; height: 1px; background: #E0D3C2"></div></div>
+
+<section aria-label="Zaproszenie konta technicznego, e-mail" style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 13px">
+<span><strong style="font-weight: 700">Zaproszenie konta technicznego</strong></span>
+<span style="color: #5C4E43; white-space: nowrap">wt 08.09 · 09:30</span>
+</div>
+<div style="box-sizing: border-box; padding: 10px 14px 12px; border-radius: 16px; background: #FFFCF7; border: 1px solid #E0D3C2; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; flex-direction: column; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid #E0D3C2">
+<span style="font-size: 13px; color: #5C4E43">Od: <strong style="font-weight: 600; color: #2E241D">EQUENOR</strong> · Do: b•••@stajnielipowe.pl</span>
+<span style="font-size: 15px; font-weight: 700; line-height: 1.35">Zaproszenie do Stajni Pod Lipami</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.4; color: #2E241D; text-wrap: pretty">Stajnia Pod Lipami zaprasza konto techniczne „Tablety Pod Lipami” do EQUENOR. Rola: Tablet przy boksie. Zaloguj się tym adresem e-mail na tablecie. Ważne do 15.09.</p>
+</div>
+</section>
+</div>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#8A5230","options":["#8A5230","#665A40","#744A5A","#5E5B40"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#8A5230' };
+}
+}
+</script>
+</body>
+</html>

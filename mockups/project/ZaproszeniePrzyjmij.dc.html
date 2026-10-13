@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Przyjmij zaproszenie</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8A5230}a:hover{color:#6B3A1E}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F3ECE2; color: #2E241D; font-family: Figtree, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 56px 20px 8px; text-align: center">
+<div aria-hidden="true" style="width: 60px; height: 60px; border-radius: 30px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 20.5C5.1 18.6 4 15.6 4 12.5a8 8 0 0 1 16 0c0 3.1-1.1 6.1-3 8"/><path d="M5 20.5h3.5M15.5 20.5H19"/><path d="M7.5 9.5v.5M16.5 9.5v.5M6.8 14v.5M17.2 14v.5"/></svg>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 4px">
+<span style="font-size: 28px; font-weight: 700; line-height: 1; color: #2E241D; white-space: nowrap"><span style="letter-spacing: 0.16em; margin-right: -0.16em; font-weight: 700">EQUENOR</span></span>
+<span lang="en" style="font-size: 14px; font-weight: 500; line-height: 1.15; color: #5C4E43">Equestrian Management, Refined</span>
+</div>
+</header>
+
+<main style="flex: 1; display: flex; flex-direction: column; gap: 18px; padding: 24px 20px 8px">
+<h1 style="margin: 0; font-size: 24px; font-weight: 700; line-height: 1.25">Masz zaproszenie</h1>
+
+<article aria-label="Zaproszenie od Stajni Pod Lipami" style="background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)">
+<div style="display: flex; align-items: center; gap: 12px">
+<div aria-hidden="true" style="width: 48px; height: 48px; flex: none; border-radius: 24px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10l8-6 8 6v10H4z"/><path d="M9 20v-6h6v6"/></svg>
+</div>
+<span style="flex: 1; font-size: 17px; font-weight: 700">Stajnia Pod Lipami</span>
+</div>
+<dl style="margin: 0; padding-top: 10px; border-top: 1px solid #E0D3C2; display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 6px; font-size: 14px; line-height: 1.35">
+<dt style="color: #5C4E43">Rola</dt>
+<dd style="margin: 0; font-weight: 600">Klient</dd>
+<dt style="color: #5C4E43">Koń</dt>
+<dd style="margin: 0; font-weight: 600">Luna <span style="font-weight: 400; color: #5C4E43">· jeszcze bez boksu</span></dd>
+<dt style="color: #5C4E43">Zaprosił</dt>
+<dd style="margin: 0; font-weight: 600">Damian <span style="font-weight: 400; color: #5C4E43">(admin)</span></dd>
+<dt style="color: #5C4E43">Ważne do</dt>
+<dd style="margin: 0; font-weight: 600; font-variant-numeric: tabular-nums">czw 15.10</dd>
+</dl>
+</article>
+
+<form style="margin: 0; display: flex; flex-direction: column; gap: 14px" aria-labelledby="o-tobie">
+<h2 id="o-tobie" style="margin: 0; font-size: 16px; font-weight: 700">O Tobie</h2>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="imie" style="font-size: 14px; font-weight: 600">Imię i nazwisko</label>
+<input id="imie" type="text" autocomplete="name" required value="Marek Nowak" style="height: 48px; box-sizing: border-box; border: 1px solid #907D6A; border-radius: 12px; background: #FFFCF7; color: #2E241D; font: inherit; font-size: 16px; font-weight: 600; padding: 0 14px">
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span id="jezyk-label" style="font-size: 14px; font-weight: 600">Język aplikacji</span>
+<div role="group" aria-labelledby="jezyk-label" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; background: #EDE3D5; border-radius: 12px; padding: 3px">
+<button type="button" aria-pressed="true" lang="pl" style="min-height: 44px; border: 1px solid #907D6A; border-radius: 10px; background: #FFFCF7; color: {{accent}}; font: inherit; font-size: 14px; font-weight: 700">Polski</button>
+<button type="button" aria-pressed="false" lang="uk" style="min-height: 44px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #5C4E43; font: inherit; font-size: 14px; font-weight: 600">Українська</button>
+<button type="button" aria-pressed="false" lang="en" style="min-height: 44px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #5C4E43; font: inherit; font-size: 14px; font-weight: 600">English</button>
+</div>
+</div>
+
+<a href="MainLuna.dc.html" style="min-height: 52px; border-radius: 14px; background: {{accent}}; color: #FFFCF7; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 700">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+Przyjmij zaproszenie</a>
+</form>
+
+<div style="margin-top: auto; display: flex; flex-direction: column; align-items: center">
+<a style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 4px; font-size: 13px; font-weight: 600; color: {{accent}}; text-decoration: underline; text-underline-offset: 2px; cursor: pointer">Polityka prywatności</a>
+<a href="LogowanieNumer.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 8px; font-size: 14px; font-weight: 600; text-decoration: none">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/></svg>
+To nie moje konto · Wyloguj</a>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#8A5230","options":["#8A5230","#665A40","#744A5A","#5E5B40"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#8A5230' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Witaj w EQUENOR</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8A5230}a:hover{color:#6B3A1E}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 900px; box-sizing: border-box; background: #F3ECE2; color: #2E241D; font-family: Figtree, system-ui, sans-serif; line-height: 1.3; display: flex; flex-direction: column">
+
+<header style="background: #FFFCF7; border-bottom: 1px solid #E0D3C2">
+<div style="max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 14px; min-height: 44px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.01em; color: #2E241D"><span style="letter-spacing: 0.16em; font-weight: 700">EQUENOR</span></span>
+</div>
+<div style="display: flex; align-items: center; gap: 14px">
+<span style="font-size: 14px; color: #5C4E43">Zalogowano: <strong style="color: #2E241D; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap">+48 602 *** 145</strong></span>
+<a href="PanelLogowanie.dc.html" style="min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; color: #2E241D; text-decoration: none; font-size: 14px; font-weight: 600">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M14 16l4-4-4-4"/><path d="M18 12H9"/></svg>
+Wyloguj</a>
+</div>
+</div>
+</header>
+
+<main style="flex: 1; width: 100%; max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 24px 20px 64px; display: flex; align-items: center; justify-content: center">
+
+<section aria-labelledby="witaj-title" style="width: 100%; max-width: 480px; box-sizing: border-box; background: #FFFCF7; border: 1px solid #E0D3C2; border-radius: 20px; box-shadow: 0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14); padding: 32px; display: flex; flex-direction: column; gap: 28px">
+
+<div style="display: flex; align-items: center; gap: 16px">
+<div aria-hidden="true" style="width: 56px; height: 56px; flex: none; border-radius: 28px; background: #EDE3D5; color: #5C4E43; display: flex; align-items: center; justify-content: center">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 20.5C5.1 18.6 4 15.6 4 12.5a8 8 0 0 1 16 0c0 3.1-1.1 6.1-3 8"/><path d="M5 20.5h3.5M15.5 20.5H19"/><path d="M7.5 9.5v.5M16.5 9.5v.5M6.8 14v.5M17.2 14v.5"/></svg>
+</div>
+<h1 id="witaj-title" style="margin: 0; font-size: 26px; font-weight: 700; line-height: 32px">Witaj w EQUENOR</h1>
+</div>
+
+<form style="margin: 0; display: flex; flex-direction: column; gap: 20px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">
+<span>Imię <span aria-hidden="true" style="color: #86301F">*</span></span>
+<input type="text" value="Damian" required autocomplete="given-name" style="min-height: 48px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 1px solid #907D6A; background: #FFFCF7; font: inherit; font-size: 16px; font-weight: 400; color: #2E241D">
+</label>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span id="jezyk-label" style="font-size: 14px; font-weight: 600">Język aplikacji</span>
+<div role="group" aria-labelledby="jezyk-label" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; background: #EDE3D5; border-radius: 12px; padding: 3px">
+<button type="button" aria-pressed="true" lang="pl" style="min-height: 44px; border: 1px solid #907D6A; border-radius: 10px; background: #FFFCF7; color: {{accent}}; font: inherit; font-size: 14px; font-weight: 700">Polski</button>
+<button type="button" aria-pressed="false" lang="uk" style="min-height: 44px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #5C4E43; font: inherit; font-size: 14px; font-weight: 600">Українська</button>
+<button type="button" aria-pressed="false" lang="en" style="min-height: 44px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #5C4E43; font: inherit; font-size: 14px; font-weight: 600">English</button>
+</div>
+</div>
+
+<a href="PanelRejestracjaFirmy.dc.html" style="margin-top: 4px; min-height: 52px; border-radius: 14px; background: {{accent}}; color: #FFFCF7; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 700">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+Załóż konto firmy</a>
+</form>
+
+</section>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#8A5230","options":["#8A5230","#665A40","#744A5A","#5E5B40"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#8A5230' };
+}
+}
+</script>
+</body>
+</html>
