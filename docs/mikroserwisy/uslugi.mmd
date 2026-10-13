@@ -1,0 +1,59 @@
+%%{init: {"flowchart": {"curve": "basis", "nodeSpacing": 60, "rankSpacing": 80, "wrappingWidth": 420}, "themeVariables": {"fontSize": "16px"}}}%%
+flowchart TB
+    subgraph K["Aplikacje"]
+        direction TB
+        apka["Apka mobilna<br/>Admin konta, Obsługa,<br/>Instruktor, Klient"]
+        panel["Panel web<br/>Admin konta, Wyświetlacz (TV)"]
+        tablet["Tablet przy boksie<br/>konto techniczne Tablet"]
+        ops["Panel ops i opctl<br/>admin globalny EQUENOR<br/>osobny host"]
+    end
+
+    subgraph C["AWS Cognito: tylko uwierzytelnia"]
+        direction TB
+        pk["Pula klientów<br/>kod SMS albo e-mail"]
+        pz["Pula zespołu EQUENOR<br/>passkey albo hasło + TOTP"]
+    end
+
+    AUTH["<b>auth: JEDYNY serwis autoryzacyjny</b><br/>tożsamość, firmy, ludzie, zaproszenia,<br/>macierz widoczności, role platformowe<br/>wydaje i podpisuje tokeny, JWKS,<br/>sesje, lista unieważnień"]
+    KMS["AWS KMS<br/>klucz podpisu ES256"]
+
+    subgraph S["12 serwisów: weryfikują podpis lokalnie, nie pytają auth o uprawnienia"]
+        direction LR
+        s1["<b>Dane stajni</b><br/>stable · board · flags · care<br/>health · rides · tasks"]
+        s2["<b>Konto i platforma</b><br/>billing · releases · audit"]
+        nf["<b>notifications</b><br/>/internal, historia wysyłek"]
+        fl["<b>files</b><br/>/internal, metadane dla plt"]
+    end
+
+    CR["9 cronów<br/>token serwisowy od auth"]
+    DB[("PostgreSQL: schematy app i audit<br/>tabele uprawnień czyta tylko auth")]
+    EV[["SNS + SQS<br/>zdarzenia po COMMIT"]]
+    S3[("S3<br/>pliki")]
+
+    K -- "1. logowanie" --> C
+    K -- "2. wymiana ID tokenu,<br/>odświeżanie" --> AUTH
+    AUTH -.->|"klucze publiczne Cognito,<br/>Admin API: wylogowanie, usuwanie kont"| C
+    AUTH -- "podpis" --> KMS
+    K ==>|"3. żądania<br/>z tokenem<br/>EQUENOR"| S
+    AUTH -.->|"w tle: JWKS,<br/>unieważnienia,<br/>tokeny serwisowe"| S
+    AUTH -.->|"adresy odbiorców<br/>(pobiera notifications)"| nf
+    AUTH <-.->|"token serwisowy;<br/>/internal auth"| CR
+    CR -- "/internal" --> S
+    CR -.->|"odczyt"| DB
+    AUTH --> DB
+    S --> DB
+    AUTH <--> EV
+    EV <--> S
+    fl --> S3
+
+    classDef authc fill:#fde2e4,stroke:#c0392b,stroke-width:2px,color:#000
+    classDef svc fill:#e3f0fb,stroke:#2f6fa7,color:#000
+    classDef cli fill:#eef7e8,stroke:#4f8a3a,color:#000
+    classDef ext fill:#f4f4f4,stroke:#777,color:#000
+    class AUTH authc
+    class s1,s2,nf,fl svc
+    class apka,panel,tablet,ops cli
+    class pk,pz,KMS,DB,EV,S3,CR ext
+    style K fill:#fbfdf9,stroke:#4f8a3a
+    style S fill:#f7fbff,stroke:#2f6fa7
+    style C fill:#fafafa,stroke:#777

@@ -9,6 +9,7 @@ przy każdym boksie z aktualnymi instrukcjami (karmienie, padok, weterynarz) i p
 
 - [Architektura i analiza techniczna](docs/analiza.md)
 - [Model danych (ERD) do zatwierdzenia](docs/erd.md)
+- [Rozpiska mikroserwisów: jeden serwis autoryzacyjny, admin globalny](docs/mikroserwisy.md)
 - [Paleta kolorów](docs/paleta.md)
 - [Development, testy i zakupy](docs/development.md) (pełna wersja ze źródłami: [szczegóły](docs/development-szczegoly.md))
 - [Makiety (kanwas)](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX)
