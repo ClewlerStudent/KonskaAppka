@@ -15,7 +15,7 @@
 - **„Itd. itp.”:** cele martwych linków i stany wymagane przez dokumenty i testy.
 - **Poza zakresem:** zmiany układu zaakceptowanych makiet (tylko linki, 3.H; wyjątek: poprawki z decyzji 13.10, np. boksy w PanelDodajHale, macierz z kolumną Tablet zamiast Wsparcia IT), pliki *BezAkcji (poza PanelUstawieniaBezAkcji, dec. 19), parowanie i rejestr urządzeń z analiza.md v3. W Stajni Brzozowej tylko pozycje z tabeli 2.2.
 
-## Na start: pierwsza fala (26 plansz)
+## Na start: pierwsza fala (29 plansz)
 
 Prośba dotyczyła rejestracji i ekranów głównych, więc zaczynamy od ścieżek, które pokazują je od początku do końca. Reszta P1 (stany, flagi, codzienna praca) idzie kolejnymi paczkami z sekcji 4.
 
@@ -85,7 +85,7 @@ Rozstrzygnięte 13.10.2026: dec. 1, 2, 3, 4, 7 (e-mail; potem hasło z kodem MFA
 - **Flagi:** status „potwierdzona HH:MM” albo „niepotwierdzona” (nigdy „przyjęte”), tylko przy `requires_ack`, inaczej „obowiązuje od razu”; godziny „06:00–10:00”, „od 14:30”, „16:00–08:00”, „dziś, cały dzień”. „Przyjęte” wolno tylko przy zaproszeniach.
 - **Akcje:** „Boks gotowy”, „Podano śniadanie / obiad / kolację”, „Wyprowadzono na padok”, „Woda” tylko przy poidle ręcznym. Bez „Najemca”, „Serwisant”, „Właściciel konia” jako roli, „Nakarmiony”, „Czyszczenie”, „Ścielenie”; „Siano” tylko jako pasza; znak „EQUENOR” zawsze wersalikami, a w zdaniach nieodmienny („w EQUENOR”, „do EQUENOR”); hasło „Equestrian Management, Refined” tylko pod znakiem (zasady: paleta.md).
 - **Boks:** przy kilku halach „Hala nowa · boks 4”, w wąskich listach „Nowa 4”; w Brzozowej „boks 1”; formularze wysyłają `boxId`.
-- **Logowanie** (apka, panel, tablet, TV; dec. 7, W6–W9): pierwszy ekran: przełącznik segmentowy „Telefon | E-mail” w stylu „Kanał: SMS | E-mail” z Zaproszenie (tablet: „TELEFON | E-MAIL”, e-ink), pole kontaktu, „Hasło” i link „Nie pamiętam hasła”; potem zawsze krok MFA, czyli obecne ekrany z kodem („Kod wysłaliśmy na …”, 6 pól, „Wyślij kod ponownie”). Rejestracja: kontakt, hasło, imię, język, „Załóż konto” → potwierdzenie kodem → logowanie (bez automatycznego logowania). Reset hasła: kontakt → kod i nowe hasło. Bez dopisków, także bez reguł hasła pod polem (błąd dopiero po wpisaniu). Bez TOTP i passkey. Zaproszenia SMS-em albo e-mailem.
+- **Logowanie** (apka, panel, tablet, TV; dec. 7, W6–W9): pierwszy ekran: przełącznik segmentowy „Telefon | E-mail” w stylu „Kanał: SMS | E-mail” z Zaproszenie (tablet: „TELEFON | E-MAIL”, e-ink), pole kontaktu, „Hasło” i link „Nie pamiętam hasła”; potem zawsze krok MFA, czyli obecne ekrany z kodem („Kod wysłaliśmy na …”, 6 pól, „Wyślij kod ponownie”, który wraca do pierwszego ekranu z wpisanym kontaktem, bo aplikacja nie trzyma hasła; mikroserwisy.md 3.1). Rejestracja: kontakt, hasło, imię, język, „Załóż konto” → potwierdzenie kodem → logowanie (bez automatycznego logowania). Reset hasła: kontakt → kod i nowe hasło. Bez dopisków, także bez reguł hasła pod polem (błąd dopiero po wpisaniu). Bez TOTP i passkey. Zaproszenia SMS-em albo e-mailem.
 - **Teksty, bez objaśnień w UI** (dec. 38): tylko etykiety, wartości, przyciski i komunikaty stanu potrzebne do działania. Bez komentarzy objaśniających, dopisków pod polami, wstępów i instrukcji (np. „Wybór zapisze się…”, „Boks zmienisz potem…”, „tylko ten tablet”, „nie widać na tablicy”, „Zmienisz to później w Ustawieniach”). Wyjątek: zdanie, bez którego ekran jest niezrozumiały, i skutki w dialogu potwierdzenia. Po usunięciu tekstu układ się domyka, bez pustych miejsc. Zasada ma pierwszeństwo przed cytatami w opisach plansz.
 - **NIP** (dec. 38): zwykłe pole „NIP” w PanelRejestracjaFirmy, bez tłumaczenia. Nigdzie zdań typu „konto firmy z NIP-em”, „potem podasz NIP”, „NIP podajesz raz…”, „Jedno konto na jeden NIP…”; jedyny tekst o NIP-ie to błąd „Ten NIP ma już konto w EQUENOR”.
 - **Brak dostępu** (dec. 38): bez „Czekasz na zaproszenie?”, próśb „poproś admina…” i pokazywania numeru w takim kontekście. Zaproszona osoba po zalogowaniu po prostu ma dostęp (zaproszenie dopasowuje się samo, bez „Przyjmij”, dec. 4); bez dostępu: „Brak dostępu do stajni” i „Zaloguj się innym kontem”.
@@ -253,7 +253,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 - Stany: po pierwszej fladze „Bez kolacji · dziś 17:00–20:00 · niepotwierdzona” (okno: propozycja, szcz. §5 pkt 27); po przypisaniu do Hala nowa · boks 6 (A-04) karta jak u Kasztana, historia od dnia przypisania, bez Wichra; Historia przed przypisaniem: pusta, „Luna · bez boksu”.
 
 **Profil** · apka, wszystkie role · 390×960 · P1 · dec. 12, 33 · erd pkt 2, 6; szcz. 2.1, 2.7, 2.8, 3.3 auth, 4.2, T-23; analiza 8.5
-- Treść: Ola z paskiem obsługi; H1 „Profil”; „Ty”: Ola („Zmień”), „+48 607 *** 218” ze „Zmień numer”, „Hasło” ze „Zmień hasło”, „Kod logowania: SMS | E-mail” (tylko przy obu potwierdzonych kontaktach); „Język aplikacji”: Polski | Українська | English; „Moje stajnie”: Stajnia Pod Lipami · Obsługa (✓), Stajnia Brzozowa · Obsługa; „Sesja”: „Wyloguj”, „Wyloguj ze wszystkich urządzeń” (bez dopisku; tabletów nie dotyka, bo mają konto techniczne, dec. 12), „Usuń konto” (tekst destrukcyjny); polityka prywatności, wersja.
+- Treść: Ola z paskiem obsługi; H1 „Profil”; „Ty”: Ola („Zmień”), „+48 607 *** 218” ze „Zmień numer”, „Hasło” ze „Zmień hasło” (stan ProfilZmianaNumeru), „Kod logowania: SMS | E-mail” (tylko przy obu potwierdzonych kontaktach); „Język aplikacji”: Polski | Українська | English; „Moje stajnie”: Stajnia Pod Lipami · Obsługa (✓), Stajnia Brzozowa · Obsługa; „Sesja”: „Wyloguj”, „Wyloguj ze wszystkich urządzeń” (bez dopisku; tabletów nie dotyka, bo mają konto techniczne, dec. 12), „Usuń konto” (tekst destrukcyjny); polityka prywatności, wersja.
 - Stany: Anna (pasek klienta); ● **ProfilAdmin** (Damian): „Zarządzanie stajnią · w panelu web” (Pulpit, Konie, Ustawienia stajni, Płatności „Subskrypcja aktywna”), „Usuń konto” zablokowane z „Jesteś jedynym adminem konta firmy”; dialog „Wyloguj ze wszystkich urządzeń?”; dialog usunięcia „Twoje dane osobowe zostaną usunięte, a wpisy w historii stajni zostaną bez nazwiska.” (`DELETE /me`).
 
 **PrzelacznikStajni** · apka, arkusz nad Main · 390×844 · P1 · dec. 21 · szcz. 3.3 auth, stables, 4.2, A-17
@@ -267,9 +267,9 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 **LudzieAdmin** · apka admina · 390×960 · P2 · jak PanelLudzie
 - Treść: Damian; H1 „Ludzie”, „+ Zaproś osobę”, chipy Wszyscy · Obsługa · Klienci · Inne; grupy jak PanelLudzie; konta techniczne („Telewizor korytarz · konto techniczne · Wyświetlacz”, „Tablety Pod Lipami · konto techniczne · Tablet”) bez akcji (zarządza nimi panel); „Zaproszenia”.
 
-**ProfilZmianaNumeru** · apka · 390×844 · P2 · erd pkt 6; szcz. 4.2
-- Treść: nowy numer, kod SMS na nowy numer, „Zmień numer”; bez dopisków (dec. 38).
-- Stany: zły kod; numer należy do innego konta.
+**ProfilZmianaNumeru** · apka · 390×844 · P2 · erd pkt 6; szcz. 4.2; mikroserwisy.md 5.2
+- Treść: nowy numer i „Hasło”, „Dalej”; potem dwa pola kodu: z SMS-a na nowy numer i kod MFA („Kod wysłaliśmy na …”, dotychczasowy kanał), „Zmień numer”; bez dopisków (dec. 38).
+- Stany: złe hasło; zły kod; numer należy do innego konta; „Zmień hasło” z Profil: „Obecne hasło”, potem kod MFA i „Nowe hasło”, „Zapisz hasło” (StanyApka).
 
 **StronaUsunKonto** · www w telefonie · 390×844 · P2 · szcz. 2.1; analiza 8.5; erd pkt 6
 - Treść (wymóg Google Play, wyjątek od 2.3): „Usuń konto EQUENOR”: co usuwamy (dane osobowe, konto logowania), co zostaje (wpisy w historii stajni bez nazwiska); kroki: apka → Profil → Usuń konto; kontakt [E-MAIL]; formularz: numer albo e-mail, hasło i kod (propozycja).
@@ -577,7 +577,7 @@ Jedyny spis linków. **L1** wykonujemy po paczkach P1, **L2** po P2, **L3** po P
 **L1: podmiany w istniejących plikach po P1**
 - **Wszystkie paski apki:** „Profil” → Profil (u admina ProfilAdmin).
 - **Dzwonek** (dec. 22 a): usunąć w apce (BoksyAdmin, Main, MainBrzozowa, MojBoks, StatusFlagi, Zaproszenie) i w panelu (PanelBoksy, PanelDodajHale, PanelPlatnosci, PanelUstawieniaStajni, PanelUstawieniaBrzozowa).
-- **Logowanie:** „Zmień numer” → LogowanieNumer; „Zaloguj się” → start według MapaNawigacjiRol (w makiecie Main). „Numerem lub e-mailem” zostaje (dec. 7); link TOTP znika (W9), a „Kod jest ważny 10 minut” zależy od sesji logowania (propozycja 5 min).
+- **Logowanie:** „Zmień numer” → LogowanieNumer; „Zaloguj się” → start według MapaNawigacjiRol (w makiecie Main). dopisek „Masz zaproszenie?…” znika (dec. 38); link TOTP znika (W9), a „Kod jest ważny 10 minut” zależy od sesji logowania (propozycja 5 min).
 - **Admin w apce (BoksyAdmin, Zaproszenie):** pasek Dziś | Boksy | Zadania | Ludzie | Profil (dec. 17); nazwa stajni z ▾ → PrzelacznikStajni (Damian ma 2 stajnie, dec. 21); przełącznik „Kanał: SMS | E-mail” w Zaproszenie zostaje (dec. 7), a z listy ról w Zaproszenie znika Wsparcie IT (dec. 19); BoksyAdmin „Szczegóły” wolnego Hala główna · boks 3 → BoksSzczegoly (tymczasowo, makieta boksu 6).
 - **Przełącznik stajni w apce** (Main, ListaDnia, MainBrzozowa, ListaDniaBrzozowa) → PrzelacznikStajni. W panelu „▾” zostaje (dec. 21).
 - **Obsługa:** ListaDnia „Zaznacz boksy” → ListaDniaGotoweBoksy i nowa linia „Poidło ręczne · Hala nowa · boks 5 · woda 06:55” → BoksSzczegolyWoda (dec. 26; BoksyAdmin nie ma wiersza tego boksu); StajennyKonie „Plan” → EdycjaPlanuKonia, „Flaga” i kafelki → SzybkaFlagaObsluga.
