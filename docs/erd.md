@@ -1,11 +1,14 @@
 # EQUENOR: model danych (ERD) do zatwierdzenia
 
-> Wersja robocza v3 · 2026-10-13, po feedbacku ze stajni i uwagach z 13.10. Podział na mikroserwisy i autoryzację opisuje [mikroserwisy.md](mikroserwisy.md); przy sprzeczności obowiązuje tamten dokument. Uwzględnia decyzje:
+> Wersja robocza v3 · 2026-10-13, po feedbacku ze stajni, uwagach z 13.10 i decyzjach W3–W5. Podział na mikroserwisy i autoryzację opisuje [mikroserwisy.md](mikroserwisy.md); przy sprzeczności obowiązuje tamten dokument. Uwzględnia decyzje:
 > - wyłącznie B2B: konto firmy z NIP (`businesses`, 1 konto = 1 NIP), NIP podaje się raz, przy rejestracji; admin konta ma dostęp do wszystkich stajni firmy;
-> - każdy moduł i każdy cron to osobny mikroserwis w monorepo;
+> - 11 mikroserwisów w monorepo (decyzja 13.10: `dzien`, `terminarz`, `platform`, osobny `files`), a każdy cron to osobny mikroserwis;
+> - **crony piszą do bazy bezpośrednio** (W3), bez tokenów i bez wołania serwisów;
 > - płatności (serwis `billing`);
-> - Cognito tylko uwierzytelnia (OTP przez SMS albo e-mail i TOTP z RFC 6238; zespół EQUENOR: passkey albo hasło z TOTP); tokeny, sesje i uprawnienia wydaje wyłącznie serwis `auth`, a pozostałe serwisy tylko weryfikują podpis tokenu (wymaganie z 13.10);
-> - pliki w S3;
+> - Cognito tylko uwierzytelnia (OTP przez SMS albo e-mail i TOTP z RFC 6238; zespół EQUENOR: passkey albo hasło z TOTP); tokeny i uprawnienia wydaje wyłącznie serwis `auth`, a pozostałe serwisy tylko weryfikują podpis tokenu (W2);
+> - **bez tabel sesji** (W4): access token i refresh token to JWT podpisane przez `auth`, nigdzie niezapisywane;
+> - **SMS-y i e-maile wysyłają niezależne serwisy `sms` i `email`** bez tabel i dostępu do bazy; wszystko dostają z kolejki (W5);
+> - pliki w S3, które obsługuje tylko serwis `files`;
 > - koń i boks w relacji 0..1 do 0..1 (koń może stać bez boksu, boks bez konia);
 > - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
 > - tablet loguje się kontem technicznym z rolą Tablet (jedno na stajnię, propozycja), nie kontem osoby; boks wybiera się na tablecie przyciskiem „Zmień boks”, a wybór jest zapamiętany na tablecie (bez blokady i bez tabeli urządzeń); język tablicy też ustawia się na każdym tablecie osobno;
@@ -18,7 +21,7 @@
 > - zakładanie stajni w 2 krokach: stajnia (z konfiguracją każdego boksu), potem powiadomienia;
 > - role: Admin to rola konta firmy (wszystkie stajnie firmy); w stajni: Klient (właściciel albo dzierżawca konia), Obsługa, Instruktor oraz konta techniczne z rolą Wyświetlacz albo Tablet; Wsparcie IT to zespół EQUENOR, nie rola stajni; admin globalny (zespół EQUENOR) ma dostęp do każdej firmy, stajni i serwisu (wymaganie z 13.10);
 > - konto firmy → stajnie → hale → boksy (`businesses`);
-> - sesje w serwisie `auth` (`auth_sessions`, każdy tablet ma własną), bez tabeli urządzeń (propozycja).
+> - bez tabeli urządzeń i bez sesji tabletów w bazie (W4).
 
 ## Do zatwierdzenia
 
@@ -31,14 +34,14 @@
    - Każda zmiana zamyka i otwiera wpisy w `horse_box_history`. Unikalne indeksy pilnują, żeby otwarty był najwyżej jeden wpis na konia i jeden na boks.
    - Relacji pilnuje baza kluczem obcym i unikalnością, bez logiki w bazie.
 2. **Tablet: konto techniczne tabletów i wybór boksu, bez tabeli urządzeń.**
-   - Tablet loguje się kontem technicznym z rolą `tablet` w `stable_members` (pkt 14), nie kontem osoby. Propozycja: jedno konto tabletów na stajnię, np. „Tablety Pod Lipami” z e-mailem boksy@stajnielipowe.pl. Zaprasza je admin przez „Zaproś osobę” → „Konto techniczne: Tablet przy boksie” (`invitations.role = tablet`), a loguje się jak każde konto (pkt 6): przy pierwszym logowaniu od razu wybór boksu, potem tablica boksu; przy zapamiętanym boksie od razu tablica. Samo urządzenie nie ma wiersza w bazie; ma tylko własną sesję w serwisie `auth` (`auth_sessions`).
+   - Tablet loguje się kontem technicznym z rolą `tablet` w `stable_members` (pkt 14), nie kontem osoby. Propozycja: jedno konto tabletów na stajnię, np. „Tablety Pod Lipami” z e-mailem boksy@stajnielipowe.pl. Zaprasza je admin przez „Zaproś osobę” → „Konto techniczne: Tablet przy boksie” (`invitations.role = tablet`), a loguje się jak każde konto (pkt 6): przy pierwszym logowaniu od razu wybór boksu, potem tablica boksu; przy zapamiętanym boksie od razu tablica. Samo urządzenie nie ma wiersza w bazie, a sesji w bazie nie ma wcale (W4): tablet trzyma refresh token (JWT od `auth`) w Android Keystore.
    - Jedno konto tabletów jest zalogowane na wszystkich tabletach stajni naraz.
    - Tablet pokazuje jeden boks. Wybrany boks zapamiętuje apka na tablecie. Serwer o tym wyborze nie wie, a jeden boks może być pokazywany na kilku tabletach.
    - Nie ma blokady boksu. Na tablicy jest przycisk „Zmień boks”, który otwiera listę boksów stajni konta tabletów pogrupowaną po halach. Stuknięcie w boks od razu przełącza tablet. Bez wyboru tablet po 30 s wraca do poprzedniego boksu.
    - Konto tabletów należy do jednej stajni, więc tablet nie wybiera stajni (bez osobnego ekranu wyboru stajni i bez przełącznika stajni): od razu po pierwszym zalogowaniu wybiera się boks.
    - **Język tablicy to ustawienie lokalne tabletu**, tak jak wybrany boks: ustawia się go w ustawieniach tabletu, osobno na każdym tablecie, a przełącznik PL | UA w stopce tablicy zostaje. Wybór zapamiętuje apka na tablecie i wysyła go w zapytaniu do `board` (propozycja). Bez tabeli i bez języków na poziomie stajni. Tłumaczenia nazw (np. pory posiłków po ukraińsku) to opcjonalne etykiety `*_labels` z `locale`; gdy etykiety w danym języku nie ma, tablica pokazuje nazwę po polsku (propozycja).
    - Tablica boksu nie pokazuje, kto jest zalogowany. Logowanie i wylogowanie są w ustawieniach tabletu.
-   - Wylogowanie osoby, także ze wszystkich urządzeń, nie dotyka tabletów. Zgubiony tablet: `auth` może unieważnić tylko jego sesję, a pozostałe tablety działają dalej (propozycja; czy admin dostaje do tego listę sesji w panelu, do decyzji: mikroserwisy.md 10.2 pkt 8). Gdy nie wiadomo, która sesja to zgubiony tablet, admin blokuje konto tabletów w Ludziach („Zablokuj”, pkt 14), potem je odblokowuje i loguje pozostałe tablety ponownie kodem; zgubiony tablet bez nowego kodu nie wraca (propozycja).
+   - Wylogowanie osoby, także ze wszystkich urządzeń, nie dotyka tabletów. Zgubiony tablet: jednego tabletu nie da się odłączyć, bo to wymagałoby sesji w bazie (W4). Admin klika w Ludziach przy koncie tabletów „Wyloguj wszystkie tablety” (podbija `users.token_version` tego konta) albo blokuje konto („Zablokuj”, pkt 14). W ciągu 5 min wszystkie tablety stajni tracą dostęp, a pozostałe loguje się ponownie kodem; zgubiony tablet bez nowego kodu nie wraca (propozycja).
    - Na tablecie jest zalogowane konto techniczne, a nie osoba, więc akcji z tabletu (potwierdzenie flagi, „Boks gotowy”, „Woda” przy poidle ręcznym, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu) nie przypisujemy nikomu. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
    - Status flagi to tylko „potwierdzona” (z godziną) albo „niepotwierdzona”. Tak pokazują go apka, panel, tablet i wyświetlacz. Dotyczy to stajni, która wymaga potwierdzeń (pkt 16). W stajni bez potwierdzeń flaga obowiązuje od razu i nie ma statusu. Nie śledzimy, czy flaga wyświetliła się na tablecie, ani tego, czy tablet działa. Skąd przyszło potwierdzenie (`flag_acknowledgements.method`, `box_id`), zostaje tylko w danych do audytu.
    - **Blokada ekranu (dotyku).**
@@ -47,7 +50,7 @@
      - Pop-up nowej flagi (tylko w stajni z potwierdzeniami) pojawia się mimo blokady; żeby ją potwierdzić, trzeba odblokować ekran.
      - Blokada sama zdejmuje się po 10 minutach (propozycja), żeby tablet nie został zablokowany na stałe.
      - Stan trzyma tylko tablet, bez tabel. To blokada dotyku, a nie blokada boksu (tej nie ma).
-   - Bez tabeli urządzeń nie ma zdalnych komend, telemetrii (bateria, Wi-Fi) ani listy tabletów w panelu (lista sesji konta tabletów w `auth`: do decyzji, mikroserwisy.md 10.2 pkt 8). Diagnostyka tabletów, jeśli będzie potrzebna, trafia do logów i metryk, nie do bazy.
+   - Bez tabeli urządzeń i bez sesji w bazie nie ma zdalnych komend, telemetrii (bateria, Wi-Fi) ani listy tabletów i sesji w panelu. Diagnostyka tabletów, jeśli będzie potrzebna, trafia do logów i metryk, nie do bazy.
    - Założenia do potwierdzenia:
      - na tablecie jest zalogowane jedno konto naraz (pilnuje apka);
      - boks może zmienić każdy, kto stoi przy tablecie;
@@ -77,7 +80,7 @@
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Wygasłe zaproszenie nie dopasowuje się (pkt 6), a admin może wysłać nowe.
 4. **Wyświetlacz centralny (TV z Raspberry Pi).**
    - Telewizor z Raspberry Pi otwiera w przeglądarce, w trybie kiosku, zwykłą stronę logowania panelu web, bez osobnego adresu. Strona nie wie, że to telewizor: po zalogowaniu kontem z rolą `display` panel sam pokazuje widok tablicy (wszystkie boksy), bo tak każe rola (routing po roli). Strona sama odpytuje serwer co kilka sekund, tak jak tablet.
-   - Wyświetlacz loguje się kontem technicznym z rolą `display` w `stable_members`: numerem telefonu albo e-mailem i kodem z SMS-a albo e-maila, tak jak każde konto (pkt 6). Konto zaprasza admin przez „Zaproś osobę” → „Konto techniczne: Wyświetlacz” (`invitations.role = display`). Bez osobnego ekranu logowania, adresu technicznego do kodu i formularza wyświetlacza. Sesję podtrzymuje serwis `auth` (do 365 dni, propozycja), a admin blokuje konto w Ludziach („Zablokuj”, pkt 14).
+   - Wyświetlacz loguje się kontem technicznym z rolą `display` w `stable_members`: numerem telefonu albo e-mailem i kodem z SMS-a albo e-maila, tak jak każde konto (pkt 6). Konto zaprasza admin przez „Zaproś osobę” → „Konto techniczne: Wyświetlacz” (`invitations.role = display`). Bez osobnego ekranu logowania, adresu technicznego do kodu i formularza wyświetlacza. Zalogowanie podtrzymuje refresh token (JWT od `auth` w ciasteczku `HttpOnly`, bez sesji w bazie, W4): 30 dni bezczynności, najwyżej 365 dni (propozycja). Admin blokuje konto w Ludziach („Zablokuj”, pkt 14).
    - Rola `display` daje tylko odczyt widoku wszystkich boksów: konie, flagi, posiłki, zdarzenia przy boksie. Bez danych osobowych (telefony, e-maile) i bez zapisu.
    - Przy kilku halach strona pokazuje wszystkie hale, każdą w osobnej sekcji.
    - Każda sekcja hali ma przycisk „Pełny ekran”. Hala zajmuje wtedy cały ekran, większymi kaflami, a pasek pilnych flag i panel boczny pokazują tylko tę halę. Przycisk „Wszystkie hale” wraca do widoku wszystkich.
@@ -86,20 +89,20 @@
    - Gdy boksów jest dużo, strona zmniejsza kafle do wersji skróconej (numer, koń, flaga, posiłki). Jeśli dalej się nie mieszczą, przełącza strony co 20 s. Pasek pilnych flag zostaje zawsze na górze. W widoku wszystkich hal obejmuje wszystkie hale, a na pełnym ekranie tylko tę halę.
    - Nie potrzeba nowych tabel.
 5. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
-   - Każda tabela ma jeden serwis-właściciela (tabela niżej). Tylko właściciel do niej pisze; pozostałe serwisy mogą ją czytać.
-   - Wyjątek (13.10, propozycja): tabele uprawnień i sesji serwisu `auth` (`business_admins`, `stable_members`, `horse_access`, `invitations`, `stable_role_features`, `platform_roles`, `platform_requests`, `auth_sessions`, `auth_revocations`, `signing_keys`) czyta tylko `auth`. Z `users` inne serwisy widzą tylko `id`, `display_name`, `locale`, `identity_pool` i `deleted_at` (grant kolumnowy), a `businesses` czytają `stable` i `billing`. Kim jest użytkownik i co może, serwisy wiedzą z podpisanego tokenu (mikroserwisy.md, sekcja 1).
+   - Każda tabela ma jeden serwis-właściciela (tabela niżej). Piszą do niej właściciel i crony, którym manifest `packages/db/owners.ts` daje zapis do tej tabeli (W3, sekcja „Crony”); pozostałe serwisy mogą ją czytać. `sms` i `email` nie mają roli bazy (W5).
+   - Wyjątek (13.10, propozycja): tabele uprawnień serwisu `auth` (`business_admins`, `stable_members`, `horse_access`, `invitations`, `stable_role_features`, `platform_roles`, `platform_requests`, `signing_keys`) czyta tylko `auth`. Crony mają do nich tylko wąskie granty, które nie są autoryzacją (W2 zostaje): `invitation-expiry-notifier` czyta `invitations`, `horse-left-reconciler` ustawia `horse_access.revoked_at`, `retention-pruner` usuwa stare `platform_requests`. Z `users` inne serwisy widzą tylko `id`, `display_name`, `locale`, `identity_pool` i `deleted_at` (grant kolumnowy), a `businesses` czytają `stable` i `billing`. Kim jest użytkownik i co może, serwisy wiedzą z podpisanego tokenu (mikroserwisy.md, sekcja 1).
    - Klucze obce są normalne, także między tabelami różnych serwisów.
    - Dzięki temu nie ma replik ani synchronizacji danych między serwisami. Na przykład `board` składa stan tablicy, czytając wprost konie, flagi i plany karmienia.
    - Serwisy czytają te same tabele, więc mają jeden schemat `app`. Definicja tabel i migracje leżą w jednym pakiecie monorepo (`packages/db`), a serwisy importują z niego typy tabel.
    - Audit jest w osobnym schemacie `audit` (`audit_log`, `audit_log_changes`), bez kluczy obcych do `app`.
-     - Każdy serwis dopisuje wpis audytu w tej samej transakcji co zmiana, więc nie da się zmienić danych bez śladu i nie potrzeba do tego kolejki.
-     - Role bazy serwisów mają w schemacie `audit` tylko `INSERT`, bez odczytu, zmiany i usuwania.
-     - Czytać i sprzątać po okresie retencji może tylko serwis `audit`.
+     - Każdy serwis i każdy cron dopisuje wpis audytu w tej samej transakcji co zmiana (cron z `actor_type = system`), więc nie da się zmienić danych bez śladu i nie potrzeba do tego kolejki.
+     - Role bazy serwisów i cronów mają w schemacie `audit` tylko `INSERT`, bez odczytu, zmiany i usuwania.
+     - Czytać może tylko serwis `platform`, a po okresie retencji usuwa cron `retention-pruner` (decyzja 13.10; dotąd sprzątał serwis `audit`).
    - Koszt: zmiana kolumny czytanej przez inne serwisy musi być zgodna wstecz (najpierw dodać, potem usunąć).
 6. **Tożsamość: Cognito uwierzytelnia, `auth` wydaje tokeny.**
    - `users.cognito_sub` wiąże nasz profil z kontem w puli Cognito. Pule są dwie: klientów i zespołu EQUENOR (`users.identity_pool`, propozycja).
-   - Kody OTP (SMS, e-mail, TOTP) trzyma Cognito; konta klientów nie mają hasła. Cognito jest też źródłem prawdy dla telefonu i e-maila, a `users` trzyma ich kopię do powiadomień (kontakty zna tylko `auth`).
-   - Sesje i tokeny wydaje serwis `auth` (wymaganie z 13.10: jeden serwis autoryzacyjny): aplikacja zaraz po logowaniu wymienia ID token Cognito na token EQUENOR (JWT podpisany kluczem w AWS KMS, ważny 5–15 min) i refresh token EQUENOR. Pozostałe serwisy weryfikują podpis lokalnie i czytają role z tokenu (propozycja, mikroserwisy.md, sekcja 3).
+   - Kody OTP (SMS, e-mail, TOTP) trzyma i wysyła Cognito, nie serwisy `sms` i `email`; konta klientów nie mają hasła. Cognito jest też źródłem prawdy dla telefonu i e-maila, a `users` trzyma ich kopię do powiadomień (kontakty zna tylko `auth`).
+   - Tokeny wydaje serwis `auth` (W2: jeden serwis autoryzacyjny): aplikacja zaraz po logowaniu wymienia ID token Cognito na access token EQUENOR (JWT ES256 podpisany kluczem w AWS KMS, ważny 5 min) i refresh token EQUENOR (też JWT od `auth`, z `sid`, początkiem sesji i `users.token_version`). Sesji w bazie nie ma (W4): przy odświeżeniu `auth` sprawdza we własnych tabelach konto, `token_version`, aktywność konta technicznego i rolę platformową i liczy claimy od nowa. Pozostałe serwisy weryfikują podpis lokalnie i czytają role z tokenu (propozycja, mikroserwisy.md, sekcja 3).
    - Logowanie numerem telefonu albo e-mailem, bez hasła: kod jednorazowy przychodzi SMS-em albo e-mailem. Zaproszenie idzie na numer telefonu (SMS) albo na e-mail (`invitations.channel`).
    - Serwis `auth` tworzy wiersz `users` przy pierwszej wymianie tokenu (upsert po `identity_pool` i `cognito_sub`).
    - Usunięcie konta to pseudonimizacja w `users` i usunięcie konta w Cognito.
@@ -108,7 +111,8 @@
    - Rejestracja konta firmy to pierwsze logowanie (telefon albo e-mail i kod) i formularz z NIP-em (pkt 15).
 7. **Pliki w S3.**
    - `files` trzyma metadane, `s3_key` (z prefiksem `stable_id/`) i właściciela (`owner_service`, `owner_id`).
-   - Link do pobrania wydaje tylko serwis-właściciel po sprawdzeniu uprawnień. Na przykład `health` sprawdza widoczność wpisu i dostęp do konia (z tokenu), a dopiero potem prosi `files` o krótko ważny presigned URL.
+   - S3 dotyka tylko serwis `files` (osobny mikroserwis, decyzja 13.10) i jego cron `files-gc`. Inne serwisy zapisują i pobierają pliki przez `files /internal`.
+   - Link do pobrania wydaje tylko serwis-właściciel po sprawdzeniu uprawnień. Na przykład `terminarz` sprawdza widoczność wpisu i dostęp do konia (z tokenu), a dopiero potem prosi `files` o krótko ważny presigned URL.
 8. **Bez WebSocketów.**
    - Tablet sam regularnie, co kilka sekund, pyta serwis `board` o stan wybranego boksu. Serwer nie trzyma żadnego stanu tablic.
    - `board` nie ma własnych tabel: przy każdym zapytaniu składa odpowiedź z danych w bazie. `ETag` to hash odpowiedzi, więc gdy nic się nie zmieniło, tablet dostaje `304`.
