@@ -1,5 +1,5 @@
 # Replaces the tablet "BOKS" section with three quick-action buttons:
-# Ogarnięte (this box), meal served and paddock out (whole hall). Tablet palette only (t-*).
+# Boks gotowy (this box), meal served and paddock out (whole hall). Tablet palette only (t-*).
 import re, sys
 ICO = {
  'broom': '<path d="M18 3l-5 8"/><path d="M8 11h8l1.5 10h-11z"/><path d="M10.5 15v6M13.5 15v6"/>',
@@ -24,9 +24,9 @@ def button(icon, title, status, note, done, scope, locked):
 </button>'''
 
 def section(locked):
-    hint = 'dotyk wyłączony do odblokowania' if locked else 'ogarnięte: ten boks · posiłek i padok: cała hala'
+    hint = 'dotyk wyłączony do odblokowania' if locked else 'boks gotowy: ten boks · posiłek i padok: cała hala'
     btns = ''.join([
-        button('broom', 'OGARNIĘTE', 'dziś 07:10', 'ten boks', True, 'ten boks', locked),
+        button('broom', 'BOKS GOTOWY', 'dziś 07:10', 'ten boks', True, 'ten boks', locked),
         button('bowl', 'ŚNIADANIE', 'podane 06:40', 'potem obiad 12:00', True, 'cała hala', locked),
         button('fence', 'PADOK', 'B 10:00–14:30', 'z Falą i Rumbą', False, 'cała hala', locked),
     ])

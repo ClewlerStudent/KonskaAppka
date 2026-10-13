@@ -12,7 +12,7 @@
 > - telewizor loguje się w zwykłym panelu kontem technicznym z rolą Wyświetlacz; widok tablicy wynika z roli;
 > - stajnia może mieć kilka hal z boksami (`buildings`), każda z własnym adresem;
 > - status flagi to tylko „potwierdzona” albo „niepotwierdzona” (w stajni, która wymaga potwierdzeń), bez śledzenia wyświetleń na tablecie;
-> - boks jako kontener: obsługa zapisuje „Ogarnięte” jednym tapnięciem, a posiłki i padok jedną akcją dla całej hali; klient widzi boks swojego konia;
+> - boks jako kontener: obsługa zapisuje „Boks gotowy” jednym tapnięciem, a posiłki i padok jedną akcją dla całej hali; klient widzi boks swojego konia;
 > - flagi mają godziny od–do i tylko one mogą wymagać potwierdzenia obsługi; czy wymagają, zależy od ustawień stajni;
 > - ustawienia per stajnia: usługi (np. derki, moczenie paszy, szybkie przyciski), potwierdzenia flag, widoczność per rola i powiadomienia;
 > - zakładanie stajni w 2 krokach: stajnia (z konfiguracją każdego boksu), potem powiadomienia;
@@ -39,7 +39,7 @@
    - **Język tablicy to ustawienie lokalne tabletu**, tak jak wybrany boks: ustawia się go w ustawieniach tabletu, osobno na każdym tablecie, a przełącznik PL | UA w stopce tablicy zostaje. Wybór zapamiętuje apka na tablecie i wysyła go w zapytaniu do `board` (propozycja). Bez tabeli i bez języków na poziomie stajni. Tłumaczenia nazw (np. pory posiłków po ukraińsku) to opcjonalne etykiety `*_labels` z `locale`; gdy etykiety w danym języku nie ma, tablica pokazuje nazwę po polsku (propozycja).
    - Tablica boksu nie pokazuje, kto jest zalogowany. Logowanie i wylogowanie są w ustawieniach tabletu.
    - Wylogowanie osoby, także ze wszystkich urządzeń, nie dotyka tabletów. Zgubiony tablet: admin blokuje konto tabletów w Ludziach („Zablokuj”, pkt 14), potem je odblokowuje i loguje pozostałe tablety ponownie kodem; zgubiony tablet bez nowego kodu nie wraca (propozycja).
-   - Na tablecie jest zalogowane konto techniczne, a nie osoba, więc akcji z tabletu (potwierdzenie flagi, „Ogarnięte”, „Woda” przy poidle ręcznym, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu) nie przypisujemy nikomu. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
+   - Na tablecie jest zalogowane konto techniczne, a nie osoba, więc akcji z tabletu (potwierdzenie flagi, „Boks gotowy”, „Woda” przy poidle ręcznym, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu) nie przypisujemy nikomu. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
    - Status flagi to tylko „potwierdzona” (z godziną) albo „niepotwierdzona”. Tak pokazują go apka, panel, tablet i wyświetlacz. Dotyczy to stajni, która wymaga potwierdzeń (pkt 16). W stajni bez potwierdzeń flaga obowiązuje od razu i nie ma statusu. Nie śledzimy, czy flaga wyświetliła się na tablecie, ani tego, czy tablet działa. Skąd przyszło potwierdzenie (`flag_acknowledgements.method`, `box_id`), zostaje tylko w danych do audytu.
    - **Blokada ekranu (dotyku).**
      - Ekran jest dotykowy, więc przycisk „Zablokuj ekran” (kłódka) włącza blokadę na czas mycia albo wycierania tabletu.
@@ -55,10 +55,10 @@
      - po wylogowaniu tablet pamięta wybrany boks i język i wraca do nich po kolejnym logowaniu.
 3. **Boks jako kontener, rutyna obsługi i widok klienta.**
    - Boks ma tylko podstawowe dane. Codzienna rutyna obsługi to trzy szybkie akcje, żeby było jak najmniej klikania:
-     - **„Ogarnięte”** (sprzątanie i ścielenie razem): per boks, jedno tapnięcie na tablecie przy boksie albo zaznaczenie kilku boksów w apce i jeden zapis. Wpis trafia do `box_care_events` (`kind = tidy`). Boks ogarnia się codziennie, czasem 2–3 razy dziennie, więc wpisów może być kilka, a „Ogarnięte dziś 07:10” to najnowszy.
+     - **„Boks gotowy”** (sprzątanie i ścielenie razem): per boks, jedno tapnięcie na tablecie przy boksie albo zaznaczenie kilku boksów w apce i jeden zapis. Wpis trafia do `box_care_events` (`kind = tidy`). Boks ogarnia się codziennie, czasem 2–3 razy dziennie, więc wpisów może być kilka, a „Boks gotowy dziś 07:10” to najnowszy.
      - **„Podano śniadanie”** (tak samo obiad, kolację i każdą porę ze słownika `meal_slots`, np. „Siano 21:00”): jedna akcja dla całej hali w `building_routines` (`kind = meal_served`), z apki obsługi albo z tabletu przy dowolnym boksie tej hali. Etykieta przycisku idzie za porą posiłku. Koń z flagą, która wstrzymuje ten posiłek w jego godzinie, jest pomijany i wypisany jako pominięty. Nie ma potwierdzania karmienia per koń.
      - **„Wyprowadzono na padok”**: jedna akcja dla całej hali (`kind = paddock_out`), też z apki albo z tabletu. Obejmuje konie z planem padoku na teraz i pomija konie z flagą „Nie na padok” obowiązującą w tym czasie.
-     - Zasada spójności: gdzie pokazujemy, kiedy coś zrobiono (posiłek, padok, ogarnięcie), obsługa ma też przycisk, żeby to zapisać. Tablet przy boksie ma więc trzy szybkie akcje: „Ogarnięte” (ten boks), posiłek i padok (cała hala), o ile stajnia ich nie wyłączyła (pkt 16). Klient i wyświetlacz tylko je oglądają.
+     - Zasada spójności: gdzie pokazujemy, kiedy coś zrobiono (posiłek, padok, sprzątanie boksu), obsługa ma też przycisk, żeby to zapisać. Tablet przy boksie ma więc trzy szybkie akcje: „Boks gotowy” (ten boks), posiłek i padok (cała hala), o ile stajnia ich nie wyłączyła (pkt 16). Klient i wyświetlacz tylko je oglądają.
      - Każdą akcję można cofnąć przez godzinę od zapisu (`cancelled_at`, propozycja), np. gdy ktoś stuknął niewłaściwą halę. Z tabletu akcja nie ma autora, z apki ma.
    - **Poidło to ustawienie boksu** (`boxes.auto_waterer`). Ustawia je admin już przy tworzeniu boksów (pkt 11) albo później w szczegółach boksu. Formularz podpowiada poidło automatyczne (wartość nadaje kod).
      - Przy automatycznym poidle znacznik wody nie wyświetla się nigdzie, bo zawsze jest w porządku.
@@ -188,11 +188,11 @@
        - zakładanie derek, czyli flaga „Derka” (`flag_templates.active` szablonu `derka`);
        - moczenie paszy, czyli „namoczyć” i ile (`stable_settings.soak_enabled`);
        - pozostałe flagi, każda osobno (`flag_templates.active`);
-       - szybkie przyciski obsługi: „Ogarnięte” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`). „Woda” zależy od poidła boksu (pkt 3);
+       - szybkie przyciski obsługi: „Boks gotowy” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`). „Woda” zależy od poidła boksu (pkt 3);
      - **Widoczność per rola** (`stable_role_features`): admin zaznacza, co widzą role `client`, `staff`, `instructor`, `tablet` i `display`. Funkcje to stała lista (sekcja „Słowniki”). Admin widzi wszystko. `tasks` i `box_history` nie dotyczą tabletu, bo tablet nie pokazuje zadań (pkt 13) ani historii (pkt 3): w macierzy te pola tabletu są nieaktywne, a w `stable_role_features` nie ma dla nich wierszy roli `tablet`.
      - **Powiadomienia** (`notification_rules`): które zdarzenia, do kogo i jakim kanałem; ustawia się je w drugim kroku zakładania stajni (pkt 17).
    - **Wyłączona opcja znika:** kafelek flagi, „namoczyć”, przycisk albo sekcja nie pokazują się klientowi, obsłudze, na tablecie ani na wyświetlaczu. Zgodnie z zasadą spójności z pkt 3 znika też stan tego, czego nie da się zapisać.
-     - Wyłączony szybki przycisk znika razem ze stanem wykonania, np. „Ogarnięte dziś 07:10”, „podane 06:40” albo „Wyprowadzono na padok wczoraj 10:05”. Plan karmienia zostaje, bo to osobna funkcja (widoczność `feeding_plan`), a godziny posiłków zostają jako plan dnia (np. „Następny posiłek: obiad 12:00”).
+     - Wyłączony szybki przycisk znika razem ze stanem wykonania, np. „Boks gotowy dziś 07:10”, „podane 06:40” albo „Wyprowadzono na padok wczoraj 10:05”. Plan karmienia zostaje, bo to osobna funkcja (widoczność `feeding_plan`), a godziny posiłków zostają jako plan dnia (np. „Następny posiłek: obiad 12:00”).
      - Wyłączony „Padok” chowa też plan padoku (godziny i towarzyszy) wszędzie: na tablecie, wyświetlaczu i w apce (lista koni, karta konia), bo stajnia nie prowadzi wtedy padoków w aplikacji. Flaga „Nie na padok” zostaje, jeśli jest włączona; podpowiada wtedy okno „dziś, cały dzień” (propozycja).
      - „Woda” przy poidle ręcznym zostaje, bo nie ma przełącznika (pkt 3). Sekcja „Szybkie akcje” na tablecie znika, gdy nie ma w niej żadnego przycisku; w boksie z poidłem ręcznym zostaje z samą „Wodą”.
    - Zmiana działa przy najbliższym odpytaniu (apka, tablet, wyświetlacz). Wpisy już zapisane zostają w „Historii” (apka, panel web), ale „Ostatnie akcje” na tablecie i wyświetlaczu oraz „Ostatnio” w apce pomijają zdarzenia wyłączonych przycisków, bo to też stan wykonania.
@@ -213,7 +213,7 @@
 ## Otwarte kwestie
 
 1. **Model karmienia:** pudełko (porcja przygotowana wcześniej), namaczanie (co, w ilu litrach wody, jak długo), ile. Dziś jest tylko „namoczyć” i ile przy pozycji planu karmienia.
-2. **Ekran dotykowy z blokadą czy zaprogramowany fizyczny przycisk przy boksie.** Dziś tablet ma blokadę dotyku na czas mycia (pkt 2). Alternatywą jest fizyczny przycisk, np. „Ogarnięte”, zamiast dotyku.
+2. **Ekran dotykowy z blokadą czy zaprogramowany fizyczny przycisk przy boksie.** Dziś tablet ma blokadę dotyku na czas mycia (pkt 2). Alternatywą jest fizyczny przycisk, np. „Boks gotowy”, zamiast dotyku.
 3. **Płatności, faktury, KSeF:** czy to nie za dużo na PoC. Na razie bez rozbudowy: model `billing` zostaje jak jest, na poziomie stajni, a NIP pochodzi z konta firmy (pkt 10). Kto płaci: stajnia (osobna subskrypcja i faktura za każdą stajnię, jak dziś) czy konto firmy (jedna subskrypcja i faktura na NIP za wszystkie stajnie)?
 
 ## Zasady wspólne
@@ -336,7 +336,7 @@ erDiagram
         boolean rides_enabled
         boolean flags_require_ack "Flagi wymagają potwierdzenia"
         boolean soak_enabled "moczenie paszy"
-        boolean tidy_enabled "przycisk Ogarnięte"
+        boolean tidy_enabled "przycisk Boks gotowy"
         boolean meal_served_enabled "przycisk posiłku"
         boolean paddock_out_enabled "przycisk padoku"
         time maintenance_from "okno instalacji APK"
@@ -555,7 +555,7 @@ erDiagram
         uuid id PK "z klienta"
         uuid stable_id FK "stables"
         uuid box_id FK "boxes"
-        text kind "tidy: Ogarnięte | water: tylko poidło ręczne"
+        text kind "tidy: Boks gotowy | water: tylko poidło ręczne"
         timestamptz occurred_at
         uuid user_id FK "users; NULL, gdy z tabletu"
         text source "tablet | app"
@@ -922,7 +922,7 @@ erDiagram
 
 ## Słowniki wartości
 
-- `box_care_events.kind`: `tidy` („Ogarnięte”, czyli sprzątanie i ścielenie razem) i `water` („Woda”, tylko w boksie z poidłem ręcznym, `boxes.auto_waterer = false`). Siana i karmy nie odnotowujemy.
+- `box_care_events.kind`: `tidy` („Boks gotowy”, czyli sprzątanie i ścielenie razem) i `water` („Woda”, tylko w boksie z poidłem ręcznym, `boxes.auto_waterer = false`). Siana i karmy nie odnotowujemy.
 - `building_routines.kind`: `meal_served` („Podano śniadanie / obiad / kolację”, z `meal_slot_id`), `paddock_out` („Wyprowadzono na padok”).
 - `flag_templates`: domyślne szablony wstawiane przez kod: `bez_sniadania`, `bez_kolacji`, `nie_na_padok`, `derka` (warianty `on` = zakładać, `off` = nie zakładać), `leki`, `wet`. Admin może dodać własne.
 - `stable_role_features.feature` (stała lista na PoC): `flags` (flagi i kafelki), `feeding_plan` (plan karmienia), `routine` (szybkie akcje i ich stan), `box_history` (historia boksu), `tasks` (zadania), `health` (wizyty i zdrowie), `rides` (jazdy).
@@ -952,7 +952,7 @@ erDiagram
   - nie ma tabel urządzeń (`devices`, `device_boxes`, `device_presence`, komendy, alerty): wybrany boks jest zapamiętany na tablecie, bez blokady, a sesje są w Cognito;
 - **Hale:** tekstowe `boxes.building` zastępuje tabela `buildings` (z adresem hali) i klucz `boxes.building_id`.
 - **Feedback ze stajni:**
-  - rutyna obsługi to szybkie akcje: „Ogarnięte” per boks (`box_care_events.kind = tidy`) oraz posiłek i padok dla całej hali (`building_routines`). Odpadają `feeding_checks` (karmienie per koń), `box_care_types` i `box_care_type_labels` (osobne czyszczenie, ścielenie, siano i karma); woda zostaje tylko dla boksów z poidłem ręcznym (`boxes.auto_waterer`);
+  - rutyna obsługi to szybkie akcje: „Boks gotowy” per boks (`box_care_events.kind = tidy`) oraz posiłek i padok dla całej hali (`building_routines`). Odpadają `feeding_checks` (karmienie per koń), `box_care_types` i `box_care_type_labels` (osobne czyszczenie, ścielenie, siano i karma); woda zostaje tylko dla boksów z poidłem ręcznym (`boxes.auto_waterer`);
   - flagi mają wymagane godziny od–do i wariant (`horse_flags.variant`, flaga „Derka”); `feeding_plan_items` dostaje „namoczyć” i ile;
   - jedna rola Klient zamiast właściciela konia i najemcy miejsca: odpada `box_access`, a `invitations` traci `box_id` i `access_role`; „serwisant” to teraz Wsparcie IT, zespół EQUENOR poza rolami stajni;
   - zadania są jednorazowe: odpadają `task_occurrences` i cron `task-occurrence-generator`;

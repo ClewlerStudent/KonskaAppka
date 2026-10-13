@@ -10,7 +10,7 @@ def svg(n):
     return (f'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" '
             f'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{ICO[n]}</svg>')
 ROWS = [
-    ('2026-10-13T07:10', '07:10', 'broom', 'Ogarnięte', ''),
+    ('2026-10-13T07:10', '07:10', 'broom', 'Boks gotowy', ''),
     ('2026-10-13T06:40', '06:40', 'bowl', 'Podano śniadanie · <strong>bez Kasztana</strong>: flaga', 'Ola'),
     ('2026-10-13T06:02', '06:02', 'check', 'Potwierdzono flagę <strong>„Bez śniadania”</strong>', ''),
     ('2026-10-13T06:02', '06:02', 'check', 'Potwierdzono flagę <strong>„Nie na padok”</strong>', ''),

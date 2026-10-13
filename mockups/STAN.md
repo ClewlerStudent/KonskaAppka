@@ -10,7 +10,7 @@ Narzędzia: `mockups/tools/` (render przez puppeteer: `render.cjs`, `render-full
 - Komentarze z kanwy (N1–N15): telewizor i tablety jako konta techniczne (zwykłe logowanie, od razu swój widok), bez ekranu wyboru stajni na tablecie, Wsparcie IT jako zespół EQUENOR, bez objaśnień w UI, bez tłumaczenia NIP-u, bez „Czekasz na zaproszenie?”, strona www jako sama prezentacja (bez bloga).
 
 ## Do zrobienia
-1. „Ogarnięte” → „Boks gotowy” (N16): skrypt `tools/gotowy.py` (makiety, kanwa, generator, docs), potem sprawdzić przyciski tabletu i kafle TV.
+0. Zrobione 13.10: „Ogarnięte” → „Boks gotowy” (N16) w makietach, kanwie, generatorze i docs.
 2. Dokończyć recenzję grup, które przerwał limit: mapa, tablet, ustawienia, apka (verify/fix) i krytyk całości.
 3. Opublikować kanwę (usunięte plansze: TabletWyborStajni, StronaWpis, WsparcieITStart).
 4. Odpowiedzieć i rozwiązać 15 wątków komentarzy na kanwie.

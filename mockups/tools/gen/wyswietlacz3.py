@@ -56,7 +56,7 @@ def tile(no, name=None, av='sand', flag=None, later=None, clean='', paddock='', 
 <span style="min-width: 40px; height: 40px; box-sizing: border-box; padding: 0 8px; border-radius: 12px; border: 1px dashed #D9CBB9; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700">{no}</span>
 <span style="font-size: 20px; font-weight: 700">Wolny</span>
 </div>
-<span style="margin-top: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 15px">{svg('broom', 17)}Ogarnięte {clean}</span>
+<span style="margin-top: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 15px">{svg('broom', 17)}Boks gotowy {clean}</span>
 </article>'''
     bg, fg = AV[av]
     if state == 'critical':
@@ -93,7 +93,7 @@ def tile(no, name=None, av='sand', flag=None, later=None, clean='', paddock='', 
 {later_html}
 {extra_html}
 <div style="margin-top: auto; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 14px; color: #6B5C50">
-<span style="display: inline-flex; align-items: center; gap: 5px">{svg('broom', 16)}Ogarnięte {clean}</span>
+<span style="display: inline-flex; align-items: center; gap: 5px">{svg('broom', 16)}Boks gotowy {clean}</span>
 <span style="display: inline-flex; align-items: center; gap: 5px">{svg(pad_icon, 16)}{paddock}</span>
 </div>
 </article>'''
@@ -314,9 +314,9 @@ main_all = (
     + section('Hala nowa', 'boksy 1–6 · 5 koni · 1 wolny', [('1 niepotwierdzona', WARN), ('✓ Śniadanie 06:50', OKC), ('Padok 10:00', NEU)], hall_new_c, btn=hall_btn('Pełny ekran', 'expand', 'WyswietlaczHala.dc.html'))
 )
 acts_all = ''.join([
-    act('07:14', 'Ogarnięte · nowa 5', ''),
-    act('07:12', 'Ogarnięte · nowa 3', ''),
-    act('07:10', 'Ogarnięte · główna 7', ''),
+    act('07:14', 'Boks gotowy · nowa 5', ''),
+    act('07:12', 'Boks gotowy · nowa 3', ''),
+    act('07:10', 'Boks gotowy · główna 7', ''),
 ])
 tasks_all = ''.join([
     task('Poidło w boksie 5 do wymiany', 'Hala nowa · do wzięcia'),
@@ -340,9 +340,9 @@ timeline_hall = ''.join([
     tl('18:00', 'hay', 'Kolacja', '5 koni'),
 ])
 acts_hall = ''.join([
-    act('07:14', 'Ogarnięte · boks 5', ''),
-    act('07:12', 'Ogarnięte · boks 3', ''),
-    act('06:58', 'Ogarnięte · boks 2', ''),
+    act('07:14', 'Boks gotowy · boks 5', ''),
+    act('07:12', 'Boks gotowy · boks 3', ''),
+    act('06:58', 'Boks gotowy · boks 2', ''),
     act('06:50', 'Podano śniadanie', ''),
 ])
 other = f'''<section aria-labelledby="inne-t" style="{card}">

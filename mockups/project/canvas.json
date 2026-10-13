@@ -226,7 +226,7 @@
   "PanelUstawieniaBezAkcji.dc.html": {
    "expand": "fill",
    "h": 900,
-   "title": "Bez przycisków: panel web, ustawienia stajni (Ogarnięte, posiłek, padok wyłączone)",
+   "title": "Bez przycisków: panel web, ustawienia stajni (Boks gotowy, posiłek, padok wyłączone)",
    "w": 1440,
    "x": 0,
    "y": 9636
@@ -466,7 +466,7 @@
   "bezakcji_rules": {
    "fill": "orange",
    "size": 24,
-   "text": "Przyciski obsługi wyłączone (Ustawienia stajni → Usługi):\n• te same konie i flagi co w Pod Lipami, wt 13.10 07:15,\n• znika przycisk i stan wykonania: „Ogarnięte HH:MM”, „podane 06:40”, „Wyprowadzono na padok”,\n• wyłączony padok chowa też plan padoku; flaga „Nie na padok” zostaje,\n• zostają flagi z potwierdzeniami, plan karmienia z NAMOCZYĆ, godziny posiłków i zadania,\n• „Woda” nie ma przełącznika: zostaje przy poidle ręcznym (Hala nowa · boks 5),\n• historia i ostatnie akcje: tylko flagi (i woda).\n• zablokowany tablet, wyświetlacz wszystkich hal i szczegóły boksu wyglądają w tym wariancie tak samo; linki z wariantu prowadzą do ich pełnej wersji.",
+   "text": "Przyciski obsługi wyłączone (Ustawienia stajni → Usługi):\n• te same konie i flagi co w Pod Lipami, wt 13.10 07:15,\n• znika przycisk i stan wykonania: „Boks gotowy HH:MM”, „podane 06:40”, „Wyprowadzono na padok”,\n• wyłączony padok chowa też plan padoku; flaga „Nie na padok” zostaje,\n• zostają flagi z potwierdzeniami, plan karmienia z NAMOCZYĆ, godziny posiłków i zadania,\n• „Woda” nie ma przełącznika: zostaje przy poidle ręcznym (Hala nowa · boks 5),\n• historia i ostatnie akcje: tylko flagi (i woda).\n• zablokowany tablet, wyświetlacz wszystkich hal i szczegóły boksu wyglądają w tym wariancie tak samo; linki z wariantu prowadzą do ich pełnej wersji.",
    "w": 360,
    "x": 3132,
    "y": 8236
@@ -594,7 +594,7 @@
   "routine_rules": {
    "fill": "orange",
    "size": 24,
-   "text": "Rutyna obsługi: jak najmniej klikania:\n• „Ogarnięte” (sprzątanie + ścielenie): 1 tapnięcie na boks,\n• „Podano śniadanie” i „Wyprowadzono na padok”: 1 tapnięcie na całą halę; konie z flagą są pominięte i wypisane,\n• te same przyciski są na tablecie przy boksie (sekcja „Szybkie akcje”): gdzie pokazujemy, kiedy coś zrobiono, tam obsługa może to zapisać,\n• poidło to ustawienie boksu: przy automatycznym nie ma znacznika wody; boks z poidłem ręcznym ma znacznik „Poidło ręczne” i akcję „Woda”,\n• bez karmienia per koń,\n• każdą akcję można cofnąć przez godzinę,\n• zadania są jednorazowe: dodaje admin, stajenny bierze („Biorę”) i oznacza „Zrobione”.\n• które przyciski są w stajni, ustawia admin w „Ustawieniach stajni”.",
+   "text": "Rutyna obsługi: jak najmniej klikania:\n• „Boks gotowy” (sprzątanie + ścielenie): 1 tapnięcie na boks,\n• „Podano śniadanie” i „Wyprowadzono na padok”: 1 tapnięcie na całą halę; konie z flagą są pominięte i wypisane,\n• te same przyciski są na tablecie przy boksie (sekcja „Szybkie akcje”): gdzie pokazujemy, kiedy coś zrobiono, tam obsługa może to zapisać,\n• poidło to ustawienie boksu: przy automatycznym nie ma znacznika wody; boks z poidłem ręcznym ma znacznik „Poidło ręczne” i akcję „Woda”,\n• bez karmienia per koń,\n• każdą akcję można cofnąć przez godzinę,\n• zadania są jednorazowe: dodaje admin, stajenny bierze („Biorę”) i oznacza „Zrobione”.\n• które przyciski są w stajni, ustawia admin w „Ustawieniach stajni”.",
    "w": 360,
    "x": 2820,
    "y": 1420
@@ -610,7 +610,7 @@
   "row_bezakcji": {
    "kind": "title1",
    "maxW": 4640,
-   "text": "Wariant Stajni Pod Lipami: przyciski obsługi wyłączone (Ogarnięte, posiłek, padok)",
+   "text": "Wariant Stajni Pod Lipami: przyciski obsługi wyłączone (Boks gotowy, posiłek, padok)",
    "w": 240,
    "x": 0,
    "y": 7936
