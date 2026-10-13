@@ -1,10 +1,11 @@
 # EQUENOR: development, testy i zakupy przed wdrożeniem
 
-> Stan na 2026-10-13, z rozpiską mikroserwisów (admin globalny zespołu EQUENOR i jeden serwis autoryzacyjny `auth`, W1 i W2; crony piszą do bazy bezpośrednio, W3; sesje tylko w JWT, bez tabel sesji, W4; `sms` i `email` jako osobne serwisy bez tabel, z kolejki, W5; 11 serwisów z nazwami `stables`, `operations`, `schedule`, decyzja 13.10; [mikroserwisy.md](mikroserwisy.md) ma pierwszeństwo przy sprzeczności), po feedbacku ze stajni (erd.md pkt 2, 3 i 12–16 oraz „Otwarte kwestie”), z konfiguracją per stajnia (erd.md pkt 16: „Ustawienia stajni”, potwierdzenia flag zależne od ustawień stajni, widoczność per rola) i z decyzjami z 13.10 (sekcja 5, „Rozstrzygnięte”): logowanie e-mailem albo telefonem i hasłem, zawsze z kodem MFA (W8, W9), rejestracja z potwierdzeniem konta kodem, Cognito tylko w `auth` (W6), kody wysyłane przez nasze `email` i `sms` (W7), konto firmy z NIP i admin konta, telewizor i tablety na kontach technicznych (Wyświetlacz, Tablet), Wsparcie IT jako zespół EQUENOR, język tablicy per tablet, boksy z ustawieniami przy tworzeniu, powiadomienia jako krok 2 zakładania stajni, publiczna strona www (sama prezentacja). Model danych i decyzje: [docs/erd.md](erd.md) (v3), paleta kolorów: [docs/paleta.md](paleta.md), wersja zwięzła: [docs/development.md](development.md). Z [docs/analiza.md](analiza.md) (nieaktualna v3) bierzemy tylko szczegóły tabletu. Dokument opisuje, co kupić, jakie konta założyć, co zbudować i jak przetestować system przed wdrożeniem. Nie podaje cen i nie wskazuje, gdzie ani u kogo stoją klaster i baza; o tym decyduje Dawid.
+> Stan na 2026-10-13, z rozpiską mikroserwisów (admin globalny zespołu EQUENOR i jeden serwis autoryzacyjny `auth`, W1 i W2; crony piszą do bazy bezpośrednio, W3; sesje tylko w JWT, bez tabel sesji, W4; `sms` i `email` jako osobne serwisy bez tabel, z kolejki, W5; 11 serwisów z nazwami `stables`, `operations`, `schedule`, decyzja 13.10; [mikroserwisy.md](mikroserwisy.md) ma pierwszeństwo przy sprzeczności), po feedbacku ze stajni (erd.md pkt 2, 3 i 12–16 oraz „Otwarte kwestie”), z konfiguracją per stajnia (erd.md pkt 16: „Ustawienia stajni”, potwierdzenia flag zależne od ustawień stajni, widoczność per rola) i z decyzjami z 13.10 (sekcja 5, „Rozstrzygnięte”): logowanie e-mailem albo telefonem i hasłem, zawsze z kodem MFA (W8, W9), rejestracja z potwierdzeniem konta kodem, dostawca tożsamości ZITADEL self-hosted na naszym klastrze, tylko w `auth` (W6, W10), kody z `auth` przez nasze `email` i `sms` (W7), trasy zewnętrzne, otwarte i wewnętrzne, konto firmy z NIP i admin konta, telewizor i tablety na kontach technicznych (Wyświetlacz, Tablet), Wsparcie IT jako zespół EQUENOR, język tablicy per tablet, boksy z ustawieniami przy tworzeniu, powiadomienia jako krok 2 zakładania stajni, publiczna strona www (sama prezentacja). Model danych i decyzje: [docs/erd.md](erd.md) (v3), paleta kolorów: [docs/paleta.md](paleta.md), wersja zwięzła: [docs/development.md](development.md). Z [docs/analiza.md](analiza.md) (nieaktualna v3) bierzemy tylko szczegóły tabletu. Dokument opisuje, co kupić, jakie konta założyć, co zbudować i jak przetestować system przed wdrożeniem. Nie podaje cen i nie wskazuje, gdzie ani u kogo stoją klaster i baza; o tym decyduje Dawid.
 
 **Oznaczenia**
 - **[niepotwierdzone]**: weryfikacja nie znalazła potwierdzenia w źródłach. Rozstrzyga test albo karta produktu sprawdzona przed zakupem.
 - **[erd]**: wprost z `docs/erd.md`. **(propozycja)**: rozwiązanie developerskie, którego erd.md nie przesądza.
+- **[S]**: fakt o ZITADEL o średniej pewności (wniosek z kodu albo interpretacja), do sprawdzenia w spike'u (3.2).
 - **(B)**: punkt bramki sprzętowej. Dopóki nie przejdzie, nie kupujemy kolejnych tabletów.
 - T-xx (tablet), K-xx (kolor na tablecie e-ink), W-xx (wyświetlacz), N-xx (sieć) i A-xx (scenariusze akceptacyjne) to identyfikatory testów z sekcji 4.
 
@@ -347,7 +348,7 @@ Zasilanie przy boksie i Wi-Fi zapewnia stajnia. Kupujemy więc tylko to, czego s
 
 ## 2. Konta i usługi do założenia
 
-Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie nie ma potwierdzenia, punkt ma oznaczenie [niepotwierdzone]. Twierdzenia o Cognito i SMS opierają się na podlinkowanej dokumentacji AWS, ale nie przeszły niezależnej weryfikacji, więc potwierdza je spike Cognito w etapie 0 (3.6).
+Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie nie ma potwierdzenia, punkt ma oznaczenie [niepotwierdzone]. Twierdzenia o SMS opierają się na dokumentacji AWS, a o ZITADEL na jego dokumentacji i kodzie (stan z 13.10.2026). Nie przeszły niezależnej weryfikacji, więc potwierdza je spike w etapie 0 (3.2, 3.6).
 
 ### 2.1 Najpierw (najdłuższe oczekiwanie)
 - [ ] **Konta Apple Developer i Google Play.** Wybór rodzaju konta (organizacja czy osoba) nie należy do tego dokumentu, ale zmienia harmonogram:
@@ -374,52 +375,53 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
   - klucz App Store Connect API;
   - klucz JSON konta usługi Google;
   - token CI do Expo;
-  - keystore APK tabletu i jego kopia.
+  - keystore APK tabletu i jego kopia;
+  - masterkey ZITADEL (z osobną kopią poza klastrem) i klucz konta serwisowego `auth` w ZITADEL (3.1.13).
 
 ### 2.3 AWS: konto i środowiska
 - [ ] Konto root z MFA i FIDO2. Ludzie pracują przez IAM Identity Center albo role. CloudTrail włączony od pierwszego dnia, alarm na nietypowy wolumen SMS. Czas: godziny.
 - [ ] Osobne środowiska dev, test i prod.
   - SMS sandbox, limity SMS i sandbox SES działają per konto i per region, więc podział na konta i wybór regionu (decyzja Dawida) wyznaczają liczbę wniosków.
-  - Cognito (z wyzwalaczem kodów), SES i SMS mają działać w jednym regionie albo w regionie, który Cognito obsługuje.
 - [ ] Dostęp serwisów i cronów z klastra do AWS bez kluczy statycznych. Mechanizm wybiera Dawid, np. [IAM Roles Anywhere](https://docs.aws.amazon.com/sdkref/latest/guide/access-rolesanywhere.html) albo federacja OIDC kont serwisowych. Każdy serwis i cron dostaje rolę z minimalnymi uprawnieniami:
   - `files` i cron `files-gc`: S3 (nikt inny nie dotyka S3);
   - `sms`: odbiór z własnej kolejki, publikacja `sms.result`, wysyłka SMS; `email`: to samo z SES i `email.result` (W5);
   - `notifications`: wysyłka do kolejek `sms` i `email`, bez SES i SMS;
-  - `auth`: `cognito-idp` na obu pulach i sekrety klientów Cognito (W6); wyzwalacz kodów `services/auth/code-sender`: `kms:Decrypt` klucza KMS wyzwalacza kodów i wysyłka do kolejek kodów `sms` i `email` (W7);
+  - `auth`: `kms:Sign` klucza podpisu tokenów i wysyłka do kolejek kodów `sms` i `email` (W7);
   - konsument zdarzeń: tylko własna kolejka SQS; cron: publikacja własnych zdarzeń.
 
-### 2.4 Cognito
-- [ ] **Cognito tylko uwierzytelnia, a rozmawia z nim tylko `auth`** (W6; szczegóły: propozycja, mikroserwisy.md 3.1). Aplikacje (apka, panel, tablet, TV, panel zespołu, `opctl`) wołają tylko trasy `auth`: rejestracja, potwierdzenie konta, logowanie hasłem, krok MFA, reset hasła, odświeżanie. Nie mają bibliotek Cognito ani Amplify, id puli ani klienta. `auth` woła Cognito po stronie serwera i wydaje token EQUENOR i refresh token EQUENOR; tokeny Cognito nie wychodzą z `auth`: czyta z nich `sub` i zweryfikowany e-mail albo telefon, potem je wyrzuca. Pozostałe serwisy sprawdzają podpis tokenu EQUENOR kluczem z JWKS. Tokeny, czasy życia, blokadę i role obsługuje `auth`, bez sesji w bazie (W4). Dwie pule: klientów (osoby i konta techniczne) i zespołu EQUENOR (bez samodzielnej rejestracji; konta zakłada `opctl`).
-- [ ] W każdej puli jeden poufny klient aplikacji z sekretem, który zna tylko `auth` (`SECRET_HASH` przy każdym wywołaniu, [klient](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_UserPoolClientType.html)); przepływ hasła po stronie serwera (np. `USER_PASSWORD_AUTH`, do spike'u; [przepływy](https://docs.aws.amazon.com/cognito/latest/developerguide/authentication-flows-selection-sdk.html)) i odświeżanie; `PreventUserExistenceErrors` włączone. `auth` woła `SignUp`, `ConfirmSignUp`, `ResendConfirmationCode`, `InitiateAuth`, `RespondToAuthChallenge` ([API](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_RespondToAuthChallenge.html)), `ForgotPassword`, `ConfirmForgotPassword` i zmianę atrybutów. Pulę wybiera `client_id` EQUENOR: `mobile`, `web`, `tablet` to pula klientów, `ops` i `opctl` pula zespołu. Czas: godziny.
-- [ ] Logowanie e-mailem albo telefonem i hasłem, wszędzie tak samo: w apce, panelu, na tablecie i na TV (W8).
-  - Telefon i e-mail jako aliasy logowania od utworzenia puli, bo potem nie da się tego zmienić (niżej).
-  - Polityka haseł z Cognito (propozycja: min. 10 znaków). Bez logowania bez hasła (`SMS_OTP`, `EMAIL_OTP` jako pierwszy czynnik), passkey i TOTP.
-  - Rejestracja: e-mail albo telefon, hasło, imię i język → kod weryfikacyjny → potwierdzenie → konto aktywne; potem zwykłe logowanie, bez automatycznego logowania. Niepotwierdzone konto się nie zaloguje (`409 account_not_confirmed` i ekran potwierdzenia z „Wyślij kod ponownie”). Wiersz `users` powstaje dopiero po potwierdzeniu, przy pierwszym logowaniu.
-  - „Nie pamiętam hasła”: kod resetu i nowe hasło. Cognito wysyła go innym kanałem niż kod MFA, więc konto z jednym kontaktem nie zresetuje hasła samo (`ForgotPassword`: `InvalidParameterException`, [odzyskiwanie konta](https://docs.aws.amazon.com/cognito/latest/developerguide/managing-users-passwords.html)); do decyzji: mikroserwisy.md 10.2 pkt 24.
-  - Zmiana e-maila, telefonu albo hasła w profilu: hasło i kod MFA, a nowy kontakt także kod z tego kontaktu; `auth` loguje osobę ponownie i zmienia dane w tym samym żądaniu, więc tokeny Cognito nie wychodzą z `auth` (mikroserwisy.md 5.2). Zaproszenia dopasowują się tylko do potwierdzonego kontaktu.
-- [ ] **MFA wymagane w obu pulach** (W9, [MFA](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html)): po haśle zawsze kod e-mailem (`EMAIL_OTP`) albo SMS-em (`SMS_MFA`), przy każdym logowaniu każdego konta: klienci, obsługa, instruktorzy, admini konta, konta techniczne tabletu i TV, zespół EQUENOR i admin globalny. Bez wyjątków, bez zapamiętywania urządzeń i bez wyłączania MFA. Kanał: ten, którym konto potwierdzono przy rejestracji; kto ma potwierdzony i e-mail, i telefon, wybiera kanał w profilu. Odświeżanie tokenu EQUENOR w trakcie sesji jest bez kodu. `auth` wydaje token tylko po kroku MFA (`amr: ["pwd","otp"]`). E-mail MFA wymaga planu Essentials albo Plus ([plany funkcji](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html)) [niepotwierdzone].
-- [ ] Sesja logowania między hasłem a kodem: `AuthSessionValidity` 3–15 min (domyślnie 3, propozycja 5 min; [klient](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_UserPoolClientType.html)). Ciąg `Session` z Cognito `auth` oddaje aplikacji w krótkim podpisanym tokenie logowania (`typ = login+jwt`, `aud` tylko `auth`, związany z `client_id` i loginem, ważny tyle co sesja Cognito), bez stanu w bazie (propozycja, mikroserwisy.md 3.1).
-- [ ] Limit błędnych prób kodu w jednej sesji logowania: dokumentacja go nie potwierdza [niepotwierdzone, spike 3.2]. Gdyby był za luźny: limity żądań AWS WAF na trasach logowania, MFA, rejestracji i resetu hasła w `auth`, bez stanu w naszej bazie.
-- [ ] **Kody dostarczamy sami** (W7): wyzwalacze custom email sender i custom SMS sender ([e-mail](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-custom-email-sender.html), [SMS](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-custom-sms-sender.html)) w obu pulach i dla wszystkich kodów (źródła m.in. `CustomEmailSender_SignUp`, `_ResendCode`, `_ForgotPassword`, `_UpdateUserAttribute`, `_VerifyUserAttribute`, `_Authentication` dla kodu MFA; tak samo `CustomSMSSender_*`). Kody generuje i sprawdza Cognito razem z ich ważnością: kod MFA działa tyle co sesja logowania (`AuthSessionValidity`, propozycja 5 min), a kody potwierdzenia konta i resetu hasła mają ważność z Cognito [niepotwierdzone].
-  - Funkcja wyzwalacza (Lambda) to cienki kod serwisu `auth` (`services/auth/code-sender`): odszyfrowuje kod (klucz KMS wyzwalacza kodów, AWS Encryption SDK), składa treść w języku użytkownika i wrzuca gotową wiadomość do kolejki kodów `email` albo `sms` (SQS FIFO, SSE-KMS, retencja nie dłuższa niż ważność kodu MFA, bez DLQ).
-  - `email` i `sms` wysyłają ją jak każdą inną wiadomość i nie logują treści. Kody nie idą przez `notifications` (bez reguł i historii; szybka ścieżka).
-  - To jedyna logika poza mikroserwisami i działa w produkcji (decyzja użytkownika 13.10): kod w module `auth`, te same testy i przegląd co `auth`, bez dostępu do bazy, uprawnienia tylko `kms:Decrypt` klucza KMS wyzwalacza kodów i wysyłka do kolejek kodów.
-  - W pulach dev i test ten sam wyzwalacz przekierowuje kody do skrzynki testowej (ustawienie środowiska; podobnie jak [przykład AWS](https://github.com/aws-samples/amazon-cognito-user-pool-development-and-testing-with-sms-redirected-to-email)), więc testy nie potrzebują zweryfikowanych numerów i adresów.
-- [ ] SMS-y z kodami wysyła serwis `sms` (2.5, sekcja 5 pkt 24), a e-maile serwis `email` przez SES (2.6), nie Cognito. Czy pula z wyzwalaczami wymaga jeszcze własnej konfiguracji SMS ([ustawienia SMS](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-sms-settings.html)) albo e-mail ([EmailConfiguration](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cognito-userpool-emailconfiguration.html)): [niepotwierdzone, spike].
-- [ ] Aplikacje EQUENOR (`client_id`: `mobile`, `tablet`, `web`; przez `web` loguje się też telewizor) są klientami `auth`, nie Cognito:
-  - tokeny Cognito (ID i access 5 min, refresh 60 min, [refresh tokens](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-the-refresh-token.html)) żyją tylko w `auth`, przez jedno logowanie;
-  - access token EQUENOR żyje 5 min, a okno bezczynności i maksimum sesji według aplikacji i roli niesie refresh JWT od `auth` (propozycja wartości, mikroserwisy.md 3.4).
+### 2.4 ZITADEL (self-hosted, W10)
+- [ ] **Dostawca tożsamości na naszym klastrze; rozmawia z nim tylko `auth`** (W6, W10; propozycja, mikroserwisy.md 3.1, 5.2, 5.10). ZITADEL trzyma konta i hasła (hashe, domyślnie bcrypt) we własnej bazie i sprawdza hasła i kody. Nasz kod i nasza baza haseł nie mają: `auth` przekazuje hasło w żądaniu do ZITADEL i nigdzie go nie zapisuje ani nie loguje. Aplikacje (apka, panel, tablet, TV, panel zespołu, `opctl`) wołają tylko trasy `auth` (rejestracja, potwierdzenie konta, logowanie hasłem, krok MFA, reset hasła, odświeżanie) i nie znają adresu ani bibliotek ZITADEL. Tokeny EQUENOR wydaje `auth`, bez sesji w bazie (W4); odświeżanie nie woła ZITADEL, więc jego awaria blokuje tylko nowe logowania, rejestracje i resety. ZITADEL to komponent infrastruktury jak PostgreSQL, nie nasz serwis (serwisów jest 11); wdrożenie i utrzymanie: Dawid (3.1.13). Konta w chmurze nie zakładamy.
+- [ ] **Organizacje:** jedna instancja, dwie organizacje: klienci (osoby i konta techniczne, `identity_pool = customer`) i zespół EQUENOR (`team`; bez samodzielnej rejestracji, z ostrzejszymi ustawieniami logowania i blokad, jak zaleca dostawca). Organizację wybiera `client_id`: `mobile`, `web`, `tablet` to klienci, `ops` i `opctl` zespół. Osobna instancja tylko przy potrzebie innego issuera, kluczy albo twardej separacji (propozycja [S]; [instancja](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/concepts/structure/instance.mdx), [polityki](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/concepts/structure/policies.mdx)).
+- [ ] **Konto serwisowe `auth`:** użytkownik maszynowy z rolą instancji `IAM_LOGIN_CLIENT` (sesje, konta, hasła; jedno konto na obie organizacje [S]), uwierzytelniony kluczem prywatnym (private key JWT), bez PAT; klucz w sejfie (2.2), czyta go tylko `auth` ([konta serwisowe](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/guides/integrate/service-accounts/authenticate-service-accounts.mdx)). `auth` zmienia tylko sesje, które sam założył: id sesji niesie token logowania podpisany przez `auth` (zalecenie z [GHSA-jh92-5mrj-p2w2](https://github.com/zitadel/zitadel/security/advisories/GHSA-jh92-5mrj-p2w2)).
+- [ ] **Ustawienia jako kod** w `services/auth/infra` (np. provider Terraform [S]), te same w dev, test i prod (propozycje wartości: mikroserwisy.md 5.2 „Kody”, 10.2 pkt 17):
+  - polityka haseł: min. 10 znaków;
+  - `force_mfa` w obu organizacjach, tylko OTP e-mailem albo SMS-em; bez TOTP, passkey i logowania bez hasła ([ustawienia logowania](https://github.com/zitadel/zitadel/blob/main/proto/zitadel/settings/v2/login_settings.proto));
+  - blokady ([lockout](https://github.com/zitadel/zitadel/blob/main/proto/zitadel/settings/v2/lockout_settings.proto), domyślnie wyłączone): `max_otp_attempts` = 5 (konto LOCKED bez terminu; odblokowuje je reset hasła albo admin globalny) i `max_password_attempts` = 0, bo blokadę hasłem mógłby wywołać każdy, kto zna login; złe hasła spowalnia sam ZITADEL (od 5 prób 1–10 s), resztę załatwiają limity żądań;
+  - generatory kodów ([ustawienia domyślne](https://github.com/zitadel/zitadel/blob/main/cmd/defaults.yaml)): domyślnie kod MFA ma 8 cyfr i 5 min, a kody weryfikacji i resetu 6 znaków A–Z0–9 i 1 h; propozycja: same cyfry, 6 jak w makietach, weryfikacja i reset 15 min [S];
+  - ZITADEL sam nic nie wysyła: bez SMTP, dostawcy SMS i Twilio Verify (z nim kod generowałby Twilio), a powiadomienie „hasło zmienione” (domyślnie włączone) wyłączone [S];
+  - bez ekranu logowania ZITADEL (Login V2).
+- [ ] **Logowanie** (W8, W9; Session API v2, [MFA we własnym ekranie logowania](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/guides/integrate/login-ui/mfa.mdx)): `auth` zakłada sesję z loginem (e-mail albo telefon) i hasłem, sprawdza, że konto jest potwierdzone (`GetUserByID`), i dopiero wtedy wywołuje wyzwanie OTP e-mailem albo SMS-em z `returnCode`. Kod wraca do `auth`, który wrzuca wiadomość do kolejki (niżej). W kroku MFA `auth` przekazuje kod do sesji, czyta ją, wydaje tokeny tylko przy sprawdzonym haśle i kodzie, a potem sesję usuwa. ZITADEL przy Session API tylko zapisuje sprawdzone czynniki i nie wymusza kolejności hasło → kod, potwierdzenia konta ani MFA, więc pilnuje tego `auth` [S] ([walidacja sesji](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/guides/integrate/login-ui/session-validation.mdx)).
+  - Między krokami: sesja ZITADEL z `lifetime` 5 min (bez niego nie wygasa), opakowana w nasz token logowania (`typ = login+jwt`, `aud` tylko `auth`, związany z `client_id`), bez stanu w naszej bazie; `sessionToken` nie wychodzi z `auth`, bo działa jak token do API ZITADEL.
+  - Kanał kodu: ten, którym konto potwierdzono (jedna metoda OTP na konto; kto ma potwierdzone oba kontakty, zmienia ją w profilu). Kod idzie tylko na zweryfikowany kontakt.
+  - Rejestracja: `CreateUser` (hasło, kontakt z `return_code`, `user_id` nadany przez `auth`), `VerifyEmail` albo `VerifyPhone`, potem `AddOTPEmail` albo `AddOTPSMS`; ponowny kod z `return_code` ([API kont v2](https://github.com/zitadel/zitadel/blob/main/proto/zitadel/user/v2/user_service.proto)). Niepotwierdzone konto się nie zaloguje (`409 account_not_confirmed` i ekran potwierdzenia z „Wyślij kod ponownie”), a wiersz `users` powstaje przy pierwszym logowaniu. ZITADEL wymaga e-maila u konta osoby, więc rejestracja samym telefonem dostaje adres zastępczy (propozycja [S], mikroserwisy.md 3.1).
+  - „Nie pamiętam hasła”: `PasswordReset` z `returnCode`, potem `SetPassword` z kodem. ZITADEL nie ogranicza kanału resetu, więc kod resetu idzie tym samym kanałem co kod MFA; kto ma skrzynkę albo telefon konta, ten może przejąć konto (mikroserwisy.md 10.2 pkt 24). Reset nie odblokowuje konta, więc `auth` woła po nim `UnlockUser` [S].
+  - Zmiana e-maila, telefonu albo hasła w profilu: hasło i kod MFA, a nowy kontakt także kod z niego (mikroserwisy.md 5.2). Zaproszenia dopasowują się tylko do potwierdzonego kontaktu.
+- [ ] **MFA zawsze** (W9): po haśle zawsze kod, przy każdym logowaniu każdego konta (klienci, obsługa, instruktorzy, admini konta, konta techniczne tabletu i TV, zespół EQUENOR, admin globalny), bez wyjątków, zapamiętywania urządzeń i wyłączania. `auth` wydaje token tylko po kroku MFA (`amr: ["pwd","otp"]`); dwa kody bez hasła to nie MFA. Odświeżanie tokenu EQUENOR jest bez kodu.
+- [ ] **`returnCode` tylko z backendu:** aplikacja nie wybiera sposobu dostarczenia i nigdy nie dostaje kodu, a wyzwanie idzie dopiero po udanym haśle w tej samej sesji. Lekcja z [GHSA-3gwm-5wx8-4gm6](https://github.com/zitadel/zitadel/security/advisories/GHSA-3gwm-5wx8-4gm6): ekran logowania ZITADEL 4.0.0–4.17.0 (CVSS 8.1, poprawka w 4.17.1) wydawał przez `returnCode` oba kody osobie, która znała tylko login. Numer CVE-2026-105211 podaje tylko agregator, a advisory: „CVE ID: None known” [S]. Ekranu logowania ZITADEL nie używamy.
+- [ ] **Kody dostarczamy sami** (W7): kody (weryfikacja kontaktu, MFA, reset hasła, zmiana kontaktu) generuje i sprawdza ZITADEL razem z ich ważnością i zwraca do `auth`. `auth` składa treść w języku z profilu konta i wrzuca gotową wiadomość do kolejki kodów `email` albo `sms` (SQS FIFO, SSE-KMS, retencja nie dłuższa niż ważność kodu MFA, bez DLQ). `email` i `sms` wysyłają ją jak każdą inną i nie logują treści; kody nie idą przez `notifications`. Kod nie trafia do bazy, logów ani odpowiedzi do aplikacji. W dev i test kody idą tą samą drogą do lokalnej skrzynki albo `fake-sms` (3.2).
+- [ ] **Limity żądań:** każda otwarta trasa `auth`, która wysyła kod (rejestracja, ponowny kod, logowanie, reset hasła, zmiana kontaktu), ma limity po IP i po loginie, a krok MFA po tokenie logowania, liczone na brzegu przed `auth` (3.1.13). Limitów wysyłki kodów w ZITADEL dokumentacja nie podaje [S]; dostawca zaleca limity na WAF ([checklista produkcyjna](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/manage/productionchecklist.mdx)).
+- [ ] Aplikacje EQUENOR (`client_id`: `mobile`, `tablet`, `web`; przez `web` loguje się też telewizor) są klientami `auth`, nie ZITADEL: access token EQUENOR żyje 5 min, a okno bezczynności i maksimum sesji według aplikacji i roli niesie refresh JWT od `auth` (propozycja wartości, mikroserwisy.md 3.4).
 - [ ] Aplikacja `tablet` [erd]:
   - tablet loguje się kontem technicznym z rolą `tablet` (jedno konto tabletów na stajnię, propozycja; e-mail albo telefon, hasło i kod na skrzynkę albo telefon konta, np. boksy@stajnielipowe.pl), a nie kontem osoby, i zostaje zalogowany na stałe. Długą sesję (30 dni bezczynności, bez maksimum; do blokady albo „Wyloguj wszystkie tablety”) daje `auth` (propozycja, sekcja 5 pkt 4). Aplikacja `tablet` przyjmuje tylko konto z rolą `tablet`, a konto tabletów nie loguje się w apce ani w panelu (propozycja);
   - token wskazuje konto tabletów, a akcje z tabletu (potwierdzenie flagi w stajni, która wymaga potwierdzeń, „Boks gotowy”, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu, „Woda” przy poidle ręcznym) zapisujemy bez autora: `source = tablet`, `user_id` NULL, `id` boksu i czas [erd]. Serwisy rozpoznają tablet po `client_id` w tokenie EQUENOR, nie po treści żądania (propozycja);
   - tablet wysyła `id` wybranego boksu, nie numer, bo numer (`boxes.label`) powtarza się w halach.
 - [ ] Telewizor (klient web): otwiera zwykłą stronę logowania panelu, która nie rozpoznaje urządzenia, i loguje się kontem technicznym z rolą `display` (Wyświetlacz) w stajni, e-mailem albo telefonem, hasłem i kodem, tak samo jak wszędzie; po zalogowaniu panel pokazuje widok tablicy, bo tak każe rola. Konto zaprasza admin przez „Zaproś osobę” → „Konto techniczne: Wyświetlacz”; osobnego formularza nie ma. W seedzie „Telewizor korytarz” loguje się e-mailem. Jedno konto na kilka telewizorów albo osobne na każdy, wybiera admin. Tylko odczyt wynika z roli. Czas sesji ustala `auth` według roli, więc TV na kliencie web ma długą sesję (do 365 dni), a admin w tym samym panelu krótką (propozycja, sekcja 5 pkt 4).
-- [ ] Atrybutów logowania nie da się zmienić po utworzeniu puli ([atrybuty](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html)), więc pule dev i test muszą dać się odtworzyć z kodu.
 - [ ] Sesje tylko w JWT i blokada konta (W4; szczegóły: propozycja, mikroserwisy.md 3.7–3.8):
   - refresh token EQUENOR to JWT od `auth` (`sid`, `sst`, `tv` = `users.token_version`), nigdzie niezapisany; przy odświeżeniu `auth` sprawdza konto, aktywność konta technicznego, `token_version` i rolę platformową (w tej kolejności, mikroserwisy.md 3.7) i liczy claimy od nowa. Wylogowanie osoby nie dotyka tabletów;
   - odebranie członkostwa, zmiana roli, macierzy i dostępu do konia działają przy najbliższym odświeżeniu, do 5 min, bez listy unieważnień i bez sprawdzania bazy przy każdym żądaniu; „Wyloguj ze wszystkich urządzeń”, blokada i usunięcie konta podbijają `token_version`;
   - zgubiony tablet: jednego tabletu nie da się odłączyć; „Wyloguj wszystkie tablety” albo blokada konta tabletów w Ludziach („Zablokuj”, erd.md pkt 14), potem ponowne logowanie pozostałych tabletów hasłem i kodem (sekcja 5 pkt 5);
-  - global sign-out w Cognito (`AdminUserGlobalSignOut`, [unieważnianie tokenów](https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html)) `auth` woła tylko dla porządku przy blokadzie i usunięciu konta; tokenów Cognito nikt poza `auth` nie ma, a `auth` wyrzuca je po kroku MFA (W6).
+  - usunięcie konta usuwa też konto w ZITADEL (`DeleteUser`); sesji ZITADEL po kroku MFA już nie ma, więc nie ma czego unieważniać (W6).
+- [ ] **Wyjście i licencja:** eksport kont z hashami haseł (`ExportData` z `with_passwords`, format MCF) pozwala przejść do innego systemu, ale bez historii zdarzeń ([migracja](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/guides/migrate/sources/zitadel.mdx)). Licencja AGPL-3.0: niezmieniony ZITADEL jako osobna usługa wołana przez API nie obejmuje naszego kodu [S], do potwierdzenia u prawnika ([licencja](https://github.com/zitadel/zitadel/blob/main/LICENSING.md)).
 
 ### 2.5 SMS do Polski
 - [ ] Do 10 zweryfikowanych numerów testowych w sandboxie ([weryfikacja](https://docs.aws.amazon.com/sms-voice/latest/userguide/verify-destination-phone-number.html)), kilka minut na numer. Numery symulatora AWS działają tylko w USA ([symulator](https://docs.aws.amazon.com/sms-voice/latest/userguide/test-phone-numbers.html)).
@@ -442,13 +444,13 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
 - [ ] **SES.**
   - Domena: Easy DKIM, MAIL FROM i DMARC, osobno w każdym regionie.
   - Sandbox: wysyłka tylko na zweryfikowane adresy, 200 e-maili na dobę, 1 na sekundę. Odbicia i skargi testuje mailbox simulator.
-  - E-mailem idą kody (potwierdzenie konta, MFA, reset hasła; generuje Cognito, wysyła serwis `email` z kolejki od wyzwalacza `auth`) oraz zaproszenia i powiadomienia (też `email`). W sandboxie dochodzą tylko na zweryfikowane adresy, więc dostęp produkcyjny jest potrzebny przed recenzją sklepów (sekcja 5 pkt 2) i przed stajnią pilotażową.
+  - E-mailem idą kody (potwierdzenie konta, MFA, reset hasła; generuje ZITADEL, `auth` wrzuca je do kolejki, wysyła serwis `email`) oraz zaproszenia i powiadomienia (też `email`). W sandboxie dochodzą tylko na zweryfikowane adresy, więc dostęp produkcyjny jest potrzebny przed recenzją sklepów (sekcja 5 pkt 2) i przed stajnią pilotażową.
   - Wniosek o dostęp produkcyjny składamy po wdrożeniu obsługi odbić i skarg. Odpowiedź do 24 h, bywa kilka dni, zdarzają się odmowy ([FAQ](https://repost.aws/knowledge-center/ses-production-access-request-faq)).
 - [ ] **S3.**
   - Bucket na każde środowisko, Block Public Access, szyfrowanie, CORS dla uploadów.
   - Presigned URL podpisany rolą wygasa razem z jej sesją ([presigned URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url)). Przy pobieraniu APK przez słabe Wi-Fi trzeba dobrać ważność albo wznawiać pobieranie z nowym URL.
 - [ ] **SNS i SQS** z manifestu (3.1.5).
-  - Temat na każdy typ zdarzenia, kolejka na każdego konsumenta z DLQ, raw message delivery; kolejki powiadomień `sms` i `email` jako FIFO z deduplikacją po `notifications.id` (W5); osobne kolejki kodów bez DLQ, z grupą i deduplikacją z UUID od wyzwalacza, szyfrowane (SSE-KMS), z retencją nie dłuższą niż ważność kodu MFA (W7).
+  - Temat na każdy typ zdarzenia, kolejka na każdego konsumenta z DLQ, raw message delivery; kolejki powiadomień `sms` i `email` jako FIFO z deduplikacją po `notifications.id` (W5); osobne kolejki kodów bez DLQ, z grupą i deduplikacją z UUID od `auth`, szyfrowane (SSE-KMS), z retencją nie dłuższą niż ważność kodu MFA (W7).
   - Szyfrowana kolejka wymaga klucza KMS zarządzanego przez klienta, z uprawnieniem dla `sns.amazonaws.com`; klucz `aws/sqs` nie zadziała ([dokumentacja](https://docs.aws.amazon.com/sns/latest/dg/sns-enable-encryption-for-topic-sqs-queue-subscriptions.html)).
 
 ### 2.7 Apple
@@ -486,7 +488,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
 ### 2.9 Expo EAS
 - [ ] Organizacja w Expo i token robota dla CI. Czas: godziny.
 - [ ] Dwa projekty: mobile (iOS i Android) oraz tablet (tylko APK na Androida, z modułem Kotlin). Obowiązkowo development builds, bo moduł natywny i Universal Links nie działają w Expo Go.
-- [ ] Profile `development`, `preview` i `production`; zmienne per środowisko: adres API (bez konfiguracji Cognito, W6).
+- [ ] Profile `development`, `preview` i `production`; zmienne per środowisko: adres API (bez adresu i konfiguracji ZITADEL, W6).
 - [ ] Credentials:
   - iOS: przez klucz App Store Connect API;
   - Android, apka mobilna: klucz uploadu;
@@ -526,7 +528,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
   - Wyświetlacz loguje wybrany widok: wszystkie hale albo pełny ekran hali (`id` hali). Ścieżka wysyłki do decyzji (sekcja 5).
 - [ ] Logi JSON wszystkich serwisów i cronów, identyfikator korelacji przenoszony przez SNS i SQS, metryki. Alerty: niepusta DLQ, nieudany cron, opóźniona eskalacja, błędy 5xx w `board`.
 - [ ] Błędy JS z panelu web i z wyświetlacza.
-- [ ] Maskowanie telefonów, e-maili, haseł, kodów i tokenów; treści wiadomości z kodem nie loguje wyzwalacz, `email` ani `sms`; ustalona retencja; osobne projekty dla dev, test i prod.
+- [ ] Maskowanie telefonów, e-maili, haseł, kodów i tokenów; haseł i treści wiadomości z kodem nie logują `auth`, `email` ani `sms`; ustalona retencja; osobne projekty dla dev, test i prod.
 
 ## 3. Development
 
@@ -534,7 +536,8 @@ Zasady wspólne:
 - Ścieżki API (propozycja):
   - każdy serwis ma własny prefiks `/<serwis>/v1/...`;
   - `…` oznacza `/stables/{stableId}`;
-  - `/internal/...` działa tylko wewnątrz klastra, na osobnym porcie, bez tokenów serwisowych.
+  - `/internal/...` działa tylko wewnątrz klastra, na osobnym porcie, bez tokenów serwisowych;
+  - trzy rodzaje tras (mikroserwisy.md 1.3): zewnętrzne (z naszym tokenem), otwarte (bez tokenu: rejestracja i potwierdzenie, ponowny kod, logowanie i krok MFA, reset hasła, odświeżenie refresh tokenem, webhooki płatności z podpisem dostawcy, `/livez`, `/readyz`; w przyszłości np. dane publiczne) i wewnętrzne (`/internal`). Domyślnie każda trasa wymaga tokenu; otwarta ma to jawnie w deskryptorze (3.1.5), jest na liście sprawdzanej w CI (3.1.2) i ma limit żądań (3.1.13).
 - Development dostarcza Dawidowi obrazy, manifest zasobów AWS i listę wymagań (3.1.13).
 - Poza tabelami serwisu `auth` z mikroserwisy.md (`platform_roles`, `platform_requests`, `signing_keys`) żaden punkt nie dodaje tabel; tabel sesji nie ma (W4).
 - Autoryzacja (W2): decyduje tylko `auth`; pozostałe serwisy weryfikują token lokalnie i czytają claimy (propozycja: mikroserwisy.md, sekcje 1 i 3).
@@ -546,7 +549,7 @@ Zasady wspólne:
 - [ ] pnpm workspaces i Turborepo. Przypięte `packageManager` (corepack) i wersja Node (`.nvmrc`, `engines`). Każda zależność w jednej wersji (pnpm catalogs albo syncpack).
 - [ ] Układ katalogów:
   - `apps/{mobile,tablet,web}`: `tablet` z `modules/kiosk` w Kotlinie, `web` to panel z widokiem wyświetlacza (dla roli `display`); statyczna strona www osobno (sekcja 5 pkt 51, propozycja: `apps/www`);
-  - `services/{auth,stables,operations,schedule,board,billing,notifications,sms,email,files,platform}` (11, decyzja 13.10, nazwy po angielsku: `operations` łączy dawne `flags`, `care` i `tasks`, `schedule` dawne `health` i `rides`, `platform` dawne `releases` i `audit`; `files` osobno); w `services/auth/code-sender` wyzwalacz kodów Cognito (Lambda, W7), w `services/auth/infra` konfiguracja pul;
+  - `services/{auth,stables,operations,schedule,board,billing,notifications,sms,email,files,platform}` (11, decyzja 13.10, nazwy po angielsku: `operations` łączy dawne `flags`, `care` i `tasks`, `schedule` dawne `health` i `rides`, `platform` dawne `releases` i `audit`; `files` osobno); w `services/auth/infra` konfiguracja organizacji i ustawień ZITADEL (W10);
   - 9 cronów, każdy wdrażany jako osobny CronJob, z kodem w module serwisu-właściciela (`services/<właściciel>/jobs/<cron>`): `operations/jobs/escalation-scheduler`, `auth/jobs/invitation-expiry-notifier` (propozycja z erd.md), `schedule/jobs/health-due-reminders`, `files/jobs/files-gc`, `billing/jobs/{billing-usage-snapshot,billing-invoicing,billing-dunning}`; crony przekrojowe w `jobs/{horse-left-reconciler,retention-pruner}` (propozycja);
   - `packages/{db,contracts,api-client,service-kit,cron-kit,messaging,auth,authz,tenancy,audit,rules,i18n,theme,testing,eslint-config,tsconfig}`; `theme` to tokeny palety z `docs/paleta.md` (3.1.12);
   - `tools/{sql-gate,migrate,seed,synth-data,local,fake-sms,provision-tablet,display-kiosk,opctl}`.
@@ -564,7 +567,7 @@ Zasady wspólne:
   1. `pnpm install --frozen-lockfile`;
   2. lint, sprawdzenie formatu, typecheck;
   3. testy jednostkowe;
-  4. testy integracyjne (Testcontainers: Postgres i LocalStack);
+  4. testy integracyjne (Testcontainers: Postgres, LocalStack i ZITADEL);
   5. `sql-gate`;
   6. `drizzle-kit check` i test, że w schemacie nie ma niewygenerowanych migracji;
   7. porównanie kontraktów z migawkami;
@@ -572,11 +575,11 @@ Zasady wspólne:
   9. SBOM i skan podatności;
   10. build APK tabletu i buildów mobilnych.
 - [ ] Zgodność wstecz: testy integracyjne poprzedniego wydania puszczone na bazie po nowych migracjach.
-- [ ] Meta-testy: każda trasa ma politykę dostępu, deklarację audytu i przypadek w macierzy izolacji; rola każdego crona pisze tylko do tabel i kolumn ze swojego manifestu.
+- [ ] Meta-testy: każda trasa ma politykę dostępu (domyślnie wymaga tokenu), deklarację audytu i przypadek w macierzy izolacji; test wypisuje listę otwartych tras (`open` w deskryptorze) i porównuje ją z listą w repo, więc nowa trasa otwarta nie przejdzie bez zmiany listy w przeglądzie; rola każdego crona pisze tylko do tabel i kolumn ze swojego manifestu.
 - [ ] Testy instrumentowane modułu Kotlin na emulatorze Androida 15/16 bez Play: `dpm set-device-owner`, Lock Task, `PackageInstaller`, `SystemUpdatePolicy`. Wymagają runnera z KVM.
 - [ ] Przebieg nocny:
   - klaster testowy z 2–3 replikami każdego serwisu (kind albo k3d);
-  - prawdziwa pula Cognito za `auth`, z wyzwalaczem kodów przekierowanym do skrzynki testowej;
+  - ZITADEL za `auth` w wersji z produkcji, kody do skrzynki testowej;
   - prawdziwe SMS przez modem (1.4);
   - k6;
   - migracje na danych syntetycznych w skali.
@@ -635,7 +638,7 @@ Zasady wspólne:
   - `horses.box_id` (unikalne, dopuszcza `NULL`);
   - częściowe unikalne otwarte wpisy `horse_box_history` na konia i na boks;
   - `buildings (stable_id, name)`, `flag_templates (stable_id, code)`, `stable_members (stable_id, user_id)`;
-  - `users (identity_pool, cognito_sub)`, częściowy unikalny `platform_roles.user_id` przy `revoked_at IS NULL` (propozycja, mikroserwisy.md 11.1);
+  - `users (identity_pool, idp_user_id)`, częściowy unikalny `platform_roles.user_id` przy `revoked_at IS NULL` (propozycja, mikroserwisy.md 11.1);
   - NIP konta firmy (`businesses.tax_id`) [erd]: unikalny, bo jedno konto to jeden NIP. Kod zapisuje sam ciąg 10 cyfr, bez kresek, więc „123-456-32-18” i „1234563218” to ten sam NIP (propozycja);
   - `flag_escalations (flag_id, level)`;
   - `building_routines`: jedna akcja na halę, posiłek i dzień (`building_id`, `meal_slot_id`, `service_date` przy `kind = meal_served`) oraz jeden padok na halę i dzień (`building_id`, `service_date` przy `kind = paddock_out`) [erd]. Propozycja: dwa częściowe unikalne indeksy z warunkiem `cancelled_at IS NULL`, bo `meal_slot_id` padoku jest `NULL`, a po „Cofnij” akcję trzeba móc zapisać ponownie;
@@ -676,7 +679,7 @@ Zasady wspólne:
 - [ ] `/readyz` zwraca 503, gdy w bazie brakuje migracji wymaganej przez kod. Migracje nowsze, niż zna kod, są dopuszczalne (rolling update).
 
 #### 3.1.5 Kontrakty API i zdarzeń (`packages/contracts`)
-- [ ] Deskryptory tras w zod: metoda, ścieżka, parametry, body, odpowiedzi, polityka dostępu (`audience`; dozwolone aplikacje `clients`; `stable: { roles, feature, write }`; `platform`; `stepUp`; dla `/internal` `callers`), deklaracja audytu. Z deskryptorów `/internal` powstaje manifest wywołań i NetworkPolicy z granulacją serwis → serwis, bez tokenów serwisowych (propozycja, mikroserwisy.md 3.6, 7.1).
+- [ ] Deskryptory tras w zod: metoda, ścieżka, parametry, body, odpowiedzi, polityka dostępu (`audience`; dozwolone aplikacje `clients`; `stable: { roles, feature, write }`; `platform`; `stepUp`; `open` tylko dla trasy otwartej, z powodem i limitem żądań; dla `/internal` `callers`), deklaracja audytu. Z deskryptorów `/internal` powstaje manifest wywołań i NetworkPolicy z granulacją serwis → serwis, bez tokenów serwisowych (propozycja, mikroserwisy.md 3.6, 7.1).
 - [ ] Z deskryptorów powstają OpenAPI 3.1 dla każdego serwisu oraz typowany `packages/api-client`.
 - [ ] Błędy w `application/problem+json` z polem `code`:
   - `version_conflict` (412), `precondition_required` (428);
@@ -685,8 +688,8 @@ Zasady wspólne:
   - `option_disabled` (409, propozycja): zapis opcji wyłączonej w ustawieniach stajni, np. flaga z nieaktywnego szablonu (`derka` w Stajni Brzozowej), „namoczyć” przy wyłączonym moczeniu, szybka akcja z wyłączonym przyciskiem;
   - `ack_not_required` (409, propozycja): potwierdzenie flagi z `requires_ack = false`;
   - `tax_id_taken` (409, propozycja): rejestracja konta firmy z NIP, który ma już konto („Ten NIP ma już konto w EQUENOR”);
-  - `target_in_use` (409, propozycja): zaproszenie konta technicznego na kontakt istniejącego konta albo cel z puli zespołu EQUENOR;
-  - `invalid_credentials` (złe hasło i nieistniejące konto dają to samo) i `invalid_code` (401) oraz `account_not_confirmed` (409) przy logowaniu (propozycja, mikroserwisy.md 3.1); `invalid_token`, `token_expired` i `step_up_required` (401), `session_revoked` (401 przy odświeżeniu: wygasły refresh token, klucz `revoked`, nieaktualne `tv`, usunięte konto, odebrana rola platformowa); `forbidden_role`, `feature_hidden`, `client_not_allowed`, `other_building`, `forbidden_platform` (403); `wrong_client` i `access_revoked` (403 przy logowaniu i odświeżeniu tokenu) (propozycja, mikroserwisy.md 8);
+  - `target_in_use` (409, propozycja): zaproszenie konta technicznego na kontakt istniejącego konta albo konta zespołu EQUENOR;
+  - `invalid_credentials` (złe hasło i nieistniejące konto dają to samo) i `invalid_code` (401) oraz `account_not_confirmed` (409) i `account_locked` (403, po limicie złych kodów) przy logowaniu (propozycja, mikroserwisy.md 3.1); `invalid_token`, `token_expired` i `step_up_required` (401), `session_revoked` (401 przy odświeżeniu: wygasły refresh token, klucz `revoked`, nieaktualne `tv`, usunięte konto, odebrana rola platformowa); `forbidden_role`, `feature_hidden`, `client_not_allowed`, `other_building`, `forbidden_platform` (403); `wrong_client` i `access_revoked` (403 przy logowaniu i odświeżeniu tokenu) (propozycja, mikroserwisy.md 8);
   - `client_upgrade_required`;
   - 404 dla obiektów innej stajni.
 - [ ] Konwencje:
@@ -706,7 +709,7 @@ Zasady wspólne:
 - [ ] HTTP na Fastify (propozycja): walidacja zod, limity rozmiaru body, CORS dla originu panelu i panelu zespołu `[OPS]`.
 - [ ] Konfiguracja z env walidowana zod. Przy brakach serwis nie startuje. Adaptery fałszywe i `console` blokują start w produkcji.
 - [ ] Obserwowalność:
-  - logi JSON (pino) z `request_id`, `trace_id`, `stable_id` i `user_id`, bez tokenów i kodów;
+  - logi JSON (pino) z `request_id`, `trace_id`, `stable_id` i `user_id`, bez tokenów, haseł i kodów;
   - OpenTelemetry dla HTTP, pg oraz SNS/SQS (`traceparent` w atrybutach wiadomości);
   - metryki Prometheus.
 - [ ] Sondy `/livez` i `/readyz`.
@@ -825,12 +828,21 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 - [ ] PostgreSQL:
   - ta sama wersja główna lokalnie, w CI, na teście i w produkcji;
   - pooler i limit `max_connections` dla 9 serwisów z bazą (`sms` i `email` bez połączenia) i 9 cronów razy liczba replik (tryb poolera wpływa na prepared statements w sterowniku);
-  - kopie z PITR i próbne odtworzenie bazy przed pilotażem.
+  - kopie z PITR i próbne odtworzenie bazy przed pilotażem (także bazy ZITADEL, niżej).
 - [ ] Sieć klastra:
-  - NetworkPolicy generowana z manifestu wywołań w `packages/contracts`, per port (NetworkPolicy nie rozróżnia ścieżek, więc każdy zestaw wołających ma własny port `/internal`): `stables` → `operations` i `auth` (port `horses`), `notifications` → `auth` (port `recipients`), `operations`, `schedule`, `billing`, `stables` i `platform` → `files`, wszystkie serwisy z API → `auth` (port `jwks`); ruch wychodzący cronów tylko do PostgreSQL i AWS; `sms` i `email` bez ruchu przychodzącego, wychodzący tylko do AWS;
-  - ingress z routingiem po prefiksie `/<serwis>/` i limitami żądań na publicznych trasach odpytywania oraz na trasach logowania, MFA, rejestracji i resetu hasła w `auth` (AWS WAF albo ingress; propozycja, ważne, gdyby limit prób kodu w Cognito był za luźny);
+  - NetworkPolicy generowana z manifestu wywołań w `packages/contracts`, per port (NetworkPolicy nie rozróżnia ścieżek, więc każdy zestaw wołających ma własny port `/internal`): `stables` → `operations` i `auth` (port `horses`), `notifications` → `auth` (port `recipients`), `operations`, `schedule`, `billing`, `stables` i `platform` → `files`, wszystkie serwisy z API → `auth` (port `jwks`), `auth` → ZITADEL (jedyny ruch do API ZITADEL), ZITADEL → jego baza; ruch wychodzący cronów tylko do PostgreSQL i AWS; `sms` i `email` bez ruchu przychodzącego, wychodzący tylko do AWS;
+  - ingress z routingiem po prefiksie `/<serwis>/` i limitami żądań na każdej trasie otwartej (w `auth` po IP i loginie, w kroku MFA po tokenie logowania) i na zewnętrznych trasach odpytywania (AWS WAF albo ingress; propozycja);
   - `/internal` i JWKS na portach wewnętrznych, niewystawionych poza klaster.
-- [ ] `/internal` bez tokenów serwisowych (W3, propozycja, mikroserwisy.md 7.1): przez TLS z certyfikatem z CA klastra (cert-manager), a kto może wołać który serwis, pilnuje NetworkPolicy. Na później (do decyzji, może poczekać, mikroserwisy.md 10.2 pkt 23): serwis docelowy sprawdza lokalnie podpis tokenu konta serwisowego Kubernetes (JWKS klastra) albo certyfikat klienta (mTLS). JWKS też przez TLS z CA klastra. Klucz podpisu tokenów w AWS KMS (`kms:Sign` tylko rola `auth`). Wyzwalacz kodów (Lambda) z rolą tylko na `kms:Decrypt` klucza kodów i wysyłkę do kolejek kodów; sieć Lambdy (w VPC czy poza nią) wybiera Dawid.
+- [ ] `/internal` bez tokenów serwisowych (W3, propozycja, mikroserwisy.md 7.1): przez TLS z certyfikatem z CA klastra (cert-manager), a kto może wołać który serwis, pilnuje NetworkPolicy. Na później (do decyzji, może poczekać, mikroserwisy.md 10.2 pkt 23): serwis docelowy sprawdza lokalnie podpis tokenu konta serwisowego Kubernetes (JWKS klastra) albo certyfikat klienta (mTLS). JWKS też przez TLS z CA klastra. Klucz podpisu tokenów w AWS KMS (`kms:Sign` tylko rola `auth`).
+- [ ] **ZITADEL** (W10; komponent infrastruktury, nie nasz serwis; mikroserwisy.md 5.10):
+  - wdrożenie: Helm chart `zitadel/zitadel` 10.x (Kubernetes 1.30+); chart domyślnie wdraża starszą wersję, więc ZITADEL v4 przypięty w `image.tag`; co najmniej 3 repliki (binarka bezstanowa) z PDB; Jobs init i setup z chartu (setup przy każdej wersji); bez ekranu logowania ZITADEL (`login.enabled: false`, propozycja); do podów HTTP/2 (h2c), TLS kończy się na ingressie ([Kubernetes](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/deploy/kubernetes/index.mdx), [chart](https://github.com/zitadel/zitadel-charts/blob/main/charts/zitadel/README.md));
+  - baza: osobna instancja PostgreSQL 14–18 (co najmniej osobna baza i rola), do której żaden nasz serwis ani cron nie ma roli ani ruchu; własny PITR;
+  - masterkey: 32 bajty, nie do zmiany po inicjalizacji, szyfruje sekrety w bazie ZITADEL; bez niego backup bazy jest bezużyteczny. W sejfie sekretów z osobną kopią poza klastrem ([sekrety](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/concepts/architecture/secrets.mdx));
+  - backup: PITR bazy, masterkey i konfiguracja (values, sekrety, klucz konta serwisowego `auth`); backup przed każdą aktualizacją ([produkcja](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/manage/production.mdx));
+  - test odtworzenia przed produkcją i okresowo: PITR bazy, ta sama wersja ZITADEL z tym samym masterkey i `ExternalDomain`, setup, start [S] (oficjalnej procedury dostawca nie podaje); bazy ZITADEL i `auth` do tego samego punktu w czasie, `users.idp_user_id` sprawdzalne po odtworzeniu;
+  - aktualizacje: GitHub Security Advisories i `releases.atom` ZITADEL (10 advisory od 29.07 do 28.09.2026, w tym 3 krytyczne; poprawki co 1–3 tygodnie); wadliwe wersje pomijamy (np. v4.18.0), linia v3 nie dostaje poprawek;
+  - sieć: API ZITADEL tylko w klastrze i tylko z podów `auth`; konsola tylko dla zespołu EQUENOR, niewystawiona publicznie (VPN albo port-forward, propozycja);
+  - monitoring: `/debug/metrics` (Prometheus), gotowość `/debug/ready`, logi JSON; alerty na błędy wywołań ZITADEL z `auth`.
 - [ ] Środowisko testowe dostępne po HTTPS z sieci stanowiska i z sieci komórkowej; miejsce na generator k6 blisko klastra.
 - [ ] Zgoda na wstrzykiwanie awarii: zabijanie podów, zmiana liczby replik, wstrzymanie CronJoba, odcięcie SNS.
 - [ ] Logi, metryki i alerty (2.12); runnery CI: macOS i KVM (1.6).
@@ -841,22 +853,21 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - **LocalStack** z S3, SNS, SQS i SES. Przypiąć wersję i sprawdzić warunki obrazu, bo zasady wersji community zmieniały się w 2026. Skrypt startowy tworzy zasoby z manifestu (3.1.5);
   - **S3** w trybie path-style, z osobnym `S3_PUBLIC_ENDPOINT` w LAN, żeby presigned URL działał z telefonu i tabletu;
   - **reverse proxy** z prefiksami `/<serwis>/`, dostępny z LAN;
-  - `fake-sms` (adapter serwisu `sms`), lokalna skrzynka za serwisem `email` (np. Mailpit, propozycja) i `auth` z kluczem podpisu z pliku i fałszywym adapterem Cognito.
-- [ ] **Cognito lokalnie, trzy warianty** (aplikacje zawsze rozmawiają z `auth`, W6):
-  - **C, prawdziwy `auth` z fałszywym adapterem Cognito** (propozycja, mikroserwisy.md 11.3): `TOKEN_SIGNER=file` (klucz podpisu z pliku zamiast KMS), `IDP=stub` (adapter w `auth`: rejestracja, potwierdzenie, hasło, kod MFA, reset hasła i zmiana kontaktu bez AWS; kody generuje adapter i wrzuca, tak jak wyzwalacz, do lokalnych kolejek `email` i `sms`, więc trafiają do lokalnej skrzynki, np. Mailpit, albo do `fake-sms`); `pnpm dev:token anna --client mobile` daje access i refresh token EQUENOR przez prawdziwe wyliczanie claimów, podpisane lokalnym kluczem testowym, bez sesji w bazie.
-    - Zastosowanie: CI, praca nad backendem i apkami w LAN.
-    - Test kontraktowy porównuje zachowanie adaptera (błędy, kanały, potwierdzenie, reset) z pulą dev.
-    - Nie startuje przy `ENV=prod`.
-  - **A, deweloperska pula Cognito:** do E2E, zawsze przez `auth`. Wyzwalacz kodów przekierowuje kody do skrzynki testowej (2.4), więc sandbox SMS i SES nie blokuje testów. Bez osobnego klienta „e2e” i bez wyłączania MFA.
-  - **B, emulator** (cognito-local, moto, LocalStack): tylko jeśli spike pokaże wystarczającą zgodność. Wierne odwzorowanie MFA e-mailem i SMS-em, wyzwalaczy custom sender i global sign-out jest [niepotwierdzone].
-- [ ] **Spike Cognito (etap 0):**
-  - hasło i MFA kodem e-mailem i SMS-em w obu pulach przez poufnego klienta po stronie serwera (`InitiateAuth`, `RespondToAuthChallenge` z `SECRET_HASH`); token logowania z ciągiem `Session` między krokami; pula z e-mailem i telefonem jako aliasami logowania;
-  - wyzwalacze custom email sender i custom SMS sender dla wszystkich źródeł (rejestracja, ponowny kod, reset hasła, zmiana i weryfikacja atrybutu, MFA): odszyfrowanie (KMS, AWS Encryption SDK), czas od żądania do kodu w skrzynce i na telefonie, zachowanie przy błędzie Lambdy albo kolejki; czy pula z wyzwalaczami wymaga jeszcze konfiguracji SMS i e-mail Cognito;
-  - limit błędnych prób kodu w jednej sesji i w kolejnych sesjach [niepotwierdzone], ważność kodu wobec `AuthSessionValidity` (3–15 min); limity AWS WAF po IP na trasach `auth`, a przy luźnym limicie prób także po tokenie logowania w nagłówku;
-  - rejestracja e-mailem i telefonem z potwierdzeniem kodem, ponowny kod, logowanie niepotwierdzonego konta, reset hasła (`AccountRecoverySetting` z `verified_email` i `verified_phone_number`; konto z jednym kontaktem, mikroserwisy.md 10.2 pkt 24), zmiana e-maila, telefonu i hasła po ponownym logowaniu (`AdminUpdateUserAttributes`, `VerifyUserAttribute`, `AdminSetUserPassword`; mikroserwisy.md 5.2);
-  - jedno konto z telefonem i e-mailem: wybór kanału MFA w profilu (preferencja w Cognito);
-  - zaproszenie e-mailem dopasowane do zweryfikowanego e-maila z ID tokenu w `auth`;
-  - plan Essentials albo Plus dla e-mail MFA [niepotwierdzone];
+  - `fake-sms` (adapter serwisu `sms`), lokalna skrzynka za serwisem `email` (np. Mailpit, propozycja), ZITADEL z własnym PostgreSQL i `auth` z kluczem podpisu z pliku.
+- [ ] **ZITADEL lokalnie** (aplikacje zawsze rozmawiają z `auth`, W6):
+  - obraz `ghcr.io/zitadel/zitadel:<tag>` w wersji z klastra (oficjalny compose przypina starszą, v4.16.0), `start-from-init` z masterkey dev, bez ekranu logowania; dokumentacja podaje minimum 2 GB RAM, a pierwszy setup może trwać minuty ([compose](https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/deploy/compose.mdx));
+  - przy pierwszym starcie ZITADEL zakłada konto maszynowe i zapisuje jego klucz do pliku (`ZITADEL_FIRSTINSTANCE_MACHINEKEYPATH`); skrypt `tools/local` zakłada nim organizacje, ustawienia z `services/auth/infra` i konto serwisowe `auth` (propozycja);
+  - `auth` z kluczem podpisu z pliku (`TOKEN_SIGNER=file` zamiast KMS; nie startuje przy `ENV=prod`); kody idą z `auth` lokalnymi kolejkami do `email` i `sms`, czyli do lokalnej skrzynki (np. Mailpit) albo `fake-sms`, a E2E czytają je stamtąd;
+  - `pnpm dev:token anna --client mobile` daje access i refresh token EQUENOR przez prawdziwe wyliczanie claimów, podpisane lokalnym kluczem testowym, bez sesji w bazie i bez ZITADEL (praca nad apkami w LAN);
+  - ten sam ZITADEL w CI (Testcontainers) i E2E, więc fałszywy adapter dostawcy tożsamości nie jest potrzebny (propozycja).
+- [ ] **Spike ZITADEL i `auth` (etap 0):**
+  - ZITADEL na klastrze testowym z Helm chartu (Dawid) i lokalnie w compose; konto serwisowe `auth` (private key JWT, `IAM_LOGIN_CLIENT`) w obu organizacjach;
+  - rejestracja e-mailem i telefonem z weryfikacją kodem z `return_code`, ponowny kod, rejestracja samym telefonem (adres zastępczy [S]), logowanie niepotwierdzonego konta (`auth` musi je zatrzymać);
+  - logowanie hasłem i kodem OTP e-mailem i SMS-em z `returnCode` (Session API): bez sprawdzonego hasła kodu nie ma, `auth` czyta sesję przed wydaniem tokenu i ją usuwa; czas od żądania do kodu w skrzynce i na telefonie;
+  - reset hasła kodem tym samym kanałem; blokada po 5 złych kodach i odblokowanie (`UnlockUser`); opóźnienia przy złych hasłach; generatory kodów (6 cyfr, ważność);
+  - zmiana e-maila, telefonu i hasła po ponownym logowaniu (mikroserwisy.md 5.2); zmiana kanału MFA w profilu;
+  - zaproszenie e-mailem dopasowane do zweryfikowanego kontaktu z konta ZITADEL;
+  - backup i odtworzenie na próbę: PITR baz ZITADEL i `auth` do tego samego punktu, ten sam masterkey, setup; po odtworzeniu logowanie działa, a `users.idp_user_id` się zgadza; aktualizacja ZITADEL o wersję minor z backupem przed nią;
   - odświeżanie tabletu i wyświetlacza przez tygodnie przy zrywanym Wi-Fi: refresh JWT bez zapisu (zgubiona odpowiedź niczego nie psuje, ten sam token dalej działa), DPoP z `cnf.jkt` w refresh JWT i dowodem z oknem `iat` 60 s, bez zapisu `jti` (propozycja do spike'u);
   - opóźnienie i koszt KMS Sign z EKS;
   - telewizor i tablet zalogowane kontami technicznymi z rolą `display` i `tablet`: hasło i kod na skrzynkę konta (np. boksy@stajnielipowe.pl);
@@ -902,15 +913,15 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - **Ludzie** (przypisania per stajnia; Stajnia Brzozowa niżej):
     - Damian: admin konta firmy (właściciel), dostęp do obu stajni bez przypisywania; telefon i e-mail (w interfejsie „+48 602 *** 145” i „d•••@stajnielipowe.pl”, propozycja);
     - Ola: obsługa przypisana do obu stajni (w interfejsie „+48 607 *** 218”); Piotr: obsługa tylko w Pod Lipami;
-    - Marta (Instruktor): przypisana do obu stajni (propozycja); Kuba to admin globalny zespołu EQUENOR (propozycja, mikroserwisy.md 2): konto w puli zespołu (`identity_pool = team`), wiersz `platform_roles` (`role = admin`, zatwierdzony, z `expires_at`), bez członkostwa, zaproszenia i wiersza w Ludziach; w seedzie dev drugi admin globalny do testów zasady dwóch osób (propozycja);
+    - Marta (Instruktor): przypisana do obu stajni (propozycja); Kuba to admin globalny zespołu EQUENOR (propozycja, mikroserwisy.md 2): konto w organizacji zespołu w ZITADEL (`identity_pool = team`), wiersz `platform_roles` (`role = admin`, zatwierdzony, z `expires_at`), bez członkostwa, zaproszenia i wiersza w Ludziach; w seedzie dev drugi admin globalny do testów zasady dwóch osób (propozycja);
     - klienci (rola `client`, dostęp przez `horse_access`): Anna (Kasztan i Bella), Karolina W. (Iskra), Tomasz L. (Grom), Ewa K. (Sonata);
     - Marek Nowak: oczekujące zaproszenie SMS jako klient do Luny (`invitations.horse_id`, bez boksu);
     - wygasłe zaproszenie dla obsługi;
     - konta techniczne Pod Lipami: „Telewizor korytarz”, e-mail tv.korytarz@stajnielipowe.pl (w interfejsie t•••@stajnielipowe.pl), rola Wyświetlacz (`display`), loguje się na TV e-mailem, hasłem i kodem z e-maila; „Tablety Pod Lipami”, e-mail boksy@stajnielipowe.pl (w interfejsie b•••@stajnielipowe.pl), rola Tablet (`tablet`), zalogowane na wszystkich tabletach tej stajni (propozycja). Oba konta mają `account_kind = technical`.
     - klucz podpisu dev w `signing_keys` (z pliku, propozycja); sesji seed nie zakłada, bo ich nie ma (W4);
-    - konta demo mają potwierdzone kontakty i hasła tylko w dev (lokalny `.env`, poza repo); kody MFA w dev trafiają do lokalnej skrzynki albo `fake-sms` (propozycja).
+    - konta demo seed zakłada w lokalnym ZITADEL przez `auth` (stałe `user_id`, potwierdzone kontakty, metoda OTP); hasła tylko w dev (lokalny `.env`, poza repo); kody MFA w dev trafiają do lokalnej skrzynki albo `fake-sms` (propozycja).
 
-    Numery i adresy są fikcyjne; numery i adresy do puli dev leżą w lokalnym `.env`, poza repo.
+    Numery i adresy są fikcyjne; numery i adresy do ZITADEL dev leżą w lokalnym `.env`, poza repo.
   - **Słowniki:**
     - posiłki 06:30, 12:00 i 18:00;
     - pasze (m.in. owies, siano, suplement X, wysłodki, sieczka);
@@ -970,24 +981,24 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 - Zmian widocznych na tablicy nie przekazujemy zdarzeniami: `board` czyta bazę przy każdym zapytaniu [erd]. Crony piszą wprost do bazy, a powiadomienia zlecają tylko zdarzeniem (W3).
 
 **auth** (jedyny serwis autoryzacyjny, W2; tabele: `users`, `businesses`, `business_admins`, `stable_members`, `horse_access`, `invitations`, `stable_role_features`, `platform_roles`, `platform_requests`, `signing_keys`; bez tabel sesji, W4; pełna lista tras: mikroserwisy.md 5.2, propozycja)
-- [ ] Logowanie i konto (W6–W9; trasy: mikroserwisy.md 3.1): `POST /sign-up`, `/sign-up/confirm`, `/sign-up/resend`, `/login` (hasło; odpowiedź: token logowania, kanał i zamaskowany adres; niepotwierdzone konto `409 account_not_confirmed`), `/login/mfa` (kod; access i refresh token EQUENOR), `/password/forgot`, `/password/reset`, `PUT /me/mfa-channel` i zmiana e-maila, telefonu i hasła po ponownym logowaniu hasłem i kodem (`/me/contact`, `/me/password`). `auth` woła Cognito poufnym klientem po stronie serwera i wyrzuca tokeny Cognito; panel zespołu loguje się tak samo na `[OPS]` (`/ops/login`, `/ops/login/mfa` z powodem wejścia). Wyzwalacz kodów `services/auth/code-sender` (2.4).
+- [ ] Logowanie i konto (W6–W9; trasy: mikroserwisy.md 3.1): `POST /sign-up`, `/sign-up/confirm`, `/sign-up/resend`, `/login` (hasło; odpowiedź: token logowania, kanał i zamaskowany adres; niepotwierdzone konto `409 account_not_confirmed`), `/login/mfa` (kod; access i refresh token EQUENOR), `/password/forgot`, `/password/reset`, `PUT /me/mfa-channel` i zmiana e-maila, telefonu i hasła po ponownym logowaniu hasłem i kodem (`/me/contact`, `/me/password`). Trasy logowania są otwarte (bez access tokenu, jawnie w deskryptorze, z limitami żądań). `auth` woła API ZITADEL v2 kontem serwisowym i zamyka sesję ZITADEL po kroku MFA; panel zespołu loguje się tak samo na `[OPS]` (`/ops/login`, `/ops/login/mfa` z powodem wejścia). Kody z ZITADEL `auth` wrzuca do kolejek `email` i `sms` (2.4). Po 5 złych kodach konto jest zablokowane (`403 account_locked`); odblokowuje je reset hasła albo admin globalny.
 - [ ] Tokeny: `POST /auth/v1/token` (odświeżenie refresh JWT bez kodu i bez zapisu: `auth` sprawdza konto, `tv` wobec `users.token_version`, aktywność konta technicznego i rolę platformową, liczy claimy od nowa i wydaje nowy refresh token z `exp` przesuniętym o okno bezczynności, nie dalej niż `sst` + maksimum; z ciasteczkiem tylko z `Origin` z listy i nagłówkiem `X-Equenor-Client`), `POST /logout` i `POST [OPS]/auth/v1/ops/logout` (aplikacja usuwa tokeny, panel i `[OPS]` czyszczą swoje ciasteczko; skopiowany wcześniej refresh token działa do `exp`), JWKS (tylko w klastrze, port `jwks`), klucz podpisu w KMS z rotacją (`revoked` przy wycieku). Kolejność sprawdzeń przy odświeżeniu: mikroserwisy.md 3.7 (zablokowane konto techniczne dostaje `403 access_revoked` przed sprawdzeniem `tv`).
-- [ ] Po kroku MFA w jednej transakcji: upsert `users` (wiersz powstaje przy pierwszym logowaniu, więc niepotwierdzonych kont w bazie nie ma; imię z rejestracji albo nazwa konta technicznego z zaproszenia tylko wtedy) po (`identity_pool`, `cognito_sub`) i odświeżenie kopii telefonu i e-maila (`contact_synced_at`), dopasowanie zaproszeń, zgodność konta z aplikacją, wyliczenie claimów, nowy `sid` (bez zapisu).
-- [ ] `GET /me` (profil, stajnie z nazwą, rolą, funkcjami i statusem, firmy admina, `plt`, widok startowy, świeżo dopasowane zaproszenia), `PATCH /me` (nazwa wyświetlana i język), `DELETE /me` (pseudonimizacja i usunięcie konta w Cognito; blokada, gdy użytkownik jest jedynym adminem konta firmy), `POST /me/sign-out-everywhere` (podbija `token_version`), `DELETE /me/memberships/{stableId}` („Opuść stajnię”, bez makiety).
+- [ ] Po kroku MFA w jednej transakcji: upsert `users` (wiersz powstaje przy pierwszym logowaniu, więc niepotwierdzonych kont w bazie nie ma; imię z rejestracji albo nazwa konta technicznego z zaproszenia tylko wtedy) po (`identity_pool`, `idp_user_id`) i odświeżenie kopii telefonu i e-maila (`contact_synced_at`), dopasowanie zaproszeń, zgodność konta z aplikacją, wyliczenie claimów, nowy `sid` (bez zapisu).
+- [ ] `GET /me` (profil, stajnie z nazwą, rolą, funkcjami i statusem, firmy admina, `plt`, widok startowy, świeżo dopasowane zaproszenia), `PATCH /me` (nazwa wyświetlana i język), `DELETE /me` (pseudonimizacja i usunięcie konta w ZITADEL; blokada, gdy użytkownik jest jedynym adminem konta firmy), `POST /me/sign-out-everywhere` (podbija `token_version`), `DELETE /me/memberships/{stableId}` („Opuść stajnię”, bez makiety).
 - [ ] Konto firmy: `POST /businesses` (propozycja): rejestracja konta firmy po pierwszym logowaniu (PanelWitaj → PanelRejestracjaFirmy): nazwa firmy, NIP, siedziba i e-mail do faktur (`invoice_email`). NIP podaje się tylko tutaj. Kod normalizuje NIP do 10 cyfr i sprawdza sumę kontrolną (propozycja); NIP, który ma już konto, daje `409 tax_id_taken` („Ten NIP ma już konto w EQUENOR”, propozycja) i nic nie zapisuje. Osoba rejestrująca zostaje adminem konta: `businesses` i `business_admins` zapisują się w jednej transakcji, a odpowiedź ma `Equenor-Token-Refresh: required`. Konto techniczne nie zakłada firmy (403).
 - [ ] Członkostwa: stajnie, role i dostępy liczy `auth` do tokenu. Admin konta firmy ma wszystkie stajnie firmy, także nową od razu po jej założeniu, bez przypisywania. Pozostałe role przypisuje się per stajnia, a osoba może być przypisana do kilku stajni z różnymi rolami albo tą samą rolą (w seedzie Ola jako obsługa, Marta jako instruktorka i Anna jako klientka w obu stajniach; Paweł tylko w Brzozowej, Piotr tylko w Pod Lipami); apka przełącza między nimi stajnię bez ponownego logowania. Konto techniczne (`account_kind = technical`) ma członkostwo w jednej stajni; przypisanie go do drugiej `auth` odrzuca (propozycja).
 - [ ] Zarządzanie członkami (Ludzie): zmiana roli w stajni (`staff | instructor | client`; konta techniczne `display | tablet` bez zmiany roli, propozycja), `active` (tylko osoby), blokada i odblokowanie kont technicznych (dla osoby 409), „Wyloguj wszystkie tablety” przy koncie tabletów (dla osoby 409) (`POST …/members/{id}/sign-out`, podbija `token_version`; jednego tabletu nie odłączamy, W4), „Usuń ze stajni”; rola Admin dotyczy całego konta firmy (`business_admins`), a kolejnych adminów konta dodaje admin globalny we dwie osoby, z powiadomieniem adminów firmy (propozycja); przypisanie osoby do kolejnej stajni firmy i jego odebranie (np. Ola do Brzozowej; propozycja: w Ludziach, bez nowego zaproszenia). W Ludziach konta techniczne („Telewizor korytarz · Wyświetlacz”, „Tablety Pod Lipami · Tablet”) są w filtrze „Konta techniczne”, a dostępy nadane przez zespół EQUENOR (`granted_via = platform`) są oznaczone. Zmiana uprawnień działa przy najbliższym odświeżeniu tokenu, do 5 min, bez listy unieważnień; `token_version` podbijają tylko „Wyloguj ze wszystkich urządzeń”, blokada i usunięcie konta, odebranie roli platformowej i „Wyloguj wszystkie tablety”.
 - [ ] Zaproszenia.
   - Kanał: telefon (SMS) albo e-mail (`invitations.channel`), wybór „Kanał: SMS | E-mail” jak na makiecie Zaproszenie.
   - Role do wyboru: Klient (z wyborem konia), Obsługa, Instruktor [erd]; w panelu („Zaproś osobę”) także osobna grupa „Konto techniczne”: Wyświetlacz i Tablet przy boksie. Wsparcia IT na liście nie ma. Osobnego „Dodaj wyświetlacz” i endpointu kont wyświetlaczy nie ma.
-  - Zaproszenie konta technicznego dopasowuje tylko świeże konto: kontakt istniejącego konta albo konta z puli zespołu daje `409 target_in_use` przy tworzeniu (propozycja).
+  - Zaproszenie konta technicznego dopasowuje tylko świeże konto: kontakt istniejącego konta albo konta zespołu daje `409 target_in_use` przy tworzeniu (propozycja).
   - Zaproszenie klienta wskazuje konia (`horse_id`, wymagane dla klienta), bez boksu i bez osobnej roli dostępu [erd].
   - Wymagane `expires_at`, domyślnie 7 dni; limit zaproszeń na firmę na dobę (propozycja).
   - „Wyślij ponownie” tworzy nowe zaproszenie.
-  - Zaproszenie dopasowuje się samo po zalogowaniu, bez ekranu „Przyjmij” [erd]: krok MFA w `auth` porównuje potwierdzony telefon albo e-mail z ID tokenu Cognito (e-mail bez rozróżniania wielkości liter, propozycja) z ważnymi zaproszeniami i od razu zapisuje członkostwo, klientowi także dostęp do konia, w jednej transakcji z `accepted_at` (zdarzenie `invitation.accepted`). U osoby już zalogowanej to samo przy najbliższym odświeżeniu tokenu (zaproszenie do kolejnej stajni). Wygasłe (`expires_at`) albo odwołane (`revoked_at`) zaproszenie się nie dopasowuje.
+  - Zaproszenie dopasowuje się samo po zalogowaniu, bez ekranu „Przyjmij” [erd]: krok MFA w `auth` porównuje potwierdzony telefon albo e-mail z konta ZITADEL (e-mail bez rozróżniania wielkości liter, propozycja) z ważnymi zaproszeniami i od razu zapisuje członkostwo, klientowi także dostęp do konia, w jednej transakcji z `accepted_at` (zdarzenie `invitation.accepted`). U osoby już zalogowanej to samo przy najbliższym odświeżeniu tokenu (zaproszenie do kolejnej stajni). Wygasłe (`expires_at`) albo odwołane (`revoked_at`) zaproszenie się nie dopasowuje.
 - [ ] Dostęp klienta do konia: `horse_access` z rolą `client` (właściciel albo dzierżawca konia), `valid_to` np. równe końcowi dzierżawy, `revoked_at`, gdy koń opuszcza stajnię. Osobnego dostępu do boksu nie ma: boks i jego historię (od dnia, w którym koń do niego trafił) klient widzi przez konia [erd]. `exp` tokenu klienta nie wychodzi poza koniec okna dostępu (propozycja).
 - [ ] Widoczność per rola: `GET` i `PUT …/role-features` z `If-Match` i audytem: macierz ról `client | staff | instructor | tablet | display` × funkcji ze stałej listy `flags`, `feeding_plan`, `routine`, `box_history`, `tasks`, `health`, `rides` [erd]; `tasks` i `box_history` nie dotyczą roli `tablet` (bez wierszy, w panelu pola nieaktywne) [erd]. `admin` nie występuje w macierzy, bo widzi wszystko; nieznana rola albo funkcja i `tablet` z `tasks` albo `box_history` dają 422 (propozycja). Macierz trafia do tokenu, więc zmiana działa po odświeżeniu, do 5 min.
-- [ ] Platforma (admin globalny, Wsparcie IT): `GET /platform/businesses`, użytkownicy i ich wylogowanie, konta techniczne stajni, kolejny admin konta i role platformowe we dwie osoby (`platform_requests`), konta zespołu i rotacja kluczy (tylko `opctl`, ze step-up: ponowne logowanie hasłem i kodem).
+- [ ] Platforma (admin globalny, Wsparcie IT): `GET /platform/businesses`, użytkownicy, ich wylogowanie i odblokowanie konta w ZITADEL, konta techniczne stajni, kolejny admin konta i role platformowe we dwie osoby (`platform_requests`), konta zespołu i rotacja kluczy (tylko `opctl`, ze step-up: ponowne logowanie hasłem i kodem).
 - [ ] `/internal` (tylko te, każda trasa na własnym porcie): `recipients` (adresowanie dla `notifications`, nie autoryzacja; `feature` zostawia tylko role, które widzą funkcję, `businessId` daje adminów firmy), `horses/{id}/left` (woła `stables`; zamyka dostęp tylko przy `horses.status = left`). Wygasłe zaproszenia ogłasza cron `invitation-expiry-notifier`, a stare `platform_requests` usuwa `retention-pruner` (3.4).
 
 **stables** (`stables`, `stable_settings`, `notification_rules`, `buildings`, `boxes`, `horses`, `horse_box_history`; konto firmy i macierz widoczności są w `auth`)
@@ -1173,7 +1184,7 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - okno instalacji z ustawień stajni;
   - wymuszenie aktualizacji poniżej `min_required_version_code`;
   - presigned URL z obsługą `Range`.
-- [ ] CLI `tools/opctl` (aplikacja `opctl` w puli zespołu EQUENOR, hasło i kod przez trasy `auth`, tokeny w treści odpowiedzi; propozycja, mikroserwisy.md 4.1): `login`, `operators create`, `platform grant` i `approve` (role we dwie osoby), `keys rotate`, `bootstrap` (Job Kubernetes), `cron run`, wydania APK i plany billingu.
+- [ ] CLI `tools/opctl` (aplikacja `opctl` w organizacji zespołu EQUENOR, hasło i kod przez trasy `auth`, tokeny w treści odpowiedzi; propozycja, mikroserwisy.md 4.1): `login`, `operators create`, `platform grant` i `approve` (role we dwie osoby), `keys rotate`, `bootstrap` (Job Kubernetes), `cron run`, wydania APK i plany billingu.
 - [ ] Audyt: odczyt historii obiektu (admin konta i admin globalny; `GET /platform/v1/…/entities/{type}/{id}/history`, a dla admina globalnego `GET /platform/v1/platform/audit-entries`; propozycja, mikroserwisy.md 5.9). Tylko ten serwis czyta schemat `audit`; wpisy dodają wszystkie serwisy i crony, a po retencji usuwa je cron `retention-pruner` (decyzja 13.10; dotąd sprzątał serwis `audit`).
 
 **notifications** (`notifications`; router, W5)
@@ -1187,7 +1198,7 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 - [ ] Bez tabel, bez roli bazy, bez klienta bazy i bez API; każdy czyta swoją kolejkę powiadomień SQS FIFO (`MessageGroupId = notifications.id`, `MessageDeduplicationId` = `notifications.id` + `attempts`) z kompletną wiadomością, a przed nią kolejkę kodów.
 - [ ] `sms`: adapter `SmsSender` (AWS End User Messaging SMS albo SNS, dostawca: sekcja 5; lokalnie `console` i `dev-inbox`, 3.2); `email`: adapter `EmailSender` (SES). Po wysyłce publikują `sms.result` albo `email.result` (id powiadomienia, status, `provider_message_id`).
 - [ ] Uprawnienia AWS: odbiór z własnej kolejki, publikacja wyniku, wysyłka SMS albo SES. Ponowienia i DLQ z SQS (`maxReceiveCount`), bez własnych tabel prób. Błędu stałego nie ponawiają; przy nim i przy ostatniej próbie (`ApproximateReceiveCount`) publikują wynik `failed` i usuwają wiadomość; DLQ ma alarm. Możliwy duplikat przy awarii między wysyłką a usunięciem wiadomości (at-least-once).
-- [ ] Kody (potwierdzenie konta, MFA, reset hasła, zmiana kontaktu; W7): z kolejki od wyzwalacza `auth`, wysyłka jak każdej wiadomości, bez wyniku dla `notifications` i bez logowania treści; kolejka kodów szyfrowana (SSE-KMS), retencja nie dłuższa niż ważność kodu MFA, bez DLQ, grupa i deduplikacja z UUID od wyzwalacza (mikroserwisy.md 5.2; osobna kolejka: 10.2 pkt 17).
+- [ ] Kody (potwierdzenie konta, MFA, reset hasła, zmiana kontaktu; W7): z kolejki od `auth`, wysyłka jak każdej wiadomości, bez wyniku dla `notifications` i bez logowania treści; kolejka kodów szyfrowana (SSE-KMS), retencja nie dłuższa niż ważność kodu MFA, bez DLQ, grupa i deduplikacja z UUID od `auth` (mikroserwisy.md 5.2; osobna kolejka: 10.2 pkt 17).
 
 ### 3.4 Crony
 **Crony piszą do bazy bezpośrednio (W3).** Każdy cron to osobny CronJob bez własnych tabel, bez tokenów i bez wołania serwisów: rola bazy z manifestu (3.1.4), kod domeny właściciela z audytem `actor_type = system` (3.1.7), powiadomienia tylko zdarzeniem publikowanym przed COMMIT. Kod leży w module właściciela (3.1.1).
@@ -1218,7 +1229,7 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - TanStack Query z trwałym cache;
   - `api-client` i i18n;
   - `react-native-get-random-values` jako pierwszy import, bo id nadaje klient.
-- [ ] Logowanie (W6–W9): tylko trasy `auth`, bez Cognito i Amplify. Wzorzec wspólny dla apki, panelu, tabletu i TV: e-mail albo telefon (przełącznik segmentowy „Telefon | E-mail” w stylu „Kanał: SMS | E-mail” z makiety Zaproszenie), hasło i „Nie pamiętam hasła”; potem zawsze krok MFA „Kod wysłaliśmy na …”; bez dopisków. Rejestracja (kontakt, hasło, imię, język) z potwierdzeniem kodem, reset hasła kodem. Autouzupełnianie kodu z SMS-a (`one-time-code`, SMS Retriever) i hasła (menedżer haseł); kod z e-maila wpisuje się ręcznie albo wkleja. Po kroku MFA `auth` zwraca access i refresh token EQUENOR (`client_id = mobile`); refresh token w `expo-secure-store`, access token w pamięci. Potem `GET /auth/v1/me` (stajnie, role, funkcje, widok startowy), nawigacja według roli, przełącznik stajni. Ciche odświeżenie, bez kodu, przy `401 token_expired` i po powrocie na pierwszy plan; `401 session_revoked` przy odświeżeniu → ekran logowania (hasło i kod; propozycja, mikroserwisy.md 3.7).
+- [ ] Logowanie (W6–W9): tylko trasy `auth`, bez bibliotek i adresu ZITADEL. Wzorzec wspólny dla apki, panelu, tabletu i TV: e-mail albo telefon (przełącznik segmentowy „Telefon | E-mail” w stylu „Kanał: SMS | E-mail” z makiety Zaproszenie), hasło i „Nie pamiętam hasła”; potem zawsze krok MFA „Kod wysłaliśmy na …”; bez dopisków. Rejestracja (kontakt, hasło, imię, język) z potwierdzeniem kodem, reset hasła kodem. Autouzupełnianie kodu z SMS-a (`one-time-code`, SMS Retriever) i hasła (menedżer haseł); kod z e-maila wpisuje się ręcznie albo wkleja. Po kroku MFA `auth` zwraca access i refresh token EQUENOR (`client_id = mobile`); refresh token w `expo-secure-store`, access token w pamięci. Potem `GET /auth/v1/me` (stajnie, role, funkcje, widok startowy), nawigacja według roli, przełącznik stajni. Ciche odświeżenie, bez kodu, przy `401 token_expired` i po powrocie na pierwszy plan; `401 session_revoked` przy odświeżeniu → ekran logowania (hasło i kod; propozycja, mikroserwisy.md 3.7).
 - [ ] Przełącznik stajni w nagłówku („Stajnia Pod Lipami ▾”) dla osób z dostępem do kilku stajni (Damian jako admin konta firmy, Ola, Anna, Marta); Paweł i Piotr widzą samą nazwę stajni. Po przełączeniu apka pobiera konfigurację tej stajni (`stables GET …/features`) i pokazuje tylko włączone opcje i funkcje widoczne dla roli: kafelki aktywnych flag, „namoczyć” przy włączonym moczeniu, włączone przyciski, status tylko przy flagach z `requires_ack` (w praktyce: stajnia z potwierdzeniami). Cache i kolejka zapisów są osobne dla każdej stajni (propozycja). Przy jednej stajni przełącznika nie ma.
 - [ ] Odpytywanie z ETag tylko na widocznym ekranie.
 - [ ] Zapisy:
@@ -1384,7 +1395,7 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 
 #### 3.5.3 Panel web
 - [ ] SPA (propozycja: React, Vite, TanStack). Tokeny: refresh token EQUENOR w ciasteczku `__Secure-eq_rt` (`HttpOnly`, `SameSite=Strict`, `Path=/auth/v1/token`), access token tylko w pamięci strony; ścisłe CSP z nonce i Trusted Types (propozycja, mikroserwisy.md 3.7; sekcja 5 pkt 15).
-- [ ] Panel zespołu EQUENOR (PanelOps, makieta P2): osobny build na hoście `[OPS]`, logowanie e-mailem albo telefonem, hasłem i kodem w puli zespołu (bez passkey i TOTP, W9), powód wejścia, wybór firmy i stajni, potem zwykłe ekrany admina ze stałym paskiem „EQUENOR · pełny dostęp · … · powód: …”; własne ciasteczko `__Secure-eq_rt_ops` (propozycja, mikroserwisy.md 4.1).
+- [ ] Panel zespołu EQUENOR (PanelOps, makieta P2): osobny build na hoście `[OPS]`, logowanie e-mailem albo telefonem, hasłem i kodem w organizacji zespołu (bez passkey i TOTP, W9), powód wejścia, wybór firmy i stajni, potem zwykłe ekrany admina ze stałym paskiem „EQUENOR · pełny dostęp · … · powód: …”; własne ciasteczko `__Secure-eq_rt_ops` (propozycja, mikroserwisy.md 4.1).
 - [ ] PanelBoksy:
   - liczniki;
   - alert o niepotwierdzonej fladze krytycznej (tylko dla flag z `requires_ack`, w praktyce: stajnia z potwierdzeniami; trwająca niepotwierdzona flaga zostaje w alercie także po wyłączeniu potwierdzeń, A-20);
@@ -1469,11 +1480,11 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 
 ### 3.6 Kolejność prac
 - [ ] **Etap 0, od pierwszego dnia, trzy tory równolegle:**
-  - **A, fundament:** 3.1 i 3.2; najpierw `auth` z kluczem z pliku, fałszywy adapter Cognito, lokalna skrzynka i seed.
+  - **A, fundament:** 3.1 i 3.2; najpierw `auth` z kluczem z pliku, lokalny ZITADEL, lokalna skrzynka i seed.
   - **B, bramka sprzętowa tabletu:** punkty (B) z 4.3.1 (T-01…T-04, T-08, T-13, T-24, T-25) oraz testy koloru K-01 i K-05 na Boox Note Air6 C, na sztucznych odpowiedziach `board`, z paletą `t-*` w profilu właściwym dla ekranu. Kończy się decyzją: model zostaje albo bierzemy plan B. Planem B jest Samsung Galaxy Tab Active5, dokupiony dopiero wtedy, gdy T-01 albo T-02 nie przejdą na Boox; ten sam moduł DO przechodzi na nim T-01…T-03, co oddziela błąd naszego kodu od ograniczeń firmware e-ink. Innym wyjściem jest kolejny model e-ink z działającym DO, kolorowy albo czarno-biały.
-  - **C, spike Cognito i `auth`:** lista z 3.2; decyzje z mikroserwisy.md 10.2 pkt 1–8.
-- [ ] **Etap 1, logowanie i konto firmy:** serwis `auth` (rejestracja z potwierdzeniem, logowanie hasłem i kodem MFA, reset hasła, wyzwalacz kodów z kolejkami `email` i `sms`, odświeżanie tokenu bez sesji w bazie, `token_version`; role osób z `client`, konta techniczne `display` i `tablet`, admin konta firmy, przypisania per stajnia, zaproszenia SMS-em albo e-mailem, macierz widoczności, admin globalny), pakiety `auth` i `authz` w pozostałych serwisach, logowanie hasłem i kodem w apce i w panelu, rejestracja konta firmy z NIP (`POST /auth/v1/businesses`).
-  - Gotowe, gdy na puli dev działają rejestracja z potwierdzeniem, logowanie hasłem i kodem oboma kanałami (e-mail, SMS) i reset hasła, rejestracja konta firmy z NIP przechodzi A-22, zaproszenie dopasowane po zalogowaniu (bez „Przyjmij”) tworzy członkostwo (dla klienta także dostęp do konia), a macierz izolacji dla tych tras jest zielona, także między dwoma kontami firm.
+  - **C, spike ZITADEL i `auth`:** lista z 3.2 (ZITADEL na klastrze testowym: Dawid); decyzje z mikroserwisy.md 10.2 pkt 1–8.
+- [ ] **Etap 1, logowanie i konto firmy:** serwis `auth` (rejestracja z potwierdzeniem, logowanie hasłem i kodem MFA, reset hasła, kody z `auth` do kolejek `email` i `sms`, odświeżanie tokenu bez sesji w bazie, `token_version`; role osób z `client`, konta techniczne `display` i `tablet`, admin konta firmy, przypisania per stajnia, zaproszenia SMS-em albo e-mailem, macierz widoczności, admin globalny), pakiety `auth` i `authz` w pozostałych serwisach, logowanie hasłem i kodem w apce i w panelu, rejestracja konta firmy z NIP (`POST /auth/v1/businesses`).
+  - Gotowe, gdy na ZITADEL dev działają rejestracja z potwierdzeniem, logowanie hasłem i kodem oboma kanałami (e-mail, SMS) i reset hasła, rejestracja konta firmy z NIP przechodzi A-22, zaproszenie dopasowane po zalogowaniu (bez „Przyjmij”) tworzy członkostwo (dla klienta także dostęp do konia), a macierz izolacji dla tych tras jest zielona, także między dwoma kontami firm.
 - [ ] **Etap 2, stajnia, hale, boksy, konie:** `stables` (konto firmy → stajnie → hale → boksy), „Załóż stajnię” w 2 krokach z regułami powiadomień (`notification_rules`) i boksami z ustawieniami, ustawienia stajni i widoczność per rola (`stable_settings`, `stable_role_features` w `auth`, `GET …/features`), panel (PanelRejestracjaFirmy, PanelZalozStajnie, PanelZalozPowiadomienia, Boksy i konie, Dodaj halę, Ustawienia stajni), apka admina, przełącznik stajni w apce.
   - Gotowe, gdy seed z dwiema halami (boksy 1–8 i 1–6) jest widoczny w panelu i w apce z halą przy numerze, dodanie hali z adresem i boksami od 1 działa, a przypisanie, przeniesienie i zamiana koni przechodzą testy współbieżności; obie stajnie z seedu mają swoje ustawienia, a ekran „Ustawienia stajni” zmienia je tylko admin konta firmy; druga stajnia bez NIP i przypisania per stajnia przechodzą A-23.
 - [ ] **Etap 3, flagi:** flagi w `operations` z obowiązkowymi godzinami, skutkami z okna (`packages/rules`) i Derką, `requires_ack` kopiowanym z ustawień stajni, szablonami włączanymi w „Ustawieniach stajni”, `notifications` (router) z `sms` na `fake-sms` i `email` na SES w LocalStack, `escalation-scheduler` (tylko flagi z `requires_ack`, zapis wprost i `flag.escalated`), ekrany klienta (kafelki flag) i obsługi.
@@ -1523,7 +1534,7 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - NIP: kreski i spacje usuwane, 10 cyfr, suma kontrolna (propozycja).
   - Komplet tłumaczeń PL, UA i EN.
   - Paleta (`packages/theme`): wartości zgodne z `docs/paleta.md`, kontrasty WCAG oraz drabina jasności tokenów `t-*` w profilu Kaleido 3 i Gallery 3 (testy z 3.1.12).
-- [ ] **Integracyjne (Testcontainers: PostgreSQL i LocalStack; `auth` z kluczem z pliku i fałszywym adapterem Cognito, prawdziwa pula w przebiegu nocnym).**
+- [ ] **Integracyjne (Testcontainers: PostgreSQL, LocalStack i ZITADEL; `auth` z kluczem z pliku).**
   - Wielokolumnowe klucze obce: konia stajni A nie da się wstawić do boksu stajni B.
   - Unikalności przy równoległych zapisach.
   - Numer boksu bez unikalności [erd]:
@@ -1677,19 +1688,20 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - Granty: żadna rola bazy poza `auth` (także `board`) nie ma `SELECT` na tabelach uprawnień ani na `users.phone_e164` i `users.email`, poza wąskimi grantami cronów z manifestu; żadna rola crona nie pisze poza manifestem; `sms` i `email` nie mają roli bazy (meta-test z 3.1.4); lint: żaden serwis nie woła `auth` przy żądaniu użytkownika.
   - Weryfikacja: `alg: none`, zły podpis, `iss`, `aud` i `typ`, `iat` z przyszłości, `exp − iat` ponad 5 min, `kid` spoza JWKS i refresh token (`rt+jwt`) na trasie serwisu dają 401. Po awaryjnej rotacji klucza stary access token przestaje działać najpóźniej po 5 min (cache JWKS), a stary refresh token od razu.
   - `/internal`: nieosiągalne z ingressu; pod spoza manifestu nie połączy się z `/internal` (NetworkPolicy), np. `board` z portem `jwks` nie dosięgnie portu `recipients`; cron nie połączy się z portem serwisu, a `sms` i `email` z PostgreSQL; `sms` i `email` nie przyjmują ruchu.
-  - Claimy: test każdej osoby z danych demo względem wzorca (bez `av` i `scope`); konto techniczne nigdy z `biz` i `plt`, nawet gdy ktoś zaprosi je do drugiej stajni; token z puli klientów nigdy z `plt`; rozmiar tokenu w budżecie 4 KB (klient z 60 końmi, konto zaproszone przez 50 firm).
+  - Claimy: test każdej osoby z danych demo względem wzorca (bez `av` i `scope`); konto techniczne nigdy z `biz` i `plt`, nawet gdy ktoś zaprosi je do drugiej stajni; token konta z organizacji klientów nigdy z `plt`; rozmiar tokenu w budżecie 4 KB (klient z 60 końmi, konto zaproszone przez 50 firm).
   - Refresh token (W4): odrzucony przy `tv` innym niż `users.token_version`, usuniętym koncie, zablokowanym koncie technicznym i odebranej roli platformowej; okno bezczynności przesuwa się przy odświeżeniu, ale `exp` nie wychodzi poza `sst` + maksimum; zgubiona odpowiedź przy odświeżeniu nie wylogowuje (ten sam refresh token dalej działa); zablokowane konto techniczne dostaje `403 access_revoked`, a nie `401 session_revoked`; odświeżenie `ops` nie odnawia `auth_time` (zapis wrażliwy 6 min po logowaniu daje `401 step_up_required`). Ponownego użycia nie wykrywamy (świadomie, W4): test dokumentuje, że skopiowany refresh token działa do `exp` albo do podbicia `token_version`.
   - Panel i `[OPS]`: `POST /token` z ciasteczkiem bez `Origin` z listy albo bez `X-Equenor-Client` daje 403; CSP blokuje skrypty inline.
   - Zaproszenie konta technicznego na kontakt istniejącego konta albo konta zespołu daje `409 target_in_use`.
   - W1: każdy serwis z API (poza `sms` i `email`) ma co najmniej jedną trasę dla `plt = admin`.
-- [ ] **Logowanie, MFA i Cognito tylko w `auth`** (W6–W9; propozycja, mikroserwisy.md 3.1).
-  - Aplikacje bez dostępu do Cognito: w buildach apki, tabletu, panelu i `opctl` nie ma bibliotek Cognito i Amplify ani id puli i klienta (skan w CI); sekret klienta i uprawnienia `cognito-idp` ma tylko `auth`; żadna odpowiedź `auth` nie niesie tokenów Cognito.
-  - MFA zawsze: każde konto z danych demo (Anna, Ola, Damian, Marta, „Telewizor korytarz”, „Tablety Pod Lipami”, Kuba) dostaje token dopiero po kodzie, z `amr: ["pwd","otp"]`; odpowiedź Cognito bez wyzwania MFA nie daje tokenu; odświeżenie jest bez kodu i nie zmienia `auth_time`.
-  - Token logowania: zły podpis, inny `client_id` albo login, po `exp` i na trasie serwisu dają 401; bez kodu nic nie daje.
-  - Złe hasło i nieistniejące konto: ten sam `401 invalid_credentials`; reset hasła nie zdradza, czy konto istnieje; zły kod `401 invalid_code` do limitu prób, potem logowanie od nowa; limity WAF po IP na trasach `auth`, które wysyłają albo sprawdzają kody.
-  - Zmiana kontaktu i hasła: bez hasła i kodu MFA nic się nie zmienia, odpowiedzi nie niosą tokenów Cognito, token logowania innego konta daje 401.
+- [ ] **Logowanie, MFA i ZITADEL tylko w `auth`** (W6–W10; propozycja, mikroserwisy.md 3.1).
+  - Aplikacje bez dostępu do ZITADEL: w buildach apki, tabletu, panelu i `opctl` nie ma bibliotek ani adresu ZITADEL (skan w CI); API ZITADEL jest nieosiągalne z podów innych niż `auth`, a jego baza z czegokolwiek poza ZITADEL (NetworkPolicy); klucz konta serwisowego ma tylko `auth`; żadna odpowiedź `auth` nie niesie `sessionToken` ani kodu.
+  - MFA zawsze: każde konto z danych demo (Anna, Ola, Damian, Marta, „Telewizor korytarz”, „Tablety Pod Lipami”, Kuba) dostaje token dopiero po kodzie, z `amr: ["pwd","otp"]`; sesja bez sprawdzonego hasła (np. dwa kody OTP) albo bez kodu nie daje tokenu i wywołuje alert; kodu nie ma bez sprawdzonego hasła ani dla niepotwierdzonego konta; odświeżenie jest bez kodu, nie zmienia `auth_time` i nie woła ZITADEL (przy zatrzymanym ZITADEL odświeżanie działa, a logowanie nie).
+  - Token logowania: zły podpis, inny `client_id` albo login, po `exp` i na trasie serwisu dają 401; bez kodu nic nie daje; sesji spoza tokenu logowania `auth` nie zmienia.
+  - Złe hasło i nieistniejące konto: ten sam `401 invalid_credentials`; reset hasła nie zdradza, czy konto istnieje; zły kod `401 invalid_code`, po 5 złych kodach `403 account_locked`, a reset hasła odblokowuje; złe hasła nie blokują konta; limity żądań na otwartych trasach `auth`, które wysyłają albo sprawdzają kody.
+  - Zmiana kontaktu i hasła: bez hasła i kodu MFA nic się nie zmienia, odpowiedzi nie niosą sesji ZITADEL, token logowania innego konta daje 401.
   - Niepotwierdzone konto nie loguje się (`409 account_not_confirmed`) i nie ma wiersza `users`; zaproszenie nie dopasuje się do niepotwierdzonego kontaktu.
-  - Wyzwalacz kodów: kod nie trafia do logów Lambdy, `email`, `sms` ani narzędzia błędów; kolejki kodów szyfrowane, wiadomość starsza niż ważność kodu znika.
+  - Hasło i kod nie trafiają do logów `auth`, `email`, `sms` ani narzędzia błędów ani do naszej bazy (hasło-kanarek w E2E); kolejki kodów szyfrowane, wiadomość starsza niż ważność kodu znika.
+- [ ] **Trasy otwarte** (mikroserwisy.md 1.3): test w CI wypisuje listę tras z `open` i porównuje ją z listą w repo; trasa bez `open` bez tokenu daje 401; każda trasa otwarta ma limit żądań, a webhook płatności bez podpisu dostawcy daje 401.
 - [ ] **Wyświetlacz bez danych osobowych.** Dane-kanarki (unikalne telefony, e-maile, nazwiska) w seedzie. Skan każdej odpowiedzi dla `display` oraz HTML i JS widoku wyświetlacza w panelu nie może znaleźć kanarka ani wzorca E.164 czy e-maila.
 - [ ] **Tablica tabletu nie pokazuje, kto jest zalogowany.** Tablet zalogowany kontem z danymi-kanarkami: na żadnym ekranie poza ukrytymi ustawieniami nie ma nazwy, telefonu ani e-maila zalogowanego konta. Akcje z tabletu zapisują się bez autora: `source = tablet` (przy potwierdzeniu flagi `method = tablet`), `user_id = NULL`, `audit_log.actor_type = tablet` [erd].
 - [ ] **Presigned URL.**
@@ -1709,13 +1721,13 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - Wylogowanie z jednego urządzenia: aplikacja usuwa tokeny, panel czyści ciasteczko; skopiowany wcześniej refresh token działa do `exp` (świadome ryzyko, W4).
   - Blokada konta telewizora (rola Wyświetlacz) przez admina: zmierzyć czas do zniknięcia danych.
   - Wygaśnięcie sesji (konfiguracja testowa ze skróconą bezczynnością i maksimum) daje czytelny ekran logowania, bez zamrożonych danych.
-  - Usunięcie konta: pseudonimizacja, podbicie `token_version` i usunięcie w Cognito.
-- [ ] **Kody na prawdziwych numerach i skrzynkach** (wyzwalacz `auth`, serwisy `sms` i `email`, W7).
+  - Usunięcie konta: pseudonimizacja, podbicie `token_version` i usunięcie w ZITADEL.
+- [ ] **Kody na prawdziwych numerach i skrzynkach** (kody z `auth`, serwisy `sms` i `email`, W7).
   - Na każdej karcie z 1.4: czy kod dochodzi, mediana i najgorszy czas, widoczna nazwa nadawcy.
   - Treść po polsku i ukraińsku, bez linków w SMS z kodem.
   - Autouzupełnianie kodu (iOS `one-time-code`, Android SMS Retriever) i hasła (menedżer haseł).
   - Ponowne wysłanie kodu, limit błędnych prób i limity żądań.
-  - Ważność kodu: makiety podają 10 min, a sesja logowania Cognito trwa 3–15 min (propozycja 5); tekst na ekranie zgodny z konfiguracją.
+  - Ważność kodu: makiety podają 10 min, a kod MFA w ZITADEL działa 5 min (domyślnie; weryfikacja i reset: propozycja 15 min); tekst na ekranie zgodny z konfiguracją.
   - Zmiana numeru, numer przeniesiony, roaming, 5 minut bez zasięgu.
   - Kod e-mailem: czas doręczenia do skrzynek z 4.1, folder spam, ponowne wysłanie, kod użyty drugi raz; konto z telefonem i e-mailem dostaje kod kanałem wybranym w profilu.
   - Kody potwierdzenia konta, resetu hasła i zmiany kontaktu tak samo jak kod MFA.
@@ -2212,7 +2224,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
   - opóźnienie flagi w p95 i trafność dotyku w rękawicach w ustalonych progach;
   - działa w najniższej temperaturze zanotowanej w hali pilotażowej.
 - [ ] Wyświetlacz pracuje tygodniami bez interwencji, po zaniku prądu sam wraca do zapamiętanego widoku (wszystkie hale albo pełny ekran hali, na którym są tylko flagi tej hali) i nie ma śladów retencji.
-- [ ] Kody SMS-em dochodzą we wszystkich testowanych sieciach, a e-mailem do testowanych skrzynek, w ustalonym czasie i przed wygaśnięciem sesji logowania. Reset hasła działa. Wylogowanie ze wszystkich urządzeń, blokada konta i odebranie członkostwa odbierają dostęp w ≤ 5 min (najbliższe odświeżenie tokenu, W4).
+- [ ] Kody SMS-em dochodzą we wszystkich testowanych sieciach, a e-mailem do testowanych skrzynek, w ustalonym czasie i przed wygaśnięciem kodu. Reset hasła działa. Wylogowanie ze wszystkich urządzeń, blokada konta i odebranie członkostwa odbierają dostęp w ≤ 5 min (najbliższe odświeżenie tokenu, W4).
 - [ ] Eskalacja działa przy martwym tablecie (A-02). Dla flag z `requires_ack` (w stajni, która wymaga potwierdzeń) to jedyne zabezpieczenie, bo stanu tabletów nie śledzimy; flaga zapisana w stajni bez potwierdzeń (zależy od ustawień stajni) obowiązuje od razu i nie eskaluje (A-18), a trwająca niepotwierdzona flaga eskaluje także po wyłączeniu przełącznika (A-20).
 - [ ] Zmiana czasu przeszła bez błędów, w symulacji albo na stanowisku.
 - [ ] **Przećwiczone runbooki:**
@@ -2222,7 +2234,8 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
   - rotacja awaryjna klucza podpisu (wszyscy logują się ponownie);
   - zmiana Wi-Fi w stajni;
   - ponowne logowanie tabletu i telewizora (e-mailem albo telefonem, hasłem i kodem na skrzynkę konta technicznego);
-  - awaria wyzwalacza kodów albo kolejki kodów (nikt nie dostaje kodu, odświeżanie działa);
+  - awaria ZITADEL albo kolejki kodów (nowe logowania, rejestracje i resety stoją, odświeżanie działa);
+  - odtworzenie ZITADEL z backupu (PITR, masterkey, setup; razem z bazą `auth`, po stronie platformy) i aktualizacja ZITADEL z backupem przed nią;
   - cofnięcie wydania APK;
   - redrive z DLQ;
   - odtworzenie bazy (po stronie platformy).
@@ -2232,7 +2245,9 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 ## 5. Decyzje do podjęcia przed startem
 
 **Rozstrzygnięte 13.10.2026** (decyzje właściciela produktu; mają pierwszeństwo przed wcześniejszymi propozycjami)
-- **Logowanie hasłem i zawsze kodem** (W6–W9). Aplikacje wołają tylko `auth`, który jako jedyny rozmawia z Cognito i zwraca JWT EQUENOR (W6). Logowanie e-mailem albo telefonem i hasłem, rejestracja z potwierdzeniem konta kodem, reset hasła kodem (W8). Po haśle zawsze kod e-mailem albo SMS-em, dla każdego konta (także tablet, TV i zespół EQUENOR), bez wyjątków i zapamiętywania urządzeń (W9). Kody generuje Cognito, a wysyłają nasze `email` i `sms` przez wyzwalacz w `auth`, bez `notifications` (W7). Tak samo w apce, panelu, na tablecie i TV; zaproszenia SMS-em albo e-mailem (2.4, 2.6, 3.5). TOTP, passkey i logowanie bez hasła znikają (pkt 1).
+- **Logowanie hasłem i zawsze kodem** (W6–W9). Aplikacje wołają tylko `auth`, który jako jedyny rozmawia z dostawcą tożsamości i zwraca JWT EQUENOR (W6). Logowanie e-mailem albo telefonem i hasłem, rejestracja z potwierdzeniem konta kodem, reset hasła kodem (W8). Po haśle zawsze kod e-mailem albo SMS-em, dla każdego konta (także tablet, TV i zespół EQUENOR), bez wyjątków i zapamiętywania urządzeń (W9). Kody generuje dostawca tożsamości i zwraca do `auth`, a ten wrzuca je do kolejek naszych `email` i `sms`, bez `notifications` i bez Lambdy (W7, zmienione 13.10: „To auth service nada msg do serwisów komunikacji”). Tak samo w apce, panelu, na tablecie i TV; zaproszenia SMS-em albo e-mailem (2.4, 2.6, 3.5). TOTP, passkey i logowanie bez hasła znikają (pkt 1).
+- **ZITADEL self-hosted zamiast Cognito** (W10, „Raczej nie chciałbym trzymać haseł w aplikacji”, „Nie cloud. Self hosta.”). Dostawca tożsamości na naszym klastrze, komponent infrastruktury jak PostgreSQL (serwisów nadal 11); hasła tylko w osobnej bazie ZITADEL, nasz kod i baza ich nie mają. Wdrożenie, aktualizacje, backupy, masterkey i test odtworzenia: Dawid (3.1.13). Reset hasła kodem tym samym kanałem co kod MFA, więc kto ma skrzynkę albo telefon konta, ten może przejąć konto (2.4; mikroserwisy.md 10.2 pkt 24).
+- **Trasy zewnętrzne, otwarte i wewnętrzne** („nie każdy endpoint będzie prywatny”). Domyślnie trasa wymaga tokenu; otwarta ma to jawnie w deskryptorze, jest na liście sprawdzanej w CI i ma limit żądań (3, 3.1.2, 3.1.5).
 - **Tylko B2B.** Konto to konto firmy z NIP; jedno konto, jeden NIP. NIP podaje się raz, przy rejestracji (PanelRejestracjaFirmy), jako zwykłe pole formularza, bez objaśnień; „Ten NIP ma już konto w EQUENOR” tylko jako błąd. „Załóż stajnię” nie pyta o NIP ani o działalność (3.3 `stables`).
 - **Admin konta firmy.** Admin ma dostęp do wszystkich stajni firmy, także nowych, bez przypisywania. Pozostałe role przypisuje się per stajnia; jedna osoba może mieć kilka stajni (3.1.9, 3.3 `auth`). Zaproszenie dopasowuje się samo po zalogowaniu, bez ekranu „Przyjmij” (wygasłe się nie dopasowuje; 3.3 `auth`): PanelWitaj bez „Czekasz na zaproszenie?”, BrakDostepu bez próśb do admina i bez numeru (3.5.1, 3.5.3).
 - **Telewizor.** Konto techniczne z rolą Wyświetlacz, e-mail albo telefon, hasło i kod, zaproszenie przez „Zaproś osobę” → „Konto techniczne: Wyświetlacz”; bez osobnego formularza (pkt 3). Telewizor otwiera zwykłą stronę logowania panelu, bez osobnego adresu; strona nie rozpoznaje urządzenia, a po zalogowaniu panel pokazuje widok tablicy według roli. W Ludziach zwykły wiersz w filtrze „Konta techniczne”, bez instrukcji podłączania. Wybór widoku dalej pamięta przeglądarka (3.5.4).
@@ -2244,14 +2259,14 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 - **Zakładanie stajni w 2 krokach.** Krok 1 bez pytania o potwierdzenia flag (nowa stajnia ma wszystko włączone, także potwierdzenia), krok 2 powiadomienia: zdarzenia, odbiorcy, kanał SMS albo e-mail (`notification_rules`).
 - **Strona www przed logowaniem:** sama prezentacja, bez bloga i CMS (3.5.5, pkt 51).
 - **Tylko jeden serwis autoryzacyjny** (W2). `auth` decyduje o tożsamości i uprawnieniach i podpisuje tokeny; pozostałe serwisy tylko weryfikują podpis i czytają claimy, bez wołania `auth` przy żądaniu i bez czytania tabel uprawnień (3.1.9). Sposób: propozycja w mikroserwisy.md.
-- **Admin globalny** (W1). Zespół EQUENOR (w danych demo Kuba) ma dostęp do każdej firmy, stajni i serwisu (3.1.9, 4.2). Sposób (osobna pula z MFA, host `[OPS]`, role we dwie osoby, audyt i log odczytów): propozycja w mikroserwisy.md, sekcja 4.
+- **Admin globalny** (W1). Zespół EQUENOR (w danych demo Kuba) ma dostęp do każdej firmy, stajni i serwisu (3.1.9, 4.2). Sposób (organizacja zespołu w ZITADEL, host `[OPS]`, role we dwie osoby, audyt i log odczytów): propozycja w mikroserwisy.md, sekcja 4.
 - **Crony piszą do bazy bezpośrednio** (W3, „Crony piszą do bazy bezpośrednio”). Każdy cron ma własną rolę bazy z manifestu, używa kodu domeny właściciela i nie ma tokenów; powiadomienia zleca zdarzeniem publikowanym przed COMMIT (3.1.7, 3.4). Tokeny serwisowe znikają w całości; zostają tylko wywołania `/internal` `stables` → `operations`, `stables` → `auth`, `notifications` → `auth` i pięciu serwisów do `files`, na osobnym porcie, z TLS i NetworkPolicy (3.1.13).
 - **Sesje tylko w JWT** (W4, „Po co trzymać dane sesji. JWT to zrobi.”). Bez `auth_sessions` i `auth_revocations`: access token 5 min, refresh token to JWT od `auth` bez zapisu, `users.token_version` zamiast `authz_version`; odebranie dostępu do 5 min; jednego tabletu nie da się odłączyć („Wyloguj wszystkie tablety” albo blokada); kradzieży refresh tokenu nie wykrywamy (2.4, 3.1.9, 4.2).
-- **`sms` i `email` niezależne** (W5, „Email oraz SMS service niezależne. Nie mają dostępów do tabel wszystko dostają z kolejki”). Bez tabel i bez roli bazy; gotowe wiadomości dostają z kolejki od `notifications`, który działa jako router, a kody od wyzwalacza `auth` (W7; 3.3).
+- **`sms` i `email` niezależne** (W5, „Email oraz SMS service niezależne. Nie mają dostępów do tabel wszystko dostają z kolejki”). Bez tabel i bez roli bazy; gotowe wiadomości dostają z kolejki od `notifications`, który działa jako router, a kody od `auth` (W7; 3.3).
 - **11 serwisów** (decyzja 13.10: „Obsługa S3 to osobny mikroserwis tak git”, „Reszta zgodna z sugestiami”, „Ale nazwij je jakoś ogarnięcie”; nazwy po angielsku): `auth`, `stables`, `operations` (flagi, opieka, zadania), `schedule` (zdrowie, jazdy), `board`, `billing`, `notifications`, `sms`, `email`, `files`, `platform` (wydania APK, audyt) (3.1.1).
 
-**Blokują etap 1 (Cognito)**
-1. **TOTP, passkey, logowanie bez hasła.** Rozstrzygnięte 13.10.2026 (W8, W9): znikają, także w puli zespołu; makieta Logowanie traci „Użyj aplikacji uwierzytelniającej”. Otwarte do spike'u (3.2): limit błędnych prób kodu w Cognito [niepotwierdzone] (limity AWS WAF po IP na trasach `auth`, które wysyłają kody, działają zawsze; bez stanu w bazie), `AuthSessionValidity` (3–15 min, domyślnie 3; propozycja 5), polityka haseł (propozycja: min. 10 znaków), plan Essentials albo Plus dla e-mail MFA [niepotwierdzone]. Do decyzji: reset hasła konta z jednym kontaktem, bo Cognito nie wysyła kodu resetu kanałem kodu MFA (mikroserwisy.md 10.2 pkt 24).
+**Blokują etap 1 (logowanie)**
+1. **TOTP, passkey, logowanie bez hasła.** Rozstrzygnięte 13.10.2026 (W8, W9): znikają, także w organizacji zespołu; makieta Logowanie traci „Użyj aplikacji uwierzytelniającej”. Wartości ustawień ZITADEL do zatwierdzenia (propozycje, mikroserwisy.md 10.2 pkt 17; 2.4): polityka haseł (min. 10 znaków), blokada po 5 złych kodach i bez blokady złym hasłem, kody 6 cyfr (MFA 5 min, weryfikacja i reset 15 min) [S]. Reset hasła rozstrzygnięty (W10): kod tym samym kanałem co kod MFA.
 2. **Logowanie recenzentów Apple i Google.** Otwarte: konto demo loguje się hasłem i kodem, bez wyjątku od MFA (W9), więc recenzent musi dostać kod, a SMS-a nie odbierze. Propozycja: kod e-mailem na skrzynkę konta demo, do której dostęp podajemy w notatce do recenzji. Czy Apple i Google akceptują kod z udostępnionej skrzynki: [niepotwierdzone]; zapasem jest tryb demo uzgodniony z Apple (mikroserwisy.md 10.2 pkt 25).
 3. **Konto `display`.** Rozstrzygnięte: telewizor loguje się kontem technicznym z rolą Wyświetlacz, e-mailem albo telefonem, hasłem i kodem, tak samo jak wszędzie (w seedzie e-mailem, kod na skrzynkę konta). Konto zaprasza admin przez „Zaproś osobę”. Telewizor przy instalacji loguje osoba wdrażająca, a po wygaśnięciu sesji admin albo zespół EQUENOR (propozycja). Otwarte zostaje tylko zalecenie: jedno konto na kilka telewizorów czy osobne na każdy (erd.md dopuszcza oba).
 4. **Czasy życia tokenów i sesji.** Rozstrzygnięte (W4; wartości to propozycja, mikroserwisy.md 3.4 i 10.2 pkt 3): access token 5 min dla wszystkich; refresh JWT z oknem bezczynności i maksimum według aplikacji i roli: apka 30 dni / 180 dni, panel 7 / 30 dni, tablet 30 dni / bez limitu (do blokady albo „Wyloguj wszystkie tablety”), TV 30 / 365 dni, `ops` 30 min / 10 h, `opctl` 30 min / 1 h.
@@ -2261,14 +2276,14 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 
 6. Regiony AWS i podział kont na środowiska; od tego zależy liczba wyjść z sandboxów.
 7. Mechanizm poświadczeń z klastra do AWS; wpływa na ważność presigned URL.
-8. Uwierzytelnianie serwis→serwis dla `/internal` oraz uwierzytelnianie i rola zespołu EQUENOR (wydania APK, plany billingu, odczyt audytu, diagnostyka). Rozstrzygnięte 13.10.2026 (W3 i propozycja): bez tokenów serwisowych; crony piszą do bazy wprost, a `/internal` idzie po osobnym porcie, przez TLS z CA klastra, z NetworkPolicy z manifestu (3.1.13). Na później (może poczekać, mikroserwisy.md 10.2 pkt 23): sprawdzanie podpisu tokenu konta serwisowego Kubernetes w serwisie docelowym. Admin globalny i Wsparcie IT jako role platformowe w puli zespołu (mikroserwisy.md, sekcja 4). Dawid potwierdza cert-manager i NetworkPolicy.
+8. Uwierzytelnianie serwis→serwis dla `/internal` oraz uwierzytelnianie i rola zespołu EQUENOR (wydania APK, plany billingu, odczyt audytu, diagnostyka). Rozstrzygnięte 13.10.2026 (W3 i propozycja): bez tokenów serwisowych; crony piszą do bazy wprost, a `/internal` idzie po osobnym porcie, przez TLS z CA klastra, z NetworkPolicy z manifestu (3.1.13). Na później (może poczekać, mikroserwisy.md 10.2 pkt 23): sprawdzanie podpisu tokenu konta serwisowego Kubernetes w serwisie docelowym. Admin globalny i Wsparcie IT jako role platformowe w organizacji zespołu ZITADEL (mikroserwisy.md, sekcja 4). Dawid potwierdza cert-manager i NetworkPolicy.
 9. Kto pisze manifesty workloadów i w jakim formacie.
-10. PostgreSQL: wersja, pooler, PITR. Do tego LocalStack w CI (warunki obrazu) albo konto dev AWS.
-11. Narzędzie błędów i logów oraz ścieżka diagnostyki tabletu i Pi: publiczny endpoint uwierzytelniany tokenem konta technicznego albo SDK narzędzia, w obu przypadkach z buforem offline.
+10. PostgreSQL: wersja, pooler, PITR (także osobnej bazy ZITADEL). ZITADEL: wdrożenie, masterkey, backupy i test odtworzenia, aktualizacje (3.1.13). Do tego LocalStack w CI (warunki obrazu) albo konto dev AWS.
+11. Narzędzie błędów i logów oraz ścieżka diagnostyki tabletu i Pi: zewnętrzna trasa uwierzytelniana tokenem konta technicznego albo SDK narzędzia, w obu przypadkach z buforem offline.
 12. Keystore APK tabletu i jego kopia; build w EAS czy lokalnie; runnery macOS i KVM.
 13. Środowisko stajni pilotażowej:
     - test, prod czy osobny pilot;
-    - z jaką pulą Cognito;
+    - z którą instancją ZITADEL;
     - czy SMS i SES są już poza sandboxem;
     - co dzieje się z danymi po wdrożeniu.
 14. Zdalny dostęp do Pi (SSH, Raspberry Pi Connect albo inne narzędzie).
@@ -2489,7 +2504,7 @@ Linki użyte w sekcjach 1, 2 i 4.
 **Telefony i karty SIM**
 - Antyweb, rejestracja kart SIM: https://antyweb.pl/rejestracja-kart-sim-jak-to-zrobic
 
-**AWS: SMS, Cognito, SES, S3, SNS/SQS, IAM**
+**AWS: SMS, SES, S3, SNS/SQS, IAM**
 - SNS, wyjście z SMS sandbox: https://docs.aws.amazon.com/sns/latest/dg/sns-sms-sandbox-moving-to-production.html
 - EUMS, weryfikacja numeru: https://docs.aws.amazon.com/sms-voice/latest/userguide/verify-destination-phone-number.html
 - EUMS, numery symulatora: https://docs.aws.amazon.com/sms-voice/latest/userguide/test-phone-numbers.html
@@ -2503,24 +2518,38 @@ Linki użyte w sekcjach 1, 2 i 4.
 - EUMS, limity znaków: https://docs.aws.amazon.com/sms-voice/latest/userguide/sms-limitations-character.html
 - Twilio, Polska: https://www.twilio.com/en-us/guidelines/pl/sms
 - NASK, ustawa o zwalczaniu nadużyć: https://cyberpolicy.nask.pl/ustawa-o-zwalczaniu-naduzyc-w-komunikacji-elektronicznej/
-- Cognito, ustawienia SMS: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-sms-settings.html
-- Cognito, przepływy uwierzytelniania: https://docs.aws.amazon.com/cognito/latest/developerguide/authentication-flows-selection-sdk.html
-- Cognito, plany funkcji: https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html
-- Cognito, MFA: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html
-- Cognito, refresh tokens: https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-the-refresh-token.html
-- Cognito, unieważnianie tokenów: https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html
-- Cognito, AdminDisableUser: https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminDisableUser.html
-- Cognito, custom SMS sender: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-custom-sms-sender.html
-- Cognito, custom email sender: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-custom-email-sender.html
-- Cognito API, RespondToAuthChallenge: https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_RespondToAuthChallenge.html
-- Cognito API, UserPoolClientType (`AuthSessionValidity`): https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_UserPoolClientType.html
-- AWS sample, SMS przekierowany na e-mail: https://github.com/aws-samples/amazon-cognito-user-pool-development-and-testing-with-sms-redirected-to-email
-- Cognito, atrybuty puli: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html
-- CloudFormation, Cognito EmailConfiguration: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cognito-userpool-emailconfiguration.html
 - SES, FAQ dostępu produkcyjnego: https://repost.aws/knowledge-center/ses-production-access-request-faq
 - S3, presigned URL: https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url
 - SNS, szyfrowanie z kolejką SQS: https://docs.aws.amazon.com/sns/latest/dg/sns-enable-encryption-for-topic-sqs-queue-subscriptions.html
 - IAM Roles Anywhere: https://docs.aws.amazon.com/sdkref/latest/guide/access-rolesanywhere.html
+
+**ZITADEL (self-hosted; dokumentacja i kod z repozytorium zitadel/zitadel, gałąź main, stan z 13.10.2026; ta sama treść co na zitadel.com/docs)**
+- Kubernetes: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/deploy/kubernetes/index.mdx
+- Kubernetes, operacje i zasoby: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/deploy/kubernetes/operations.mdx
+- Wymagania: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/manage/requirements.mdx
+- Baza danych: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/manage/database/index.mdx
+- Produkcja i backup: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/manage/production.mdx
+- Checklista produkcyjna: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/manage/productionchecklist.mdx
+- Aktualizacje i skalowanie: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/manage/updating_scaling.mdx
+- HTTP/2: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/manage/http2.mdx
+- Sekrety i masterkey: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/concepts/architecture/secrets.mdx
+- Instancja: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/concepts/structure/instance.mdx
+- Polityki: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/concepts/structure/policies.mdx
+- Compose: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/self-hosting/deploy/compose.mdx, https://github.com/zitadel/zitadel/blob/main/deploy/compose/docker-compose.yml
+- Helm chart: https://github.com/zitadel/zitadel-charts/blob/main/charts/zitadel/README.md
+- Session API: https://github.com/zitadel/zitadel/blob/main/proto/zitadel/session/v2/session_service.proto, https://github.com/zitadel/zitadel/blob/main/proto/zitadel/session/v2/challenge.proto
+- MFA we własnym ekranie logowania: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/guides/integrate/login-ui/mfa.mdx
+- Walidacja sesji: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/guides/integrate/login-ui/session-validation.mdx
+- API kont v2: https://github.com/zitadel/zitadel/blob/main/proto/zitadel/user/v2/user_service.proto
+- Ustawienia logowania: https://github.com/zitadel/zitadel/blob/main/proto/zitadel/settings/v2/login_settings.proto
+- Blokady: https://github.com/zitadel/zitadel/blob/main/proto/zitadel/settings/v2/lockout_settings.proto
+- Ustawienia domyślne: https://github.com/zitadel/zitadel/blob/main/cmd/defaults.yaml
+- Konta serwisowe: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/guides/integrate/service-accounts/authenticate-service-accounts.mdx
+- Migracja i eksport: https://github.com/zitadel/zitadel/blob/main/apps/docs/content/guides/migrate/sources/zitadel.mdx
+- Licencja: https://github.com/zitadel/zitadel/blob/main/LICENSING.md
+- Wydania: https://github.com/zitadel/zitadel/releases (feed `releases.atom`)
+- Advisory: https://github.com/zitadel/zitadel/security/advisories, https://github.com/zitadel/zitadel/security/advisories/GHSA-3gwm-5wx8-4gm6, https://github.com/zitadel/zitadel/security/advisories/GHSA-jh92-5mrj-p2w2
+- Agregator z numerem CVE-2026-105211 [S]: https://www.thehackerwire.com/vulnerability/CVE-2026-105211/
 
 **Apple, Google Play, Expo**
 - Apple Developer Program, zapis: https://developer.apple.com/programs/enroll/

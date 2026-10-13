@@ -2,9 +2,9 @@
 flowchart TB
     APPS["<b>Aplikacje</b><br/>apka mobilna · panel web i TV · tablet przy boksie · panel zespołu EQUENOR · opctl"]
 
-    COG["AWS Cognito<br/>hasła i kody<br/>(tylko przez auth)"]
+    ZIT["<b>ZITADEL (self-hosted)</b><br/>hasła, sprawdzanie kodów<br/>(tylko przez auth)"]
+    ZDB[("PostgreSQL ZITADEL")]
     AUTH["<b>auth</b><br/>jedyny serwis autoryzacyjny<br/>logowanie, wydaje tokeny JWT"]
-    CODES["<b>wyzwalacz kodów</b><br/>(Lambda, kod auth)"]
     KMS["AWS KMS<br/>klucz podpisu"]
 
     subgraph DOM["Serwisy: tylko sprawdzają podpis tokenu"]
@@ -32,7 +32,8 @@ flowchart TB
     end
 
     APPS -- "logowanie hasłem i kodem,<br/>odświeżanie tokenu" --> AUTH
-    AUTH -- "hasło i kod<br/>(po stronie serwera)" --> COG
+    AUTH -- "hasło i kod;<br/>kod wraca do auth" --> ZIT
+    ZIT --> ZDB
     APPS == "żądania z tokenem JWT" ==> DOM
     AUTH -- "podpis" --> KMS
     AUTH -. "klucz publiczny:<br/>serwisy same sprawdzają JWT" .-> DOM
@@ -45,19 +46,18 @@ flowchart TB
     BUS --> notifications
     notifications -- "kolejka" --> sms
     notifications -- "kolejka" --> email
-    COG -- "kod" --> CODES
-    CODES -- "kolejka kodów" --> sms
-    CODES -- "kolejka kodów" --> email
+    AUTH -- "kody (kolejka)" --> sms
+    AUTH -- "kody (kolejka)" --> email
 
     classDef authc fill:#fde2e4,stroke:#c0392b,stroke-width:2px,color:#111
     classDef svc fill:#e3f0fb,stroke:#2f6fa7,color:#111
     classDef ntf fill:#fff4dc,stroke:#b7791f,color:#111
     classDef cli fill:#eef7e8,stroke:#4f8a3a,color:#111
     classDef ext fill:#f4f4f4,stroke:#888,color:#111
-    class AUTH,CODES authc
+    class AUTH authc
     class stables,operations,schedule,board,billing,platform,files svc
     class notifications,sms,email ntf
     class APPS cli
-    class COG,KMS,DB,BUS,CRON ext
+    class ZIT,ZDB,KMS,DB,BUS,CRON ext
     style DOM fill:#f7fbff,stroke:#2f6fa7
     style NOTE fill:#fffbf2,stroke:#b7791f
