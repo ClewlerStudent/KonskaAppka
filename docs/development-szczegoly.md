@@ -750,46 +750,46 @@ Zasady wspólne:
 #### 3.1.9 Uwierzytelnianie i role (`packages/auth`, `packages/authz`)
 Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko czyta podpis. Szczegóły i uzasadnienie: mikroserwisy.md, sekcje 1 i 3 (propozycja).
 - [ ] Weryfikacja tokenu EQUENOR w każdym serwisie, lokalnie (`jose`):
-  - `alg = ES256`, `typ = at+jwt`, `iss` środowiska, `aud` (`equenor-api` albo `equenor-internal`), `exp`; odrzuca `iat` z przyszłości (ponad 60 s) i `exp − iat` dłuższe niż maksimum dla aplikacji;
-  - JWKS z `auth` w cache 10 min (nieznany `kid` i wpis `kid:<kid>` albo `all` na liście unieważnień wymuszają ponowne pobranie);
-  - lista unieważnień w pamięci (`user:<sub>` z `min_av`, `session:<sid>`, `kid:<kid>`, `all`): pasujący token daje `401 token_stale`;
+  - `alg = ES256`, `typ = at+jwt`, `iss` środowiska, `aud = equenor-api`, `exp`; odrzuca `iat` z przyszłości (ponad 60 s) i `exp − iat` dłuższe niż 5 min; refresh token (`typ = rt+jwt`, `aud` tylko `auth`) na trasie serwisu daje 401;
+  - JWKS z `auth` w cache 5 min (nieznany `kid` wymusza ponowne pobranie); rotacja awaryjna usuwa stary klucz z JWKS, więc stare access tokeny padają w ciągu 5 min, a stare refresh tokeny od razu (wszyscy logują się ponownie);
+  - bez listy unieważnień (W4): odebranie dostępu działa przy najbliższym odświeżeniu tokenu, do 5 min;
   - issuer i JWKS z konfiguracji, żeby lokalnie działał `auth` z kluczem z pliku (3.2).
 - [ ] Żaden serwis poza `auth` nie woła `auth` przy żądaniu użytkownika i nie czyta tabel uprawnień (granty i meta-test z 3.1.4). Dane zasobu (`stables.business_id`, `boxes`, `horses.box_id`, `horses.status`, `stable_settings`) serwis czyta z bazy; to nie jest autoryzacja.
-- [ ] Aplikacja wynika z `client_id` w tokenie (`mobile`, `web`, `tablet`, `ops`, `opctl`, `svc`), nie z nagłówka:
+- [ ] Aplikacja wynika z `client_id` w tokenie (`mobile`, `web`, `tablet`, `ops`, `opctl`), nie z nagłówka:
   - tablet: tylko konto z rolą `tablet` (inne konta: `403 wrong_client` przy wymianie, na tablecie TabletBrakUprawnien); `source = tablet` i `user_id = NULL` w potwierdzeniach flag, „Boks gotowy”, akcjach hali tego boksu (posiłek, padok) i „Wodzie” (poidło ręczne) [erd]; zadania z aplikacji tablet dają 403, a akcja dla innej hali niż hala boksu z `X-Box-Id` też 403 (propozycja);
   - telewizor nie ma osobnej aplikacji (loguje się przez web); tylko odczyt wynika z roli `display`;
   - `ops` (panel zespołu EQUENOR na osobnym hoście) przechodzi wszędzie tam, gdzie admin, poza trasami wyłącznie tabletowymi; `opctl` (CLI) jako jedyny przechodzi trasy ról platformowych i kluczy.
-- [ ] Claimy (tylko `auth` je wylicza i podpisuje): `sub` (`users.id`), `sid` (sesja), `av` (wersja uprawnień), `biz` (firmy admina konta), `m` (członkostwa: stajnia, rola, widoczne funkcje `f`, konie klienta `h` ważne teraz), `plt` (`admin` albo `support`) z `amr` i `auth_time`, `scope` dla serwisów. Token nie ma danych osobowych; `GET /auth/v1/me` daje profil, nazwy stajni i widok startowy. Kodu `409 profile_missing` nie ma, bo wiersz `users` powstaje przy wymianie tokenu.
+- [ ] Claimy access tokenu (tylko `auth` je wylicza i podpisuje): `sub` (`users.id`), `client_id`, `sid` (losowy identyfikator logowania, bez tabeli; tylko do korelacji w audycie i logach), `biz` (firmy admina konta), `m` (członkostwa: stajnia, rola, widoczne funkcje `f`, konie klienta `h` ważne teraz), `plt` (`admin` albo `support`) z `amr` i `auth_time`; bez `av` i bez claimów serwisowych. Refresh token: JWT `rt+jwt` od `auth` z `sub`, `client_id`, `sid`, `sst` (start sesji), `tv` (`users.token_version`) i `exp`, nigdzie niezapisany (W4). Token nie ma danych osobowych; `GET /auth/v1/me` daje profil, nazwy stajni i widok startowy. Kodu `409 profile_missing` nie ma, bo wiersz `users` powstaje przy wymianie tokenu.
 - [ ] Role [erd]: `admin` (Admin: właściciel albo zarządca; rola konta firmy, daje dostęp do wszystkich stajni firmy, także nowych, bez przypisywania; tabela `business_admins`, w tokenie `biz`). Role w stajni (`stable_members.role`, w tokenie `m[].r`; jedna osoba może być przypisana do kilku stajni): `staff` (Obsługa), `instructor` (Instruktor), `client` (Klient: właściciel albo dzierżawca konia) oraz role kont technicznych `display` (Wyświetlacz: telewizor) i `tablet` (Tablet: tablety przy boksach); konto techniczne (`users.account_kind = technical`) ma jedną stajnię, bez `biz` i `plt` (propozycja). Platforma (`platform_roles`, w tokenie `plt`): admin globalny (`admin`, zespół EQUENOR, wymaganie z 13.10: dostęp do każdej firmy, stajni i serwisu) i Wsparcie IT (`support`, na PoC nienadawane; propozycja, mikroserwisy.md 4).
 - [ ] Dostęp do stajni (`resolveStable` w `packages/tenancy`): `plt = admin` → jak admin w każdej stajni; `biz` zawiera `stables.business_id` → admin; stajnia w `m` → członek z rolą; inaczej 404. Klient widzi konia z `m[].h` i boks, w którym ten koń stoi (`horses.box_id`); koń ze `status = left` daje 404 od razu; historia boksu od otwarcia wpisu konia w `horse_box_history` [erd].
 - [ ] Polityki jako czyste funkcje: rola w stajni × dostęp do konia (boks wynika z konia) × aplikacja. Macierz testów rola × akcja × aplikacja. Dla `display` DTO z listą dozwolonych pól.
-- [ ] Widoczność per rola (`stable_role_features`) [erd] trafia do tokenu (`m[].f`), więc zmiana w panelu działa po odświeżeniu tokenu, do 15 s (propozycja). Widoczność tylko zawęża to, na co pozwala rola, nigdy tego nie rozszerza (propozycja): klient z zaznaczonymi „Szybkimi akcjami i ich stanem” widzi stan, ale zapis dalej daje 403. Odpowiedzi złożone (`board`, lista dnia, karta konia) pomijają ukryte sekcje, a trasy funkcji ukrytej dla roli dają 403 (propozycja). `admin` i `plt` nie mają `f` i widzą wszystko [erd]. Członkostwo i widoczność liczą się osobno w każdej stajni (Ola jest obsługą w dwóch stajniach o różnych ustawieniach).
+- [ ] Widoczność per rola (`stable_role_features`) [erd] trafia do tokenu (`m[].f`), więc zmiana w panelu działa po odświeżeniu tokenu, do 5 min (propozycja). Widoczność tylko zawęża to, na co pozwala rola, nigdy tego nie rozszerza (propozycja): klient z zaznaczonymi „Szybkimi akcjami i ich stanem” widzi stan, ale zapis dalej daje 403. Odpowiedzi złożone (`board`, lista dnia, karta konia) pomijają ukryte sekcje, a trasy funkcji ukrytej dla roli dają 403 (propozycja). `admin` i `plt` nie mają `f` i widzą wszystko [erd]. Członkostwo i widoczność liczą się osobno w każdej stajni (Ola jest obsługą w dwóch stajniach o różnych ustawieniach).
 - [ ] `X-Box-Id` z tabletu walidowany: boks stajni konta tabletów. Nagłówek niesie `boxes.id` (UUID), nigdy numer boksu, bo numer nie jest unikalny. Trafia do `box_id` w potwierdzeniach flag, „Boks gotowy” i „Wodzie”; przy akcji hali z tabletu wyznacza halę (`boxes.building_id`), bo `building_routines` nie ma `box_id`.
-- [ ] Czas życia: access token 5–15 min, sesja według aplikacji i roli w `auth` (tablet bez limitu do blokady, TV do 365 dni, panel admina 7 i 30 dni, admin globalny 10 h; propozycja, sekcja 5 pkt 4).
+- [ ] Czas życia (W4): access token 5 min dla wszystkich; refresh JWT z oknem bezczynności przesuwanym przy każdym odświeżeniu, ale nie dalej niż `sst` + maksimum: apka 30 dni / 180 dni, panel 7 / 30 dni, tablet 30 dni / bez limitu, wyświetlacz 30 / 365 dni, `ops` 30 min / 10 h, `opctl` 30 min / 1 h (propozycja, sekcja 5 pkt 4).
 
 #### 3.1.10 Izolacja stajni (`packages/tenancy`)
 - [ ] `TenantScope` powstaje dopiero po sprawdzeniu dostępu do stajni z tokenu (`resolveStable`, 3.1.9): admin konta firmy ma każdą stajnię swojej firmy, admin globalny każdą stajnię, pozostali tylko stajnie z `m`.
 - [ ] `scoped(table)` dokłada `stable_id = $scope`; `joinScoped` dokłada równość `stable_id` po obu stronach złączenia; tabele podrzędne dostępne tylko przez rodzica.
 - [ ] Obiekt stajni bez dostępu daje 404, nie 403; tak samo obiekt innej firmy (inne konto, inny NIP). Wyjątek: admin globalny (W1, mikroserwisy.md).
-- [ ] Zapytania przekrojowe (crony, billing, releases) tylko przez `crossTenant()`, każde z testem.
+- [ ] Zapytania przekrojowe (crony, `billing`, `platform`) tylko przez `crossTenant()`, każde z testem.
 - [ ] Strażnik w testach: parser SQL wymaga predykatu `stable_id` w każdym zapytaniu do tabeli stajni, zgodnie z listą z 3.1.4.
 - [ ] Klucze S3 z prefiksem `stable_id/` [erd]. Presigned URL wydaje dopiero serwis-właściciel po sprawdzeniu uprawnień.
 
 #### 3.1.11 Audyt (`packages/audit`)
 - [ ] `audit.record(tx, …)` w tej samej transakcji co zmiana [erd]. Zapisuje:
   - `service`;
-  - `actor_type` (`user`, `tablet`, `operator` albo `system`; `operator` to admin globalny albo Wsparcie IT), `actor_id`, `client` z aplikacji (`mobile` → `app`, `web`, `tablet`, `ops`, `opctl`; dla `system` brak), `session_id` (`sid` z tokenu; przy wejściu zespołu EQUENOR prowadzi do powodu wejścia);
+  - `actor_type` (`user`, `tablet`, `operator` albo `system`; `operator` to admin globalny albo Wsparcie IT), `actor_id`, `client` z aplikacji (`mobile` → `app`, `web`, `tablet`, `ops`, `opctl`; dla `system` brak), `session_id` (`sid` z tokenu, bez tabeli sesji; przy wejściu zespołu EQUENOR prowadzi do wpisu z powodem wejścia);
   - `action`, `entity_type`, `entity_id`;
   - zmiany w `audit_log_changes`, z maskowaniem pól.
 - [ ] Każda trasa zapisująca deklaruje akcję audytu (meta-test). Crony zapisują `actor_type = system`. Żądania z `plt` (także odczyty) trafiają dodatkowo do osobnego logu odczytów (propozycja, mikroserwisy.md 4.4).
-- [ ] Test: rola serwisu nie czyta, nie zmienia i nie usuwa wpisów w `audit`.
+- [ ] Test: rola serwisu nie czyta, nie zmienia i nie usuwa wpisów w `audit` (czyta tylko `platform`, usuwa po retencji tylko `retention-pruner`).
 
 #### 3.1.12 Pakiety domenowe i dane testowe
 - [ ] `packages/rules`: czyste funkcje czasu.
   - Wystąpienia posiłków w strefie stajni i według `days_mask`.
   - Okno flagi `valid_from`–`valid_to` (obowiązkowe, w strefie stajni) i podpowiedź z `flag_templates.default_window` [erd]: „Bez śniadania” dziś 06:00–10:00, „Nie na padok” w godzinach padoku konia, „Derka” 16:00–08:00 (przez północ).
   - `ack_deadline_at`, `warn_at` i `notify_at`, liczone od początku okna flagi i tylko dla flag z `requires_ack` [erd]; flaga bez potwierdzeń nie ma terminów (propozycja: `NULL`).
-  - Konfiguracja stajni (propozycja): czysta funkcja `stableFeatures(settings, activeTemplates, roleFeatures, role)` zwraca, co pokazać danej roli: kafelki flag (aktywne szablony, „Inna flaga”), „namoczyć”, przyciski szybkich akcji, tryb potwierdzeń i widoczne funkcje. Używają jej serwisy (`board`, `care`, `flags`) i apki, więc tablet, apka, panel i wyświetlacz ukrywają to samo.
+  - Konfiguracja stajni (propozycja): czysta funkcja `stableFeatures(settings, activeTemplates, roleFeatures, role)` zwraca, co pokazać danej roli: kafelki flag (aktywne szablony, „Inna flaga”), „namoczyć”, przyciski szybkich akcji, tryb potwierdzeń i widoczne funkcje. Używają jej serwisy (`board`, `dzien`) i apki, więc tablet, apka, panel i wyświetlacz ukrywają to samo.
   - Skutki flag liczone z okna godzin [erd]:
     - `suspend_meal` wstrzymuje tylko posiłki, których godzina wypada w oknie;
     - `cancel_paddock` skraca albo odwołuje padok tylko w oknie (Kasztan: padok B 10:00–16:00 i „Nie na padok” 14:30–16:00 dają padok 10:00–14:30, czyli między wetem o 8:00 a kowalem o 15:00);
@@ -807,27 +807,27 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
     - kontrasty WCAG: tekst ≥ 4,5:1, duże elementy i obrysy kontrolek ≥ 3:1, dla każdej pary tekst–tło używanej w komponentach;
     - tablet: neutralne tokeny achromatyczne (R = G = B); drabina jasności papier 255, OK 204, uwaga 146, krytyczna 66, atrament 0, z odstępem co najmniej 3 poziomów na 16, w obu profilach;
     - tablet: tekst na kolorze tylko czarny (`t-ok`, `t-warn`) albo biały (`t-crit`).
-- [ ] `packages/testing`: kontenery, fabryki, seed, fałszywy zegar, klienci HTTP z tokenami EQUENOR (`mintToken` dla osób z danych demo i każdej aplikacji, podpis kluczem z pliku; propozycja).
+- [ ] `packages/testing`: kontenery, fabryki, seed, fałszywy zegar, klienci HTTP z tokenami EQUENOR (`mintToken` dla osób z danych demo i każdej aplikacji: access i refresh JWT podpisane kluczem z pliku, bez sesji w bazie; propozycja).
 - [ ] `tools/synth-data`: generator danych syntetycznych w skali (wiele stajni, setki boksów) do testów obciążenia i migracji.
 
 #### 3.1.13 Wymagania wobec platformy (dla Dawida, bez wskazywania dostawcy)
 - [ ] Development dostarcza:
   - obrazy;
   - manifest zasobów AWS (tematy, kolejki, DLQ, subskrypcje, bucket, role IAM);
-  - listę ról bazy i skrypt grantów.
+  - listę ról bazy (serwisy i każdy cron osobno; `sms` i `email` bez roli) i skrypt grantów.
 - [ ] Manifesty workloadów (kto je pisze i w jakim formacie: decyzja). Potrzebne:
   - **serwisy:** Deployment z co najmniej 2 replikami (`auth` co najmniej 3 w różnych strefach), sondy, PDB i limity zasobów; każdy z własnym kontem serwisowym Kubernetes;
-  - **crony:** CronJob z `timeZone`, `concurrencyPolicy: Forbid` i `startingDeadlineSeconds`, z harmonogramem w pliku obok kodu i własnym kontem serwisowym; domyślne konto serwisowe bez montowania tokenu (`automountServiceAccountToken: false`);
+  - **crony:** CronJob z `timeZone`, `concurrencyPolicy: Forbid` i `startingDeadlineSeconds`, z harmonogramem w pliku obok kodu, własną rolą bazy z manifestu i własnym kontem serwisowym (rola IAM do publikacji); domyślne konto serwisowe bez montowania tokenu (`automountServiceAccountToken: false`);
   - **migracje:** Job uruchamiający `migrate`.
 - [ ] PostgreSQL:
   - ta sama wersja główna lokalnie, w CI, na teście i w produkcji;
-  - pooler i limit `max_connections` dla 13 serwisów i 9 cronów razy liczba replik (tryb poolera wpływa na prepared statements w sterowniku);
+  - pooler i limit `max_connections` dla 9 serwisów z bazą (`sms` i `email` bez połączenia) i 9 cronów razy liczba replik (tryb poolera wpływa na prepared statements w sterowniku);
   - kopie z PITR i próbne odtworzenie bazy przed pilotażem.
 - [ ] Sieć klastra:
-  - NetworkPolicy, np. `files` dostępny tylko dla serwisów-właścicieli;
+  - NetworkPolicy generowana z manifestu wywołań w `packages/contracts` (serwis → serwis): `stable` → `dzien` i `auth`, `notifications` → `auth`, `dzien`, `terminarz`, `billing`, `stable` i `platform` → `files`, wszyscy → JWKS `auth`; `sms` i `email` bez ruchu przychodzącego;
   - ingress z routingiem po prefiksie `/<serwis>/` i limitami żądań na publicznych trasach odpytywania;
-  - `/internal` niewystawione na zewnątrz.
-- [ ] Uwierzytelnianie serwis→serwis dla `/internal` (propozycja, mikroserwisy.md 7.1): token konta serwisowego Kubernetes (`audience: equenor-auth`) wymieniany w `auth /internal/token` na token serwisowy ze `scope`; `auth` weryfikuje go przez OIDC klastra EKS. JWKS i `/internal` przez TLS z certyfikatem z CA klastra (cert-manager). Klucz podpisu tokenów w AWS KMS (`kms:Sign` tylko rola `auth`).
+  - `/internal` na osobnym porcie, niewystawionym poza klaster.
+- [ ] `/internal` bez tokenów serwisowych (W3, propozycja, mikroserwisy.md): przez TLS z certyfikatem z CA klastra (cert-manager), a kto może wołać który serwis, pilnuje NetworkPolicy. Na później (do decyzji, może poczekać): serwis docelowy sprawdza lokalnie podpis tokenu konta serwisowego Kubernetes (JWKS klastra). JWKS też przez TLS z CA klastra. Klucz podpisu tokenów w AWS KMS (`kms:Sign` tylko rola `auth`).
 - [ ] Środowisko testowe dostępne po HTTPS z sieci stanowiska i z sieci komórkowej; miejsce na generator k6 blisko klastra.
 - [ ] Zgoda na wstrzykiwanie awarii: zabijanie podów, zmiana liczby replik, wstrzymanie CronJoba, odcięcie SNS.
 - [ ] Logi, metryki i alerty (2.12); runnery CI: macOS i KVM (1.6).
@@ -838,9 +838,9 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - **LocalStack** z S3, SNS, SQS i SES. Przypiąć wersję i sprawdzić warunki obrazu, bo zasady wersji community zmieniały się w 2026. Skrypt startowy tworzy zasoby z manifestu (3.1.5);
   - **S3** w trybie path-style, z osobnym `S3_PUBLIC_ENDPOINT` w LAN, żeby presigned URL działał z telefonu i tabletu;
   - **reverse proxy** z prefiksami `/<serwis>/`, dostępny z LAN;
-  - `fake-sms` i `auth` z kluczem podpisu z pliku i udawanym Cognito.
+  - `fake-sms` (adapter serwisu `sms`) i `auth` z kluczem podpisu z pliku i udawanym Cognito.
 - [ ] **Cognito lokalnie, trzy warianty:**
-  - **C, prawdziwy `auth` z udawanym Cognito** (propozycja, mikroserwisy.md 11.3): `TOKEN_SIGNER=file` (klucz podpisu z pliku zamiast KMS), `IDP=stub` (udawany ID token Cognito z telefonem i e-mailem), `SVC_IDP=stub` (udawany token konta serwisowego); `pnpm dev:token anna --client mobile` daje token EQUENOR przez prawdziwe wyliczanie claimów.
+  - **C, prawdziwy `auth` z udawanym Cognito** (propozycja, mikroserwisy.md 11.3): `TOKEN_SIGNER=file` (klucz podpisu z pliku zamiast KMS), `IDP=stub` (udawany ID token Cognito z telefonem i e-mailem); `pnpm dev:token anna --client mobile` daje access i refresh token EQUENOR przez prawdziwe wyliczanie claimów, podpisane lokalnym kluczem testowym, bez sesji w bazie.
     - Zastosowanie: CI i praca nad backendem.
     - Test porównuje udawany ID token z prawdziwym z puli dev.
     - Nie startuje przy `ENV=prod`.
@@ -852,18 +852,18 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - TOTP obok logowania bez hasła;
   - ID token z `USER_AUTH`: `phone_number_verified`, `email_verified` i `auth_time` do wymiany w `auth` [niepotwierdzone];
   - passkey albo hasło z TOTP w puli zespołu EQUENOR na hoście `[OPS]`; czy ID token niesie dowód MFA i czy `auth` odczyta konfigurację puli;
-  - sesja EQUENOR tabletu i wyświetlacza przez tygodnie przy zrywanym Wi-Fi: rotacja z oknem zgubionej odpowiedzi 60 s, powiązanie z kluczem urządzenia (DPoP);
-  - opóźnienie i koszt KMS Sign z EKS; weryfikacja tokenów kont serwisowych przez OIDC EKS;
+  - odświeżanie tabletu i wyświetlacza przez tygodnie przy zrywanym Wi-Fi: refresh JWT bez zapisu (zgubiona odpowiedź niczego nie psuje, ten sam token dalej działa), DPoP z `cnf.jkt` w refresh JWT i dowodem z oknem `iat` 60 s, bez zapisu `jti` (propozycja do spike'u);
+  - opóźnienie i koszt KMS Sign z EKS;
   - telewizor i tablet zalogowane kontami technicznymi z rolą `display` i `tablet` (e-mail i kod);
   - logowanie recenzentów sklepów e-mailem;
   - kod SMS w formacie SMS Retriever na Androidzie (z zapasem: SMS User Consent API).
 - [ ] **`fake-sms`:**
-  - adaptery `SmsSender` (`console`, `dev-inbox`) w `notifications`;
+  - adaptery `SmsSender` (`console`, `dev-inbox`) w serwisie `sms`;
   - strona z wiadomościami pogrupowanymi według numeru;
   - `GET /messages?to=` dla E2E;
   - liczenie segmentów UCS-2 z ostrzeżeniem o zbyt długim szablonie.
 
-  Obejmuje eskalacje, zaproszenia i przypomnienia; kody logowania (SMS i e-mail) wysyła Cognito. E-mail z `notifications` idzie przez SES w LocalStack.
+  Obejmuje eskalacje, zaproszenia i przypomnienia; kody logowania (SMS i e-mail) wysyła Cognito. E-mail z serwisu `email` idzie przez SES w LocalStack.
 - [ ] Fałszywe adaptery `PaymentProvider` i `InvoiceSystem`; ręczne wywołanie webhooka (`pnpm dev:webhook …`).
 - [ ] **Seed z makiet** (`pnpm db:seed`).
   - Przechodzi przez API albo repozytoria właścicieli, razem z audytem.
@@ -902,7 +902,7 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
     - Marek Nowak: oczekujące zaproszenie SMS jako klient do Luny (`invitations.horse_id`, bez boksu);
     - wygasłe zaproszenie dla obsługi;
     - konta techniczne Pod Lipami: „Telewizor korytarz”, e-mail tv.korytarz@stajnielipowe.pl (w interfejsie t•••@stajnielipowe.pl), rola Wyświetlacz (`display`), loguje się na TV e-mailem i kodem z e-maila; „Tablety Pod Lipami”, e-mail boksy@stajnielipowe.pl (w interfejsie b•••@stajnielipowe.pl), rola Tablet (`tablet`), zalogowane na wszystkich tabletach tej stajni (propozycja). Oba konta mają `account_kind = technical`.
-    - klucz podpisu dev w `signing_keys` (z pliku, propozycja).
+    - klucz podpisu dev w `signing_keys` (z pliku, propozycja); sesji seed nie zakłada, bo ich nie ma (W4).
 
     Numery i adresy są fikcyjne; numery i adresy do puli dev leżą w lokalnym `.env`, poza repo.
   - **Słowniki:**
@@ -955,21 +955,21 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 ### 3.3 Serwisy
 
 **Katalog zdarzeń**
-- `horse.left` [erd]: publikuje `stable` (po synchronicznym wywołaniu `auth /internal/horses/{id}/left`, propozycja); konsumują `auth`, `flags`, `care`, `tasks` i `rides`.
-- `subscription.status_changed` [erd]: publikuje `billing`; konsumuje `stable`, które ustawia `stables.status`.
-- `stable.created` (propozycja): publikuje `stable`; konsumują `flags` (szablony), `care` (słowniki) i `billing`.
-- `invitation.created`, `invitation.accepted`, `invitation.expired` (propozycja): publikuje `auth`; konsumuje `notifications`.
-- `user.deleted` (propozycja): publikuje `auth`; konsumuje `notifications`.
-- `member.removed` (propozycja): publikuje `auth`; konsumuje `tasks` (zwalnia „Biorę”).
-- Eskalacji, przypomnień ani zmian widocznych na tablicy nie przekazujemy zdarzeniami. Crony wołają API właścicieli, a `board` czyta bazę przy każdym zapytaniu [erd].
+- `horse.left` [erd]: publikuje `stable` (po synchronicznym wywołaniu `auth /internal/horses/{id}/left`, propozycja); konsumują `dzien` i `terminarz`; zgubione skutki domyka `horse-left-reconciler`.
+- `subscription.status_changed` [erd]: publikują `billing` i cron `billing-dunning`; konsumuje `stable`, które ustawia `stables.status`.
+- `stable.created` (propozycja): publikuje `stable`; konsumują `dzien` (zapas, gdy wywołanie synchroniczne się nie uda) i `billing`.
+- `member.removed` (propozycja): publikuje `auth`; konsumuje `dzien` (zwalnia „Biorę”).
+- Zdarzenia powiadomień, wszystkie konsumuje `notifications` (W5): `invitation.created`, `invitation.accepted` i `user.deleted` (`auth`), `invitation.expired` (cron `invitation-expiry-notifier`), `flag.created` (`dzien`), `flag.escalated` (cron `escalation-scheduler`), `health.due` (cron `health-due-reminders`), `invoice.issued` (cron `billing-invoicing`; konsumuje też `billing`, który robi PDF), `payment.failed` (`billing`), `payment.overdue` (cron `billing-dunning`).
+- `sms.result` (`sms`) i `email.result` (`email`): konsumuje `notifications` (status wysyłki).
+- Zmian widocznych na tablicy nie przekazujemy zdarzeniami: `board` czyta bazę przy każdym zapytaniu [erd]. Crony piszą wprost do bazy, a powiadomienia zlecają tylko zdarzeniem (W3).
 
-**auth** (jedyny serwis autoryzacyjny, wymaganie z 13.10; tabele: `users`, `businesses`, `business_admins`, `stable_members`, `horse_access`, `invitations`, `stable_role_features`, `platform_roles`, `platform_requests`, `auth_sessions`, `auth_revocations`, `signing_keys`; pełna lista tras: mikroserwisy.md 5.2, propozycja)
-- [ ] Tokeny: `POST /auth/v1/token` (wymiana ID tokenu Cognito, odświeżenie z rotacją i oknem zgubionej odpowiedzi 60 s; z ciasteczkiem tylko z `Origin` z listy i nagłówkiem `X-Equenor-Client`), `POST /auth/v1/ops/token` (tylko host `[OPS]`, z powodem wejścia), `POST /logout`, JWKS (tylko w klastrze), `POST /internal/token` (token konta serwisowego Kubernetes → token serwisowy), `GET /internal/revocations` (lista unieważnień), klucz podpisu w KMS z rotacją.
-- [ ] Przy wymianie tokenu w jednej transakcji: upsert `users` po (`identity_pool`, `cognito_sub`) i odświeżenie kopii telefonu i e-maila (`contact_synced_at`), dopasowanie zaproszeń, zgodność konta z aplikacją, wyliczenie claimów, sesja w `auth_sessions`.
-- [ ] `GET /me` (profil, stajnie z nazwą, rolą, funkcjami i statusem, firmy admina, `plt`, widok startowy, świeżo dopasowane zaproszenia), `PATCH /me` (nazwa wyświetlana i język), `DELETE /me` (pseudonimizacja i usunięcie konta w Cognito; blokada, gdy użytkownik jest jedynym adminem konta firmy), `POST /me/sign-out-everywhere`, `DELETE /me/memberships/{stableId}` („Opuść stajnię”, bez makiety).
+**auth** (jedyny serwis autoryzacyjny, W2; tabele: `users`, `businesses`, `business_admins`, `stable_members`, `horse_access`, `invitations`, `stable_role_features`, `platform_roles`, `platform_requests`, `signing_keys`; bez tabel sesji, W4; pełna lista tras: mikroserwisy.md, propozycja)
+- [ ] Tokeny: `POST /auth/v1/token` (wymiana ID tokenu Cognito; odświeżenie refresh JWT bez zapisu: `auth` sprawdza konto, `tv` wobec `users.token_version`, aktywność konta technicznego i rolę platformową, liczy claimy od nowa i wydaje nowy refresh token z `exp` przesuniętym o okno bezczynności, nie dalej niż `sst` + maksimum; z ciasteczkiem tylko z `Origin` z listy i nagłówkiem `X-Equenor-Client`), `POST /auth/v1/ops/token` (tylko host `[OPS]`, z powodem wejścia), `POST /logout` (aplikacja usuwa tokeny, panel czyści ciasteczko; skopiowany wcześniej refresh token działa do `exp`), JWKS (tylko w klastrze), klucz podpisu w KMS z rotacją.
+- [ ] Przy wymianie tokenu w jednej transakcji: upsert `users` po (`identity_pool`, `cognito_sub`) i odświeżenie kopii telefonu i e-maila (`contact_synced_at`), dopasowanie zaproszeń, zgodność konta z aplikacją, wyliczenie claimów, nowy `sid` (bez zapisu).
+- [ ] `GET /me` (profil, stajnie z nazwą, rolą, funkcjami i statusem, firmy admina, `plt`, widok startowy, świeżo dopasowane zaproszenia), `PATCH /me` (nazwa wyświetlana i język), `DELETE /me` (pseudonimizacja i usunięcie konta w Cognito; blokada, gdy użytkownik jest jedynym adminem konta firmy), `POST /me/sign-out-everywhere` (podbija `token_version`), `DELETE /me/memberships/{stableId}` („Opuść stajnię”, bez makiety).
 - [ ] Konto firmy: `POST /businesses` (propozycja): rejestracja konta firmy po pierwszym logowaniu (PanelWitaj → PanelRejestracjaFirmy): nazwa firmy, NIP, siedziba i e-mail do faktur (`invoice_email`). NIP podaje się tylko tutaj. Kod normalizuje NIP do 10 cyfr i sprawdza sumę kontrolną (propozycja); NIP, który ma już konto, daje `409 tax_id_taken` („Ten NIP ma już konto w EQUENOR”, propozycja) i nic nie zapisuje. Osoba rejestrująca zostaje adminem konta: `businesses` i `business_admins` zapisują się w jednej transakcji, a odpowiedź ma `Equenor-Token-Refresh: required`. Konto techniczne nie zakłada firmy (403).
 - [ ] Członkostwa: stajnie, role i dostępy liczy `auth` do tokenu. Admin konta firmy ma wszystkie stajnie firmy, także nową od razu po jej założeniu, bez przypisywania. Pozostałe role przypisuje się per stajnia, a osoba może być przypisana do kilku stajni z różnymi rolami albo tą samą rolą (w seedzie Ola jako obsługa, Marta jako instruktorka i Anna jako klientka w obu stajniach; Paweł tylko w Brzozowej, Piotr tylko w Pod Lipami); apka przełącza między nimi stajnię bez ponownego logowania. Konto techniczne (`account_kind = technical`) ma członkostwo w jednej stajni; przypisanie go do drugiej `auth` odrzuca (propozycja).
-- [ ] Zarządzanie członkami (Ludzie): zmiana roli w stajni (`staff | instructor | client`; konta techniczne `display | tablet` bez zmiany roli, propozycja), `active`, blokada i odblokowanie kont technicznych, sesje konta technicznego i odłączenie jednej sesji (mikroserwisy.md 10.2 pkt 8), „Usuń ze stajni”; rola Admin dotyczy całego konta firmy (`business_admins`), a kolejnych adminów konta dodaje admin globalny we dwie osoby, z powiadomieniem adminów firmy (propozycja); przypisanie osoby do kolejnej stajni firmy i jego odebranie (np. Ola do Brzozowej; propozycja: w Ludziach, bez nowego zaproszenia). W Ludziach konta techniczne („Telewizor korytarz · Wyświetlacz”, „Tablety Pod Lipami · Tablet”) są w filtrze „Konta techniczne”, a dostępy nadane przez zespół EQUENOR (`granted_via = platform`) są oznaczone. Każda zmiana uprawnień podbija `users.authz_version` i dopisuje wpis na liście unieważnień w tej samej transakcji.
+- [ ] Zarządzanie członkami (Ludzie): zmiana roli w stajni (`staff | instructor | client`; konta techniczne `display | tablet` bez zmiany roli, propozycja), `active`, blokada i odblokowanie kont technicznych, „Wyloguj wszystkie tablety” przy koncie tabletów (podbija `token_version`; jednego tabletu nie odłączamy, W4), „Usuń ze stajni”; rola Admin dotyczy całego konta firmy (`business_admins`), a kolejnych adminów konta dodaje admin globalny we dwie osoby, z powiadomieniem adminów firmy (propozycja); przypisanie osoby do kolejnej stajni firmy i jego odebranie (np. Ola do Brzozowej; propozycja: w Ludziach, bez nowego zaproszenia). W Ludziach konta techniczne („Telewizor korytarz · Wyświetlacz”, „Tablety Pod Lipami · Tablet”) są w filtrze „Konta techniczne”, a dostępy nadane przez zespół EQUENOR (`granted_via = platform`) są oznaczone. Zmiana uprawnień działa przy najbliższym odświeżeniu tokenu, do 5 min, bez listy unieważnień; `token_version` podbijają tylko „Wyloguj ze wszystkich urządzeń”, blokada i usunięcie konta, odebranie roli platformowej i „Wyloguj wszystkie tablety”.
 - [ ] Zaproszenia.
   - Kanał: telefon (SMS) albo e-mail (`invitations.channel`), wybór „Kanał: SMS | E-mail” jak na makiecie Zaproszenie.
   - Role do wyboru: Klient (z wyborem konia), Obsługa, Instruktor [erd]; w panelu („Zaproś osobę”) także osobna grupa „Konto techniczne”: Wyświetlacz i Tablet przy boksie. Wsparcia IT na liście nie ma. Osobnego „Dodaj wyświetlacz” i endpointu kont wyświetlaczy nie ma.
@@ -979,25 +979,25 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - „Wyślij ponownie” tworzy nowe zaproszenie.
   - Zaproszenie dopasowuje się samo po zalogowaniu, bez ekranu „Przyjmij” [erd]: wymiana tokenu w `auth` porównuje zweryfikowany telefon albo e-mail z ID tokenu (e-mail bez rozróżniania wielkości liter, propozycja) z ważnymi zaproszeniami i od razu zapisuje członkostwo, klientowi także dostęp do konia, w jednej transakcji z `accepted_at` (zdarzenie `invitation.accepted`). U osoby już zalogowanej to samo przy najbliższym odświeżeniu tokenu (zaproszenie do kolejnej stajni). Wygasłe (`expires_at`) albo odwołane (`revoked_at`) zaproszenie się nie dopasowuje.
 - [ ] Dostęp klienta do konia: `horse_access` z rolą `client` (właściciel albo dzierżawca konia), `valid_to` np. równe końcowi dzierżawy, `revoked_at`, gdy koń opuszcza stajnię. Osobnego dostępu do boksu nie ma: boks i jego historię (od dnia, w którym koń do niego trafił) klient widzi przez konia [erd]. `exp` tokenu klienta nie wychodzi poza koniec okna dostępu (propozycja).
-- [ ] Widoczność per rola: `GET` i `PUT …/role-features` z `If-Match` i audytem: macierz ról `client | staff | instructor | tablet | display` × funkcji ze stałej listy `flags`, `feeding_plan`, `routine`, `box_history`, `tasks`, `health`, `rides` [erd]; `tasks` i `box_history` nie dotyczą roli `tablet` (bez wierszy, w panelu pola nieaktywne) [erd]. `admin` nie występuje w macierzy, bo widzi wszystko; nieznana rola albo funkcja i `tablet` z `tasks` albo `box_history` dają 422 (propozycja). Macierz trafia do tokenu, więc zmiana działa po odświeżeniu, do 15 s.
+- [ ] Widoczność per rola: `GET` i `PUT …/role-features` z `If-Match` i audytem: macierz ról `client | staff | instructor | tablet | display` × funkcji ze stałej listy `flags`, `feeding_plan`, `routine`, `box_history`, `tasks`, `health`, `rides` [erd]; `tasks` i `box_history` nie dotyczą roli `tablet` (bez wierszy, w panelu pola nieaktywne) [erd]. `admin` nie występuje w macierzy, bo widzi wszystko; nieznana rola albo funkcja i `tablet` z `tasks` albo `box_history` dają 422 (propozycja). Macierz trafia do tokenu, więc zmiana działa po odświeżeniu, do 5 min.
 - [ ] Platforma (admin globalny, Wsparcie IT): `GET /platform/businesses`, użytkownicy i ich wylogowanie, konta techniczne stajni, kolejny admin konta i role platformowe we dwie osoby (`platform_requests`), konta zespołu i rotacja kluczy (tylko `opctl`, ze step-up MFA).
-- [ ] `/internal`: `revocations`, `recipients` (adresowanie dla `notifications`), `invitations/expire` (cron), `horses/{id}/left` (zamyka dostęp tylko przy `horses.status = left`), `prune` (sesje, wygasłe unieważnienia i wnioski).
+- [ ] `/internal` (tylko te): `recipients` (adresowanie dla `notifications`, nie autoryzacja), `horses/{id}/left` (woła `stable`; zamyka dostęp tylko przy `horses.status = left`). Wygasłe zaproszenia ogłasza cron `invitation-expiry-notifier`, a stare `platform_requests` usuwa `retention-pruner` (3.4).
 
 **stable** (`stables`, `stable_settings`, `notification_rules`, `buildings`, `boxes`, `horses`, `horse_box_history`; konto firmy i macierz widoczności są w `auth`)
 - [ ] Konto firmy (`businesses`) z kilkoma stajniami (`stables.business_id`): konto firmy → stajnie → hale → boksy [erd]. Tylko B2B: jedno konto to jeden NIP. Admin konta ma dostęp do wszystkich stajni firmy; dane, izolacja, płatności i ustawienia zostają na poziomie stajni.
 - [ ] `POST /stables`: „Załóż stajnię” w 2 krokach, jedno żądanie na końcu kroku 2 (propozycja).
   - Krok 1 „Stajnia” (PanelZalozStajnie): nazwa, adres, strefa, pierwsza hala z adresem stajni i boksy z ustawieniami (niżej). Bez NIP, bez wyboru działalności, bez języków i bez pytania o potwierdzenia flag.
   - Krok 2 „Powiadomienia” (PanelZalozPowiadomienia): które zdarzenia, do kogo (Admin, Obsługa stajni) i jakim kanałem (SMS, e-mail); zapis w `notification_rules`. Potem „Załóż stajnię” → PanelPulpitStart.
-  - Stajnia trafia do konta firmy zalogowanego admina (`businessId ∈ biz` z tokenu, albo admin globalny), więc admin ma do niej dostęp od razu; po COMMIT synchronicznie `flags` i `care` `/internal/stables/{id}/defaults` (szablony flag, pory posiłków z kroku 1), potem zdarzenie `stable.created`. Przy błędzie odpowiedź ma `setupPending`, a `POST /stables/{id}/setup/retry` ponawia z porami z formularza albo z porami domyślnymi (propozycja, mikroserwisy.md 5.3).
+  - Stajnia trafia do konta firmy zalogowanego admina (`businessId ∈ biz` z tokenu, albo admin globalny), więc admin ma do niej dostęp od razu; po COMMIT jedno synchroniczne wywołanie `dzien /internal/stables/{id}/defaults` (szablony flag, pory posiłków z kroku 1), potem zdarzenie `stable.created`. Przy błędzie odpowiedź ma `setupPending`, a `POST /stables/{id}/setup/retry` ponawia z porami z formularza albo z porami domyślnymi (propozycja, mikroserwisy.md).
   - Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami [erd]; zmienia się je potem w „Ustawieniach stajni”. Domyślna macierz widoczności per rola: sekcja 5.
   - Stajnia, ustawienia, hala, boksy i reguły powiadomień zapisują się w jednej transakcji `stable`, z audytem [erd]; kod wstawia wiersz `notification_rules` dla każdej kombinacji zdarzenia, odbiorcy i kanału, z `enabled` według kroku 2.
 - [ ] Ustawienia z `If-Match`: progi eskalacji, `author_display`, `owner_edits_feeding`, `rides_enabled`, okno instalacji APK.
 - [ ] **„Ustawienia stajni”** (konfiguracja per stajnia, erd.md pkt 16), tylko admin konta firmy (Damian w obu stajniach); obsługa, klient, instruktor i konta techniczne tej stajni dostają 403, a osoba bez dostępu do stajni (Paweł w Pod Lipami) i admin innej firmy 404. Na PoC przełączniki gotowych opcji, bez własnych reguł:
   - `GET …/settings` i `PATCH …/settings` z `If-Match` i audytem: „Flagi wymagają potwierdzenia” (`flags_require_ack`), moczenie paszy (`soak_enabled`), przyciski „Boks gotowy” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`) [erd]. „Woda” nie ma przełącznika, zależy od poidła boksu [erd];
   - macierz widoczności per rola (`…/role-features`) zapisuje serwis `auth` (wyżej), bo trafia do tokenu (propozycja);
-  - flagi włącza się i wyłącza przez `flag_templates.active` (także Derkę, szablon `derka`) [erd]; tę tabelę zapisuje serwis `flags`, więc panel wysyła przełączniki flag do `flags`, a resztę do `stable`. Jeden przycisk „Zapisz” w panelu robi trzy żądania (`stable`, `flags`, `auth`); przy błędzie jednego panel mówi, która część się nie zapisała (propozycja);
+  - flagi włącza się i wyłącza przez `flag_templates.active` (także Derkę, szablon `derka`) [erd]; tę tabelę zapisuje serwis `dzien`, więc panel wysyła przełączniki flag do `dzien`, a resztę do `stable`. Jeden przycisk „Zapisz” w panelu robi trzy żądania (`stable`, `dzien`, `auth`); przy błędzie jednego panel mówi, która część się nie zapisała (propozycja);
   - `GET …/features` (propozycja): efektywna konfiguracja dla roli zalogowanego użytkownika w tej stajni (`stableFeatures` z `packages/rules`): kafelki flag, „namoczyć”, przyciski, tryb potwierdzeń i widoczne funkcje. Apka czyta ją po wyborze stajni i przy odpytywaniu z ETag;
-  - zmiana ustawień działa przy najbliższym odpytaniu apki, tabletów i wyświetlacza, bez zdarzeń [erd], a zmiana macierzy po odświeżeniu tokenu (do 15 s); wpisy już zapisane zostają w historii; przełącznik potwierdzeń dotyczy tylko nowych flag (`horse_flags.requires_ack`, serwis `flags`).
+  - zmiana ustawień działa przy najbliższym odpytaniu apki, tabletów i wyświetlacza, bez zdarzeń [erd], a zmiana macierzy po odświeżeniu tokenu (do 5 min); wpisy już zapisane zostają w historii; przełącznik potwierdzeń dotyczy tylko nowych flag (`horse_flags.requires_ack`, serwis `dzien`).
 - [ ] Hale (`buildings`) [erd]:
   - każda hala ma nazwę (unikalną w stajni), własny adres (`address_line1`, `address_line2`, `postal_code`, `city`, `country_code`), `sort_order` i `active`; adres pierwszej hali to adres podany przy zakładaniu stajni;
   - lista i edycja hal (nazwa, adres, kolejność) z `If-Match`;
@@ -1032,9 +1032,12 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - nowa stajnia ma ustawienia domyślne z kodu (wszystko włączone, z potwierdzeniami) [erd];
   - rejestracja konta firmy (`auth`): NIP z kreskami i bez to ten sam NIP; drugi raz ten sam NIP, także równolegle, daje jedno konto i jedno `409 tax_id_taken` (propozycja); zła suma kontrolna daje 422 (propozycja);
   - „Załóż stajnię” nie przyjmuje NIP ani działalności: stajnia zawsze trafia do konta firmy admina, a admin widzi ją od razu, bez przypisania; stajnia, hala, boksy z ustawieniami i reguły powiadomień zapisują się razem albo wcale;
-  - przypisanie osoby (np. Oli) do drugiej stajni daje jej dostęp tylko do tej stajni; po odebraniu przypisania obiekty tej stajni dają 404 (do 15 s, przez listę unieważnień).
+  - przypisanie osoby (np. Oli) do drugiej stajni daje jej dostęp tylko do tej stajni; po odebraniu przypisania obiekty tej stajni dają 404 (do 5 min, po odświeżeniu tokenu).
 
-**flags** (`flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_escalations`)
+**dzien** (codzienna obsługa, dawniej `flags`, `care` i `tasks`; 16 tabel z erd.md; tablet pisze głównie tu)
+- [ ] `/internal/stables/{id}/defaults` (woła `stable` po założeniu stajni): szablony flag i pory posiłków jednym wywołaniem, idempotentnie.
+
+*Flagi* (`flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_escalations`)
 - [ ] Szablony flag z domyślnym oknem godzin (`default_window`), w tym `derka` z efektem `rug` [erd]. `flag-preview` (propozycja) zwraca podpowiedź okna i jej skutki, np. „dziś 06:00–10:00 · wstrzymane śniadanie 06:30”, liczone na serwerze.
 - [ ] Włączanie i wyłączanie flag z ekranu „Ustawienia stajni”: `PATCH …/flag-templates/{id}` z `active`, tylko admin, `If-Match`, audyt [erd]. Derka to szablon `derka` (zakładanie derek jako usługa stajni). Kafelki klienta i obsługi pokazują tylko aktywne szablony i „Inna flaga”. Flagi z wyłączonego szablonu, które już trwają: sekcja 5 (propozycja: obowiązują i są widoczne do końca okna, znika tylko kafelek).
 - [ ] Utworzenie flagi.
@@ -1053,8 +1056,8 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - Przełącznik wyłączony (Stajnia Brzozowa): flaga obowiązuje od razu; nie ma pop-upu z POTWIERDZAM, statusu oczekiwania u klienta, sekcji „Wymaga potwierdzenia” u obsługi ani eskalacji [erd]. Na tablecie flaga od razu stoi w banerze (przed początkiem okna pod banerem z „od HH:MM”), bez plakietki „POTWIERDZONA”.
   - Zmiana przełącznika nie zmienia flag, które już trwają, bo każda ma własne `requires_ack` [erd]: niepotwierdzona flaga z czasu, gdy potwierdzenia były włączone, dalej czeka na potwierdzenie i eskaluje; flaga zapisana bez potwierdzeń nie dostaje statusu po ich włączeniu. Dlatego pop-up, status i sekcja „Wymaga potwierdzenia” idą za `requires_ack` flagi, a nie za bieżącym przełącznikiem stajni (propozycja).
 - [ ] Potwierdzenie: `method` wynika z klienta tokenu, a `box_id` z nagłówka. Flaga zakończona albo odwołana daje `conflict` i nie wraca. Flaga z `requires_ack = false` daje `409 ack_not_required` (propozycja) i nie tworzy wiersza `flag_acknowledgements`.
-- [ ] `/internal/flags/{id}/escalations`: w transakcji z blokadą wiersza flagi sprawdza, czy flaga ma `requires_ack` i czy nadal nie ma potwierdzenia; flagi bez `requires_ack` nigdy nie eskalują [erd].
-- [ ] Konsumuje `horse.left`: odwołuje flagi konia.
+- [ ] Eskalacje zapisuje cron `escalation-scheduler` funkcjami domeny `dzien` (3.4): w transakcji z blokadą wiersza flagi sprawdza, czy flaga ma `requires_ack` i czy nadal nie ma potwierdzenia; flagi bez `requires_ack` nigdy nie eskalują [erd].
+- [ ] Publikuje `flag.created` (flaga od klienta). Konsumuje `horse.left`: odwołuje flagi konia.
 - [ ] Testy:
   - wyścig potwierdzenia z eskalacją;
   - ten sam id z inną treścią daje `409 id_conflict`;
@@ -1066,7 +1069,7 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - przełączenie `flags_require_ack` w obie strony nie zmienia `requires_ack` flag już zapisanych (trwająca niepotwierdzona flaga dalej eskaluje, flaga bez potwierdzeń nie dostaje statusu); nowa flaga po przełączeniu bierze nowe ustawienie;
   - flaga z nieaktywnego szablonu (`derka` w Stajni Brzozowej, Derka wyłączona w Pod Lipami) daje `409 option_disabled` (propozycja), a „Inna flaga” (`custom_text`) przechodzi.
 
-**care** (10 tabel karmienia, padoków, rutyny hali, „Boks gotowy” i „Wody”)
+*Karmienie, padok i szybkie akcje* (10 tabel karmienia, padoków, rutyny hali, „Boks gotowy” i „Wody”)
 - [ ] Sloty posiłków, harmonogram dnia, pasze, padoki.
 - [ ] Plan karmienia (klient edytuje tylko przy włączonym `owner_edits_feeding`) i plan padoku z towarzyszami. Pozycja planu może mieć „namoczyć” i ile (`soak`, `soak_note`, np. „w 2 l wody”), jeśli stajnia ma włączone moczenie paszy (`stable_settings.soak_enabled`); to wersja prosta, bo model karmienia jest otwartą kwestią [erd]. Przy wyłączonym moczeniu zapis z `soak = true` daje `409 option_disabled` (propozycja), a odczyty (apka, `board`) pomijają „namoczyć”; wpisy zostają w bazie.
 - [ ] Wyłączone przyciski szybkich akcji (`tidy_enabled`, `meal_served_enabled`, `paddock_out_enabled` = `false`) [erd]: zapis takiej akcji z apki i z tabletu daje `409 option_disabled` (propozycja), np. „Wyprowadzono na padok” w Stajni Brzozowej. Wpisy zapisane przed wyłączeniem zostają w historii. „Woda” nie ma przełącznika, zależy od poidła boksu.
@@ -1080,29 +1083,30 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - etykieta posiłku na tablecie idzie za porą z `meal_slots`: o 07:15 tablet Kasztana pokazuje „ŚNIADANIE · podane 06:40 · potem obiad 12:00”; od kiedy przycisk przechodzi na następną porę, erd.md nie przesądza (propozycja: od 30 min przed jej godziną);
   - **„Cofnij”** przez godzinę od zapisu ustawia `cancelled_at` (propozycja; później 409) [erd]; z tabletu akcja nie ma autora (`source = tablet`, `user_id = NULL`), z apki ma;
   - bez potwierdzania karmienia per koń i bez siana i karmy jako zdarzeń; woda tylko przy poidle ręcznym.
-- [ ] `/internal/stables/{id}/defaults` (idempotentne).
 - [ ] Konsumuje `horse.left` (zamyka plany, usuwa konia z towarzyszy) i `stable.created`.
 
-**health** (`health_events`, `health_attachments`)
+*Zadania* (`tasks`)
+- [ ] Zadania tylko jednorazowe, np. „Poidło w boksie 5 do wymiany” [erd]. Dodaje je wyłącznie admin (właściciel albo zarządca, rola konta firmy): tytuł, notatka, opcjonalnie hala, boks albo koń; odwołanie przez `cancelled_at`. Zadań cyklicznych nie ma, codzienną rutynę obsługują szybkie akcje (wyżej).
+- [ ] Lista dla obsługi: „Do wzięcia”, „Moje”, „Zrobione dziś”. Widzi ją tylko rola z zaznaczonym `tasks` (w Pod Lipami obsługa i wyświetlacz; w Stajni Brzozowej nikt poza adminem, więc Ola nie ma tam zakładki „Zadania”) [erd]; bez tej widoczności trasy zadań dają 403 (propozycja).
+- [ ] „Biorę”: stajenny sam bierze zadanie z listy (`taken_by`, `taken_at`), warunkową zmianą `taken_by IS NULL`; drugie „Biorę” na wzięte zadanie daje 409 z osobą, która je wzięła (propozycja).
+- [ ] „Zrobione”: `done_by`, `done_at`; tylko osoba, która wzięła zadanie, albo admin (propozycja).
+- [ ] Zadania obsługuje apka, bo potrzebna jest osoba; tablet ich nie pokazuje ani nie odhacza, a `board` nie zwraca ich dla tabletu [erd]. Admin dodaje zadania w apce (także w panelu: propozycja).
+- [ ] Konsumuje `horse.left`: odwołuje otwarte zadania konia (propozycja); `member.removed`: zwalnia „Biorę” osoby usuniętej ze stajni.
+
+**terminarz** (dawniej `health` i `rides`)
+
+*Zdrowie* (`health_events`, `health_attachments`)
 - [ ] Wpisy zdrowia z `visibility` (`stable` albo `owner_private`) i miękkim usuwaniem; lista wizyt według terminu.
 - [ ] Załączniki przez `files`. Link do pobrania tylko po sprawdzeniu widoczności wpisu i dostępu do konia [erd].
 - [ ] Wizyty i zdrowie widzi tylko rola z zaznaczonym `health` w `stable_role_features` (admin zawsze) [erd]; bez tej widoczności trasy odczytu dają 403 (propozycja).
 
-**rides** (`arenas`, `rides`)
+*Jazdy* (`arenas`, `rides`)
 - [ ] Ujeżdżalnie i jazdy.
   - Kolizja konia, areny albo przekroczona pojemność daje 409.
   - Flaga `no_riding` daje ostrzeżenie.
   - Całość wyłącza `rides_enabled`.
   - Jazdy widzi tylko rola z zaznaczonym `rides` (w seedzie: klient w Pod Lipami tak, w Stajni Brzozowej nie) [erd].
 - [ ] Konsumuje `horse.left`: anuluje przyszłe jazdy.
-
-**tasks** (`tasks`)
-- [ ] Zadania tylko jednorazowe, np. „Poidło w boksie 5 do wymiany” [erd]. Dodaje je wyłącznie admin (właściciel albo zarządca, rola konta firmy): tytuł, notatka, opcjonalnie hala, boks albo koń; odwołanie przez `cancelled_at`. Zadań cyklicznych nie ma, codzienną rutynę obsługują szybkie akcje `care`.
-- [ ] Lista dla obsługi: „Do wzięcia”, „Moje”, „Zrobione dziś”. Widzi ją tylko rola z zaznaczonym `tasks` (w Pod Lipami obsługa i wyświetlacz; w Stajni Brzozowej nikt poza adminem, więc Ola nie ma tam zakładki „Zadania”) [erd]; bez tej widoczności trasy zadań dają 403 (propozycja).
-- [ ] „Biorę”: stajenny sam bierze zadanie z listy (`taken_by`, `taken_at`), warunkową zmianą `taken_by IS NULL`; drugie „Biorę” na wzięte zadanie daje 409 z osobą, która je wzięła (propozycja).
-- [ ] „Zrobione”: `done_by`, `done_at`; tylko osoba, która wzięła zadanie, albo admin (propozycja).
-- [ ] Zadania obsługuje apka, bo potrzebna jest osoba; tablet ich nie pokazuje ani nie odhacza, a `board` nie zwraca ich dla tabletu [erd]. Admin dodaje zadania w apce (także w panelu: propozycja).
-- [ ] Konsumuje `horse.left`: odwołuje otwarte zadania konia (propozycja).
 
 **board** (bez tabel, rola tylko `SELECT`)
 - [ ] `GET /boxes/{boxId}` (tablet). `boxId` to `boxes.id` (UUID) zapamiętany na tablecie, nigdy numer boksu, bo numer nie jest unikalny. Język tablicy przychodzi w zapytaniu z tabletu, bo to ustawienie tabletu, nie stajni (propozycja z erd.md). Odpowiedź:
@@ -1140,20 +1144,20 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - surowe body przez `files /internal` (`payment_provider_events.payload_file_id`; propozycja, bo S3 obsługuje tylko `files`);
   - unikalny `provider_event_id`;
   - `processed_at`.
-- [ ] Endpointy wewnętrzne: `/internal/usage-snapshots`, `/internal/invoices/issue`, `/internal/dunning/run`.
+- [ ] Zużycie, faktury i windykację zapisują crony billingu wprost, kodem domeny `billing` (3.4); endpointów `/internal` dla nich nie ma. Po `invoice.issued` serwis `billing` generuje PDF faktury i zapisuje go przez `files`.
 - [ ] Adaptery `PaymentProvider`, `InvoiceSystem` i generator PDF, każdy z implementacją fałszywą.
 - [ ] Numer faktury nadaje kod, bez sekwencji. Cron wystawia faktury po kolei; unikalne `invoices.number` chroni przed duplikatem, a przy konflikcie cron ponawia.
-- [ ] Publikuje `subscription.status_changed`.
+- [ ] Publikuje `subscription.status_changed` i `payment.failed` (webhook); konsumuje `stable.created` i `invoice.issued`. Do `notifications` nic nie woła synchronicznie (W5).
 
-**files** (`files`; `/internal` i metadane dla admina globalnego)
+**files** (`files`; osobny serwis, jedyny dostęp do S3; `/internal` i metadane dla admina globalnego)
 - [ ] Plik `pending` z kluczem `stable_id/…` i presigned upload z warunkami typu i rozmiaru.
 - [ ] `attach` sprawdza przez HeadObject rozmiar, typ i `sha256`.
-- [ ] `download-url` z krótką ważnością; `delete`, `gc`.
+- [ ] `download-url` z krótką ważnością; `delete`. Pliki `pending` i `deleted` sprząta cron `files-gc` (3.4).
 - [ ] APK ma `stable_id = NULL`, więc trafia pod osobny prefiks. To wyjątek opisany w README serwisu.
-- [ ] `files` sprawdza tylko, czy `sub` tokenu serwisowego to `files.owner_service`; `GET /platform/files` (admin globalny, same metadane, z logiem odczytów; propozycja).
+- [ ] `/internal` przyjmuje tylko od `dzien`, `terminarz`, `billing`, `stable` i `platform` (NetworkPolicy); wywołujący podaje `owner_service`, a link dostaje tylko do plików z tym `owner_service`. Bez tokenów serwisowych `files` nie potwierdzi tożsamości wywołującego (ryzyko w mikroserwisy.md). `GET /platform/files` (admin globalny, same metadane, z logiem odczytów; propozycja).
 
-**releases** (`app_releases`, `app_release_targets`)
-- [ ] Endpointy platformowe (`/platform/releases`: admin globalny; odczyt także Wsparcie IT):
+**platform** (dawniej `releases` i `audit`; `app_releases`, `app_release_targets`, odczyt schematu `audit`)
+- [ ] Wydania APK, endpointy platformowe (`/platform/releases`: admin globalny; odczyt także Wsparcie IT):
   - wydanie jako `draft` z `sha256`, `signing_cert_sha256`, `min_sdk` i `min_required_version_code`;
   - statusy `rolling` (z `rollout_percent`), `complete` i `halted`;
   - lista stajni docelowych.
@@ -1163,40 +1167,39 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - wymuszenie aktualizacji poniżej `min_required_version_code`;
   - presigned URL z obsługą `Range`.
 - [ ] CLI `tools/opctl` (aplikacja `opctl` w puli zespołu EQUENOR, kod autoryzacji z PKCE; propozycja, mikroserwisy.md 4.1): `login`, `operators create`, `platform grant` i `approve` (role we dwie osoby), `keys rotate`, `bootstrap` (Job Kubernetes), `cron run`, wydania APK i plany billingu.
+- [ ] Audyt: odczyt historii obiektu (admin konta i admin globalny; `GET /platform/entries` dla admina globalnego; propozycja). Tylko ten serwis czyta schemat `audit`; wpisy dodają wszystkie serwisy i crony, a po retencji usuwa je cron `retention-pruner` (decyzja 13.10; dotąd sprzątał serwis `audit`).
 
-**notifications** (`notifications`)
-- [ ] `POST /internal/notifications`:
-  - szablon i język;
-  - odbiorca jako użytkownik albo adres;
-  - `related_flag_id` i `related_invitation_id`;
-  - unikalny `dedupe_key`;
-  - treść renderowana przy tworzeniu.
-- [ ] Wysyłka asynchroniczna (propozycja: własna kolejka SQS), z licznikiem prób. Przed wysyłką sprawdza, czy wiadomość ma jeszcze sens: dla flagi już potwierdzonej ustawia `cancelled`.
-- [ ] Adaptery `SmsSender` (dostawca: sekcja 5) i `EmailSender` (SES).
-- [ ] Reguły powiadomień stajni (`notification_rules`, z kroku 2 „Załóż stajnię”; tabela `stable`) [erd]: dla zdarzenia `notifications` bierze włączone wiersze tej stajni; odbiorców (`admin`: admini konta firmy, `staff`: aktywna obsługa tej stajni) i ich adresy daje `auth GET /internal/recipients`, bo tabele uprawnień i kontakty czyta tylko `auth` (propozycja); kanał SMS albo e-mail. Eskalacja niepotwierdzonej flagi idzie według tych reguł, tylko dla flag z `requires_ack`. Lista zdarzeń: erd.md. Zaproszenie idzie kanałem wybranym w zaproszeniu.
-- [ ] Konsumuje `invitation.created`, `invitation.accepted`, `invitation.expired`, `user.deleted`, `flag.created`, `invoice.issued` i `payment.failed`.
-- [ ] Historia wysyłek: `GET …/deliveries?flagId=&invitationId=` dla admina (stan eskalacji i zaproszeń), `GET /platform/notifications` i ponowienie dla admina globalnego (propozycja, mikroserwisy.md 5.11).
+**notifications** (`notifications`; router, W5)
+- [ ] Dostaje wszystko zdarzeniami, bez wywołań synchronicznych do niego (dawne `POST /internal/notifications` znika). Konsumuje `flag.created`, `flag.escalated`, `invitation.created`, `invitation.accepted`, `invitation.expired`, `user.deleted` (anuluje oczekujące wysyłki), `health.due`, `invoice.issued`, `payment.failed` i `payment.overdue`; dane bierze z koperty zdarzenia.
+- [ ] Reguły powiadomień stajni (`notification_rules`, z kroku 2 „Załóż stajnię”; tabela `stable`) [erd]: dla zdarzenia bierze włączone wiersze tej stajni; odbiorców (`admin`: admini konta firmy, `staff`: aktywna obsługa tej stajni) i ich adresy daje `auth GET /internal/recipients`, bo tabele uprawnień i kontakty czyta tylko `auth` (propozycja); kanał SMS albo e-mail. Eskalacja niepotwierdzonej flagi idzie według tych reguł, tylko dla flag z `requires_ack`. Zaproszenie idzie kanałem wybranym w zaproszeniu. Słownik `notification_rules.event` nie ma jeszcze `health_due` ani `payment_overdue` (luka otwarta, sekcja 5 pkt 27).
+- [ ] Dla każdej wiadomości: szablon i język, treść renderowana tutaj, wiersz `notifications` z unikalnym `dedupe_key`, `status`, `attempts`, `related_flag_id`, `related_invitation_id`; potem gotowa wiadomość (numer albo adres, treść, id powiadomienia) do kolejki `sms` albo `email`. Przed wysłaniem sprawdza, czy wiadomość ma jeszcze sens: dla flagi już potwierdzonej ustawia `cancelled`.
+- [ ] Konsumuje `sms.result` i `email.result`: aktualizuje `status` i `attempts`.
+- [ ] Historia wysyłek: `GET …/deliveries?flagId=&invitationId=` dla admina (stan eskalacji i zaproszeń), `GET /platform/notifications` i ponowienie dla admina globalnego (propozycja, mikroserwisy.md).
 
-**audit** (schemat `audit`)
-- [ ] Odczyt historii obiektu (admin konta i admin globalny; `GET /platform/entries` dla admina globalnego; propozycja, mikroserwisy.md 5.11) i `prune`. Tylko ten serwis czyta i usuwa wpisy [erd].
+**sms** i **email** (bez tabel, W5)
+- [ ] Bez tabel, bez roli bazy i bez klienta bazy; każdy czyta tylko swoją kolejkę SQS FIFO (`MessageDeduplicationId = notifications.id`) z kompletną wiadomością.
+- [ ] `sms`: adapter `SmsSender` (AWS End User Messaging SMS albo SNS, dostawca: sekcja 5; lokalnie `console` i `dev-inbox`, 3.2); `email`: adapter `EmailSender` (SES). Po wysyłce publikują `sms.result` albo `email.result` (id powiadomienia, status, `provider_message_id`).
+- [ ] Uprawnienia AWS: odbiór z własnej kolejki, publikacja wyniku, wysyłka SMS albo SES. Ponowienia i DLQ z SQS (`maxReceiveCount`), bez własnych tabel prób.
+- [ ] Kody logowania (OTP) wysyła Cognito, nie te serwisy.
 
 ### 3.4 Crony
-- [ ] `escalation-scheduler`, co minutę.
+**Crony piszą do bazy bezpośrednio (W3).** Każdy cron to osobny CronJob bez własnych tabel, bez tokenów i bez wołania serwisów: rola bazy z manifestu (3.1.4), kod domeny właściciela z audytem `actor_type = system` (3.1.7), powiadomienia tylko zdarzeniem publikowanym przed COMMIT. Kod leży w module właściciela (3.1.1).
+- [ ] `escalation-scheduler` (`dzien`), co minutę.
   - Flagi z `requires_ack`, minionym `warn_at` albo `notify_at`, bez potwierdzenia i nieodwołane [erd]. Flag bez `requires_ack` (stajnia bez potwierdzeń, np. Stajnia Brzozowa) nie bierze wcale, także po późniejszym włączeniu potwierdzeń w stajni.
-  - Woła `flags`, a przy `admin_notify` także `notifications`, które wysyła powiadomienie według reguł stajni (`notification_rules`: odbiorcy i kanał SMS albo e-mail, propozycja).
+  - Pisze `flag_escalations` (unikalne `flag_id` + `level`) funkcjami domeny `dzien`; przy poziomie `admin_notify` publikuje `flag.escalated`, a `notifications` wysyła powiadomienie według reguł stajni (`notification_rules`: odbiorcy i kanał SMS albo e-mail, propozycja).
   - Klucze idempotencji: `(flag_id, level)` i `dedupe_key`.
-- [ ] `health-due-reminders`, co godzinę. Wysyła o stałej godzinie lokalnej stajni. Klucz: `health:{eventId}:{rodzaj}`.
-- [ ] `files-gc`, co godzinę. Najpierw usuwa obiekt w S3, potem zmienia wiersz.
-- [ ] `billing-usage-snapshot`, na koniec okresu. Klucz: `(subscription_id, period_start, metric)`.
-- [ ] `billing-invoicing`, 1. dnia miesiąca.
-- [ ] `billing-dunning`, codziennie.
-  - Przypomnienia, potem `past_due`, potem `suspended`.
+- [ ] `invitation-expiry-notifier` (`auth`, propozycja z erd.md), co godzinę: czyta `invitations` (wąski grant), nic nie pisze; publikuje `invitation.expired` dla zaproszeń wygasłych w ostatniej dobie, nieprzyjętych i nieodwołanych; `notifications` wysyła według reguł stajni (`dedupe_key` `invitation_expired:{id}`).
+- [ ] `health-due-reminders` (`terminarz`), co godzinę: nic nie pisze; publikuje `health.due` o stałej godzinie lokalnej stajni. Klucz `dedupe_key`: `health:{eventId}:{rodzaj}`.
+- [ ] `files-gc` (`files`), co godzinę: pliki `pending` starsze niż 24 h i `deleted` po retencji. Najpierw usuwa obiekt w S3, potem wiersz `files`.
+- [ ] `billing-usage-snapshot` (`billing`), na koniec okresu: pisze `usage_snapshots`. Klucz: `(subscription_id, period_start, metric)`.
+- [ ] `billing-invoicing` (`billing`), 1. dnia miesiąca: pisze `invoices` i `invoice_lines`, publikuje `invoice.issued`; PDF generuje potem serwis `billing` (przez `files`).
+- [ ] `billing-dunning` (`billing`), codziennie.
+  - Pisze `invoices.status` i `subscriptions.status`: przypomnienia (`payment.overdue`), potem `past_due`, potem `suspended` (`subscription.status_changed`).
   - Propozycja: przy rozjeździe `subscriptions.status` i `stables.status` ponawia zdarzenie.
-- [ ] `horse-left-reconciler`, co godzinę. Woła ten sam handler co konsument `horse.left` w `auth`, `flags`, `care`, `tasks` i `rides`.
-- [ ] `retention-pruner`, co noc. Woła `POST /internal/prune` każdego serwisu i sam niczego nie usuwa.
-- [ ] `invitation-expiry-notifier` (propozycja z erd.md): zleca `auth` (`/internal/invitations/expire`) wygaszenie zaproszeń po `expires_at`, nieprzyjętych i nieodwołanych; sam nie czyta `invitations`. `auth` publikuje `invitation.expired`, a `notifications` wysyła według reguł stajni (`notification_rules`).
-- [ ] Każdy cron ma własne konto serwisowe Kubernetes i token serwisowy od `auth` ze `scope` z manifestu (propozycja, mikroserwisy.md 6).
-- [ ] Każdy cron testujemy na cztery przypadki: powtórzony przebieg, przebieg równoległy, przerwanie w połowie, fałszywy zegar (w tym noc zmiany czasu).
+- [ ] `horse-left-reconciler` (przekrojowy), co godzinę: konie `left` z ostatnich 30 dni; zamyka wprost to, co zostało, tymi samymi funkcjami domeny co konsumenci `horse.left`: `horse_access.revoked_at` (wąski grant, bez podbijania `token_version`), `horse_flags.cancelled_at`, `valid_to` w `feeding_plans` i `paddock_plans`, koń w `paddock_plan_companions`, `tasks.cancelled_at`, przyszłe jazdy (`rides.status`); dokładne kolumny: erd.md.
+- [ ] `retention-pruner` (przekrojowy), co noc: usuwa po retencji wprost, także w schemacie `audit` (dotąd sprzątał serwis `audit`) i w `platform_requests` (wąski grant).
+- [ ] Każdy cron ma własne konto serwisowe Kubernetes (rola IAM do publikacji zdarzeń) i własną rolę bazy; tokenów nie ma.
+- [ ] Każdy cron testujemy na cztery przypadki: powtórzony przebieg, przebieg równoległy, przerwanie w połowie (także między publikacją a COMMIT: następny przebieg nie daje drugiej wiadomości), fałszywy zegar (w tym noc zmiany czasu). Meta-test grantów: cron nie pisze poza manifestem.
 - **Nie śledzimy wyświetleń flag na tabletach** [erd]: nie ma do tego ani tabeli, ani crona. Status flagi to tylko „potwierdzona HH:MM” albo „niepotwierdzona” (w stajni, która wymaga potwierdzeń; czy wymaga, zależy od ustawień stajni). Brak potwierdzenia w terminie, także przy martwym tablecie, obsługuje wyłącznie `escalation-scheduler` przez `flag_escalations` (scenariusz A-02).
 - **Bez crona zadań i rutyny** [erd]: zadania są jednorazowe, więc nie ma generatora wystąpień. Rutyny dnia też nie generujemy z wyprzedzeniem: szybkie akcje zapisuje obsługa (apka albo tablet przy boksie), a pominięte konie i skutki flag liczy `packages/rules` przy zapisie i przy odczycie `board`.
 
@@ -1334,11 +1337,11 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 - [ ] Logowanie tabletu (TabletLogowanie, TabletLogowanieKod): kontem technicznym tabletów (rola `tablet`; w seedzie b•••@stajnielipowe.pl i kod z e-maila), telefonem albo e-mailem; nad polem przełącznik „TELEFON | E-MAIL” w stylu e-ink (wersaliki, tylko czerń, biel i `t-*`), potem kod; bez dopisków. Konto bez roli `tablet` (osoba, Wyświetlacz): TabletBrakUprawnien.
 - [ ] Język tablicy to ustawienie tego tabletu, nie stajni: każdy tablet ma własny (ukryte ustawienia albo PL | UA w stopce), zapisany lokalnie jak wybrany boks. Przetrwa restart, aktualizację APK i ponowne logowanie. Tablet wysyła go w zapytaniu do `board` (propozycja z erd.md), a serwer go nie zapisuje. Tłumaczenia nazw z `*_labels` (np. pory posiłków po ukraińsku) są opcjonalne; bez tłumaczenia tablet pokazuje nazwę polską (propozycja).
 - [ ] Stany ekranu:
-  - wylogowany, także po blokadzie konta tabletów albo odłączeniu sesji tego tabletu; nigdy nie pokazuje wtedy starych flag;
+  - wylogowany, także po „Wyloguj wszystkie tablety” albo po odblokowaniu konta tabletów; nigdy nie pokazuje wtedy starych flag;
   - bez wybranego boksu;
   - boks wolny;
   - ekran zablokowany (dotyk);
-  - brak uprawnień (konto bez roli `tablet` albo zablokowane konto tabletów; po blokadzie do wygaśnięcia access tokenu, potem ekran logowania, erd.md pkt 14);
+  - brak uprawnień (konto bez roli `tablet` albo zablokowane konto tabletów: najpóźniej po 5 min, przy odświeżeniu tokenu; po odblokowaniu ekran logowania, erd.md pkt 14);
   - stajnia zawieszona;
   - brak sieci;
   - wymagana aktualizacja.
@@ -1373,7 +1376,7 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 - [ ] Diagnostyka (2.12) z buforem offline.
 
 #### 3.5.3 Panel web
-- [ ] SPA (propozycja: React, Vite, TanStack). Tokeny: refresh token EQUENOR w ciasteczku `__Secure-eq_rt` (`HttpOnly`, `SameSite=Strict`, `Path=/auth/v1/token`), access token tylko w pamięci strony; ścisłe CSP z nonce i Trusted Types (propozycja, mikroserwisy.md 3.7; sekcja 5 pkt 15).
+- [ ] SPA (propozycja: React, Vite, TanStack). Tokeny: refresh token EQUENOR w ciasteczku `__Secure-eq_rt` (`HttpOnly`, `SameSite=Strict`, `Path=/auth/v1/token`), access token tylko w pamięci strony; ścisłe CSP z nonce i Trusted Types (propozycja, mikroserwisy.md; sekcja 5 pkt 15).
 - [ ] Panel zespołu EQUENOR (PanelOps, makieta P2): osobny build na hoście `[OPS]`, logowanie passkeyem w puli zespołu, powód wejścia, wybór firmy i stajni, potem zwykłe ekrany admina ze stałym paskiem „EQUENOR · pełny dostęp · … · powód: …”; własne ciasteczko `__Secure-eq_rt_ops` (propozycja, mikroserwisy.md 4.1).
 - [ ] PanelBoksy:
   - liczniki;
@@ -1461,24 +1464,24 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 - [ ] **Etap 0, od pierwszego dnia, trzy tory równolegle:**
   - **A, fundament:** 3.1 i 3.2; najpierw `auth` z kluczem z pliku, udawane Cognito i seed.
   - **B, bramka sprzętowa tabletu:** punkty (B) z 4.3.1 (T-01…T-04, T-08, T-13, T-24, T-25) oraz testy koloru K-01 i K-05 na Boox Note Air6 C, na sztucznych odpowiedziach `board`, z paletą `t-*` w profilu właściwym dla ekranu. Kończy się decyzją: model zostaje albo bierzemy plan B. Planem B jest Samsung Galaxy Tab Active5, dokupiony dopiero wtedy, gdy T-01 albo T-02 nie przejdą na Boox; ten sam moduł DO przechodzi na nim T-01…T-03, co oddziela błąd naszego kodu od ograniczeń firmware e-ink. Innym wyjściem jest kolejny model e-ink z działającym DO, kolorowy albo czarno-biały.
-  - **C, spike Cognito i `auth`:** lista z 3.2; decyzje z mikroserwisy.md 10.2 pkt 1–10.
-- [ ] **Etap 1, logowanie i konto firmy:** serwis `auth` (wymiana tokenu, sesje, lista unieważnień, tokeny serwisowe; role osób z `client`, konta techniczne `display` i `tablet`, admin konta firmy, przypisania per stajnia, zaproszenia SMS-em albo e-mailem, macierz widoczności, admin globalny), pakiety `auth` i `authz` w pozostałych serwisach, logowanie telefonem albo e-mailem w apce i w panelu, rejestracja konta firmy z NIP (`POST /auth/v1/businesses`).
+  - **C, spike Cognito i `auth`:** lista z 3.2; decyzje „przed implementacją” z mikroserwisy.md.
+- [ ] **Etap 1, logowanie i konto firmy:** serwis `auth` (wymiana i odświeżanie tokenu bez sesji w bazie, `token_version`; role osób z `client`, konta techniczne `display` i `tablet`, admin konta firmy, przypisania per stajnia, zaproszenia SMS-em albo e-mailem, macierz widoczności, admin globalny), pakiety `auth` i `authz` w pozostałych serwisach, logowanie telefonem albo e-mailem w apce i w panelu, rejestracja konta firmy z NIP (`POST /auth/v1/businesses`).
   - Gotowe, gdy działa logowanie na puli dev oboma kanałami, rejestracja konta firmy z NIP przechodzi A-22, zaproszenie dopasowane po zalogowaniu (bez „Przyjmij”) tworzy członkostwo (dla klienta także dostęp do konia), a macierz izolacji dla tych tras jest zielona, także między dwoma kontami firm.
 - [ ] **Etap 2, stajnia, hale, boksy, konie:** `stable` (konto firmy → stajnie → hale → boksy), „Załóż stajnię” w 2 krokach z regułami powiadomień (`notification_rules`) i boksami z ustawieniami, ustawienia stajni i widoczność per rola (`stable_settings`, `stable_role_features` w `auth`, `GET …/features`), panel (PanelRejestracjaFirmy, PanelZalozStajnie, PanelZalozPowiadomienia, Boksy i konie, Dodaj halę, Ustawienia stajni), apka admina, przełącznik stajni w apce.
   - Gotowe, gdy seed z dwiema halami (boksy 1–8 i 1–6) jest widoczny w panelu i w apce z halą przy numerze, dodanie hali z adresem i boksami od 1 działa, a przypisanie, przeniesienie i zamiana koni przechodzą testy współbieżności; obie stajnie z seedu mają swoje ustawienia, a ekran „Ustawienia stajni” zmienia je tylko admin konta firmy; druga stajnia bez NIP i przypisania per stajnia przechodzą A-23.
-- [ ] **Etap 3, flagi:** `flags` z obowiązkowymi godzinami, skutkami z okna (`packages/rules`) i Derką, `requires_ack` kopiowanym z ustawień stajni, szablonami włączanymi w „Ustawieniach stajni”, `notifications` z `fake-sms`, `escalation-scheduler` (tylko flagi z `requires_ack`), ekrany klienta (kafelki flag) i obsługi.
+- [ ] **Etap 3, flagi:** flagi w `dzien` z obowiązkowymi godzinami, skutkami z okna (`packages/rules`) i Derką, `requires_ack` kopiowanym z ustawień stajni, szablonami włączanymi w „Ustawieniach stajni”, `notifications` (router) z `sms` na `fake-sms` i `email` na SES w LocalStack, `escalation-scheduler` (tylko flagi z `requires_ack`, zapis wprost i `flag.escalated`), ekrany klienta (kafelki flag) i obsługi.
   - Gotowe, gdy scenariusze A-01, A-02, A-12, A-18 i A-20 odtwarzają się od zera, a test wyścigu potwierdzenia z eskalacją jest zielony.
-- [ ] **Etap 4, tablica i tablet:** `board` z ETag i konfiguracją stajni, kiosk, pop-up (dla flag z `requires_ack`), „Zmień boks”, blokada ekranu, kolejka zapisów, `releases`.
+- [ ] **Etap 4, tablica i tablet:** `board` z ETag i konfiguracją stajni, kiosk, pop-up (dla flag z `requires_ack`), „Zmień boks”, blokada ekranu, kolejka zapisów, wydania APK w `platform`.
   - Gotowe, gdy flaga z telefonu pojawia się jako pop-up w ustalonym czasie (flaga bez potwierdzeń od razu w banerze), potwierdzenie i odwołanie usuwają pop-up, „Zmień boks” przełącza między halami i wraca do poprzedniego boksu po 30 s, zablokowany ekran nie reaguje na dotyk (T-30, A-15), tablet loguje się kontem technicznym tabletów, a język tablicy jest ustawieniem tabletu (A-25), a APK aktualizuje się bez dotykania tabletu.
 - [ ] **Etap 5, wyświetlacz:** widok `board` dla wyświetlacza, widok wyświetlacza w panelu po zalogowaniu kontem `display` (pełny ekran hali i przełącznik hal), obraz Pi.
   - Gotowe, gdy telewizor loguje się w zwykłym panelu kontem technicznym z rolą Wyświetlacz, e-mailem i kodem, po czym od razu widzi tablicę (A-24), działa 72 h bez przerwy, wybór hali przetrwa restart, pełny ekran pokazuje tylko flagi tej hali, a w odpowiedziach nie ma danych osobowych.
-- [ ] **Etap 6, karmienie, padok i rutyna obsługi:** `care`; szybkie akcje („Boks gotowy” per boks i kilka naraz, „Woda” przy poidle ręcznym, posiłek i padok dla hali z pominiętymi, z apki i z „SZYBKICH AKCJI” tabletu, „Cofnij”); przełącznik poidła w `stable`; wstrzymany posiłek i skrócony albo odwołany padok na tablicy z okna flag; „NAMOCZYĆ” w tabeli karmienia; ListaDnia i MojBoks; konsumenci `horse.left` i `horse-left-reconciler`.
+- [ ] **Etap 6, karmienie, padok i rutyna obsługi:** karmienie i szybkie akcje w `dzien`; szybkie akcje („Boks gotowy” per boks i kilka naraz, „Woda” przy poidle ręcznym, posiłek i padok dla hali z pominiętymi, z apki i z „SZYBKICH AKCJI” tabletu, „Cofnij”); przełącznik poidła w `stable`; wstrzymany posiłek i skrócony albo odwołany padok na tablicy z okna flag; „NAMOCZYĆ” w tabeli karmienia; ListaDnia i MojBoks; konsumenci `horse.left` i `horse-left-reconciler`.
   - Gotowe, gdy przechodzą A-13, A-16, A-17 i A-19 (przyciski i moczenie według ustawień stajni).
-- [ ] **Etap 7, zdrowie, jazdy, zadania:** `health` z `files`, `rides`, `tasks` (zadania jednorazowe, „Biorę”, „Zrobione”, StajennyZadania); crony `health-due-reminders` i `files-gc`.
+- [ ] **Etap 7, zdrowie, jazdy, zadania:** `terminarz` (zdrowie z `files`, jazdy), zadania w `dzien` (jednorazowe, „Biorę”, „Zrobione”, StajennyZadania); crony `health-due-reminders` i `files-gc`.
   - Gotowe, gdy przechodzą A-14 i A-21 (widoczność per rola obejmuje też zdrowie, jazdy i zadania).
 - [ ] **Etap 8, płatności (bez rozbudowy na PoC):** `billing` na fałszywych adapterach, trzy crony billingu, przejście `subscription.status_changed` → `stables.status`, stan „zawieszona” na tablecie i wyświetlaczu.
 - [ ] **Etap 9, przed stajnią pilotażową:**
-  - `audit` i `retention-pruner`;
+  - odczyt audytu w `platform` i `retention-pruner` (także schemat `audit`);
   - pełna macierz izolacji;
   - test obciążenia;
   - alerty;
@@ -1488,8 +1491,8 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 - **Prace równoległe:**
   - `packages/theme` od etapu 0, zanim powstaną pierwsze ekrany;
   - po etapie 1 interfejsy apek, tabletu i wyświetlacza na fixture'ach z kontraktów;
-  - `care` zaraz po etapie 2;
-  - `health`, `rides` i `tasks` niezależnie od siebie;
+  - karmienie i szybkie akcje w `dzien` zaraz po etapie 2;
+  - `terminarz` i zadania niezależnie od siebie;
   - adaptery `billing` w dowolnym momencie;
   - statyczna strona www (3.5.5, sekcja 5 pkt 51) niezależnie od reszty.
 
@@ -1569,9 +1572,10 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - Obsługa dłuższa niż visibility timeout nadal daje jeden skutek.
   - SIGTERM w trakcie obsługi nie zostawia częściowego zapisu.
   - Wiadomość trująca trafia do DLQ i wywołuje alert; redrive po poprawce działa.
-- [ ] **Crony:** powtórzony przebieg, równoległy, nadrabianie po godzinnej przerwie bez dubli (jeden wiersz `flag_escalations` na flagę i poziom) i bez eskalacji flag już potwierdzonych lub odwołanych ani flag bez `requires_ack`, `spec.timeZone`, pomiar opóźnienia eskalacji (odstęp harmonogramu plus start poda).
+- [ ] **Crony:** powtórzony przebieg, równoległy, nadrabianie po godzinnej przerwie bez dubli (jeden wiersz `flag_escalations` na flagę i poziom) i bez eskalacji flag już potwierdzonych lub odwołanych ani flag bez `requires_ack`, `spec.timeZone`, pomiar opóźnienia eskalacji (odstęp harmonogramu plus start poda). Publikacja przed COMMIT: nieudany COMMIT po publikacji daje przy następnym przebiegu tylko jedną wiadomość (`dedupe_key`), a nieudana publikacja wycofuje transakcję. Zapis crona przechodzi przez kod domeny właściciela (`version`, `updated_at`, audyt `actor_type = system`).
+- [ ] **`sms` i `email` bez bazy (W5):** wiadomość z kolejki FIFO → adapter → `sms.result` albo `email.result`; ta sama wiadomość dwa razy (ten sam `notifications.id`) daje jedną wysyłkę; błąd dostawcy → ponowienie z SQS, potem DLQ; obraz bez sterownika bazy i bez zmiennych połączenia z bazą. `notifications` po `*.result` ustawia `status`.
 - [ ] **Repliki (przebieg nocny w klastrze testowym).**
-  - Żaden serwis nie trzyma stanu w pamięci, poza cache JWKS, listy unieważnień i niezmiennych danych zasobu (`stables.business_id`, `boxes.stable_id`), które da się odtworzyć ze źródła (propozycja, mikroserwisy.md 1.2).
+  - Żaden serwis nie trzyma stanu w pamięci, poza cache JWKS i niezmiennych danych zasobu (`stables.business_id`, `boxes.stable_id`), które da się odtworzyć ze źródła (propozycja, mikroserwisy.md).
   - ETag z różnych replik jest identyczny.
   - Rolling update pod obciążeniem przy wersjach N i N-1 działających naraz.
   - Zabita replika w trakcie zapisu: klient ponawia z tym samym id i powstaje jeden zapis.
@@ -1663,11 +1667,11 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - Opcje wyłączone w ustawieniach stajni: zapis daje `409 option_disabled` (propozycja) dla każdej roli, także admina i tabletu; potwierdzenie flagi bez `requires_ack` daje `409 ack_not_required` (propozycja).
   - Kombinacje ról: ta sama osoba jako client dwóch koni w różnych halach (Anna: Kasztan i Bella); ta sama osoba w dwóch stajniach o różnych ustawieniach (Ola: staff w obu, Anna: client w obu, Damian: admin konta), gdzie uprawnienia, widoczność i konfiguracja liczą się osobno dla każdej stajni; staff w jednej stajni i client w drugiej.
 - [ ] **Jeden serwis autoryzacyjny i tokeny** (wymaganie z 13.10; propozycja, mikroserwisy.md).
-  - Granty: żadna rola bazy poza `auth` (także crony i `board`) nie ma `SELECT` na tabelach uprawnień i sesji ani na `users.phone_e164` i `users.email` (meta-test z 3.1.4); lint: żaden serwis nie woła `auth` przy żądaniu użytkownika.
-  - Weryfikacja: `alg: none`, zły podpis, `iss`, `aud` i `typ`, `iat` z przyszłości, `exp − iat` ponad maksimum aplikacji i token podpisany wycofanym kluczem (`kid:<kid>`, odrzucony w ≤ 15 s) dają 401; token serwisowy na trasie publicznej i token użytkownika na `/internal` też.
-  - Claimy: test każdej osoby z danych demo względem wzorca; konto techniczne nigdy z `biz` i `plt`, nawet gdy ktoś zaprosi je do drugiej stajni; token z puli klientów nigdy z `plt`; rozmiar tokenu w budżecie 4 KB (klient z 60 końmi, konto zaproszone przez 50 firm).
-  - Wyścig: odświeżenie równoległe z „Usuń ze stajni” nigdy nie daje tokenu z odebraną stajnią, który przejdzie listę unieważnień (`authz_version`).
-  - Refresh token: ponowne użycie poprzedniego w ciągu 60 s zwraca tego samego następcę; później unieważnia sesję (`reuse_detected`) z alertem.
+  - Granty: żadna rola bazy poza `auth` (także `board`) nie ma `SELECT` na tabelach uprawnień ani na `users.phone_e164` i `users.email`, poza wąskimi grantami cronów z manifestu; żadna rola crona nie pisze poza manifestem; `sms` i `email` nie mają roli bazy (meta-test z 3.1.4); lint: żaden serwis nie woła `auth` przy żądaniu użytkownika.
+  - Weryfikacja: `alg: none`, zły podpis, `iss`, `aud` i `typ`, `iat` z przyszłości, `exp − iat` ponad 5 min, `kid` spoza JWKS i refresh token (`rt+jwt`) na trasie serwisu dają 401. Po awaryjnej rotacji klucza stary access token przestaje działać najpóźniej po 5 min (cache JWKS), a stary refresh token od razu.
+  - `/internal`: nieosiągalne z ingressu; pod spoza manifestu nie połączy się z `/internal` (NetworkPolicy); `sms` i `email` nie przyjmują ruchu.
+  - Claimy: test każdej osoby z danych demo względem wzorca (bez `av` i `scope`); konto techniczne nigdy z `biz` i `plt`, nawet gdy ktoś zaprosi je do drugiej stajni; token z puli klientów nigdy z `plt`; rozmiar tokenu w budżecie 4 KB (klient z 60 końmi, konto zaproszone przez 50 firm).
+  - Refresh token (W4): odrzucony przy `tv` innym niż `users.token_version`, usuniętym koncie, zablokowanym koncie technicznym i odebranej roli platformowej; okno bezczynności przesuwa się przy odświeżeniu, ale `exp` nie wychodzi poza `sst` + maksimum; zgubiona odpowiedź przy odświeżeniu nie wylogowuje (ten sam refresh token dalej działa). Ponownego użycia nie wykrywamy (świadomie, W4): test dokumentuje, że skopiowany refresh token działa do `exp` albo do podbicia `token_version`.
   - Panel i `[OPS]`: `POST /token` z ciasteczkiem bez `Origin` z listy albo bez `X-Equenor-Client` daje 403; CSP blokuje skrypty inline.
   - Zaproszenie konta technicznego na kontakt istniejącego konta albo konta zespołu daje `409 target_in_use`.
   - W1: każdy serwis ma co najmniej jedną trasę dla `plt = admin`.
@@ -1683,13 +1687,14 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - Dopasowanie tylko do zweryfikowanego kontaktu; formaty `+48 600…`, `600…` i `0048…` dają ten sam wynik, a e-mail pisany wielkimi i małymi literami też (propozycja).
   - Zaproszenie e-mailem nie daje dostępu osobie, która ma ten sam numer, ale inny e-mail, i odwrotnie.
   - Numer przydzielony przez operatora nowej osobie nie przejmuje dostępów poprzedniego właściciela.
-- [ ] **Sesje** (propozycja, mikroserwisy.md 3.7–3.8).
-  - Po „Wyloguj ze wszystkich urządzeń”, odebraniu członkostwa i blokadzie zmierzyć czas do utraty dostępu na telefonie i w panelu (konto osoby), na tablecie (konto tabletów) i na wyświetlaczu (konto telewizora): do 15 s, limit testu 30 s.
+- [ ] **Sesje** (bez zapisu w bazie, W4; propozycja, mikroserwisy.md).
+  - Po „Usuń ze stajni”, zmianie roli, macierzy i dostępu do konia oraz po „Wyloguj ze wszystkich urządzeń” i blokadzie zmierzyć czas do utraty dostępu na telefonie i w panelu (konto osoby), na tablecie (konto tabletów) i na wyświetlaczu (konto telewizora): do 5 min, przy najbliższym odświeżeniu tokenu; to też limit testu.
   - Wylogowanie osoby ze wszystkich urządzeń (np. Oli) nie wylogowuje żadnego tabletu ani telewizora.
-  - Zgubiony tablet: odłączenie jego sesji wylogowuje tylko ten tablet. Blokada konta technicznego tabletów w Ludziach („Zablokuj”): zmierzyć czas, po którym każdy tablet stajni pokazuje TabletBrakUprawnien bez starych flag; po odblokowaniu pozostałe tablety logują się ponownie kodem i wracają do swoich boksów i języka, a zgubiony bez nowego kodu nie wraca (propozycja). Skopiowany refresh token nie działa po odłączeniu sesji.
+  - Zgubiony tablet: jednego tabletu nie da się odłączyć. „Wyloguj wszystkie tablety” i blokada konta technicznego tabletów w Ludziach („Zablokuj”): zmierzyć czas, po którym każdy tablet stajni pokazuje logowanie albo TabletBrakUprawnien bez starych flag; pozostałe tablety logują się ponownie kodem i wracają do swoich boksów i języka, a zgubiony bez nowego kodu nie wraca (propozycja). Skopiowany refresh token nie działa po podbiciu `token_version`.
+  - Wylogowanie z jednego urządzenia: aplikacja usuwa tokeny, panel czyści ciasteczko; skopiowany wcześniej refresh token działa do `exp` (świadome ryzyko, W4).
   - Blokada konta telewizora (rola Wyświetlacz) przez admina: zmierzyć czas do zniknięcia danych.
-  - Wygaśnięcie sesji (konfiguracja testowa ze skróconą ważnością) daje czytelny ekran logowania, bez zamrożonych danych.
-  - Usunięcie konta: pseudonimizacja, unieważnienie sesji i usunięcie w Cognito.
+  - Wygaśnięcie sesji (konfiguracja testowa ze skróconą bezczynnością i maksimum) daje czytelny ekran logowania, bez zamrożonych danych.
+  - Usunięcie konta: pseudonimizacja, podbicie `token_version` i usunięcie w Cognito.
 - [ ] **Cognito i SMS na prawdziwych numerach.**
   - Na każdej karcie z 1.4: czy kod dochodzi, mediana i najgorszy czas, widoczna nazwa nadawcy.
   - Treść po polsku i ukraińsku, bez linków w SMS z kodem.
@@ -1855,7 +1860,7 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
   - Logowanie kontem technicznym tabletów („Tablety Pod Lipami”, b•••@stajnielipowe.pl) przełącznikiem „TELEFON | E-MAIL”: kod z SMS-a i kod z e-maila; po kodzie od razu TabletPierwszyBoks, bez wyboru stajni.
   - Język tablicy ustawiony na tym tablecie zostaje po restarcie, rozładowaniu i ponownym logowaniu.
   - Odnawianie sesji przez cały test ciągły.
-  - Wylogowanie osoby ze wszystkich urządzeń nie wylogowuje tabletu; blokada konta tabletów albo odłączenie sesji tego tabletu (zgubiony tablet): w ciągu 30 s ekran blokady albo logowania bez starych flag, tablet pamięta boks. Zgubiona odpowiedź przy odświeżeniu (zerwane Wi-Fi) nie wylogowuje tabletu.
+  - Wylogowanie osoby ze wszystkich urządzeń nie wylogowuje tabletu; blokada konta tabletów: w ciągu 5 min ekran blokady bez starych flag; „Wyloguj wszystkie tablety” (zgubiony tablet): w ciągu 5 min ekran logowania na wszystkich tabletach stajni, tablet pamięta boks. Zgubiona odpowiedź przy odświeżeniu (zerwane Wi-Fi) nie wylogowuje tabletu, bo ten sam refresh token dalej działa.
   - Po ponownym zalogowaniu tablet wraca do tego samego boksu (to samo `id`); konto osoby albo Wyświetlacz dostaje TabletBrakUprawnien.
   - Tablica nie pokazuje, kto jest zalogowany; logowanie i wylogowanie tylko w ukrytych ustawieniach (długie przytrzymanie).
   - Refresh token EQUENOR w Keystore (sprzętowym czy programowym), z kluczem nieeksportowalnym do DPoP (propozycja, spike).
@@ -2119,17 +2124,17 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
     - [ ] Damian w panelu zakłada drugą stajnię (PanelZalozStajnie → PanelZalozPowiadomienia): Stajnia Brzozowa, ul. Brzozowa 5, 05-500 Piaseczno, jedna hala, boksy 1–6 z poidłem automatycznym. Nikt nie pyta o NIP ani o firmę: stajnia trafia do konta „Stajnie Lipowe sp. z o.o.”.
     - [ ] Damian od razu ma w nagłówku „▾” z obiema stajniami, bez przypisywania. Nowa stajnia ma wszystko włączone; Damian zmienia ustawienia na te z seedu (PanelUstawieniaBrzozowa).
     - [ ] Damian zaprasza Pawła SMS-em (PanelZaprosOsobe) jako Obsługę Stajni Brzozowej. Paweł po zalogowaniu widzi samą nazwę stajni, bez „▾”. Każdy obiekt Stajni Pod Lipami daje mu 404, a Piotrowi każdy obiekt Stajni Brzozowej.
-    - [ ] Damian przypisuje Olę (obsługa Pod Lipami) także do Stajni Brzozowej. Przy najbliższym odświeżeniu tokenu (do 15 s) Ola ma przełącznik stajni, bez ponownego logowania. Po odebraniu przypisania Brzozowa w ciągu 30 s daje jej 404, a Pod Lipami działa bez zmian.
+    - [ ] Damian przypisuje Olę (obsługa Pod Lipami) także do Stajni Brzozowej. Przy najbliższym odświeżeniu tokenu (do 5 min) Ola ma przełącznik stajni, bez ponownego logowania. Po odebraniu przypisania Brzozowa w ciągu 5 min daje jej 404, a Pod Lipami działa bez zmian.
     - [ ] Admin drugiego konta firmy (fixture z innym NIP, propozycja) nie widzi żadnej stajni Damiana (404), a Damian jego stajni.
 24. **A-24 Telewizor na koncie technicznym (Stajnia Pod Lipami).**
     - [ ] Damian w „Zaproś osobę” wybiera „Konto techniczne: Wyświetlacz” i kanał e-mail: tv.korytarz@stajnielipowe.pl, nazwa „Telewizor korytarz”. Osobnego formularza wyświetlacza nie ma.
     - [ ] Telewizor otwiera zwykłą stronę logowania panelu (WyswietlaczLogowanie): „Telefon | E-mail” → e-mail → WyswietlaczKod z kodem z e-maila. Ekran pokazuje adres tylko zamaskowany (t•••@stajnielipowe.pl); potem panel od razu pokazuje widok wszystkich hal (A-08), bo tak każe rola.
-    - [ ] W Ludziach „Telewizor korytarz · konto techniczne · Wyświetlacz” jest w filtrze „Konta techniczne”. Blokada konta („Zablokuj”, erd.md pkt 14): w ciągu 30 s TV pokazuje „Wyświetlacz zablokowany” (WyswietlaczZablokowany), bez starych flag; po odblokowaniu w panelu → Ludzie TV loguje się ponownie kodem i wraca do zapamiętanego widoku.
+    - [ ] W Ludziach „Telewizor korytarz · konto techniczne · Wyświetlacz” jest w filtrze „Konta techniczne”. Blokada konta („Zablokuj”, erd.md pkt 14): w ciągu 5 min TV pokazuje „Wyświetlacz zablokowany” (WyswietlaczZablokowany), bez starych flag; po odblokowaniu w panelu → Ludzie TV loguje się ponownie kodem i wraca do zapamiętanego widoku.
     - [ ] Każdy zapis tym kontem daje 403; odpowiedzi nie mają danych osobowych. Stajnia Brzozowa nie ma wyświetlacza.
 25. **A-25 Konto techniczne tabletów i język tablicy.**
     - [ ] Damian w „Zaproś osobę” wybiera „Konto techniczne: Tablet przy boksie” i kanał e-mail: boksy@stajnielipowe.pl, nazwa „Tablety Pod Lipami” (propozycja). W Ludziach „Tablety Pod Lipami · konto techniczne · Tablet” jest w filtrze „Konta techniczne”.
     - [ ] Tablet Hala nowa · boks 5 loguje się tym kontem przez „TELEFON | E-MAIL”: e-mail i kod z e-maila. Po kodzie od razu TabletPierwszyBoks z zakładkami hal, bez wyboru stajni; w ukrytych ustawieniach KONTO „Tablety Pod Lipami · konto techniczne”; tablica nie pokazuje konta. Konto Oli na tablecie dostaje TabletBrakUprawnien, a wylogowanie Oli ze wszystkich urządzeń nie dotyka tabletów.
-    - [ ] Zgubiony tablet (propozycja): Damian w Ludziach blokuje „Tablety Pod Lipami” („Zablokuj”, erd.md pkt 14). W ciągu 30 s wszystkie tablety stajni pokazują TabletBrakUprawnien („TO KONTO NIE MA JUŻ DOSTĘPU DO TEJ STAJNI”), bez starych flag. Wariant: odłączenie sesji samego zgubionego tabletu wylogowuje tylko ten tablet (propozycja). Po odblokowaniu pozostałe tablety logują się ponownie kodem i wracają do swoich boksów i języka, a zgubiony bez kodu nie wraca; zapisy z zablokowanego konta dają 403.
+    - [ ] Zgubiony tablet (propozycja): Damian w Ludziach blokuje „Tablety Pod Lipami” („Zablokuj”, erd.md pkt 14). W ciągu 5 min wszystkie tablety stajni pokazują TabletBrakUprawnien („TO KONTO NIE MA JUŻ DOSTĘPU DO TEJ STAJNI”), bez starych flag. Jednego tabletu nie da się odłączyć (W4). Wariant bez blokady: „Wyloguj wszystkie tablety”, w ciągu 5 min wszystkie tablety pokazują logowanie (propozycja). Po odblokowaniu pozostałe tablety logują się ponownie kodem i wracają do swoich boksów i języka, a zgubiony bez kodu nie wraca; zapisy z zablokowanego konta dają 403.
     - [ ] W ukrytych ustawieniach tego tabletu ktoś wybiera język UA: tablica jest po ukraińsku (pory posiłków z etykiet `*_labels`, gdy są), a tablet Hala główna · boks 7 dalej po polsku. Język zostaje po restarcie i ponownym logowaniu; serwer o nim nie wie, a stajnia nie ma ustawienia języków.
 
 ### 4.5 Stanowisko testowe i kryteria gotowości do wdrożenia
@@ -2196,13 +2201,14 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
   - opóźnienie flagi w p95 i trafność dotyku w rękawicach w ustalonych progach;
   - działa w najniższej temperaturze zanotowanej w hali pilotażowej.
 - [ ] Wyświetlacz pracuje tygodniami bez interwencji, po zaniku prądu sam wraca do zapamiętanego widoku (wszystkie hale albo pełny ekran hali, na którym są tylko flagi tej hali) i nie ma śladów retencji.
-- [ ] SMS OTP dochodzi we wszystkich testowanych sieciach, a e-mail OTP do testowanych skrzynek, w ustalonym czasie. Odzyskiwanie dostępu działa. Wylogowanie, blokada konta i odebranie członkostwa odbierają dostęp w ≤ 30 s (lista unieważnień, propozycja).
+- [ ] SMS OTP dochodzi we wszystkich testowanych sieciach, a e-mail OTP do testowanych skrzynek, w ustalonym czasie. Odzyskiwanie dostępu działa. Wylogowanie ze wszystkich urządzeń, blokada konta i odebranie członkostwa odbierają dostęp w ≤ 5 min (najbliższe odświeżenie tokenu, W4).
 - [ ] Eskalacja działa przy martwym tablecie (A-02). Dla flag z `requires_ack` (w stajni, która wymaga potwierdzeń) to jedyne zabezpieczenie, bo stanu tabletów nie śledzimy; flaga zapisana w stajni bez potwierdzeń (zależy od ustawień stajni) obowiązuje od razu i nie eskaluje (A-18), a trwająca niepotwierdzona flaga eskaluje także po wyłączeniu przełącznika (A-20).
 - [ ] Zmiana czasu przeszła bez błędów, w symulacji albo na stanowisku.
 - [ ] **Przećwiczone runbooki:**
   - wymiana tabletu i jego provisioning;
   - odzyskanie zablokowanego tabletu;
-  - zgubiony tablet: blokada konta technicznego tabletów w Ludziach, odblokowanie i ponowne logowanie pozostałych tabletów kodem (propozycja);
+  - zgubiony tablet: „Wyloguj wszystkie tablety” albo blokada konta technicznego tabletów w Ludziach (z odblokowaniem), potem ponowne logowanie pozostałych tabletów kodem (propozycja);
+  - rotacja awaryjna klucza podpisu (wszyscy logują się ponownie);
   - zmiana Wi-Fi w stajni;
   - ponowne logowanie tabletu i telewizora (telefonem albo e-mailem i kodem);
   - cofnięcie wydania APK;
@@ -2225,21 +2231,25 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 - **Boksy z ustawieniami przy tworzeniu** (Załóż stajnię, „Dodaj halę”): lista boksów z numerem, poidłem i „Więcej ustawień ›”, akcja „Ustaw dla wszystkich” (3.3 `stable`).
 - **Zakładanie stajni w 2 krokach.** Krok 1 bez pytania o potwierdzenia flag (nowa stajnia ma wszystko włączone, także potwierdzenia), krok 2 powiadomienia: zdarzenia, odbiorcy, kanał SMS albo e-mail (`notification_rules`).
 - **Strona www przed logowaniem:** sama prezentacja, bez bloga i CMS (3.5.5, pkt 51).
-- **Tylko jeden serwis autoryzacyjny.** `auth` decyduje o tożsamości i uprawnieniach i podpisuje tokeny; pozostałe serwisy i crony tylko weryfikują podpis i czytają claimy, bez wołania `auth` przy żądaniu i bez czytania tabel uprawnień (3.1.9). Sposób: propozycja w mikroserwisy.md.
-- **Admin globalny.** Zespół EQUENOR (w danych demo Kuba) ma dostęp do każdej firmy, stajni i serwisu (3.1.9, 4.2). Sposób (osobna pula z MFA, host `[OPS]`, role we dwie osoby, audyt i log odczytów): propozycja w mikroserwisy.md, sekcja 4.
+- **Tylko jeden serwis autoryzacyjny** (W2). `auth` decyduje o tożsamości i uprawnieniach i podpisuje tokeny; pozostałe serwisy tylko weryfikują podpis i czytają claimy, bez wołania `auth` przy żądaniu i bez czytania tabel uprawnień (3.1.9). Sposób: propozycja w mikroserwisy.md.
+- **Admin globalny** (W1). Zespół EQUENOR (w danych demo Kuba) ma dostęp do każdej firmy, stajni i serwisu (3.1.9, 4.2). Sposób (osobna pula z MFA, host `[OPS]`, role we dwie osoby, audyt i log odczytów): propozycja w mikroserwisy.md, sekcja 4.
+- **Crony piszą do bazy bezpośrednio** (W3, „Crony piszą do bazy bezpośrednio”). Każdy cron ma własną rolę bazy z manifestu, używa kodu domeny właściciela i nie ma tokenów; powiadomienia zleca zdarzeniem publikowanym przed COMMIT (3.1.7, 3.4). Tokeny serwisowe znikają w całości; zostają tylko wywołania `/internal` `stable` → `dzien`, `stable` → `auth`, `notifications` → `auth` i pięciu serwisów do `files`, na osobnym porcie, z TLS i NetworkPolicy (3.1.13).
+- **Sesje tylko w JWT** (W4, „Po co trzymać dane sesji. JWT to zrobi.”). Bez `auth_sessions` i `auth_revocations`: access token 5 min, refresh token to JWT od `auth` bez zapisu, `users.token_version` zamiast `authz_version`; odebranie dostępu do 5 min; jednego tabletu nie da się odłączyć („Wyloguj wszystkie tablety” albo blokada); kradzieży refresh tokenu nie wykrywamy (2.4, 3.1.9, 4.2).
+- **`sms` i `email` niezależne** (W5, „Email oraz SMS service niezależne. Nie mają dostępów do tabel wszystko dostają z kolejki”). Bez tabel i bez roli bazy; gotowe wiadomości dostają z kolejki od `notifications`, który działa jako router (3.3).
+- **11 serwisów** (decyzja 13.10: „Obsługa S3 to osobny mikroserwis tak git”, „Reszta zgodna z sugestiami”): `auth`, `stable`, `dzien` (dawniej `flags`, `care`, `tasks`), `terminarz` (`health`, `rides`), `board`, `billing`, `notifications`, `sms`, `email`, `files`, `platform` (`releases`, `audit`) (3.1.1).
 
 **Blokują etap 1 (Cognito)**
 1. **TOTP a logowanie bez hasła (SMS albo e-mail).** W Cognito oba wykluczają się dla tego samego użytkownika. Kto ma mieć TOTP i w jakim przepływie, np. tylko admin panelu z hasłem? Jak ma działać „Użyj aplikacji uwierzytelniającej” z makiety Logowanie? Nowe plansze logowania TOTP nie pokazują.
 2. **Logowanie recenzentów Apple i Google.** Rozstrzygnięte (propozycja): recenzent nie odbierze SMS, więc loguje się na konto demo e-mailem i kodem z e-maila, tak samo jak inni użytkownicy, bez osobnego klienta i bez custom SMS sendera. Dostęp do skrzynki konta demo podajemy w notatce do recenzji. Czy Apple i Google akceptują kod z e-maila z udostępnionej skrzynki: [niepotwierdzone]; zapasem jest tryb demo uzgodniony z Apple.
 3. **Konto `display`.** Rozstrzygnięte: telewizor loguje się kontem technicznym z rolą Wyświetlacz, telefonem albo e-mailem i kodem, tak samo jak wszędzie (w seedzie e-mailem). Konto zaprasza admin przez „Zaproś osobę”. Telewizor przy instalacji loguje osoba wdrażająca, a po wygaśnięciu sesji admin albo zespół EQUENOR (propozycja). Otwarte zostaje tylko zalecenie: jedno konto na kilka telewizorów czy osobne na każdy (erd.md dopuszcza oba).
-4. **Czasy życia tokenów i sesji.** Rozstrzygnięte technicznie (propozycja, mikroserwisy.md 3.4): sesje wydaje `auth`, więc czas sesji zależy od aplikacji i roli; TV na kliencie web ma długą sesję (365 dni), a admin w tym samym panelu krótką (7 dni bezczynności, 30 dni maksimum); tablet bez limitu do blokady. Do decyzji zostają wartości (mikroserwisy.md 10.2 pkt 4).
-5. **Wylogowanie a tablety.** Rozstrzygnięte 13.10.2026: tablety logują się kontem technicznym tabletów (rola `tablet`, jedno na stajnię, propozycja), nie kontem osoby, więc wylogowanie osoby ich nie dotyka. Zgubiony tablet: admin odłącza sesję tego tabletu (pozostałe działają; ekran do decyzji, mikroserwisy.md 10.2 pkt 8) albo blokuje konto techniczne tabletów w Ludziach (unieważnienie sesji i lista unieważnień w `auth`), odblokowuje je i loguje pozostałe tablety ponownie kodem (propozycja); skradziony traci dostęp w ciągu ok. 15 s.
+4. **Czasy życia tokenów i sesji.** Rozstrzygnięte (W4; wartości to propozycja, mikroserwisy.md): access token 5 min dla wszystkich; refresh JWT z oknem bezczynności i maksimum według aplikacji i roli: apka 30 dni / 180 dni, panel 7 / 30 dni, tablet 30 dni / bez limitu (do blokady albo „Wyloguj wszystkie tablety”), TV 30 / 365 dni, `ops` 30 min / 10 h, `opctl` 30 min / 1 h.
+5. **Wylogowanie a tablety.** Rozstrzygnięte 13.10.2026: tablety logują się kontem technicznym tabletów (rola `tablet`, jedno na stajnię, propozycja), nie kontem osoby, więc wylogowanie osoby ich nie dotyka. Zgubiony tablet: jednego tabletu nie da się odłączyć (W4, wraca pierwotna decyzja erd.md pkt 2: bez listy tabletów i sesji w panelu). Admin klika „Wyloguj wszystkie tablety” (podbija `token_version` konta tabletów) albo blokuje konto techniczne tabletów w Ludziach, a pozostałe tablety loguje ponownie kodem (propozycja); skradziony traci dostęp najpóźniej po 5 min.
 
 **Infrastruktura (Dawid)**
 
 6. Regiony AWS i podział kont na środowiska; od tego zależy liczba wyjść z sandboxów.
 7. Mechanizm poświadczeń z klastra do AWS; wpływa na ważność presigned URL.
-8. Uwierzytelnianie serwis→serwis dla `/internal` oraz uwierzytelnianie i rola zespołu EQUENOR (wydania APK, plany billingu, odczyt audytu, diagnostyka). Rozstrzygnięte (propozycja): tokeny serwisowe od `auth` z wymiany tokenu konta serwisowego Kubernetes (mikroserwisy.md 7.1); admin globalny i Wsparcie IT jako role platformowe w puli zespołu (mikroserwisy.md 4). Dawid potwierdza OIDC EKS i cert-manager.
+8. Uwierzytelnianie serwis→serwis dla `/internal` oraz uwierzytelnianie i rola zespołu EQUENOR (wydania APK, plany billingu, odczyt audytu, diagnostyka). Rozstrzygnięte 13.10.2026 (W3 i propozycja): bez tokenów serwisowych; crony piszą do bazy wprost, a `/internal` idzie po osobnym porcie, przez TLS z CA klastra, z NetworkPolicy z manifestu (3.1.13). Na później (może poczekać): sprawdzanie podpisu tokenu konta serwisowego Kubernetes w serwisie docelowym. Admin globalny i Wsparcie IT jako role platformowe w puli zespołu (mikroserwisy.md, sekcja 4). Dawid potwierdza cert-manager i NetworkPolicy.
 9. Kto pisze manifesty workloadów i w jakim formacie.
 10. PostgreSQL: wersja, pooler, PITR. Do tego LocalStack w CI (warunki obrazu) albo konto dev AWS.
 11. Narzędzie błędów i logów oraz ścieżka diagnostyki tabletu i Pi: publiczny endpoint uwierzytelniany tokenem konta technicznego albo SDK narzędzia, w obu przypadkach z buforem offline.
@@ -2250,7 +2260,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
     - czy SMS i SES są już poza sandboxem;
     - co dzieje się z danymi po wdrożeniu.
 14. Zdalny dostęp do Pi (SSH, Raspberry Pi Connect albo inne narzędzie).
-15. Sposób przechowywania tokenów w panelu i na wyświetlaczu. Rozstrzygnięte (propozycja, mikroserwisy.md 3.7): refresh token w ciasteczku httpOnly ustawianym przez `auth`, access token w pamięci, bez BFF; warunek: panel i API w jednej domenie, a panel zespołu na osobnym hoście `[OPS]`.
+15. Sposób przechowywania tokenów w panelu i na wyświetlaczu. Rozstrzygnięte (propozycja, mikroserwisy.md): refresh token w ciasteczku httpOnly ustawianym przez `auth`, access token w pamięci, bez BFF; warunek: panel i API w jednej domenie, a panel zespołu na osobnym hoście `[OPS]`.
 
 **Zachowanie produktu, potrzebne developmentowi**
 
@@ -2259,16 +2269,16 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 18. Wyświetlacz w nocy: praca całą dobę czy wygaszanie przez CEC. Od tego zależy klasa monitora (16/7 czy 24/7).
 19. Tablet offline: kolejka zapisów (propozycja; wskazują na nią pola `time_quality` i `request_hash`) czy blokada akcji z komunikatem.
 20. Brak makiet dla trzech stanów: wyświetlacz offline („dane z HH:MM”), stajnia `suspended`, odebrany dostęp. Trzeba ustalić ich wygląd.
-21. `actor_id` w audycie dla akcji z tabletu (`actor_type = tablet`): `NULL` czy `box_id`. Nie `id` konta tabletów, bo akcje z tabletu nie mają autora (`source = tablet`) [erd]. Dostęp do odczytu audytu rozstrzygnięty (propozycja): admin konta i admin globalny (mikroserwisy.md 5.11).
+21. `actor_id` w audycie dla akcji z tabletu (`actor_type = tablet`): `NULL` czy `box_id`. Nie `id` konta tabletów, bo akcje z tabletu nie mają autora (`source = tablet`) [erd]. Dostęp do odczytu audytu rozstrzygnięty (propozycja): admin konta i admin globalny, przez serwis `platform`.
 22. Złożone odczyty (lista dnia, historia boksu) w `board` (propozycja).
 23. Zakładanie stajni: czy wystarczą idempotentne wywołania z ponowieniami i `stable.created`, czy potrzebny jest cron uzgadniający.
-24. SMS z `notifications` (eskalacje, zaproszenia):
+24. SMS z serwisu `sms` (eskalacje, zaproszenia):
     - przez AWS, ze wspólnym limitem, Sender ID i protect configuration, czy przez innego dostawcę;
     - nazwa nadawcy;
     - czy dopuścić numery spoza Polski, np. +380.
 25. Czy zakaz obiektów w bazie obejmuje widoki (`CREATE VIEW`).
 26. Okresy retencji: audyt, `notifications`, pliki `deleted`, `payment_provider_events`.
-27. Domyślne sloty posiłków i szablony flag dla nowej stajni (erd.md wymienia kody szablonów, w tym `derka`, ale nie ich domyślne okna godzin poza przykładami z makiet) oraz domyślna nazwa pierwszej hali, którą kod zakłada razem ze stajnią (adres bierze ze stajni [erd]). Kto dostaje `health-due-reminders`.
+27. Domyślne sloty posiłków i szablony flag dla nowej stajni (erd.md wymienia kody szablonów, w tym `derka`, ale nie ich domyślne okna godzin poza przykładami z makiet) oraz domyślna nazwa pierwszej hali, którą kod zakłada razem ze stajnią (adres bierze ze stajni [erd]). Kto dostaje `health.due` i `payment.overdue`: słownik `notification_rules.event` nie ma `health_due` ani `payment_overdue` (luka otwarta, mikroserwisy.md).
 28. Parametry billingu potrzebne w kodzie: definicja metryki w `billing-usage-snapshot` (stan na koniec okresu czy maksimum w okresie) oraz to, czy `InvoiceSystem` w v1 ma prawdziwą integrację (KSeF 2.0). Zależy od otwartej kwestii pkt 47; do jej rozstrzygnięcia billing zostaje na fałszywych adapterach.
 29. **Identyfikatory od nazwy EQUENOR.** Nazwa produktu jest ustalona (repozytorium nadal nazywa się KonskaAppka). Otwarta jest dokładna postać scope pakietów, bundle ID, `applicationId` i nazw w sklepach. Bundle ID i `applicationId` są nieodwracalne, więc muszą zapaść przed założeniem rekordów.
 30. Kto może zmienić sieć Wi-Fi na tabletach przez ukryte ustawienia (np. Wsparcie IT z zespołu EQUENOR), jak się przy tym uwierzytelnia i kto zna hasło.
