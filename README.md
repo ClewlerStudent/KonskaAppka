@@ -9,7 +9,7 @@ przy każdym boksie z aktualnymi instrukcjami (karmienie, padok, weterynarz) i p
 
 - [Architektura i analiza techniczna](docs/analiza.md)
 - [Model danych (ERD) do zatwierdzenia](docs/erd.md)
-- [Rozpiska mikroserwisów: 11 serwisów, jeden serwis autoryzacyjny, admin globalny, crony, sesje w JWT, SMS i e-mail z kolejki](docs/mikroserwisy.md)
+- [Rozpiska mikroserwisów: 11 serwisów, jeden serwis autoryzacyjny (jedyny z dostępem do Cognito), logowanie hasłem i zawsze kodem, admin globalny, crony, sesje w JWT, SMS i e-mail z kolejki](docs/mikroserwisy.md)
 - [Paleta kolorów](docs/paleta.md)
 - [Development, testy i zakupy](docs/development.md) (pełna wersja ze źródłami: [szczegóły](docs/development-szczegoly.md))
 - [Makiety (kanwas)](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX)
