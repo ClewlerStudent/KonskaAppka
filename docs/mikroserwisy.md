@@ -31,8 +31,8 @@ Wymagania W1–W5 i podział serwisów (decyzja 13.10) są twarde. Sposób ich s
 6. **Odebranie dostępu działa do 5 min:** przy najbliższym odświeżeniu `auth` sprawdza konto i `users.token_version` i liczy claimy od nowa (3.8). Wyjazd konia i nowa stajnia admina działają od razu.
 7. **Crony piszą do bazy wprost (W3):** tylko do tabel z manifestu, kodem domeny właściciela, i publikują zdarzenia. Tokenów nie mają.
 8. **Powiadomienia (W5):** `notifications` dobiera odbiorców i treść i wrzuca gotową wiadomość do kolejki `sms` albo `email`. Te dwa serwisy nie mają tabel ani roli bazy.
-9. **Bez tokenów serwisowych:** zostają 4 rodzaje wywołań `/internal`, po osobnym porcie wewnętrznym i z NetworkPolicy z manifestu (7).
-10. **Makiety z drobnymi zmianami (11.4).** Dochodzi plansza PanelOps (admin globalny). Poprawki w makietach ustawień, zaproszeń, ZaproszeniePrzyjmij i PanelLudzieWyswietlacze czekają w mockups/STAN.md.
+9. **Bez tokenów serwisowych:** zostają 4 rodzaje wywołań `/internal`, po portach wewnętrznych (osobny port na każdy zestaw wołających) i z NetworkPolicy z manifestu (7.1).
+10. **Makiety z drobnymi zmianami (11.4).** Dochodzi plansza PanelOps (admin globalny). Poprawki makiet: lista w 11.4 i mockups/STAN.md.
 11. **Do decyzji przed implementacją:** 10.2 pkt 1–8, zwłaszcza macierz w tokenie (pkt 1), `businesses` w `auth` (2), KMS (5) i DPoP (8).
 
 ## Diagram
@@ -44,7 +44,7 @@ Wersja do powiększania: [mikroserwisy/uslugi.svg](mikroserwisy/uslugi.svg). Źr
 Jak czytać:
 1. Aplikacja loguje użytkownika w Cognito (pula klientów albo pula zespołu).
 2. Aplikacja wymienia ID token z Cognito w `auth` na access token i refresh token EQUENOR. Tak samo odświeża token: `auth` sprawdza wtedy własne tabele, ale sesji nie zapisuje. Z Cognito `auth` pobiera tylko klucze publiczne i woła jego Admin API (wylogowanie, usuwanie kont).
-3. Z access tokenem aplikacja woła serwisy. Serwisy pobierają z `auth` w tle tylko JWKS; `notifications` pobiera też adresy odbiorców (`/internal/recipients`).
+3. Z access tokenem aplikacja woła serwisy. Serwisy pobierają z `auth` JWKS (osobny port). 4 rodzaje wywołań `/internal` (7.2) idą portami wewnętrznymi bez tokenów; pilnuje ich NetworkPolicy.
 4. Crony piszą do bazy wprost (tylko tabele z manifestu) i publikują zdarzenia. Z S3 rozmawia tylko `files` i jego cron `files-gc`.
 5. `notifications` zamienia zdarzenia na gotowe wiadomości w kolejkach `sms` i `email`. Te wysyłają je przez AWS i publikują wynik.
 
@@ -68,12 +68,14 @@ Jak czytać:
 - **Odczyt (zmiana erd pkt 5):**
   - tabele domenowe czytają wszystkie serwisy i crony;
   - tabele prywatne `auth` (5.2) czyta tylko `auth`, poza wąskimi grantami cronów (1.5);
+  - `notifications` (adres odbiorcy i wyrenderowana treść) czyta tylko `notifications`; `retention-pruner` tylko usuwa stare wiersze;
+  - schemat `audit`: każda rola ma tylko `INSERT`, czyta `platform`, usuwa po retencji tylko `retention-pruner` (1.5);
   - z `users` inni widzą tylko `id`, `display_name`, `locale`, `identity_pool` i `deleted_at` (grant kolumnowy); telefon i e-mail zna tylko `auth`. `identity_pool = team` pozwala pokazać autora jako „Zespół EQUENOR” (4.4);
   - `businesses` czytają `stable` (nazwa firmy) i `billing` (NIP, adres, e-mail do faktur);
   - `sms` i `email` nie mają roli bazy (W5).
 - `packages/db/owners.ts` dostaje dla każdej tabeli pole `visibility: shared | private | columns([...])` i listę cronów z prawem zapisu (tabele, gdzie się da: kolumny). Z niego generator grantów tworzy role bazy, a lint swoją regułę.
 - Klucze obce do `users` z tabel innych serwisów zostają; baza sprawdza je bez grantu `SELECT`.
-- **Meta-test w CI:** żadna rola poza `auth` nie ma `SELECT` na tabelach prywatnych `auth` ani na `users.phone_e164` i `users.email`, poza grantami cronów z manifestu; żaden cron nie ma zapisu poza manifestem.
+- **Meta-test w CI:** żadna rola poza `auth` nie ma `SELECT` na tabelach prywatnych `auth` (w tym `invitations.target`) ani na `users.phone_e164` i `users.email`, a poza `notifications` na `notifications.recipient_address` i `notifications.body`, poza grantami cronów z manifestu; granty kolumnowe cronów zgadzają się z manifestem; żaden cron nie ma zapisu poza manifestem; w `audit` nikt poza `retention-pruner` nie ma `DELETE` ani `UPDATE`.
 - **Niezmienne dane zasobu:** `stables.business_id` i `boxes.stable_id`. Żadna trasa ich nie zmienia, a lint odrzuca `UPDATE` tych kolumn (triggera nie dodajemy, bo erd zakazuje triggerów). Przeniesienie stajni do innej firmy to nowa stajnia.
 - **Stan w pamięci (wyjątek od szcz. 4.1, „Repliki”: żaden serwis nie trzyma stanu w pamięci):** wolno trzymać cache JWKS i niezmienne dane zasobu z punktu wyżej. Oba da się odtworzyć ze źródła.
 
@@ -83,13 +85,13 @@ Jak czytać:
 |---|---|---|---|
 | Publiczne | `/<serwis>/v1/{ścieżka}` | access token EQUENOR, `aud = equenor-api` | role, funkcja i dozwolone aplikacje z deskryptora trasy |
 | Platformowe | `/<serwis>/v1/platform/{ścieżka}` | access token EQUENOR z `plt` | zapytania przekrojowe (`crossTenant()`), log odczytów (4.4) |
-| Wewnętrzne | `/<serwis>/v1/internal/{ścieżka}` | bez tokenu | tylko osobny port wewnętrzny, TLS z CA klastra, NetworkPolicy z manifestu (7.1) |
+| Wewnętrzne | `/<serwis>/v1/internal/{ścieżka}` | bez tokenu | tylko port wewnętrzny (osobny na każdy zestaw wołających), TLS z CA klastra, NetworkPolicy z manifestu (7.1) |
 | Webhook płatności | `/billing/v1/webhooks/{provider}` | bez tokenu | podpis dostawcy |
 | Stan poda | `/livez`, `/readyz` | bez tokenu | `/readyz` czeka tylko na JWKS |
 
-- Port publiczny nie obsługuje `/internal` (404), a Ingress nie kieruje ruchu na port wewnętrzny.
+- Port publiczny nie obsługuje `/internal` (404), a Ingress nie kieruje ruchu na porty wewnętrzne ani na port `jwks`.
 - Trasy `/internal` są tylko dla wywołań z 7.2. Tras dla cronów, `/internal/prune` ani `/internal/horses/{id}/left` poza `auth` nie ma (W3).
-- **W1 w każdym serwisie:** meta-test sprawdza, że każdy serwis z API ma co najmniej jedną trasę dostępną dla `plt = admin` (`files` i `notifications` mają trasy `/platform`, 5.8 i 5.9). `sms` i `email` nie mają API (W5); ich wysyłki admin globalny widzi w `notifications`.
+- **W1 w każdym serwisie:** meta-test sprawdza, że każdy serwis z API ma co najmniej jedną trasę dostępną dla `plt = admin` (`notifications` i `files` mają trasy `/platform`, 5.8 i 5.9). `sms` i `email` nie mają API (W5); ich wysyłki admin globalny widzi w `notifications`.
 
 ### 1.4 Zdarzenia
 
@@ -103,9 +105,14 @@ Jak czytać:
 - Każdy cron to osobny mikroserwis (CronJob), bez własnych tabel (bez zmian). Kod leży w module serwisu-właściciela, np. `services/dzien/jobs/escalation-scheduler`.
 - **Pisze do bazy wprost.** Ma własną rolę bazy: odczyt tabel domenowych i zapis tylko do tabel (gdzie się da: kolumn) z manifestu w `packages/db/owners.ts`. Granty tworzy generator grantów, a meta-test w CI pilnuje, że cron nie pisze poza manifestem.
 - **Kod domeny właściciela:** te same funkcje zapisu co serwis, `version` i `updated_at` z kodu, audyt z `actor_type = system` w tej samej transakcji. Crony przekrojowe (`horse-left-reconciler`, `retention-pruner`) używają modułów domeny kilku serwisów; to jedyny wyjątek od reguły lintu „serwis nie importuje innego serwisu”.
-- **Tabele prywatne `auth`:** wąskie granty, nie do autoryzacji (W2 zostaje): `invitation-expiry-notifier` `SELECT` na `invitations`; `horse-left-reconciler` `UPDATE horse_access.revoked_at`; `retention-pruner` `DELETE` w `platform_requests` po retencji. Do tego `SELECT` na kolumnach z warunku `WHERE`.
+- **Tabele prywatne `auth`:** wąskie granty kolumnowe, nie do autoryzacji (W2 zostaje). Funkcje domeny `auth` używane przez cron czytają tylko te kolumny:
+  - `invitation-expiry-notifier`: `SELECT (id, stable_id, role, display_name, locale, horse_id, expires_at, accepted_at, revoked_at)` na `invitations`, bez `target`;
+  - `horse-left-reconciler`: `SELECT (id, stable_id, horse_id, revoked_at, version)` i `UPDATE (revoked_at, version, updated_at)` na `horse_access`;
+  - `retention-pruner`: `SELECT (id, requested_at)` i `DELETE` na `platform_requests`.
+- **Schemat `audit`:** tylko `retention-pruner` ma `DELETE` na `audit_log_changes` i `audit_log` oraz `SELECT` na `audit_log (id, created_at)` i `audit_log_changes (audit_log_id)`. Usuwa wyłącznie wiersze starsze niż retencja, najpierw `audit_log_changes`; każdy przebieg trafia do logów, a nietypowa liczba usuniętych wierszy daje alert.
 - **Bez tokenów i bez wywołań:** cron nie woła serwisów ani `auth`. Nie zna adresów i nie wysyła powiadomień: publikuje zdarzenie (6), a resztę robi `notifications`.
-- **Publikacja przed COMMIT** (wyjątek od 1.4, tylko dla cronów): w tej samej transakcji, tuż przed COMMIT. Gdy COMMIT się nie uda, następny przebieg powtórzy publikację, a `notifications.dedupe_key` nie dopuści drugiego SMS-a. Gdy publikacja się nie uda, transakcja się wycofuje.
+- **Publikacja przed COMMIT** (wyjątek od 1.4, tylko dla cronów): w tej samej transakcji, tuż przed COMMIT; jedna transakcja na obiekt (flaga, faktura), nie na cały przebieg. Gdy COMMIT się nie uda, następny przebieg powtórzy publikację, a `notifications.dedupe_key` nie dopuści drugiego SMS-a. Gdy publikacja się nie uda, transakcja się wycofuje.
+- **Konsument zdarzenia crona, które zmienia stan,** traktuje je jako sygnał i czyta źródło w bazie, bo zdarzenie mogło wyjść przed nieudanym COMMIT albo przyjść w innej kolejności: `stable` bierze bieżące `subscriptions.status`, a nie wartość z koperty; `billing` (PDF) i `notifications` przy `invoice.issued` i `payment.overdue` wymagają widocznego wiersza `invoices`, a bez niego nie potwierdzają wiadomości (ponowienie, potem DLQ i alarm). Dane do treści powiadomienia konsument bierze z koperty.
 
 ## 2. Role
 
@@ -147,12 +154,12 @@ Jak czytać:
 
 1. Aplikacja loguje użytkownika w Cognito. Pula klientów: kod SMS albo e-mail. Pula zespołu: passkey albo hasło z TOTP. Ekrany logowania bez zmian.
 2. Aplikacja od razu wymienia ID token Cognito w `auth`: `POST /auth/v1/token` (RFC 8693, `grant_type=urn:ietf:params:oauth:grant-type:token-exchange`, `client_id = mobile | web | tablet`). Panel zespołu robi to na własnym hoście: `POST [OPS]/auth/v1/ops/token` (`client_id = ops`, wymagany `reason`); CLI: `client_id = opctl` (4.1).
-3. `auth` sprawdza ID token: podpis puli, `token_use = id`, pula pasuje do aplikacji, `auth_time` nie starszy niż 5 min. `jti` nie zapisujemy (W4), więc ten sam ID token da się wymienić ponownie tylko w tym oknie.
+3. `auth` sprawdza ID token: podpis puli, `token_use = id`, pula pasuje do aplikacji, `auth_time` nie starszy niż 5 min. `jti` nie zapisujemy (W4), więc ten sam ID token da się wymienić ponownie tylko w tym oknie (ryzyko: 10.1 pkt 3).
 4. W jednej transakcji `auth`:
    - zapisuje albo aktualizuje `users` z kopią telefonu i e-maila;
    - dopasowuje zaproszenia po zweryfikowanym telefonie albo e-mailu i zapisuje członkostwo (klientowi też `horse_access`); zaproszenie konta technicznego oznacza świeże konto jako `technical` (sekcja 2);
    - sprawdza zgodność konta z aplikacją;
-   - wylicza claimy, nadaje losowy `sid` i podpisuje access token i refresh token. Sesji nie zapisuje (W4).
+   - wylicza claimy, nadaje `sid` (UUIDv7) i podpisuje access token i refresh token. Sesji nie zapisuje (W4).
 5. Odpowiedź: access token EQUENOR (5 min) i refresh token (3.7). Tokeny Cognito aplikacja wyrzuca.
 
 Wymieniamy ID token, bo tylko on niesie zweryfikowany telefon i e-mail. Po nich `auth` dopasowuje zaproszenia.
@@ -172,14 +179,14 @@ Nagłówek access tokenu: `{"alg":"ES256","typ":"at+jwt","kid":"<odcisk klucza p
 | `iss` | `https://[API]/auth/v1`, inny host w każdym środowisku | wszyscy |
 | `aud` | `equenor-api` | wszyscy |
 | `sub` | `users.id` | wszyscy |
-| `sid` | losowy identyfikator nadany przy logowaniu i przenoszony przy odświeżaniu; bez tabeli, tylko do korelacji w audycie i logach (W4) | wszyscy |
+| `sid` | UUIDv7 nadany przy wymianie ID tokenu i przenoszony przy odświeżaniu; bez tabeli, tylko do korelacji w audycie i logach (W4) | wszyscy |
 | `client_id` | `mobile`, `web`, `tablet`, `ops`, `opctl` | wszyscy |
 | `iat`, `exp`, `jti` | wydanie, wygaśnięcie, identyfikator | wszyscy |
 | `ver` | wersja schematu claimów (1) | wszyscy |
 | `biz` | firmy, w których osoba jest adminem konta | admini konta |
 | `m` | członkostwa: `s` stajnia, `r` rola, `f` widoczne funkcje, `h` konie klienta | członkowie stajni |
 | `plt` | `admin` albo `support` | admin globalny, Wsparcie IT |
-| `amr`, `auth_time` | `["mfa"]` i czas logowania w Cognito (step-up, 4.1) | admin globalny, Wsparcie IT |
+| `amr`, `auth_time` | `["mfa"]` i czas logowania w Cognito z ID tokenu (step-up, 4.1); przy odświeżeniu przenoszony z refresh tokenu, nigdy czas odświeżenia | admin globalny, Wsparcie IT |
 
 **Reguły wyliczania:**
 - `m` pomija nieaktywne członkostwa i stajnie firm z `biz`, bo admin konta i tak ma tam pełny dostęp.
@@ -193,7 +200,7 @@ Nagłówek access tokenu: `{"alg":"ES256","typ":"at+jwt","kid":"<odcisk klucza p
 - **Budżet rozmiaru:** 4 KB (Damian ok. 0,6 KB, Ola ok. 0,9 KB, Anna ok. 1,0 KB). Test w CI liczy wszystkie osoby z danych demo, klienta z 60 końmi i konto zaproszone przez 50 firm naraz.
 - **Twarde limity w `auth`** (zaproszenia dopasowują się same, bez zgody, więc obce firmy mogłyby „nadmuchać” komuś token): najwyżej 20 członkostw na konto, 100 koni w `h` na stajnię, 200 zaproszeń na firmę na dobę. Zaproszenie ponad limit zostaje niedopasowane, a `auth` wysyła alert. Gdyby token i tak przekroczył budżet, `auth` wydaje token zawężony do stajni wybranej w aplikacji (`resource=<stableId>`, RFC 8707) zamiast odmawiać.
 
-**Refresh token (W4):** JWT podpisany tym samym kluczem, `typ = rt+jwt`, `aud` tylko `auth`, nigdzie niezapisany. Claimy: `iss`, `iat`, `sub`, `client_id`, `sid`, `sst` (start sesji), `tv` (`users.token_version`) i `exp` (3.4); tablet i TV z DPoP także `cnf.jkt` (3.7). Serwisy go odrzucają (`typ`, `aud`).
+**Refresh token (W4):** JWT podpisany tym samym kluczem, `typ = rt+jwt`, `aud` tylko `auth`, nigdzie niezapisany. Claimy: `iss`, `iat`, `sub`, `client_id`, `sid`, `sst` (start sesji), `tv` (`users.token_version`) i `exp` (3.4); `ops` i `opctl` także `auth_time` (bez zmian przy odświeżaniu); tablet i TV z DPoP także `cnf.jkt` (3.7). Serwisy go odrzucają (`typ`, `aud`).
 
 ### 3.3 Przykłady dla danych demo
 
@@ -220,7 +227,7 @@ Pozostali mają te same `iss`, `iat`, `exp` (`iat + 300`), `jti` i `ver`; różn
 | Tablety Pod Lipami | `tablet` | `m`: `st-podlipami` `tablet` (`flags, feeding_plan, routine, health`) |
 | Tablety Brzozowa | `tablet` | `m`: `st-brzozowa` `tablet` (`flags, feeding_plan, routine, health`) |
 | Telewizor korytarz | `web` | `m`: `st-podlipami` `display` (`flags, feeding_plan, routine, tasks`) |
-| Kuba | `ops` | `plt: "admin"`, `amr: ["mfa"]`, `auth_time`; bez `biz` i `m`. Powód wejścia `auth` zapisuje w audycie przy wymianie tokenu (wpis z `sid`) |
+| Kuba | `ops` | `plt: "admin"`, `amr: ["mfa"]`, `auth_time`; bez `biz` i `m`. Powód wejścia `auth` zapisuje w audycie przy wymianie tokenu (wpis `ops_login` z `sid`, 4.4) |
 
 Członkostwa Anny:
 ```json
@@ -230,7 +237,7 @@ Członkostwa Anny:
 ```
 Gdyby Bella miała dzierżawę do 31.12.2026 23:59:59, token wydany 31.12 o 23:57 miałby `exp` 1798757999 zamiast `iat + 300`.
 
-Tablety: boksu nie ma w tokenie, bo wszystkie tablety stajni logują się tym samym kontem. Boks przychodzi w `X-Box-Id`. Każdy tablet ma własny `sid`, ale osobno odłączyć go nie można (W4, 3.8).
+Tablety: boksu nie ma w tokenie, bo wszystkie tablety stajni logują się tym samym kontem. Boks przychodzi w `X-Box-Id`. Każdy tablet ma własny `sid`.
 
 ### 3.4 Czas życia
 
@@ -251,12 +258,13 @@ Tokeny Cognito: ID i access 5 min, refresh 60 min. Aplikacja używa ID tokenu ty
 
 - **Podpis:** ES256 kluczem AWS KMS `ECC_NIST_P256`, ten sam klucz dla access i refresh tokenu. Klucz prywatny nie opuszcza KMS. `kms:Sign` ma tylko rola IAM `auth`.
 - **`kid`:** odcisk klucza publicznego (RFC 7638), więc rotacja awaryjna i planowa w tym samym miesiącu nie dadzą duplikatu. Tabela `signing_keys` (klucz główny `kid`) wiąże `kid` z kluczem KMS i statusem `next`, `active`, `retiring`, `retired` albo `revoked`.
-- **JWKS:** `GET /auth/v1/.well-known/jwks.json`, tylko w klastrze (port wewnętrzny), z kluczami `next`, `active` i `retiring`. Serwisy pobierają go przez TLS z certyfikatem z CA klastra (cert-manager) i sprawdzeniem nazwy hosta, więc przejęty pod nie podsunie własnego JWKS.
+- **Refresh token** `auth` przyjmuje tylko z kluczem `active`, `retiring` albo `retired` z `retired_at` nie starszym niż 30 dni; klucz `revoked` albo `next` daje `401 session_revoked`.
+- **JWKS:** `GET /auth/v1/.well-known/jwks.json`, tylko w klastrze, na osobnym porcie `jwks` otwartym dla wszystkich serwisów z API (porty `/internal` są osobne, 7.1), z kluczami `next`, `active` i `retiring`. Serwisy pobierają go przez TLS z certyfikatem z CA klastra (cert-manager) i sprawdzeniem nazwy hosta, więc przejęty pod nie podsunie własnego JWKS.
 - **Cache w serwisach:** `jose.createRemoteJWKSet`, 5 min, ponowne pobranie nie częściej niż co 30 s. Nieznany `kid` wymusza ponowne pobranie.
 - **Twarde granice weryfikacji** (`packages/auth`): odrzuca `iat` późniejszy niż teraz + 60 s i `exp − iat` dłuższe niż 5 min.
 - **Rotacja planowa co 90 dni** (`opctl keys rotate`; KMS nie rotuje sam kluczy asymetrycznych): nowy klucz trafia do JWKS jako `next` co najmniej 24 h przed użyciem; potem przełączenie (nowy `active`, stary `retiring`); po dobie stary jest `retired`: znika z JWKS, ale `auth` przyjmuje nim podpisane refresh tokeny jeszcze 30 dni (najdłuższe okno bezczynności), więc rotacja nikogo nie wylogowuje.
-- **Rotacja awaryjna przy wycieku:** nowy klucz od razu `active`, stary `revoked` i znika z JWKS. Stare access tokeny padają w ciągu 5 min (cache JWKS), a stare refresh tokeny od razu, bo `auth` ich nie przyjmie. Wszyscy logują się ponownie. Test: token podpisany wycofanym kluczem jest odrzucany w ≤ 5 min.
-- **Koszt:** każde odświeżenie co 5 min to dwa podpisy (access i refresh token), czyli ok. 7–9 mln podpisów miesięcznie, ok. 110–140 USD z kluczami [Ś]. Przy 5000 aktywnych kontach to ok. 35 podpisów/s, poniżej limitu KMS dla kluczy ECC [Ś]. Opóźnienie podpisu (dziesiątki do 300 ms) dotyczy tylko wydania tokenu, nie weryfikacji.
+- **Rotacja awaryjna przy wycieku:** nowy klucz od razu `active`, stary `revoked` (z `revoked_at`) i znika z JWKS. Stare access tokeny padają w ciągu 5 min (cache JWKS), a stare refresh tokeny od razu, bo `auth` ich nie przyjmie. Wszyscy logują się ponownie. Test: token podpisany wycofanym kluczem jest odrzucany w ≤ 5 min.
+- **Koszt:** każde odświeżenie co 5 min to dwa podpisy (access i refresh token), czyli ok. 17 300 podpisów miesięcznie na urządzenie aktywne całą dobę (tablety, TV). Przy 0,15 USD za 10 tys. podpisów ECC [Ś]: 500 takich urządzeń to ok. 8,6 mln podpisów i ok. 130 USD miesięcznie; 5000 kont aktywnych naraz przez całą dobę to ok. 33 podpisy/s (poniżej limitu KMS dla kluczy ECC [Ś]), ok. 86 mln podpisów i ok. 1300 USD. Opóźnienie podpisu (dziesiątki do 300 ms) dotyczy tylko wydania tokenu, nie weryfikacji. Tańsze warianty: 10.2 pkt 5.
 
 ### 3.6 Jak serwis sprawdza dostęp do stajni
 
@@ -286,21 +294,29 @@ async function resolveStable(p: Principal, stableId: string, tx: Tx): Promise<St
   - panel zespołu: osobny host `[OPS]` już na PoC (najlepiej inna domena), z własną trasą `POST [OPS]/auth/v1/ops/token` i ciasteczkiem `__Secure-eq_rt_ops` (`Path=/auth/v1/ops/token`, tylko ten host). XSS w panelu klientów nie dosięga refresh tokenu admina globalnego. Prefiksu `__Host-` nie używamy, bo wymaga `Path=/`.
 - **Ochrona panelu i `[OPS]`:** ścisłe CSP z nonce, Trusted Types, bez skryptów inline. Każdy `POST /token` z ciasteczkiem wymaga nagłówka `Origin` z listy dozwolonych (dla `/ops/token` tylko `[OPS]`) i nagłówka `X-Equenor-Client`, który wymusza preflight CORS. To zamyka logowanie cudzym kontem z obcej strony (login CSRF).
 - **Odświeżenie** daje nowy access token i nowy refresh token: `exp` = teraz + okno bezczynności, ale nie dalej niż `sst` + maksimum (3.4). `sid` i `sst` przechodzą bez zmian.
-- **Przy odświeżeniu `auth` sprawdza we własnych tabelach:** konto istnieje i nie jest usunięte; konto techniczne jest aktywne (`stable_members.active`); `users.token_version = tv`; rola platformowa jest aktywna (`ops`, `opctl`); zgodność konta z aplikacją (3.1). Potem liczy claimy od nowa, więc tu działają wszystkie zmiany uprawnień (3.8).
+- **Przy odświeżeniu `auth` sprawdza we własnych tabelach, w tej kolejności:**
+  1. klucz podpisu (3.5) i `exp`;
+  2. konto istnieje i nie jest usunięte (`401 session_revoked`);
+  3. konto techniczne ma aktywne członkostwo (`stable_members.active`; inaczej `403 access_revoked`, tak samo przy wymianie ID tokenu);
+  4. `users.token_version = tv` (`401 session_revoked`);
+  5. `ops`, `opctl`: rola platformowa aktywna i konfiguracja MFA puli zespołu zgodna (4.1; `401 session_revoked`);
+  6. zgodność konta z aplikacją (3.1).
+
+  Blokada podbija też `token_version`, więc dopiero ta kolejność daje zablokowanemu urządzeniu ekran blokady, a nie logowanie. Potem `auth` liczy claimy od nowa (`auth_time` przenosi z refresh tokenu), więc tu działają wszystkie zmiany uprawnień (3.8).
 - **Zgubiona odpowiedź** nie jest problemem: poprzedni refresh token działa do swojego `exp`, więc aplikacja po prostu ponawia.
 - **Kradzież refresh tokenu:** bez wykrywania ponownego użycia (świadomie, W4). Ograniczenia:
   - bezpieczne przechowywanie (Android Keystore, `expo-secure-store`, ciasteczko `HttpOnly`);
   - krótkie okna w panelu i `ops` (3.4);
   - tablet i TV: DPoP (RFC 9449), czyli refresh token z `cnf.jkt` i dowód z oknem `iat` 60 s, bez zapisu `jti`; klucz urządzenia nie do wyeksportowania (Android Keystore, WebCrypto z `extractable: false`). Propozycja do spike'u [Ś] (10.2 pkt 8);
   - w ostateczności „Wyloguj ze wszystkich urządzeń” albo „Wyloguj wszystkie tablety” (`token_version` + 1).
-- **Wylogowanie z jednego urządzenia:** aplikacja usuwa tokeny, a panel woła `POST /auth/v1/logout`, który tylko czyści ciasteczko. Skopiowany wcześniej refresh token działa do `exp` (świadome ryzyko, 10.1).
+- **Wylogowanie z jednego urządzenia:** aplikacja usuwa tokeny, panel i TV wołają `POST /auth/v1/logout`, a panel zespołu `POST [OPS]/auth/v1/ops/logout` (ciasteczko `[OPS]` czyści tylko odpowiedź z tego hosta). Obie trasy tylko czyszczą ciasteczko. Skopiowany wcześniej refresh token działa do `exp` (świadome ryzyko, 10.1).
 
 | Odpowiedź | Co robi aplikacja |
 |---|---|
 | `401 token_expired` | jedno ciche odświeżenie, powtórzenie żądania, `GET /me` |
 | `401 step_up_required` (panel `[OPS]`) | ponowne logowanie passkeyem, nowa wymiana, powtórzenie zapisu |
-| `401 session_revoked` przy odświeżeniu (refresh token wygasł, `tv` nieaktualne, konto usunięte, rola platformowa odebrana) | ekran logowania; tablet zachowuje boks i język |
-| `403 access_revoked` (`blocked`) przy odświeżeniu | ekran blokady bez starych danych; ponawia co 5 min; po odblokowaniu dostaje `session_revoked` (blokada podbiła `token_version`), czyli logowanie |
+| `401 session_revoked` przy odświeżeniu (refresh token wygasł, klucz `revoked`, `tv` nieaktualne, konto usunięte, rola platformowa odebrana) | ekran logowania; tablet zachowuje boks i język |
+| `403 access_revoked` (`blocked`) przy odświeżeniu albo wymianie | ekran blokady bez starych danych; ponawia co 5 min; po odblokowaniu dostaje `session_revoked` (blokada podbiła `token_version`), czyli logowanie |
 | nagłówek `Equenor-Token-Refresh: required` | natychmiastowe odświeżenie (np. po rejestracji firmy) |
 | powrót apki na pierwszy plan | odświeżenie i `GET /me` |
 
@@ -347,8 +363,8 @@ async function resolveStable(p: Principal, stableId: string, tx: Tx): Promise<St
   - passkey albo hasło z TOTP (MFA zawsze), potem wymiana tokenu z wymaganym powodem wejścia, np. numerem zgłoszenia;
   - CLI `opctl`: osobna aplikacja `client_id = opctl` (kod autoryzacji z PKCE i przekierowaniem na localhost, RFC 8252). Tylko ona przechodzi trasy ról platformowych i kluczy (`clients: ['opctl']`), więc XSS w panelu zespołu nie nada roli;
   - bez apki mobilnej i bez tabletu.
-- **Dowód MFA:** ID token z puli Cognito nie niesie `amr` [Ś]. `amr: ["mfa"]` to więc twierdzenie `auth` wynikające z konfiguracji puli zespołu. `auth` sprawdza ją przy starcie i co godzinę (`GetUserPoolMfaConfig`, `DescribeUserPool`: MFA włączone, pierwszy czynnik tylko hasło albo passkey, wymagana weryfikacja użytkownika, zakładanie kont tylko przez admina). Przy rozjeździe odrzuca wymiany `ops` i `opctl` i wysyła alert. Do tego test polityki Terraform w CI.
-- **Step-up:** nadanie, zatwierdzenie i odebranie roli, dodanie albo usunięcie admina konta i rotacja kluczy wymagają `auth_time` nie starszego niż 5 min. Inaczej `401 step_up_required` i ponowne logowanie passkeyem.
+- **Dowód MFA:** ID token z puli Cognito nie niesie `amr` [Ś]. `amr: ["mfa"]` to więc twierdzenie `auth` wynikające z konfiguracji puli zespołu. `auth` sprawdza ją przy starcie i co godzinę (`GetUserPoolMfaConfig`, `DescribeUserPool`: MFA włączone, pierwszy czynnik tylko hasło albo passkey, wymagana weryfikacja użytkownika, zakładanie kont tylko przez admina). Przy rozjeździe odrzuca wymiany i odświeżenia `ops` i `opctl` (`401 session_revoked`) i wysyła alert. Do tego test polityki Terraform w CI.
+- **Step-up:** nadanie, zatwierdzenie i odebranie roli, dodanie albo usunięcie admina konta i rotacja kluczy wymagają `auth_time` (czas logowania z ID tokenu, odświeżenie go nie zmienia, 3.2) nie starszego niż 5 min. Inaczej `401 step_up_required` i ponowne logowanie passkeyem.
 - **Ekran:** po zalogowaniu wybór firmy i stajni, potem zwykłe ekrany admina. Stały pasek „EQUENOR · pełny dostęp · Stajnie Lipowe › Stajnia Pod Lipami · powód: …”. Nowa plansza PanelOps do makiet P2.
 
 ### 4.2 Co może
@@ -364,15 +380,15 @@ async function resolveStable(p: Principal, stableId: string, tx: Tx): Promise<St
 - Logować się w apce mobilnej ani na tablecie.
 - Omijać reguł biznesowych: `409 option_disabled`, `If-Match`, `422` obowiązują go tak samo.
 - Nadawać ról platformowych z panelu `[OPS]` (tylko `opctl`, we dwie osoby, 4.5).
-- **Założyć sobie trwałego dostępu poza `plt`.** Każde nadanie dostępu tokenem z `plt` (zaproszenie, członek, dostęp do konia, admin konta) ma `granted_via = platform` i `granted_session_id` (`sid` z tokenu). PanelLudzie pokazuje je jako „nadane przez zespół EQUENOR”, a raport kwartalny je wylicza. Cel z puli zespołu `auth` odrzuca (sekcja 2). Dodanie albo usunięcie admina konta wymaga zatwierdzenia drugiej osoby i powiadamia obecnych adminów firmy SMS-em albo e-mailem.
+- **Założyć sobie trwałego dostępu poza `plt`.** Każde nadanie dostępu tokenem z `plt` (zaproszenie, członek, dostęp do konia, admin konta) ma `granted_via = platform` i `granted_session_id` (`sid` z tokenu). PanelLudzie pokazuje je jako „nadane przez zespół EQUENOR”, a raport kwartalny je wylicza. Cel z puli zespołu `auth` odrzuca (sekcja 2). Dodanie albo usunięcie admina konta wymaga zatwierdzenia drugiej osoby. Po zatwierdzeniu `auth` publikuje `business_admin.changed`, a `notifications` powiadamia obecnych adminów firmy SMS-em i e-mailem (stała reguła, poza `notification_rules`).
 
 ### 4.4 Audyt i log odczytów
 
-- Każdy zapis ma `actor_type = operator`, `actor_id` Kuby, `client = ops` i `session_id = sid`. `sid` prowadzi do wpisu logowania z powodem wejścia (3.3).
+- Każdy zapis ma `actor_type = operator`, `actor_id` Kuby, `client = ops` i `session_id = sid`. `sid` prowadzi do wpisu logowania, który `auth` zapisuje przy wymianie tokenu: `action = ops_login`, `entity_type = user`, `entity_id` admina globalnego, `session_id = sid` i `audit_log_changes` z `field = reason`, `new_value = ZGL-123`.
 - `audit_log.client` z aplikacji: `mobile` → `app`, `web` → `web`, `tablet` → `tablet`, `ops` → `ops`, `opctl` → `opctl`; cron → brak (`actor_type = system`).
 - W tabelach domenowych: `horse_flags.author_role = operator`; `flag_acknowledgements.method`, `box_care_events.source` i `building_routines.source` mają wartości `tablet | app | web | ops`.
 - Apki i panel pokazują autora z puli zespołu (`users.identity_pool = team`) jako „Zespół EQUENOR”, bez imienia (10.2 pkt 4).
-- `service-kit` zapisuje każde żądanie z `plt` (serwis, trasa, stajnia, obiekt, `sid`) do osobnego strumienia logów z retencją jak audyt. Audyt w bazie zapisuje tylko zmiany.
+- `service-kit` zapisuje każde żądanie z `plt` (serwis, trasa, stajnia, obiekt, `sid`) do osobnego strumienia logów z retencją jak audyt. Audyt w bazie zapisuje zmiany i logowania z `plt`.
 
 ### 4.5 Zabezpieczenia
 
@@ -383,7 +399,7 @@ async function resolveStable(p: Principal, stableId: string, tx: Tx): Promise<St
 - **Pierwsi admini:** jednorazowy `opctl bootstrap` (Job Kubernetes) zakłada od razu dwóch imiennych adminów; każdy musi zalogować się z MFA w ciągu 24 h, inaczej jego rola wygasa. Bootstrap działa tylko wtedy, gdy nie ma żadnej aktywnej roli admina (np. wszystkie wygasły), i zawsze wysyła alert.
 - **Konto awaryjne:** wiersz `platform_roles` z `kind = break_glass`, dane logowania w sejfie, alert przy każdym użyciu, rola wygasa sama 4 h po pierwszym użyciu.
 - **Alerty** na kanał zespołu: każde logowanie z `plt`, każdy zapis w danych stajni, nietypowa liczba odczytów, każde nadanie dostępu z `granted_via = platform`.
-- **Testy:** token z puli klientów nigdy nie ma `plt`; `ops` bez roli dostaje `403 wrong_client`; `plt` podpisany kluczem spoza JWKS jest odrzucany; trasy ról z aplikacji `ops` dają `403 client_not_allowed`; zapis wrażliwy z `auth_time` starszym niż 5 min daje `401 step_up_required`; odświeżenie po odebraniu roli daje `401 session_revoked`.
+- **Testy:** token z puli klientów nigdy nie ma `plt`; `ops` bez roli dostaje `403 wrong_client`; `plt` podpisany kluczem spoza JWKS jest odrzucany; trasy ról z aplikacji `ops` dają `403 client_not_allowed`; zapis wrażliwy z `auth_time` starszym niż 5 min daje `401 step_up_required`, także po odświeżeniu tokenu 6 min po logowaniu; odświeżenie po odebraniu roli daje `401 session_revoked`.
 
 ### 4.6 Wsparcie IT
 
@@ -405,7 +421,7 @@ Podział: decyzja 13.10. Publikacje cronów są w sekcji 6.
 
 | Serwis | Za co odpowiada | Tabele (pisze) | Publikuje | Konsumuje |
 |---|---|---|---|---|
-| **`auth`** | tożsamość, tokeny, JWKS, konto firmy, ludzie, zaproszenia, dostęp do koni, macierz widoczności, role platformowe | `users`, `businesses`, `business_admins`, `stable_members`, `horse_access`, `invitations`, `stable_role_features`, `platform_roles`, `platform_requests`, `signing_keys` | `invitation.created`, `invitation.accepted`, `user.deleted`, `member.removed` | — |
+| **`auth`** | tożsamość, tokeny, JWKS, konto firmy, ludzie, zaproszenia, dostęp do koni, macierz widoczności, role platformowe | `users`, `businesses`, `business_admins`, `stable_members`, `horse_access`, `invitations`, `stable_role_features`, `platform_roles`, `platform_requests`, `signing_keys` | `invitation.created`, `invitation.accepted`, `user.deleted`, `member.removed`, `business_admin.changed` | — |
 | `stable` | stajnie, ustawienia, reguły powiadomień, hale, boksy, konie | `stables`, `stable_settings`, `notification_rules`, `buildings`, `boxes`, `horses`, `horse_box_history` | `stable.created`, `horse.left` | `subscription.status_changed` |
 | `board` | ekrany złożone: tablet, TV, lista dnia, widoki admina i klienta; tylko odczyt, najczęstszy ruch | brak | — | — |
 | `dzien` (dawniej `flags`, `care`, `tasks`) | codzienna obsługa: flagi, szablony, potwierdzenia, eskalacje; pory posiłków, pasze, padoki, plany, rutyna hali, „Boks gotowy”, „Woda”; zadania. Tablet pisze głównie tu | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_escalations`, `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `building_routines`, `box_care_events`, `paddock_plans`, `paddock_plan_companions`, `tasks` | `flag.created` | `horse.left`, `stable.created`, `member.removed` |
@@ -415,7 +431,7 @@ Podział: decyzja 13.10. Publikacje cronów są w sekcji 6.
 | `sms` | wysyłka SMS z kolejki (W5) | brak, bez roli bazy | `sms.result` | kolejka `sms` |
 | `email` | wysyłka e-maili przez SES z kolejki (W5) | brak, bez roli bazy | `email.result` | kolejka `email` |
 | `files` | metadane plików, jedyny dostęp do S3, linki | `files` | — | — |
-| `platform` (dawniej `releases`, `audit`) | wydania APK tabletu; odczyt i retencja audytu | `app_releases`, `app_release_targets`; schemat `audit` (`audit_log`, `audit_log_changes`): odczyt, `INSERT` mają wszyscy | — | — |
+| `platform` (dawniej `releases`, `audit`) | wydania APK tabletu; odczyt audytu (retencja: cron `retention-pruner`) | `app_releases`, `app_release_targets`; schemat `audit` (`audit_log`, `audit_log_changes`): odczyt, `INSERT` mają wszyscy | — | — |
 
 Strona www (`apps/www`) jest statyczna, bez API.
 
@@ -433,8 +449,9 @@ Strona www (`apps/www`) jest statyczna, bez API.
 |---|---|---|---|
 | Tokeny | `POST /token` | bez Bearer | wymiana ID tokenu Cognito (`mobile`, `web`, `tablet`), `refresh_token`; z ciasteczkiem wymaga `Origin` z listy i `X-Equenor-Client`; limit zapytań per IP i konto |
 | | `POST /ops/token` | bez Bearer, tylko host `[OPS]` | to samo dla `ops`, z `reason`; `Origin` tylko `[OPS]` |
-| | `POST /logout` | panel, TV, `[OPS]` | czyści ciasteczko; nic nie zapisuje |
-| | `GET /.well-known/jwks.json`, `GET /.well-known/oauth-authorization-server` | w klastrze, port wewnętrzny, TLS | cache 5 min |
+| | `POST /logout` | panel, TV | czyści `__Secure-eq_rt`; nic nie zapisuje |
+| | `POST /ops/logout` | tylko host `[OPS]` | czyści `__Secure-eq_rt_ops`; `Origin` tylko `[OPS]`; nic nie zapisuje |
+| | `GET /.well-known/jwks.json`, `GET /.well-known/oauth-authorization-server` | w klastrze, port `jwks` (wszystkie serwisy z API), TLS | cache 5 min |
 | Profil | `GET /me` | każde konto | profil, stajnie z nazwą, rolą, funkcjami i statusem, firmy admina, `plt`, widok startowy, świeżo dopasowane zaproszenia |
 | | `PATCH /me` | osoby, admin globalny | imię, język |
 | | `DELETE /me` | osoby | `409 sole_business_admin` dla jedynego admina firmy |
@@ -445,9 +462,9 @@ Strona www (`apps/www`) jest statyczna, bez API.
 | | `GET`, `PATCH /businesses/{b}` | admin | NIP-u nie da się zmienić |
 | Ludzie | `GET …/members?role=&technical=` | admin | lista członków; nadane przez zespół EQUENOR oznaczone |
 | | `POST …/members` | admin | przypisanie osoby z firmy bez zaproszenia; konto techniczne: 409 |
-| | `PATCH …/members/{id}` | admin | rola w obrębie `staff`, `instructor`, `client`; `active` |
-| | `POST …/members/{id}/block`, `POST …/members/{id}/unblock` | admin | konta techniczne; blokada podbija `token_version` |
-| | `POST …/members/{id}/sign-out` | admin | konta techniczne: „Wyloguj wszystkie tablety” (`token_version` + 1); pozostałe urządzenia logują się ponownie kodem |
+| | `PATCH …/members/{id}` | admin | rola w obrębie `staff`, `instructor`, `client`; `active` tylko dla osób (konto techniczne: blokada) |
+| | `POST …/members/{id}/block`, `POST …/members/{id}/unblock` | admin | tylko konta techniczne (osoba: 409); blokada podbija `token_version` |
+| | `POST …/members/{id}/sign-out` | admin | tylko konta techniczne (osoba: 409): „Wyloguj wszystkie tablety” (`token_version` + 1); pozostałe urządzenia logują się ponownie kodem |
 | | `DELETE …/members/{id}` | admin | „Usuń ze stajni” |
 | Dostęp do koni | `GET`, `POST …/horses/{horseId}/access`; `PATCH …/horse-access/{id}` | admin | `valid_to`, `revoked_at` |
 | | `GET …/horse-clients` | admin, obsługa | imiona klientów przy koniach; telefon tylko dla admina |
@@ -456,10 +473,10 @@ Strona www (`apps/www`) jest statyczna, bez API.
 | Platforma | `GET /platform/businesses` | `plt = admin`, `plt = support` | firmy i stajnie z NIP-em i statusem |
 | | `GET /platform/stables/{s}/technical-accounts` | `plt = admin`, `plt = support` | konta techniczne i ich status, bez kontaktów |
 | | `GET /platform/users?q=`, `POST /platform/users/{u}/sign-out` | `plt = admin` | wylogowanie: `token_version` + 1 |
-| | `POST /platform/business-admin-requests` (dodanie albo usunięcie), `POST /platform/business-admin-requests/{id}/approve` | `plt = admin`, step-up | kolejny admin konta, przejęcie NIP-u; we dwie osoby; powiadomienie adminów firmy |
+| | `POST /platform/business-admin-requests` (dodanie albo usunięcie), `POST /platform/business-admin-requests/{id}/approve` | `plt = admin`, step-up | kolejny admin konta, przejęcie NIP-u; we dwie osoby; powiadomienie adminów firmy (`business_admin.changed`) |
 | | `POST /platform/role-requests` (nadanie albo odebranie), `POST /platform/role-requests/{id}/approve` | `plt = admin`, tylko `opctl`, step-up | role platformowe we dwie osoby (4.5) |
 | | `POST /platform/team-accounts`, `POST /platform/keys/rotate` | `plt = admin`, tylko `opctl`, step-up | `opctl operators create`, `opctl keys rotate` |
-| Wewnętrzne (port wewnętrzny) | `GET /internal/recipients?stableId=&roles=&channel=&horseId=` | `notifications` | adresowanie, nie autoryzacja |
+| Wewnętrzne (każda trasa na własnym porcie, 7.1) | `GET /internal/recipients?stableId=&businessId=&roles=&channel=&horseId=&feature=` | `notifications` | adresowanie, nie autoryzacja; `feature` zostawia tylko role, które widzą funkcję (`stable_role_features`); `businessId`: admini firmy (4.3) |
 | | `POST /internal/horses/{id}/left` | `stable` | po wyjeździe konia; zamyka dostęp tylko, gdy `horses.status = left` |
 
 ### 5.3 `stable`
@@ -535,7 +552,7 @@ Strona www (`apps/www`) jest statyczna, bez API.
 | | `POST …/tasks`, `POST …/tasks/{id}/cancel` | admin | |
 | | `POST …/tasks/{id}/take` | obsługa | „Biorę” |
 | | `POST …/tasks/{id}/done` | ten, kto wziął (`taken_by = sub`), albo admin | „Zrobione” |
-| Wewnętrzne | `POST /internal/stables/{id}/defaults` | `stable` | szablony flag, pory z kreatora albo domyślne, słowniki |
+| Wewnętrzne | `POST /internal/stables/{id}/defaults` | `stable` | szablony flag, pory z kreatora albo domyślne, słowniki; `INSERT … ON CONFLICT DO NOTHING` na unikalnościach z erd, więc wywołanie, ponowienie i `stable.created` niczego nie zdublują |
 
 ### 5.6 `terminarz` (dawniej `health`, `rides`)
 
@@ -560,7 +577,7 @@ Strona www (`apps/www`) jest statyczna, bez API.
 - **Czyta:** `businesses`, `horses`, `stables`.
 - **W tokenie sprawdza:** admin.
 - **Surowe body webhooka** zapisuje przez `files /internal`, bo S3 obsługuje tylko `files`; `payment_provider_events` wskazuje plik (`payload_file_id`).
-- **Konsumuje** `stable.created` (konto rozliczeniowe i subskrypcja) i `invoice.issued`: generuje PDF faktury i zapisuje go przez `files`. Powiadomienia o fakturze i nieudanej płatności idą zdarzeniami (`invoice.issued`, `payment.failed`), bez wołania `notifications`.
+- **Konsumuje** `stable.created` (konto rozliczeniowe i subskrypcja) i `invoice.issued`: generuje PDF faktury (tylko dla widocznego wiersza `invoices`, 1.5) i zapisuje go przez `files`. Powiadomienia o fakturze i nieudanej płatności idą zdarzeniami (`invoice.issued`, `payment.failed`), bez wołania `notifications`.
 - **Crony:** `billing-usage-snapshot`, `billing-invoicing`, `billing-dunning` (6).
 
 | Metoda i ścieżka (`/billing/v1`) | Kto | Uwagi |
@@ -576,34 +593,39 @@ Strona www (`apps/www`) jest statyczna, bez API.
 - **`notifications` (router):**
   - dostaje wszystko zdarzeniami (7.3); nikt nie woła go synchronicznie;
   - stosuje `notification_rules`, a odbiorców i adresy bierze z `auth GET /internal/recipients` (adresowanie, nie autoryzacja); zaproszenie niesie adres w zdarzeniu;
-  - renderuje treść, zapisuje wiersz `notifications` i wrzuca gotową wiadomość do kolejki `sms` albo `email`. `dedupe_key` powstaje z klucza domenowego (np. reguła, flaga, odbiorca, kanał), a nie z id zdarzenia, więc powtórzona publikacja crona nie da drugiej wysyłki;
+  - **nie omija macierzy widoczności:** pyta `recipients` z `feature` (`flags` dla zdarzeń flag, `health` dla `health.due`), więc rola ze schowaną funkcją nic nie dostaje; `health.due` niesie `visibility`, a wpis `owner_private` idzie tylko do roli `admin`;
+  - `business_admin.changed`: stała reguła poza `notification_rules`, zawsze do adminów firmy (`recipients?businessId=`), SMS i e-mail;
+  - renderuje treść, zapisuje wiersz `notifications` i wrzuca gotową wiadomość do kolejki `sms` albo `email`. `dedupe_key` (UK) to klucz domenowy z odbiorcą i kanałem, a nie id zdarzenia ani wiersza, np. `flag_unacknowledged:{flagId}:{userId}:{channel}`, `invoice_issued:{subscriptionId}:{periodStart}:…`, `payment_overdue:{invoiceId}:{etap}:…`; powtórzona publikacja crona nie da więc drugiej wysyłki;
+  - konflikt `dedupe_key` z wierszem `pending` (awaria między zapisem a kolejką) wrzuca wiadomość do kolejki ponownie; zdarzenie domenowe potwierdza dopiero po wrzuceniu;
   - przed wysyłką eskalacji sprawdza `horse_flags` (flaga już potwierdzona: `cancelled`);
   - konsumuje `sms.result` i `email.result` i aktualizuje `status`, `attempts`, `provider_message_id`, `sent_at`;
   - `GET /notifications/v1/…/deliveries?flagId=&invitationId=`: admin; stan wysyłek eskalacji i zaproszeń w swojej stajni (baner „wysłano Ci SMS i e-mail” w PanelPulpit, zaproszenia w PanelZaprosOsobe);
-  - `GET /notifications/v1/platform/notifications?stableId=&userId=&status=`, `POST /notifications/v1/platform/notifications/{id}/retry`: `plt = admin`, np. przy zgłoszeniu „nie dostałem kodu zaproszenia”; ponowienie wrzuca wiadomość do kolejki jeszcze raz.
+  - `GET /notifications/v1/platform/notifications?stableId=&userId=&status=`, `POST /notifications/v1/platform/notifications/{id}/retry`: `plt = admin`, np. przy zgłoszeniu „nie dostałem kodu zaproszenia”; ponowienie podbija `attempts` i wrzuca wiadomość do kolejki jeszcze raz.
 - **`sms` i `email`:**
   - bez tabel, bez roli bazy i bez API;
-  - czytają tylko swoją kolejkę SQS FIFO (`MessageDeduplicationId = notifications.id`) z kompletną wiadomością: numer albo adres, treść (e-mail także temat), id powiadomienia;
+  - czytają tylko swoją kolejkę SQS FIFO z kompletną wiadomością: numer albo adres, treść (e-mail także temat), id powiadomienia. `MessageGroupId = notifications.id`, więc wiadomość ponawiana nie blokuje kolejnych; `MessageDeduplicationId` = `notifications.id` + `attempts`, więc SQS nie odrzuci ręcznego ponowienia;
   - `sms` wysyła przez AWS (SMS), `email` przez SES; potem publikują `sms.result` albo `email.result` (id powiadomienia, status, `provider_message_id`);
-  - ponowienia i DLQ z SQS. Uprawnienia AWS: odbiór z własnej kolejki, publikacja wyniku, wysyłka SMS albo SES.
+  - ponowienia z SQS. Błędu stałego (np. zły numer) nie ponawiają; przy nim albo przy ostatniej próbie (`ApproximateReceiveCount`) publikują wynik `failed` i usuwają wiadomość. Do DLQ trafia tylko to, czego nie dało się nawet oznaczyć; DLQ ma alarm, a ponowienie robi admin globalny;
+  - dostarczanie co najmniej raz: awaria między wysyłką a usunięciem wiadomości może dać duplikat (świadome ryzyko);
+  - uprawnienia AWS: odbiór z własnej kolejki, publikacja wyniku, wysyłka SMS albo SES.
 - Kody logowania (OTP) dalej wysyła Cognito, nie `sms` ani `email`.
 
 ### 5.9 `files` i `platform`
 
 - **`files`** (decyzja 13.10: osobny mikroserwis):
   - jedyny dostęp do S3; metadane w `files`; cron `files-gc` (6);
-  - `/internal` (port wewnętrzny): `create` (presigned upload), `attach`, `download-url`, `delete`. Wołają `dzien`, `terminarz`, `billing`, `stable` i `platform` (7.2). Uprawnienia użytkownika sprawdza wcześniej serwis-właściciel. Bez tokenów serwisowych `files` nie wie, kto woła: `owner_service` podaje wywołujący, a granicę wyznacza NetworkPolicy (10.1 pkt 6);
+  - `/internal` (port wewnętrzny): `create` (link do wgrania pliku do S3), `attach`, `download-url`, `delete`. Wołają `dzien`, `terminarz`, `billing`, `stable` i `platform` (7.2). Uprawnienia użytkownika sprawdza wcześniej serwis-właściciel. Bez tokenów serwisowych `files` nie wie, kto woła: `owner_service` podaje wywołujący, a granicę wyznacza NetworkPolicy (10.1 pkt 6);
   - `GET /files/v1/platform/files?stableId=&ownerService=`: `plt = admin`, tylko metadane, z logiem odczytów.
 - **`platform`:**
   - `GET /platform/v1/tablet/latest?versionCode=&installId=`: tylko aplikacja `tablet`. Stajnię bierze z tokenu (parametr `stableId` znika), okno instalacji ze `stable_settings`;
   - `GET`, `POST /platform/v1/platform/releases`; `POST /platform/v1/platform/releases/{id}/rollout` (oraz `/complete`, `/halt`): `plt = admin`; odczyt także `plt = support`;
-  - audyt: każdy serwis i cron ma w schemacie `audit` tylko `INSERT` (bez zmian); retencję wykonuje `retention-pruner` (6);
+  - audyt: każda rola ma w schemacie `audit` tylko `INSERT` (bez zmian), czyta `platform`; jedyny wyjątek to `DELETE` po retencji w roli `retention-pruner` (1.5, 6);
   - `GET /platform/v1/…/entities/{type}/{id}/history`: admin (zamyka szcz. 5 pkt 21);
   - `GET /platform/v1/platform/audit-entries`: `plt = admin`.
 
 ## 6. Crony
 
-9 cronów, bez nowych. Każdy ma własne konto serwisowe Kubernetes, rolę IAM (publikacja tylko swoich zdarzeń) i rolę bazy z grantami z manifestu (1.5). Tokenów nie ma (W3).
+9 cronów, bez nowych. Każdy ma własne konto serwisowe Kubernetes, rolę IAM (publikacja tylko swoich zdarzeń; `files-gc` także usuwanie obiektów w S3) i rolę bazy z grantami z manifestu (1.5). Tokenów nie ma (W3).
 
 | Cron (właściciel) | Kiedy | Czyta | Pisze | Publikuje |
 |---|---|---|---|---|
@@ -612,13 +634,13 @@ Strona www (`apps/www`) jest statyczna, bez API.
 | `health-due-reminders` (`terminarz`) | co godzinę | `health_events` | nic | `health.due` |
 | `files-gc` (`files`) | co godzinę | `files` | usuwa wiersze `files` i obiekty S3: `pending` starsze niż 24 h, `deleted` po retencji | — |
 | `billing-usage-snapshot` (`billing`) | koniec okresu | `subscriptions`, `boxes`, `horses` | `usage_snapshots` (boksy z koniem) | — |
-| `billing-invoicing` (`billing`) | 1. dnia miesiąca | `subscriptions`, `usage_snapshots`, `billing_plan_prices`, `billing_accounts` | `invoices`, `invoice_lines` | `invoice.issued` (PDF robi serwis `billing`, 5.7) |
-| `billing-dunning` (`billing`) | codziennie | `invoices`, `payments`, `subscriptions` | `subscriptions.status` (`past_due`, `suspended`) | `payment.overdue`, `subscription.status_changed` |
-| `horse-left-reconciler` (przekrojowy) | co godzinę | konie `left` z ostatnich 30 dni | zamyka wprost to, co zostało po koniu: `horse_access.revoked_at` (bez `token_version`); `horse_flags.cancelled_at`; `feeding_plans.valid_to`, `paddock_plans.valid_to`, `paddock_plan_companions`; `tasks.cancelled_at`; przyszłe `rides` | — |
-| `retention-pruner` (przekrojowy) | co noc | — | usuwa po retencji w tabelach z manifestu, także w schemacie `audit` (zmiana: dotąd sprzątał tylko serwis `audit`) i w `platform_requests` | — |
+| `billing-invoicing` (`billing`) | 1. dnia miesiąca | `subscriptions`, `usage_snapshots`, `billing_plan_prices`, `billing_accounts` | `invoices` (`INSERT … ON CONFLICT DO NOTHING` na unikalności subskrypcja + okres), `invoice_lines` | `invoice.issued` (PDF robi serwis `billing`, 5.7) |
+| `billing-dunning` (`billing`) | codziennie | `invoices`, `payments`, `subscriptions` | `invoices.status` (`overdue`), `subscriptions.status` (`past_due`, `suspended`) | `payment.overdue`, `subscription.status_changed` |
+| `horse-left-reconciler` (przekrojowy) | co godzinę | konie `left` z ostatnich 30 dni | zamyka wprost to, co zostało po koniu: `horse_access` (`revoked_at`, `version`, `updated_at`; bez `token_version`); `horse_flags.cancelled_at`; `feeding_plans.valid_to`, `paddock_plans.valid_to`, `paddock_plan_companions`; `tasks.cancelled_at`; przyszłe `rides` | — |
+| `retention-pruner` (przekrojowy) | co noc | kolumny dat i klucze w tabelach z retencją | usuwa po retencji w tabelach z manifestu (m.in. `notifications`), także w schemacie `audit` (1.5; zmiana: dotąd sprzątał tylko serwis `audit`) i w `platform_requests` | — |
 
-- **Idempotencja:** CronJob z `concurrencyPolicy: Forbid` i `timeZone`, unikalności w bazie (np. `flag_escalations`), `notifications.dedupe_key` dla powtórzonych zdarzeń. Testy przebiegu powtórzonego, równoległego, przerwanego i fałszywego zegara (bez zmian).
-- **Zdarzenie z crona niesie dane dla konsumenta** (np. flaga, koń, boks, stajnia, poziom), bo konsument bierze dane z koperty.
+- **Idempotencja:** dają ją tylko unikalności w bazie (np. `flag_escalations`, `usage_snapshots`, `invoices`), w razie potrzeby z blokadą doradczą `pg_try_advisory_xact_lock` na cron. `concurrencyPolicy: Forbid` i `timeZone` zostają, ale nie chronią przed ręcznym `opctl cron run` ani przed dwoma Jobami z jednego terminu. `notifications.dedupe_key` chroni przed powtórzonymi zdarzeniami. Testy przebiegu powtórzonego, równoległego, przerwanego i fałszywego zegara (bez zmian), a dla każdego konsumenta test „COMMIT nie przechodzi po publikacji”.
+- **Zdarzenie z crona niesie dane dla konsumenta** (np. flaga, koń, boks, stajnia, poziom). Zdarzenie, które zmienia stan, konsument sprawdza w bazie (1.5).
 - Ręczny przebieg: `opctl cron run <nazwa>` (4.2).
 
 ## 7. Komunikacja
@@ -626,12 +648,13 @@ Strona www (`apps/www`) jest statyczna, bez API.
 ### 7.1 Wywołania wewnętrzne bez tokenów serwisowych
 
 1. Tokenów serwisowych nie ma: bez `/auth/v1/internal/token`, `client_id = svc`, `aud = equenor-internal`, `scope` i `sub = svc:<nazwa>`.
-2. Trasy `/internal` i JWKS są tylko na osobnym porcie wewnętrznym. Service Kubernetes wystawia go w klastrze, Ingress nie.
+2. Trasy `/internal` są tylko na portach wewnętrznych, a JWKS `auth` na osobnym porcie `jwks`. Service Kubernetes wystawia je w klastrze, Ingress nie.
 3. Ruch idzie przez TLS z certyfikatem z CA klastra (cert-manager) i sprawdzeniem nazwy hosta.
-4. Kto może wołać który serwis, pilnuje NetworkPolicy generowana z manifestu w `packages/contracts` (`callers` w deskryptorach tras), z granulacją serwis → serwis. Ruch na port wewnętrzny spoza manifestu jest zabroniony.
-5. Wywołanie w imieniu użytkownika (np. `terminarz` prosi `files` o link): serwis-właściciel najpierw sprawdza uprawnienia użytkownika, potem woła.
-6. Na później (10.2 pkt 23, może poczekać): serwis docelowy sprawdza lokalnie podpis tokenu konta serwisowego Kubernetes (JWKS klastra), bez udziału `auth`.
-7. Dostęp do AWS (SNS, SQS, S3, KMS, SES, SMS) bez zmian: IRSA albo EKS Pod Identity, osobna rola dla każdego Deploymentu i CronJoba. Sekretów statycznych nie ma.
+4. Kto może wołać który serwis, pilnuje NetworkPolicy generowana z manifestu w `packages/contracts` (`callers` w deskryptorach tras). NetworkPolicy działa na portach, nie na ścieżkach, więc każdy zestaw wołających ma własny port `/internal`. W `auth`: port `recipients` tylko dla `notifications`, port `horses` tylko dla `stable`, port `jwks` dla wszystkich serwisów z API; inaczej każdy serwis z dostępem do JWKS czytałby adresy z `/internal/recipients`. Meta-test: ruch przychodzący na każdy port `/internal` = `callers` jego tras.
+5. Ruch wychodzący też z manifestu: crony tylko do PostgreSQL i endpointów AWS (bez portów serwisów), `sms` i `email` tylko do endpointów AWS (bez PostgreSQL). Meta-test sprawdza obie reguły.
+6. Wywołanie w imieniu użytkownika (np. `terminarz` prosi `files` o link): serwis-właściciel najpierw sprawdza uprawnienia użytkownika, potem woła.
+7. Na później (10.2 pkt 23, może poczekać): serwis docelowy zna wołającego (token konta serwisowego Kubernetes albo mTLS), bez udziału `auth`.
+8. Dostęp do AWS (SNS, SQS, S3, KMS, SES, SMS) bez zmian: IRSA albo EKS Pod Identity, osobna rola dla każdego Deploymentu i CronJoba. Sekretów statycznych nie ma.
 
 ### 7.2 Wywołania synchroniczne `/internal`
 
@@ -642,7 +665,7 @@ Strona www (`apps/www`) jest statyczna, bez API.
 | `notifications` | `auth /internal/recipients` | odbiorcy i adresy powiadomień |
 | `dzien`, `terminarz`, `billing`, `stable`, `platform` | `files /internal/*` | pliki (`billing` także surowe body webhooków i PDF faktur) |
 
-Innych wywołań synchronicznych nie ma. JWKS (cache 5 min) serwisy pobierają od `auth` tym samym portem wewnętrznym (3.5).
+Innych wywołań synchronicznych nie ma. JWKS (cache 5 min) serwisy pobierają od `auth` osobnym portem `jwks` (3.5).
 
 ### 7.3 Zdarzenia SNS + SQS
 
@@ -650,21 +673,22 @@ Innych wywołań synchronicznych nie ma. JWKS (cache 5 min) serwisy pobierają o
 |---|---|---|---|
 | `invitation.created` | `auth` | `notifications` | ładunek z kanałem, adresem, imieniem i językiem |
 | `invitation.accepted` | `auth` | `notifications` | reguła `invitation_accepted` |
-| `invitation.expired` | cron `invitation-expiry-notifier` | `notifications` | reguła `invitation_expired`; deduplikacja po zaproszeniu |
+| `invitation.expired` | cron `invitation-expiry-notifier` | `notifications` | reguła `invitation_expired`; deduplikacja po zaproszeniu, odbiorcy i kanale |
 | `user.deleted` | `auth` | `notifications` | anuluje wysyłki `pending` |
 | `member.removed` | `auth` | `dzien` | zwalnia „Biorę” w tej stajni |
+| `business_admin.changed` | `auth` | `notifications` | firma, osoba, `add` albo `remove`, operator; stała reguła: admini firmy, SMS i e-mail (4.3) |
 | `stable.created` | `stable` | `dzien` (zapas, gdy wywołanie synchroniczne się nie uda), `billing` (konto rozliczeniowe i subskrypcja) | ładunek z porami posiłków |
 | `horse.left` | `stable` | `dzien`, `terminarz` | po synchronicznym wywołaniu `auth`; konsumenci domykają idempotentnie |
-| `subscription.status_changed` | `billing`, cron `billing-dunning` | `stable` | `stables.status` |
+| `subscription.status_changed` | `billing`, cron `billing-dunning` | `stable` | `stables.status` według bieżącego `subscriptions.status`, nie koperty (1.5) |
 | `flag.created` | `dzien` | `notifications` | reguła `flag_created_by_client` |
 | `flag.escalated` | cron `escalation-scheduler` | `notifications` | tylko poziom `admin_notify`; reguła `flag_unacknowledged` |
-| `health.due` | cron `health-due-reminders` | `notifications` | reguły brak w słowniku (10.2 pkt 20) |
-| `invoice.issued` | cron `billing-invoicing` | `billing` (PDF), `notifications` | reguła `invoice_issued` |
+| `health.due` | cron `health-due-reminders` | `notifications` | z `visibility` (`owner_private` tylko do admina, 5.8); reguły brak w słowniku (10.2 pkt 20) |
+| `invoice.issued` | cron `billing-invoicing` | `billing` (PDF), `notifications` | reguła `invoice_issued`; obaj wymagają widocznego wiersza `invoices` (1.5) |
 | `payment.failed` | `billing` | `notifications` | reguła `payment_failed` |
-| `payment.overdue` | cron `billing-dunning` | `notifications` | reguły brak w słowniku (10.2 pkt 20) |
-| `sms.result`, `email.result` | `sms`, `email` | `notifications` | id powiadomienia, status, `provider_message_id` |
+| `payment.overdue` | cron `billing-dunning` | `notifications` | sprawdza fakturę (1.5); reguły brak w słowniku (10.2 pkt 20) |
+| `sms.result`, `email.result` | `sms`, `email` | `notifications` | id powiadomienia, status (także `failed`), `provider_message_id` |
 
-**Kolejki wysyłki (W5):** `notifications` wysyła gotowe wiadomości wprost do kolejek SQS FIFO `sms` i `email` (bez SNS), z `MessageDeduplicationId = notifications.id`. Ponowienia i DLQ zapewnia SQS.
+**Kolejki wysyłki (W5):** `notifications` wysyła gotowe wiadomości wprost do kolejek SQS FIFO `sms` i `email` (bez SNS). Grupy, deduplikacja, ponowienia i DLQ: 5.8.
 
 ## 8. Macierz uprawnień
 
@@ -721,7 +745,7 @@ Innych wywołań synchronicznych nie ma. JWKS (cache 5 min) serwisy pobierają o
 | Token wygasł | 401 `token_expired` | `exp` |
 | Zapis wrażliwy admina globalnego bez świeżego logowania | 401 `step_up_required` | `auth_time` |
 | Odświeżenie: refresh token wygasł, `tv` nieaktualne, konto usunięte, rola platformowa odebrana, klucz `revoked` | 401 `session_revoked` | `auth` |
-| Odświeżenie: konto techniczne zablokowane | 403 `access_revoked` | `auth` (`stable_members.active`) |
+| Odświeżenie albo wymiana: konto techniczne zablokowane albo usunięte ze stajni (sprawdzane przed `tv`, 3.7) | 403 `access_revoked` | `auth` (`stable_members.active`) |
 | Stajni nie ma w `m`, jej firmy nie ma w `biz`, brak `plt = admin`; stajnia innej firmy | 404 | token i `stables.business_id` |
 | Obiekt z innej stajni niż ta w ścieżce | 404 | zapytanie z `stable_id` |
 | Klient: koń spoza `h` albo po wyjeździe, boks bez jego konia | 404 | token, `horses.status`, `horses.box_id` |
@@ -792,7 +816,7 @@ Innych wywołań synchronicznych nie ma. JWKS (cache 5 min) serwisy pobierają o
 4. Przy najbliższym odświeżeniu `auth` liczy claimy od nowa. Nowy token ma tylko Pod Lipami. Brzozowa znika z przełącznika, a jej obiekty dają 404.
 
 **Kradzież tabletu:**
-1. Damian w PanelLudzieWyswietlacze klika „Wyloguj wszystkie tablety” przy koncie „Tablety Pod Lipami” (`POST …/members/{id}/sign-out`). Odłączenia jednego tabletu nie ma (W4).
+1. Damian w PanelLudzieWyswietlacze klika „Wyloguj wszystkie tablety” przy koncie „Tablety Pod Lipami” (`POST …/members/{id}/sign-out`).
 2. `auth` podbija `token_version` konta. W ciągu 5 min każdy tablet stajni przy odświeżeniu dostaje `401 session_revoked`: ekran logowania bez flag; tablet zachowuje boks i język.
 3. Damian loguje pozostałe tablety ponownie kodem z e-maila. Skradziony tablet bez kodu nie wróci; skopiowany refresh token też nie zadziała (stare `tv`).
 4. Zamiast tego Damian może zablokować konto („Zablokuj”): ekran blokady na wszystkich tabletach, potem „Odblokuj” i logowanie kodem.
@@ -800,7 +824,7 @@ Innych wywołań synchronicznych nie ma. JWKS (cache 5 min) serwisy pobierają o
 ### 9.6 Wejście admina globalnego (Kuba, przykład)
 
 1. Anna zgłasza, że nie widzi Komety. Kuba otwiera `[OPS]` i loguje się passkeyem w puli zespołu.
-2. Panel wymienia ID token w `POST [OPS]/auth/v1/ops/token`: `client_id = ops`, `reason = ZGL-123`. `auth` sprawdza pulę zespołu i aktywny wiersz `platform_roles`, zapisuje w audycie wpis logowania z powodem i `sid = ses-k7` i wydaje token na 5 min z `plt = admin`. Alert na kanał zespołu: „Kuba zalogowany, powód ZGL-123”.
+2. Panel wymienia ID token w `POST [OPS]/auth/v1/ops/token`: `client_id = ops`, `reason = ZGL-123`. `auth` sprawdza pulę zespołu i aktywny wiersz `platform_roles`, zapisuje w audycie wpis `ops_login` z powodem i `sid = ses-k7` (4.4) i wydaje token na 5 min z `plt = admin`. Alert na kanał zespołu: „Kuba zalogowany, powód ZGL-123”.
 3. PanelOps: `GET /auth/v1/platform/businesses`. Kuba wybiera Stajnie Lipowe › Stajnia Brzozowa. Pasek „EQUENOR · pełny dostęp · … · powód: ZGL-123”.
 4. Ekrany admina działają jak u Damiana: `resolveStable` daje stan `platform`. Każde żądanie trafia do logu odczytów z `sid`.
 5. W `GET /auth/v1/stables/st-brzozowa/horses/h-kometa/access` Kuba widzi, że dostęp Anny wygasł wczoraj, i przedłuża go (`PATCH /auth/v1/stables/st-brzozowa/horse-access/{id}`). Audyt: `actor_type = operator`, `session_id = ses-k7`; dostęp dostaje `granted_via = platform`. Alert: zapis w danych stajni.
@@ -813,10 +837,10 @@ Innych wywołań synchronicznych nie ma. JWKS (cache 5 min) serwisy pobierają o
 
 1. **`auth` to pojedynczy punkt krytyczny:** logowanie i odświeżanie co 5 min dla wszystkich. Awaria dłuższa niż kilka minut jest widoczna, bo aplikacje nie odświeżą tokenu. Ograniczamy to trzema replikami w różnych strefach, SLO i alertami.
 2. **Własny kod tokenów** (refresh token jako JWT, okna sesji, `token_version`, ciasteczka) to kod bezpieczeństwa. Ograniczamy to testami, przeglądem bezpieczeństwa przed produkcją i biblioteką `jose` zamiast własnej kryptografii.
-3. **Bez sesji w bazie (W4) skradziony refresh token działa** do wygaśnięcia albo do podbicia `token_version` („Wyloguj ze wszystkich urządzeń”, „Wyloguj wszystkie tablety”). Ponownego użycia nie wykryjemy, a jednego urządzenia nie odłączymy. Ograniczamy to bezpiecznym przechowywaniem, krótkimi oknami w panelu i `ops` i DPoP dla tabletu i TV (10.2 pkt 8).
-4. **Odebranie dostępu trwa do 5 min** (W4): osoba usunięta ze stajni czyta jej dane jeszcze do wygaśnięcia tokenu. Zapisy w `auth` są sprawdzane w bazie od razu (1.1), a koń po wyjeździe znika od razu (3.6).
+3. **Bez sesji w bazie (W4) skradziony refresh token działa** do wygaśnięcia albo do podbicia `token_version` („Wyloguj ze wszystkich urządzeń”, „Wyloguj wszystkie tablety”). Ponownego użycia nie wykryjemy, a jednego urządzenia nie odłączymy. Do tego ten sam ID token Cognito da się wymienić kilka razy w 5-minutowym oknie `auth_time` (`jti` nie zapisujemy), a każda wymiana to niezależna sesja. Ograniczamy to bezpiecznym przechowywaniem, ID tokenem tylko w pamięci aplikacji, krótkimi oknami w panelu i `ops` i DPoP dla tabletu i TV już od wymiany (10.2 pkt 8).
+4. **Odebranie dostępu trwa do 5 min** (W4): osoba usunięta ze stajni czyta i zapisuje (poza `auth`) jej dane jeszcze do wygaśnięcia tokenu, np. odebrany admin konta może przez 5 min zmienić plan w `billing` albo usunąć halę. Zapisy w `auth` są sprawdzane w bazie od razu (1.1), a koń po wyjeździe znika od razu (3.6).
 5. **Cron omija API serwisu (W3)** i może zapisać coś, czego serwis by nie przyjął. Ograniczamy to wspólnym kodem domeny właściciela, grantami z manifestu, meta-testem i testami przebiegów (6).
-6. **Bez tokenów serwisowych przejęty pod może wołać `/internal`** serwisów, do których dopuszcza go NetworkPolicy, np. pod `terminarz` poprosi `files` o link do PDF-u faktury. Ograniczamy to portem wewnętrznym, NetworkPolicy serwis → serwis i TLS; później tokenem konta serwisowego (10.2 pkt 23).
+6. **Bez tokenów serwisowych przejęty pod może wołać `/internal`** serwisów, do których dopuszcza go NetworkPolicy, np. pod `terminarz` poprosi `files` o link do PDF-u faktury albo usunie lub podepnie cudzy plik (faktury, surowe body webhooków). Ograniczamy to portami wewnętrznymi (osobny na każdy zestaw wołających), NetworkPolicy i TLS; później tożsamością wołającego (10.2 pkt 23).
 7. **Admin globalny może zapisywać wszędzie.** Ograniczamy to MFA ze step-up, nadaniem ról we dwie osoby, osobnym hostem, krótką sesją z powodem, alertami, logiem odczytów i oznaczeniem nadanych dostępów. Nadużycia przez osobę z zespołu nie da się wykluczyć całkowicie.
 8. **`auth` jest duży.** Każda zmiana ekranu Ludzie to wdrożenie najbardziej krytycznego serwisu. Ograniczamy to przełącznikami funkcji i wdrożeniem stopniowym.
 9. **Użytkownik może sam usunąć konto w Cognito** tokenem Cognito, zanim aplikacja go wyrzuci. Skutek: osierocony profil tylko tego użytkownika; jedynego admina firmy odtwarza zespół EQUENOR.
@@ -830,7 +854,7 @@ Rozstrzygnięte 13.10: lista unieważnień czy sam TTL (sam podpis i TTL 5 min, 
 2. **`businesses` w `auth`** (ten dokument) czy w `stable`, z sagą i cronem uzgadniającym?
 3. **Okna refresh tokenu z 3.4**, zwłaszcza panel admina (7 i 30 dni) i TV (365 dni).
 4. **Admin globalny:** passkey czy hasło z TOTP jako jedyna metoda; czy `[OPS]` dostaje VPN albo allowlistę IP; czy admin konta dostaje powiadomienie albo log wejść EQUENOR do swoich stajni (dziś: tylko przy dodaniu admina konta); autor w historii jako „Zespół EQUENOR” czy imię.
-5. **Klucz w pamięci `auth` zamiast KMS:** szybszy i tańszy (dwa podpisy co 5 min na konto, 3.5), ale klucz prywatny leży wtedy w pamięci podów. Czy to dopuszczalne?
+5. **Klucz w pamięci `auth` zamiast KMS:** szybszy i tańszy (koszt KMS rośnie z liczbą urządzeń aktywnych całą dobę, 3.5), ale klucz prywatny leży wtedy w pamięci podów. Czy to dopuszczalne? Wariant pośredni: refresh token, który weryfikuje tylko `auth`, podpisany kluczem HMAC w KMS (`GenerateMac`, `VerifyMac`, taryfa symetryczna [Ś]), z tą samą rotacją i stanem `revoked`; to połowa podpisów asymetrycznych.
 6. **Domena:** ciasteczko z refresh tokenem wymaga panelu i API w jednej domenie, a panel zespołu osobnego hosta. Czy to możliwe? Jeśli nie, potrzebny BFF.
 7. **Plan dnia na TV:** wizyty i jazdy jako część `routine` (ten dokument, makiety bez zmian), funkcje `health` i `rides` dla wyświetlacza w danych demo (zmiana makiet ustawień i arkusza G) czy TV bez wizyt i jazd (zmiana makiety WyswietlaczCentralny)?
 8. **DPoP dla tabletu i TV** (3.7): wymaga spike'u. Bez niego skopiowany refresh token tabletu działa do 30 dni bezczynności, bez limitu maksimum, albo do „Wyloguj wszystkie tablety”.
@@ -847,14 +871,14 @@ Rozstrzygnięte 13.10: lista unieważnień czy sam TTL (sam podpis i TTL 5 min, 
 17. **TOTP dla kont klientów** (bez zmian, otwarte).
 18. **„Zobacz jako” dla admina globalnego:** P3 czy wcale?
 19. **Token zawężony do jednej stajni:** tylko przy przekroczeniu budżetu (3.2) czy zawsze?
-20. **Odbiorcy `health.due` i `payment.overdue`:** słownik `notification_rules.event` nie ma `health_due` ani `payment_overdue`. Propozycja: `health_due` (admin, obsługa) i `payment_overdue` (admin) w kroku 2 kreatora, co zmienia makietę PanelZalozPowiadomienia.
+20. **Odbiorcy `health.due` i `payment.overdue`:** słownik `notification_rules.event` nie ma `health_due` ani `payment_overdue`. Propozycja: `health_due` (admin; obsługa tylko z funkcją `health`, a wpis `owner_private` tylko admin, 5.8) i `payment_overdue` (admin) w kroku 2 kreatora, co zmienia makietę PanelZalozPowiadomienia.
 21. **„Opuść stajnię”** (`DELETE /auth/v1/me/memberships/{stableId}`): gdzie w apce, bo makiety tego nie mają.
 22. **Luki poza autoryzacją, bez właściciela:** telefon stajni do „Zadzwoń do stajni”, dzwonek powiadomień w apce, podgląd SMS w PanelZaprosOsobe, stan „Pomiń” w pierwszych krokach (`board …/setup-checklist` nie ma gdzie go zapisać), szablon treści kodu logowania.
-23. **Token konta serwisowego Kubernetes na `/internal`:** serwis docelowy sprawdza lokalnie jego podpis (JWKS klastra) i wie, kto woła (np. `files` sprawdza `owner_service`). Do tego czasu granicą jest NetworkPolicy (7.1).
+23. **Tożsamość wołającego na `/internal`:** token konta serwisowego Kubernetes (serwis docelowy sprawdza lokalnie jego podpis, JWKS klastra) albo tańszy mTLS z certyfikatem klienta per serwis od cert-managera. Wtedy serwis docelowy wie, kto woła (np. `files` sprawdza `owner_service`). Do tego czasu granicą jest NetworkPolicy (7.1).
 
 ## 11. Załącznik: zmiany w innych dokumentach
 
-Wprowadzone 13.10 w erd.md (z diagramem), development.md, development-szczegoly.md, makiety-plan.md i arkuszu decyzji (sekcja O); decyzje W3–W5 i podział serwisów w drugiej rundzie tego samego dnia. Makiet `.dc.html` nie zmieniano: lista poprawek jest w 11.4 i w mockups/STAN.md.
+Wprowadzone 13.10 w erd.md (z diagramem), development.md, development-szczegoly.md, makiety-plan.md i arkuszu decyzji (sekcja O; W3–W5 i podział serwisów, z drugiej rundy tego samego dnia, w sekcji P). Makiet `.dc.html` nie zmieniano: lista poprawek jest w 11.4 i w mockups/STAN.md.
 
 ### 11.1 Model danych (erd.md)
 
@@ -866,29 +890,36 @@ Wprowadzone 13.10 w erd.md (z diagramem), development.md, development-szczegoly.
 | Zmiana | `stable_members`, `horse_access`, `invitations`, `business_admins` | `granted_via` (`business` albo `platform`) i `granted_session_id` (`sid` z tokenu admina globalnego, bez klucza obcego) |
 | Nowa | `platform_roles` | `id`, `user_id`, `role` (`admin` albo `support`), `kind` (`named` albo `break_glass`), `reason`, `requested_by`, `approved_by`, `approved_at`, `expires_at`, `first_used_at`, `revoked_by`, `revoked_at`; częściowy unikalny indeks `user_id` przy `revoked_at IS NULL` |
 | Nowa | `platform_requests` | wnioski we dwie osoby: `id`, `kind` (`role_grant`, `role_revoke`, `business_admin_add`, `business_admin_remove`), `target_user_id`, `business_id`, `role`, `reason`, `requested_by`, `requested_at`, `approved_by`, `approved_at`, `rejected_at`, `expires_at` |
-| Nowa | `signing_keys` | `kid` (PK, odcisk RFC 7638), `kms_key_arn`, `status` (`next`, `active`, `retiring`, `retired`, `revoked`), `public_x`, `public_y`, `created_at`, `activated_at`, `retired_at` |
+| Nowa | `signing_keys` | `kid` (PK, odcisk RFC 7638), `kms_key_arn`, `status` (`next`, `active`, `retiring`, `retired`, `revoked`), `public_x`, `public_y`, `created_at`, `activated_at`, `retired_at`, `revoked_at` |
 | Usunięte (W4) | `auth_sessions`, `auth_revocations` | bez sesji i listy unieważnień; `sid` żyje tylko w tokenach |
 | Zmiana | `rides` | `rider_member_id`, `instructor_member_id` → `rider_user_id`, `instructor_user_id` (FK `users`) |
 | Zmiana | `horse_flags.author_role` | nowa wartość `operator` |
 | Zmiana | `flag_acknowledgements.method`, `box_care_events.source`, `building_routines.source` | wartości `tablet`, `app`, `web`, `ops` |
 | Zmiana | `payment_provider_events` | `payload_s3_key` → `payload_file_id` (FK `files`) |
+| Zmiana | `invoices`, `meal_slots`, `feeds`, `paddocks` | częściowe unikalności: faktura na (`subscription_id`, `period_start`) poza `void` (6); aktywna pora posiłku (`stable_id`, `code`) przy `valid_to IS NULL`; nazwa paszy i padoku w stajni (5.5) |
+| Zmiana | `notifications` | `stable_id` puste dla powiadomień konta firmy (`business_admin.changed`); tabela prywatna (1.2) |
 | Zmiana | `audit.audit_log` | nowa kolumna `session_id` (`sid` z tokenu, bez klucza obcego); `client`: `tablet`, `app`, `web`, `ops`, `opctl` (brak dla `system`, czyli cronów); `actor_type = operator` to admin globalny albo Wsparcie IT |
 
-Nowe tabele przestrzegają zasad erd: bez `jsonb`, tablic, enumów i `DEFAULT`, statusy jako `text`. Na diagramie ERD kolory `identity` i `access` zastępuje jeden kolor `auth`, kolory `flags`, `care` i `tasks` jeden kolor `dzien`, kolory `health` i `rides` jeden kolor `terminarz`, a kolor `releases` kolor `platform`; linie do `auth_sessions` znikają. Diagram ma teraz 50 tabel.
+Nowe tabele przestrzegają zasad erd: bez `jsonb`, tablic, enumów i `DEFAULT`, statusy jako `text`. Na diagramie ERD kolory `identity` i `access` zastępuje jeden kolor `auth`, kolory `flags`, `care` i `tasks` jeden kolor `dzien`, kolory `health` i `rides` jeden kolor `terminarz`, a kolor `releases` kolor `platform` (turkusowy, odróżniony od szarego `files`); linie do `auth_sessions` znikają. Diagram ma teraz 50 tabel.
 
 ### 11.2 Tekst erd.md
 
-Zmienione: nagłówek decyzji (Cognito tylko uwierzytelnia, tokeny w `auth` bez sesji w bazie, admin globalny, W3–W5, 11 serwisów); pkt 2 (zgubiony tablet: „Wyloguj wszystkie tablety” albo blokada; bez listy tabletów i sesji w panelu); pkt 4 (blokada w `auth`); pkt 5 (tabele prywatne `auth`, grant kolumnowy na `users`, zapis cronów z manifestu i ich wąskie granty, `sms` i `email` bez roli bazy); pkt 6 (`auth` zamiast `identity` i `access`, dopasowanie zaproszeń przy wymianie tokenu, refresh token jako JWT, bez `409 profile_missing`); pkt 7 (dostęp do konia z tokenu; S3 tylko `files` i `files-gc`); pkt 8 (publikacja crona przed COMMIT, kolejki `sms` i `email`); pkt 9 (`dzien` i `terminarz` zamiast `care` i `rides`); pkt 14 (admin konta jako claim `biz`, odebranie dostępu do 5 min bez listy unieważnień, konta techniczne, Wsparcie IT jako `plt = support`, admin globalny, `platform_roles`); pkt 15 (rejestrację firmy zapisuje `auth`); pkt 16 (macierz w `auth` i w tokenie); pkt 17 (domyślne dane stajni zapisuje `dzien` po COMMIT, odpowiedź może mieć `setupPending`; odbiorców daje `auth /internal/recipients`); tabele serwisów i cronów; „Współpraca serwisów”; słowniki (`source`, `method`, `client`, `signing_keys.status`); legenda; sekcja „Zmiany względem modelu z analizy”; diagram i liczba tabel.
+- nagłówek decyzji: Cognito tylko uwierzytelnia, tokeny w `auth` bez sesji w bazie (W4), admin globalny, W3–W5, 11 serwisów;
+- tabele sesji usunięte; `token_version` zamiast `authz_version`; `signing_keys.status` z `revoked`;
+- pkt 2, 4 i 14: zgubiony tablet („Wyloguj wszystkie tablety” albo blokada), blokada w `auth`, odebranie dostępu do 5 min, Wsparcie IT jako `plt = support`, admin globalny i wpis `ops_login`;
+- pkt 5 i „Crony”: tabele prywatne `auth` i `notifications`, granty kolumnowe cronów, wyjątek `retention-pruner` w `audit`, idempotencja z unikalności, `sms` i `email` bez roli bazy;
+- pkt 6–9 i 15–17: wymiana tokenu i dopasowanie zaproszeń, S3 tylko w `files`, publikacja crona przed COMMIT, kolejki `sms` i `email`, `dzien` i `terminarz`, domyślne dane stajni z `setupPending`, odbiorcy z `/internal/recipients`;
+- tabele serwisów i cronów, „Współpraca serwisów”, słowniki, legenda, kolory i diagram ERD.
 
 ### 11.3 development.md, development-szczegoly.md, makiety-plan.md
 
-- **development.md:** lista serwisów (11 i 9 cronów piszących wprost) i pakiety `auth`/`authz` (claimy z tokenu, bez listy unieważnień), Cognito (dwie pule, Cognito tylko uwierzytelnia), lokalny `auth` zamiast stuba tokenów, spike, seed (Kuba jako admin globalny, `signing_keys`), `author_role`, izolacja z wyjątkiem admina globalnego, testy bezpieczeństwa (żaden serwis poza `auth` nie czyta tabel uprawnień; granty cronów; NetworkPolicy), odebranie dostępu do 5 min, rozstrzygnięte pkt 4, 5, 6 i 11 sekcji 5.
-- **development-szczegoly.md:** 2.4 (dwie pule, tokeny w `auth` bez sesji), 3.1.1 (układ katalogów: `services/<serwis>/jobs/<cron>`, `sms`, `email`), 3.1.4 (granty z manifestu, także cronów, i meta-test), 3.1.5 (pola deskryptora, `callers`, nowe kody), 3.1.6 (wtyczki: weryfikacja tokenu, log odczytów; bez listy unieważnień i tokenu serwisowego), 3.1.7 (cron: rola bazy z manifestu, kod domeny właściciela, publikacja przed COMMIT), 3.1.9–3.1.11 (według sekcji 3), 3.1.13, 3.2 (lokalny `auth`, `pnpm dev:token`, seed), 3.3 (`auth`, `dzien`, `terminarz`, `platform`, `sms`, `email`), 3.4, 3.5.1 i 3.5.3 (wymiana tokenu, panel `[OPS]`), 4.1 (wyjątek dla stanu w pamięci), 4.2 (testy tokenów), T-23 i scenariusze A-23…A-25 (limit 5 min), sekcja 5 (pkt 4, 5, 8, 15, 21 rozstrzygnięte).
-- **makiety-plan.md:** Kuba jako admin globalny, PanelOps w P2, PanelDiagnostyka w panelu `[OPS]`.
+- **development.md:** 11 serwisów i 9 cronów piszących wprost, `auth`/`authz` bez listy unieważnień, dwie pule Cognito, lokalny `auth`, seed z Kubą, testy bezpieczeństwa (granty, NetworkPolicy), odebranie dostępu do 5 min, rozstrzygnięte pkt 4, 5, 6 i 11 sekcji 5.
+- **development-szczegoly.md:** 2.4, 3.1 (katalogi, granty i meta-test, deskryptory, wtyczki, szablon crona, kolejki), 3.2, 3.3 (`auth`, `dzien`, `terminarz`, `platform`, `notifications`, `sms`, `email`), 3.4, 3.5, 4.1, 4.2, T-23 i A-23…A-25 (limit 5 min), sekcja 5.
+- **makiety-plan.md:** Kuba jako admin globalny, PanelOps w P2, PanelDiagnostyka w `[OPS]`, blokada przez `token_version`, „Wyloguj wszystkie tablety”, odwołania szcz. 3.3 → `auth`, `dzien`, `terminarz`.
 
 ### 11.4 Arkusz decyzji, makiety, spike
 
-- decyzje-spec.md: sekcja O (W1–W5, podział serwisów z 13.10 i ustalenia z tej rozpiski, w tym Wsparcie IT jako `plt = support`, na PoC nienadawane).
+- decyzje-spec.md: sekcja O (W1–W2 i ustalenia z tej rozpiski, w tym Wsparcie IT jako `plt = support`, na PoC nienadawane) i sekcja P (W3–W5, podział serwisów z 13.10; nadrzędna wobec O).
 - **Makiety do poprawy** (bez zmian w tej rundzie, zadanie w mockups/STAN.md):
   - Zaproszenie.dc.html: usunąć rolę „Wsparcie IT” i jej opis;
   - PanelUstawieniaStajni i PanelUstawieniaBezAkcji: w kolumnie Tablet „Zadania” i „Historia boksu” nieaktywne, bez zaznaczenia (erd pkt 16), „Jazdy” odznaczone (dane demo); PanelUstawieniaBrzozowa: u Tabletu „Historia boksu” nieaktywna;
@@ -903,6 +934,6 @@ Zmienione: nagłówek decyzji (Cognito tylko uwierzytelnia, tokeny w `auth` bez 
   2. passkey w puli zespołu: RP ID na hoście `[OPS]`, `MULTI_FACTOR_WITH_USER_VERIFICATION`, managed login; czy ID token niesie dowód MFA i czy da się odczytać konfigurację puli (4.1) [Ś];
   3. Expo i tablet z Amplify tylko do logowania i z własnym refresh tokenem EQUENOR; ciasteczko httpOnly w panelu, na TV i na `[OPS]`;
   4. opóźnienie, koszt i limit KMS Sign z EKS przy dwóch podpisach na odświeżenie co 5 min;
-  5. NetworkPolicy w EKS (egzekwowanie w VPC CNI) i osobny port wewnętrzny z TLS z CA klastra;
+  5. NetworkPolicy w EKS (egzekwowanie w VPC CNI, także ruchu wychodzącego) i porty wewnętrzne z TLS z CA klastra;
   6. DPoP dla tabletu i wyświetlacza (Android Keystore w Expo, WebCrypto w Chromium na Pi) i refresh przez tygodnie przy zrywanym Wi-Fi;
   7. wysyłka SMS z AWS na polskie numery (nadawca, rejestracja) i SES z domeny EQUENOR [Ś].

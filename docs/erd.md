@@ -90,14 +90,14 @@
    - Nie potrzeba nowych tabel.
 5. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
    - Każda tabela ma jeden serwis-właściciela (tabela niżej). Piszą do niej właściciel i crony, którym manifest `packages/db/owners.ts` daje zapis do tej tabeli (W3, sekcja „Crony”); pozostałe serwisy mogą ją czytać. `sms` i `email` nie mają roli bazy (W5).
-   - Wyjątek (13.10, propozycja): tabele uprawnień serwisu `auth` (`business_admins`, `stable_members`, `horse_access`, `invitations`, `stable_role_features`, `platform_roles`, `platform_requests`, `signing_keys`) czyta tylko `auth`. Crony mają do nich tylko wąskie granty, które nie są autoryzacją (W2 zostaje): `invitation-expiry-notifier` czyta `invitations`, `horse-left-reconciler` ustawia `horse_access.revoked_at`, `retention-pruner` usuwa stare `platform_requests`. Z `users` inne serwisy widzą tylko `id`, `display_name`, `locale`, `identity_pool` i `deleted_at` (grant kolumnowy), a `businesses` czytają `stable` i `billing`. Kim jest użytkownik i co może, serwisy wiedzą z podpisanego tokenu (mikroserwisy.md, sekcja 1).
+   - Wyjątek (13.10, propozycja): tabele uprawnień serwisu `auth` (`business_admins`, `stable_members`, `horse_access`, `invitations`, `stable_role_features`, `platform_roles`, `platform_requests`, `signing_keys`) czyta tylko `auth`, a `notifications` (adresy i treść wiadomości) tylko `notifications`. Crony mają do tabel `auth` tylko wąskie granty kolumnowe, które nie są autoryzacją (W2 zostaje): `invitation-expiry-notifier` czyta `invitations` bez `target`, `horse-left-reconciler` zamyka `horse_access` (`revoked_at`, `version`, `updated_at`), `retention-pruner` usuwa stare `platform_requests`; kolumny: mikroserwisy.md 1.5. Z `users` inne serwisy widzą tylko `id`, `display_name`, `locale`, `identity_pool` i `deleted_at` (grant kolumnowy), a `businesses` czytają `stable` i `billing`. Kim jest użytkownik i co może, serwisy wiedzą z podpisanego tokenu (mikroserwisy.md, sekcja 1).
    - Klucze obce są normalne, także między tabelami różnych serwisów.
    - Dzięki temu nie ma replik ani synchronizacji danych między serwisami. Na przykład `board` składa stan tablicy, czytając wprost konie, flagi i plany karmienia.
    - Serwisy czytają te same tabele, więc mają jeden schemat `app`. Definicja tabel i migracje leżą w jednym pakiecie monorepo (`packages/db`), a serwisy importują z niego typy tabel.
    - Audit jest w osobnym schemacie `audit` (`audit_log`, `audit_log_changes`), bez kluczy obcych do `app`.
      - Każdy serwis i każdy cron dopisuje wpis audytu w tej samej transakcji co zmiana (cron z `actor_type = system`), więc nie da się zmienić danych bez śladu i nie potrzeba do tego kolejki.
-     - Role bazy serwisów i cronów mają w schemacie `audit` tylko `INSERT`, bez odczytu, zmiany i usuwania.
-     - Czytać może tylko serwis `platform`, a po okresie retencji usuwa cron `retention-pruner` (decyzja 13.10; dotąd sprzątał serwis `audit`).
+     - Role bazy serwisów i cronów mają w schemacie `audit` tylko `INSERT`, bez odczytu, zmiany i usuwania, poza `retention-pruner`: on usuwa wpisy starsze niż retencja (`DELETE` i `SELECT` tylko kolumn potrzebnych do usuwania: `id`, `created_at`, `audit_log_id`; decyzja 13.10, dotąd sprzątał serwis `audit`).
+     - Czyta `platform`; `retention-pruner` widzi tylko kolumny potrzebne do usuwania.
    - Koszt: zmiana kolumny czytanej przez inne serwisy musi być zgodna wstecz (najpierw dodać, potem usunąć).
 6. **Tożsamość: Cognito uwierzytelnia, `auth` wydaje tokeny.**
    - `users.cognito_sub` wiąże nasz profil z kontem w puli Cognito. Pule są dwie: klientów i zespołu EQUENOR (`users.identity_pool`, propozycja).
@@ -117,14 +117,14 @@
    - Tablet sam regularnie, co kilka sekund, pyta serwis `board` o stan wybranego boksu. Serwer nie trzyma żadnego stanu tablic.
    - `board` nie ma własnych tabel: przy każdym zapytaniu składa odpowiedź z danych w bazie. `ETag` to hash odpowiedzi, więc gdy nic się nie zmieniło, tablet dostaje `304`.
    - Między serwisami: kolejki **SNS + SQS**, bez outboxów.
-     - Serwis po zatwierdzeniu transakcji publikuje zdarzenie do tematu SNS (jeden temat na rodzaj zdarzenia). Cron publikuje przed COMMIT tej samej transakcji (wyjątek, sekcja „Crony”).
+     - Serwis po zatwierdzeniu transakcji publikuje zdarzenie do tematu SNS (jeden temat na rodzaj zdarzenia). Cron publikuje przed COMMIT tej samej transakcji (wyjątek, sekcja „Crony”), więc konsument zdarzenia crona, które zmienia stan, czyta źródło w bazie.
      - Każdy konsument ma własną kolejkę SQS z kolejką błędów (DLQ).
      - SQS może dostarczyć wiadomość więcej niż raz, więc obsługa jest idempotentna: zapisy opierają się na unikalnych kluczach w tabelach docelowych, bez osobnej tabeli `inbox`.
    - Bez outboxu zdarzenie może zginąć, gdy serwis padnie między zapisem w bazie a publikacją. Dlatego żadna krytyczna ścieżka nie opiera się wyłącznie na zdarzeniu:
      - eskalacje liczy cron prosto z bazy;
      - `board` przy odpytywaniu porównuje wersje w bazie;
      - cron uzgadniający poprawia skutki `horse.left`.
-   - SMS-y i e-maile wysyłają niezależne serwisy `sms` (AWS, SMS) i `email` (SES), bez tabel i bez roli bazy (W5). Każdy czyta tylko swoją kolejkę SQS (FIFO, deduplikacja po `notifications.id`) z gotową wiadomością od `notifications` i publikuje wynik (`sms.result`, `email.result`). Ponowienia i DLQ daje SQS.
+   - SMS-y i e-maile wysyłają niezależne serwisy `sms` (AWS, SMS) i `email` (SES), bez tabel i bez roli bazy (W5). Każdy czyta tylko swoją kolejkę SQS FIFO z gotową wiadomością od `notifications` i publikuje wynik (`sms.result`, `email.result`; `failed` przy błędzie stałym albo po ostatniej próbie). Ponowienia i DLQ daje SQS; grupy i deduplikacja: mikroserwisy.md 5.8.
 9. **Sloty posiłków i padoki należą do `dzien`, a kryte ujeżdżalnie (`arenas`) do `terminarz`**, bo te serwisy z nich korzystają. Ujeżdżalnie to co innego niż hale z boksami (`buildings`).
 10. **Płatności (`billing`).**
    - Płaci stajnia: ma konto rozliczeniowe (dane do faktury) i subskrypcję planu. Czy zamiast niej ma płacić konto firmy, zob. „Otwarte kwestie”.
@@ -178,7 +178,7 @@
    - **Odebranie dostępu** (usunięcie ze stajni, zmiana roli, macierz widoczności, dostęp do konia) działa przy najbliższym odświeżeniu tokenu, czyli do 5 min, bez listy unieważnień (W4); taki jest też limit w testach akceptacyjnych. Od razu działają koń `left` (404 z danych zasobu) i nowa stajnia admina konta (`biz`).
    - **„Zablokuj” przy koncie technicznym** (Ludzie, tylko admin konta) znaczy to samo dla telewizora i tabletów: `stable_members.active = false` i podbicie `users.token_version` konta. Najpóźniej po 5 min urządzenie dostaje odmowę przy odświeżeniu tokenu i pokazuje ekran blokady bez starych danych (tablet: „TO KONTO NIE MA JUŻ DOSTĘPU DO TEJ STAJNI”, telewizor: „WYŚWIETLACZ ZABLOKOWANY”). „Odblokuj” przywraca `active`; urządzenia trzeba zalogować ponownie kodem, bo stare refresh tokeny mają starą wersję, a potem wracają do zapamiętanego boksu, języka albo widoku (propozycja). Konto tabletów ma też „Wyloguj wszystkie tablety”: samo podbicie `token_version`, bez blokady (pkt 2).
    - **Wsparcie IT** (dawniej „serwisant”) to wewnętrzny zespół EQUENOR, a nie rola stajni: stajnia go nie zaprasza ani nie konfiguruje, więc nie ma go w `stable_members`, `invitations` ani `stable_role_features`. Dostęp to rola platformowa `plt = support` w tabeli `platform_roles` serwisu `auth`, na PoC nienadawana (propozycja); w audycie `actor_type = operator`. Zakres: lista firm i stajni, numery boksów, konta techniczne i ich status, wydania APK i diagnostyka, bez danych koni i klientów (404); ukryte ustawienia tabletu działają bez logowania; w apce Wsparcie IT nie ma widoku.
-   - **Admin globalny** (wymaganie z 13.10: „wjazd wszędzie”): rola platformowa `plt = admin` zespołu EQUENOR (w danych demo Kuba, propozycja). Ma dostęp do każdej firmy, stajni i serwisu na prawach admina konta oraz trasy `/platform`. Loguje się w osobnej puli Cognito z MFA, na osobnym hoście panelu, z powodem wejścia; rolę nadają dwie osoby (`platform_roles`, `platform_requests`); każdy zapis ma w audycie `actor_type = operator` i `session_id` (`sid` z tokenu, bez tabeli sesji; powód wejścia trafia do audytu przy logowaniu z tym samym `sid`, propozycja), a każdy odczyt trafia do logu odczytów. Dostęp, który nada w stajni, ma `granted_via = platform` (propozycja, mikroserwisy.md, sekcja 4).
+   - **Admin globalny** (wymaganie z 13.10: „wjazd wszędzie”): rola platformowa `plt = admin` zespołu EQUENOR (w danych demo Kuba, propozycja). Ma dostęp do każdej firmy, stajni i serwisu na prawach admina konta oraz trasy `/platform`. Loguje się w osobnej puli Cognito z MFA, na osobnym hoście panelu, z powodem wejścia; rolę nadają dwie osoby (`platform_roles`, `platform_requests`); każdy zapis ma w audycie `actor_type = operator` i `session_id` (`sid` z tokenu, bez tabeli sesji); powód wejścia trafia do audytu przy logowaniu jako wpis `action = ops_login` z tym samym `session_id` i polem `reason` w `audit_log_changes` (propozycja), a każdy odczyt trafia do logu odczytów. Dostęp, który nada w stajni, ma `granted_via = platform` (propozycja, mikroserwisy.md, sekcja 4).
 15. **Konto firmy (B2B) → stajnie → hale → boksy.**
    - Zakładamy wyłącznie konta firm. Konto firmy to wiersz w `businesses`:
      - `tax_id`: NIP, z unikalnym indeksem, więc 1 konto = 1 NIP. Drugą rejestrację z tym samym NIP-em odrzuca indeks, a panel mówi „Ten NIP ma już konto w EQUENOR”;
@@ -215,8 +215,8 @@
      - Zdarzenia (`event`) to stała lista z sekcji „Słowniki”. `flag_unacknowledged` (eskalacja) działa tylko dla flag z `requires_ack`, więc w stajni bez potwierdzeń nic nie wysyła.
      - Termin eskalacji zostaje w `stable_settings.notify_offset_min`; reguła mówi tylko, do kogo i jakim kanałem.
      - Tabela należy do `stable`, bo powstaje w tej samej transakcji co stajnia, tak jak `stable_settings`.
-   - **`notifications` kieruje według reguł:** dla zdarzenia bierze włączone wiersze tej stajni i wyznacza odbiorców: `admin` to admini konta firmy, do którego należy stajnia, a `staff` to aktywni członkowie z rolą `staff` w tej stajni. Odbiorców i adresy (`phone_e164` albo `email`) daje mu serwis `auth` (`/internal/recipients`), bo tabele uprawnień i kontakty czyta tylko `auth` (propozycja, 13.10); osobę bez adresu dla danego kanału pomija (propozycja). Renderuje treść, zapisuje wiersz `notifications` i wrzuca gotową wiadomość do kolejki serwisu `sms` albo `email` (W5); wynik wysyłki (`sms.result`, `email.result`) aktualizuje `status`. `dedupe_key` pilnuje, żeby ta sama wiadomość nie poszła dwa razy.
-     - Źródła zdarzeń: wszystko przychodzi zdarzeniami (SNS + SQS), bez wywołań synchronicznych. Eskalację (`flag.escalated`) publikuje cron `escalation-scheduler`, wygasłe zaproszenia (`invitation.expired`) cron `invitation-expiry-notifier` (propozycja), a wystawioną fakturę (`invoice.issued`) cron `billing-invoicing`. Flagę od klienta, przyjęte zaproszenie i nieudaną płatność publikują serwisy-właściciele.
+   - **`notifications` kieruje według reguł:** dla zdarzenia bierze włączone wiersze tej stajni i wyznacza odbiorców: `admin` to admini konta firmy, do którego należy stajnia, a `staff` to aktywni członkowie z rolą `staff` w tej stajni. Odbiorców i adresy (`phone_e164` albo `email`) daje mu serwis `auth` (`/internal/recipients`), bo tabele uprawnień i kontakty czyta tylko `auth` (propozycja, 13.10); osobę bez adresu dla danego kanału pomija (propozycja). Pomija osoby, których rola nie widzi funkcji zdarzenia (`flags`, `health`), a wpis zdrowia `owner_private` wysyła tylko adminom (propozycja). Renderuje treść, zapisuje wiersz `notifications` i wrzuca gotową wiadomość do kolejki serwisu `sms` albo `email` (W5); wynik wysyłki (`sms.result`, `email.result`) aktualizuje `status`. `dedupe_key` (klucz domenowy z odbiorcą i kanałem) pilnuje, żeby ta sama wiadomość nie poszła dwa razy.
+     - Źródła zdarzeń: wszystko przychodzi zdarzeniami (SNS + SQS), bez wywołań synchronicznych. Eskalację (`flag.escalated`) publikuje cron `escalation-scheduler`, wygasłe zaproszenia (`invitation.expired`) cron `invitation-expiry-notifier` (propozycja), a wystawioną fakturę (`invoice.issued`) cron `billing-invoicing`. Flagę od klienta, przyjęte zaproszenie i nieudaną płatność publikują serwisy-właściciele. Zmianę admina konta (`business_admin.changed`) publikuje `auth`; to stała reguła poza `notification_rules` (admini firmy, SMS i e-mail, `notifications.stable_id` puste, propozycja).
 
 ## Otwarte kwestie
 
@@ -258,37 +258,39 @@ Podział na 11 serwisów to decyzja 13.10: `flags`, `care` i `tasks` łączą si
 | `sms` | — (bez tabel) | brak, bez roli bazy; czyta tylko swoją kolejkę SQS (W5) |
 | `email` | — (bez tabel) | brak, bez roli bazy; czyta tylko swoją kolejkę SQS (W5) |
 | `files` | szary | `files` (metadane; treść w S3, tylko ten serwis dotyka S3) |
-| `platform` (dawniej `releases`, `audit`) | grafitowy, także diagram audytu | `app_releases`, `app_release_targets`; odczyt schematu `audit` (`audit_log`, `audit_log_changes`; wpisy dodają wszystkie serwisy i crony) |
+| `platform` (dawniej `releases`, `audit`) | turkusowy, także diagram audytu | `app_releases`, `app_release_targets`; odczyt schematu `audit` (`audit_log`, `audit_log_changes`; wpisy dodają wszystkie serwisy i crony) |
 
 **Crony piszą do bazy bezpośrednio (W3).** Każdy cron to osobny mikroserwis (CronJob) bez własnych tabel, bez tokenów i bez wołania serwisów.
 - Ma własną rolę bazy: odczyt tabel domenowych i zapis tylko do tabel (gdzie się da: kolumn) z manifestu `packages/db/owners.ts`. Granty tworzy generator grantów, a meta-test w CI pilnuje, że cron nie pisze poza manifestem.
 - Używa kodu domeny właściciela: te same funkcje zapisu, `version` i `updated_at` z kodu, audyt `actor_type = system` w tej samej transakcji. Kod leży w module właściciela (np. `services/dzien/jobs/escalation-scheduler`). Crony przekrojowe (`horse-left-reconciler`, `retention-pruner`) używają modułów kilku serwisów.
-- Nie zna adresów: publikuje zdarzenie, a wysyłką zajmuje się `notifications`. Publikacja idzie przed COMMIT tej samej transakcji (wyjątek tylko dla cronów): gdy COMMIT się nie uda, następny przebieg powtórzy, a `notifications.dedupe_key` nie dopuści drugiej wiadomości; gdy nie uda się publikacja, transakcja się wycofuje.
-- Idempotencja: `concurrencyPolicy: Forbid`, `timeZone` i unikalności w bazie.
+- Nie zna adresów: publikuje zdarzenie, a wysyłką zajmuje się `notifications`. Publikacja idzie przed COMMIT tej samej transakcji (wyjątek tylko dla cronów), jedna transakcja na obiekt (flaga, faktura): gdy COMMIT się nie uda, następny przebieg powtórzy, a `notifications.dedupe_key` nie dopuści drugiej wiadomości; gdy nie uda się publikacja, transakcja się wycofuje. Konsument zdarzenia, które zmienia stan, czyta źródło w bazie (np. `stable` bieżące `subscriptions.status`, `billing` wiersz `invoices`).
+- Idempotencja: unikalności w bazie (np. `flag_escalations`, `usage_snapshots`, `invoices`); `concurrencyPolicy: Forbid` i `timeZone` zostają, ale nie chronią przed ręcznym przebiegiem.
 
-| Cron (właściciel) | Kiedy | Czyta | Pisze | Publikuje |
-|---|---|---|---|---|
-| `escalation-scheduler` (`dzien`) | co minutę | `horse_flags` z `requires_ack` po `warn_at` albo `notify_at`, bez potwierdzenia | `flag_escalations` (unikalne `flag_id` z `level`) | `flag.escalated` (tylko poziom `admin_notify`) |
-| `invitation-expiry-notifier` (`auth`, propozycja) | co godzinę | `invitations` (wąski grant) | nic | `invitation.expired`: wygasłe w ostatniej dobie, nieprzyjęte i nieodwołane |
-| `health-due-reminders` (`terminarz`) | co godzinę | `health_events` | nic | `health.due` |
-| `files-gc` (`files`) | co godzinę | `files` | usuwa wiersze `files` (`pending` starsze niż 24 h, `deleted` po retencji) i obiekty w S3 | — |
-| `billing-usage-snapshot` (`billing`) | koniec okresu | `subscriptions`, `horses` | `usage_snapshots` (boksy z koniem) | — |
-| `billing-invoicing` (`billing`) | 1. dnia miesiąca | `subscriptions`, `usage_snapshots`, ceny planu | `invoices`, `invoice_lines` | `invoice.issued` (PDF robi potem `billing` przez `files`) |
-| `billing-dunning` (`billing`) | codziennie | `invoices`, `subscriptions` | `invoices.status`, `subscriptions.status` (`past_due`, potem `suspended`) | `payment.overdue`, `subscription.status_changed` |
-| `horse-left-reconciler` (przekrojowy) | co godzinę | konie `left` z ostatnich 30 dni i ich otwarte wpisy | `horse_access.revoked_at` (wąski grant), `horse_flags.cancelled_at`, `valid_to` w `feeding_plans` i `paddock_plans`, usuwa konia z `paddock_plan_companions`, `tasks.cancelled_at`, `rides.status` (przyszłe jazdy) | — |
-| `retention-pruner` (przekrojowy) | co noc | tabele z retencją | usuwa po retencji, także w schemacie `audit` i w `platform_requests` (wąski grant) | — |
+Manifest zapisu cronów (z niego powstają granty); harmonogram, odczyt i publikowane zdarzenia: mikroserwisy.md, sekcja 6.
+
+| Cron (właściciel) | Pisze |
+|---|---|
+| `escalation-scheduler` (`dzien`) | `flag_escalations` (unikalne `flag_id` z `level`) |
+| `invitation-expiry-notifier` (`auth`, propozycja) | nic (czyta `invitations` bez `target`, wąski grant) |
+| `health-due-reminders` (`terminarz`) | nic |
+| `files-gc` (`files`) | usuwa wiersze `files` (`pending` starsze niż 24 h, `deleted` po retencji) i obiekty w S3 |
+| `billing-usage-snapshot` (`billing`) | `usage_snapshots` (boksy z koniem) |
+| `billing-invoicing` (`billing`) | `invoices` (unikalne `subscription_id` z `period_start` poza `void`), `invoice_lines` |
+| `billing-dunning` (`billing`) | `invoices.status` (`overdue`), `subscriptions.status` (`past_due`, potem `suspended`) |
+| `horse-left-reconciler` (przekrojowy) | `horse_access` (`revoked_at`, `version`, `updated_at`; wąski grant), `horse_flags.cancelled_at`, `valid_to` w `feeding_plans` i `paddock_plans`, usuwa konia z `paddock_plan_companions`, `tasks.cancelled_at`, `rides.status` (przyszłe jazdy) |
+| `retention-pruner` (przekrojowy) | usuwa po retencji, także `notifications`, schemat `audit` i `platform_requests` (wąskie granty, pkt 5) |
 
 ## Współpraca serwisów
 
-- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `buildings`, `boxes`, `horses`, `horse_flags`, `feeding_plans` z pozycjami, `building_routines`, `box_care_events`, `paddock_plans` i `health_events` (sam typ i termin). Tabel uprawnień serwisu `auth` nie czyta nikt poza nim (wyjątek: wąskie granty cronów, pkt 5). `sms` i `email` nie czytają bazy wcale (W5).
+- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `buildings`, `boxes`, `horses`, `horse_flags`, `feeding_plans` z pozycjami, `building_routines`, `box_care_events`, `paddock_plans` i `health_events` (sam typ i termin). Tabel uprawnień serwisu `auth` nie czyta nikt poza nim (wyjątek: wąskie granty cronów, pkt 5), a `notifications` nikt poza `notifications`. `sms` i `email` nie czytają bazy wcale (W5).
 - **Uprawnienia (W2: tylko jeden serwis autoryzacyjny):** decyduje wyłącznie serwis `auth`, który podpisuje token z rolami (`biz`: firmy admina konta, `m`: członkostwa z rolą, widocznymi funkcjami i końmi klienta, `plt`: rola platformowa). Pozostałe serwisy weryfikują podpis lokalnie (klucz publiczny z JWKS w cache) i czytają claimy; nie wołają `auth` przy żądaniu i nie czytają tabel uprawnień. Crony nie weryfikują tokenów, bo nie mają żadnych (W3). Dane zasobu (do której firmy należy stajnia, do której stajni i hali boks, w którym boksie stoi koń) serwisy sprawdzają w bazie. Odebranie dostępu działa przy najbliższym odświeżeniu tokenu, czyli do 5 min, bez listy unieważnień (W4, pkt 14).
 - **Zapis:** przez serwis-właściciela (jego REST albo jego kolejkę SQS) albo przez cron z zapisem w manifeście (W3). Zapisy z tabletu i apki (potwierdzenia flag, szybkie akcje obsługi) idą synchronicznym REST do `dzien`, bo klient potrzebuje wyniku dla każdego zdarzenia.
-- **Wywołania synchroniczne `/internal`** (tylko te): `stable` → `dzien` (domyślne dane nowej stajni), `stable` → `auth` (koń wyjechał), `notifications` → `auth` (odbiorcy i adresy), `dzien`, `terminarz`, `billing`, `stable` i `platform` → `files` (pliki); do tego JWKS od `auth`. Idą po osobnym porcie wewnętrznym, przez TLS z CA klastra, a kto może wołać który serwis, pilnuje NetworkPolicy z manifestu w `packages/contracts`; bez tokenów serwisowych (propozycja, mikroserwisy.md).
+- **Wywołania synchroniczne `/internal`** (tylko te): `stable` → `dzien` (domyślne dane nowej stajni), `stable` → `auth` (koń wyjechał), `notifications` → `auth` (odbiorcy i adresy), `dzien`, `terminarz`, `billing`, `stable` i `platform` → `files` (pliki). Idą po portach wewnętrznych, przez TLS z CA klastra, bez tokenów serwisowych. Kto może wołać który serwis, pilnuje NetworkPolicy z manifestu w `packages/contracts`; działa na portach, więc każdy zestaw wołających ma własny port (np. `/internal/recipients` w `auth` tylko dla `notifications`). JWKS serwisy pobierają od `auth` osobnym portem `jwks` (propozycja, mikroserwisy.md 7.1).
 - **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji, przez crony przed nim) służą reakcjom, a nie kopiowaniu danych:
   - `horse.left` (`stable`) zamyka flagi, plany, zadania i jazdy w `dzien` i `terminarz`; `auth` dostaje wywołanie synchroniczne od `stable` (propozycja), a zgubione skutki poprawia `horse-left-reconciler`;
   - `invitation.created`, `invitation.accepted`, `user.deleted` i `member.removed` publikuje `auth`, a `invitation.expired` cron `invitation-expiry-notifier`; `member.removed` konsumuje `dzien` (zwalnia „Biorę”);
-  - `stable.created` konsumują `dzien` (zapas, gdy wywołanie synchroniczne się nie uda) i `billing`; `subscription.status_changed` (`billing`, `billing-dunning`) zmienia `stables.status`;
-  - zdarzenia powiadomień konsumuje `notifications` i kieruje według `notification_rules` (pkt 17): `flag.created` (flaga od klienta, `dzien`), `flag.escalated`, `invitation.created`, `invitation.accepted`, `invitation.expired`, `user.deleted` (anuluje wysyłki), `health.due`, `invoice.issued`, `payment.failed`, `payment.overdue`;
+  - `stable.created` konsumują `dzien` (zapas, gdy wywołanie synchroniczne się nie uda) i `billing`; `subscription.status_changed` (`billing`, `billing-dunning`) zmienia `stables.status` według bieżącego `subscriptions.status`;
+  - zdarzenia powiadomień konsumuje `notifications` i kieruje według `notification_rules` (pkt 17): `flag.created` (flaga od klienta, `dzien`), `flag.escalated`, `invitation.created`, `invitation.accepted`, `invitation.expired`, `user.deleted` (anuluje wysyłki), `business_admin.changed` (`auth`), `health.due`, `invoice.issued`, `payment.failed`, `payment.overdue`;
   - `notifications` wrzuca gotową wiadomość do kolejki `sms` albo `email`, a wyniki `sms.result` i `email.result` konsumuje z powrotem (W5); `invoice.issued` konsumuje też `billing` (PDF faktury).
 - **Widoczność:** notatki flag są widoczne wszędzie, gdzie widać boks albo konia (tablet, apka, panel), bez podziału na „tylko w apce”. Na tablet nie trafiają tylko opisy wizyt z historii zdrowia; pilnuje tego kod `board`.
 
@@ -537,7 +539,7 @@ erDiagram
     meal_slots {
         uuid id PK
         uuid stable_id FK "stables"
-        text code "np. breakfast"
+        text code "np. breakfast; unikalny w stajni przy valid_to NULL"
         time local_time
         smallint days_mask "bity: pn=1 ... nd=64"
         date valid_from
@@ -552,7 +554,7 @@ erDiagram
     feeds {
         uuid id PK
         uuid stable_id FK "stables"
-        text name "np. owies, siano, suplement X"
+        text name "unikalna w stajni, np. owies, siano"
         text kind "feed | supplement | medicine"
         text default_unit "kg | g | miarka | szt"
         boolean active
@@ -560,7 +562,7 @@ erDiagram
     paddocks {
         uuid id PK
         uuid stable_id FK "stables"
-        text name
+        text name "unikalna w stajni"
     }
     feeding_plans {
         uuid id PK
@@ -714,7 +716,7 @@ erDiagram
     }
     notifications {
         uuid id PK
-        uuid stable_id FK "stables"
+        uuid stable_id FK "stables; NULL dla powiadomień konta firmy"
         text channel "sms | email"
         uuid recipient_user_id FK "users, NULL dla zaproszeń"
         text recipient_address "E.164 albo e-mail w chwili wysyłki"
@@ -782,7 +784,7 @@ erDiagram
     invoices {
         uuid id PK
         uuid stable_id FK
-        uuid subscription_id FK
+        uuid subscription_id FK "unikalne z period_start, poza void"
         text number UK
         timestamptz period_start
         timestamptz period_end
@@ -859,12 +861,13 @@ erDiagram
     signing_keys {
         text kid PK "odcisk klucza, RFC 7638"
         text kms_key_arn
-        text status "next | active | retiring | retired"
+        text status "next | active | retiring | retired | revoked"
         text public_x
         text public_y
         timestamptz created_at
         timestamptz activated_at
         timestamptz retired_at
+        timestamptz revoked_at
     }
     businesses ||--o{ stables : "stajnie"
     businesses ||--o{ business_admins : "admini konta"
@@ -938,7 +941,7 @@ erDiagram
     classDef svc_terminarz fill:#ffedd5,stroke:#c2410c
     classDef svc_billing fill:#fef9c3,stroke:#a16207
     classDef svc_files fill:#e5e7eb,stroke:#374151
-    classDef svc_platform fill:#f1f5f9,stroke:#475569
+    classDef svc_platform fill:#ccfbf1,stroke:#0f766e
     classDef svc_notifications fill:#fae8ff,stroke:#a21caf
     class stables,stable_settings,notification_rules,buildings,boxes,horses,horse_box_history svc_stable
     class users,businesses,business_admins,stable_members,horse_access,invitations,stable_role_features,platform_roles,platform_requests,signing_keys svc_auth
@@ -981,7 +984,7 @@ erDiagram
         text new_value
     }
     audit_log ||--o{ audit_log_changes : "zmienione pola"
-    classDef svc_platform fill:#f1f5f9,stroke:#475569
+    classDef svc_platform fill:#ccfbf1,stroke:#0f766e
     class audit_log,audit_log_changes svc_platform
 ```
 
@@ -1003,7 +1006,7 @@ erDiagram
 - `audit_log.client`: `tablet`, `app`, `web`, `ops`, `opctl` (CLI zespołu EQUENOR); dla `actor_type = system` brak. `actor_type = operator` to admin globalny albo Wsparcie IT.
 - `users.identity_pool`: `customer` (pula klientów), `team` (pula zespołu EQUENOR). `users.account_kind`: `person`, `technical` (konto `tablet` albo `display`, niezmienne).
 - `platform_roles.role`: `admin` (admin globalny), `support` (Wsparcie IT); `platform_roles.kind`: `named`, `break_glass` (konto awaryjne). `platform_requests.kind`: `role_grant`, `role_revoke`, `business_admin_add`, `business_admin_remove`. `granted_via`: `business`, `platform`.
-- `signing_keys.status`: `next`, `active`, `retiring`, `retired`.
+- `signing_keys.status`: `next` (w JWKS przed użyciem), `active` (podpisuje), `retiring` (jeszcze w JWKS), `retired` (poza JWKS; `auth` przyjmuje nim podpisane refresh tokeny jeszcze 30 dni od `retired_at`), `revoked` (wycofany przy wycieku: znika z JWKS, a `auth` od razu odrzuca nim podpisane refresh tokeny).
 
 ## Zmiany względem modelu z analizy v3
 

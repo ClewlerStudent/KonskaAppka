@@ -20,27 +20,27 @@ flowchart TB
     subgraph S["Serwisy z API: weryfikują podpis lokalnie, nie pytają auth o uprawnienia"]
         direction LR
         subgraph G1["Dane stajni"]
-            s1["stable · dzien<br/>terminarz · board"]
+            s1["stable · dzien · terminarz"]
+            bd["board<br/>tylko odczyt"]
         end
         subgraph G2["Konto i platforma"]
-            s2["billing · platform"]
+            bl["billing"]
+            pl["platform"]
             fl["<b>files</b><br/>jedyny dostęp do S3"]
         end
-        subgraph G3["Powiadomienia"]
-            nf["<b>notifications</b><br/>router: reguły, odbiorcy,<br/>treść, historia"]
-        end
-    end
-
-    subgraph W["Wysyłka (W5): bez tabel i roli bazy, wszystko z kolejki"]
-        direction LR
-        qs[["kolejka sms<br/>SQS FIFO"]] --> sms["<b>sms</b>"]
-        qe[["kolejka email<br/>SQS FIFO"]] --> em["<b>email</b>"]
     end
 
     CR["9 cronów<br/>bez tokenów,<br/>kod domeny właściciela;<br/>files-gc sprząta też S3"]
     DB[("PostgreSQL: schematy app i audit<br/>tabele uprawnień czyta tylko auth")]
     EV[["SNS + SQS<br/>zdarzenia"]]
     S3[("S3<br/>pliki")]
+
+    subgraph N["Powiadomienia (W5): sms i email bez tabel i roli bazy, wszystko z kolejki"]
+        direction TB
+        nf["<b>notifications</b><br/>router: reguły, odbiorcy,<br/>treść, historia"]
+        qs[["kolejka sms<br/>SQS FIFO"]] --> sms["<b>sms</b>"]
+        qe[["kolejka email<br/>SQS FIFO"]] --> em["<b>email</b>"]
+    end
     AWSSMS["AWS SMS"]
     SES["AWS SES"]
 
@@ -49,19 +49,23 @@ flowchart TB
     AUTH -.->|"klucze publiczne,<br/>Admin API"| C
     AUTH -- "podpis" --> KMS
     K ==>|"3. żądania<br/>z access tokenem"| S
-    AUTH -.->|"w tle: JWKS,<br/>/internal/recipients"| S
-    AUTH ~~~ CR
-    S --> DB
+    AUTH -.-|"serwisy pobierają JWKS<br/>(port jwks)"| S
+    AUTH ---|"/internal: koń wyjechał<br/>(woła stable)"| s1
+    s1 -.->|"/internal: pliki<br/>(też billing, platform)"| fl
+    S -- "zapis właściciela" --> DB
     AUTH --> DB
-    CR -- "zapis wprost" --> DB
+    CR -- "zapis wprost<br/>(manifest)" --> DB
     s1 <-->|"zdarzenia"| EV
-    s2 <--> EV
-    nf ---|"konsumuje<br/>zdarzenia"| EV
+    bl <--> EV
     AUTH --> EV
     CR -- "zdarzenia<br/>przed COMMIT" --> EV
+    EV -- "konsumuje zdarzenia" --> nf
+    nf -- "gotowe wiadomości" --> qs
+    nf --> qe
+    nf -->|"/internal/recipients"| AUTH
+    sms -. "sms.result" .-> EV
+    em -. "email.result" .-> EV
     fl --> S3
-    nf -- "gotowe wiadomości" --> W
-    EV -. "sms.result,<br/>email.result" .- W
     sms --> AWSSMS
     em --> SES
 
@@ -71,14 +75,13 @@ flowchart TB
     classDef cli fill:#eef7e8,stroke:#4f8a3a,color:#000
     classDef ext fill:#f4f4f4,stroke:#777,color:#000
     class AUTH authc
-    class s1,s2,fl,nf svc
+    class s1,bd,bl,pl,fl,nf svc
     class sms,em wrk
     class apka,panel,tablet,ops cli
     class pk,pz,KMS,DB,EV,S3,CR,qs,qe,AWSSMS,SES ext
     style K fill:#fbfdf9,stroke:#4f8a3a
     style S fill:#f7fbff,stroke:#2f6fa7
     style C fill:#fafafa,stroke:#777
-    style W fill:#fbf8fe,stroke:#6b4c9a
+    style N fill:#fbf8fe,stroke:#6b4c9a
     style G1 fill:#ffffff,stroke:#9bbbd8
     style G2 fill:#ffffff,stroke:#9bbbd8
-    style G3 fill:#ffffff,stroke:#9bbbd8
