@@ -1,4 +1,4 @@
-# eKoniuszy: development, testy i zakupy przed wdrożeniem
+# EQUENOR: development, testy i zakupy przed wdrożeniem
 
 > Stan na 2026-10-13, po feedbacku ze stajni (erd.md pkt 2, 3 i 12–16 oraz „Otwarte kwestie”), z konfiguracją per stajnia (erd.md pkt 16: „Ustawienia stajni”, potwierdzenia flag zależne od ustawień stajni, widoczność per rola) i z decyzjami z 13.10 (sekcja 5, „Rozstrzygnięte”): logowanie telefonem albo e-mailem, konto firmy z NIP i admin konta, telewizor jako zwykłe konto z rolą Wyświetlacz, język tablicy per tablet, boksy z ustawieniami przy tworzeniu, powiadomienia jako krok 2 zakładania stajni, publiczna strona www. Model danych i decyzje: [docs/erd.md](erd.md) (v3), paleta kolorów: [docs/paleta.md](paleta.md), wersja zwięzła: [docs/development.md](development.md). Z [docs/analiza.md](analiza.md) (nieaktualna v3) bierzemy tylko szczegóły tabletu. Dokument opisuje, co kupić, jakie konta założyć, co zbudować i jak przetestować system przed wdrożeniem. Nie podaje cen i nie wskazuje, gdzie ani u kogo stoją klaster i baza; o tym decyduje Dawid.
 
@@ -360,8 +360,8 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
   - Publiczna strona www przed logowaniem (prezentacja produktu i blog, 3.5.5) spełnia wymóg publicznej strony; polityka prywatności i strona usuwania konta mogą być jej podstronami (propozycja).
   - Czas: godziny.
 - [ ] **Wnioski w AWS, które czekają w kolejce:** wyjście z SMS sandbox, podniesienie miesięcznego limitu SMS, dostęp produkcyjny do SES. Pierwsza odpowiedź przychodzi do 24 h, decyzja bywa później ([SMS sandbox](https://docs.aws.amazon.com/sns/latest/dg/sns-sms-sandbox-moving-to-production.html), [SES FAQ](https://repost.aws/knowledge-center/ses-production-access-request-faq)).
-- [ ] **Identyfikatory od nazwy produktu przed założeniem rekordów w sklepach.** Nazwa jest ustalona: eKoniuszy. Repozytorium nadal nazywa się KonskaAppka, ale ta nazwa nie musi trafiać do identyfikatorów.
-  - Z nazwy eKoniuszy wywodzimy scope pakietów, bundle ID, `applicationId` (apka mobilna i APK tabletu) oraz nazwy w App Store i Google Play.
+- [ ] **Identyfikatory od nazwy produktu przed założeniem rekordów w sklepach.** Nazwa jest ustalona: EQUENOR (decyzja 13.10.2026; wcześniej robocza nazwa eKoniuszy). Repozytorium nadal nazywa się KonskaAppka, ale ta nazwa nie musi trafiać do identyfikatorów.
+  - Z nazwy EQUENOR wywodzimy scope pakietów, bundle ID, `applicationId` (apka mobilna i APK tabletu) oraz nazwy w App Store i Google Play.
   - Bundle ID i `applicationId` są nieodwracalne, więc ich dokładną postać zapisujemy przed założeniem rekordów (sekcja 5).
 
 ### 2.2 Wspólne dla wszystkich kont
@@ -670,7 +670,7 @@ Zasady wspólne:
   - `target_passed` (422);
   - `option_disabled` (409, propozycja): zapis opcji wyłączonej w ustawieniach stajni, np. flaga z nieaktywnego szablonu (`derka` w Stajni Brzozowej), „namoczyć” przy wyłączonym moczeniu, szybka akcja z wyłączonym przyciskiem;
   - `ack_not_required` (409, propozycja): potwierdzenie flagi z `requires_ack = false`;
-  - `tax_id_taken` (409, propozycja): rejestracja konta firmy z NIP, który ma już konto („Ten NIP ma już konto w eKoniuszy”);
+  - `tax_id_taken` (409, propozycja): rejestracja konta firmy z NIP, który ma już konto („Ten NIP ma już konto w EQUENOR”);
   - `profile_missing`;
   - `client_upgrade_required`;
   - 404 dla obiektów innej stajni.
@@ -778,10 +778,10 @@ Zasady wspólne:
   - Testy właściwości (fast-check) oraz nocy 25.10.2026 i 28.03.2027.
 - [ ] `packages/i18n`: polski, ukraiński i angielski. Etykiety słowników pochodzą z tabel `*_labels` (opcjonalne tłumaczenia nazw, np. pory posiłków po ukraińsku). Stajnia nie ma listy języków (bez `stable_locales`): język tablicy ustawia każdy tablet osobno (3.5.2), a język apki i panelu każda osoba w profilu.
 - [ ] `packages/theme`: tokeny palety z `docs/paleta.md`, jedno źródło dla apki, panelu, wyświetlacza TV i tabletu.
-  - **Tokeny LCD** (apka, panel, TV): `bg`, `surface`, `sand`, `accent-soft`, `line`, `line-strong`, `line-input`, `ink`, `ink-2`, `accent`, `accent-strong`, `on-accent`, rodziny statusów `ok-*` (text, tint, line), `warn-*` (text, tint, tint-weak, line) i `crit-*` (text, tint, line), `crit-solid` z `on-crit`, `e-on-dark`; do tego nakładka pod modalem i cień karty (cień tylko apka i panel).
+  - **Tokeny LCD** (apka, panel, TV): `bg`, `surface`, `sand`, `accent-soft`, `line`, `line-strong`, `line-input`, `ink`, `ink-2`, `accent`, `accent-strong`, `on-accent`, rodziny statusów `ok-*` (text, tint, line), `warn-*` (text, tint, tint-weak, line) i `crit-*` (text, tint, line), `crit-solid` z `on-crit`; do tego nakładka pod modalem i cień karty (cień tylko apka i panel).
   - **Tokeny tabletu** `t-*`: `t-paper`, `t-ok`, `t-line`, `t-warn`, `t-scrim`, `t-crit`, `t-ink-2`, `t-ink`, z wartością szarości przy każdym. Profil domyślny (Kaleido 3) i profil Gallery 3, który podmienia tylko `t-ok`, `t-warn` i `t-crit`.
   - Wyjścia: zmienne CSS (`:root`) dla panelu i `/wyswietlacz`, obiekt TS dla React Native (apka i tablet).
-  - Znak słowny „eKoniuszy”, nigdy wielkimi literami: samo „e” w akcencie (waga 600), reszta nazwy w `ink`; na ciemnym tle „e” w `e-on-dark`, reszta w `#FFFCF7`. Domyślny akcent to Koniak; pozostałe opcje akcentu z `docs/paleta.md` tylko jako warianty do decyzji.
+  - Znak słowny „EQUENOR”: zawsze wersalikami, rozstrzelony 0,16 em, waga 700, cały w `ink` (na ciemnym tle `#FFFCF7`, na tablecie `t-ink`), bez akcentu. Hasło „Equestrian Management, Refined” tylko pod znakiem: ok. 0,45–0,55 jego rozmiaru (min. 11 px na LCD, 16 px na tablecie), waga 500, `ink-2`, odstęp 2–6 px; tylko na ekranach logowania i w nagłówku oraz stopce strony www, w kompaktowych nagłówkach sam znak (szczegóły w `docs/paleta.md`). Domyślny akcent to Koniak; pozostałe opcje akcentu z `docs/paleta.md` tylko jako warianty do decyzji.
   - Testy (CI):
     - wartości zgodne z tabelami w `docs/paleta.md` (test parsuje tabele, więc zmiana palety bez zmiany pakietu, albo odwrotnie, zatrzymuje CI) (propozycja);
     - kontrasty WCAG: tekst ≥ 4,5:1, duże elementy i obrysy kontrolek ≥ 3:1, dla każdej pary tekst–tło używanej w komponentach;
@@ -961,7 +961,7 @@ Zasady wspólne:
 
 **stable** (`businesses`, `business_admins`, `stables`, `stable_settings`, `stable_role_features`, `notification_rules`, `buildings`, `boxes`, `horses`, `horse_box_history`)
 - [ ] Konto firmy (`businesses`) z kilkoma stajniami (`stables.business_id`): konto firmy → stajnie → hale → boksy [erd]. Tylko B2B: jedno konto to jeden NIP. Admin konta ma dostęp do wszystkich stajni firmy; dane, izolacja, płatności i ustawienia zostają na poziomie stajni.
-- [ ] `POST /businesses` (propozycja): rejestracja konta firmy po pierwszym logowaniu (PanelWitaj → PanelRejestracjaFirmy): nazwa firmy, NIP, siedziba i e-mail do faktur (`invoice_email`). NIP podaje się tylko tutaj. Kod normalizuje NIP do 10 cyfr i sprawdza sumę kontrolną (propozycja); NIP, który ma już konto, daje `409 tax_id_taken` („Ten NIP ma już konto w eKoniuszy”, propozycja) i nic nie zapisuje. Osoba rejestrująca zostaje adminem konta: `businesses` i `business_admins` zapisują się w jednej transakcji (propozycja z erd.md).
+- [ ] `POST /businesses` (propozycja): rejestracja konta firmy po pierwszym logowaniu (PanelWitaj → PanelRejestracjaFirmy): nazwa firmy, NIP, siedziba i e-mail do faktur (`invoice_email`). NIP podaje się tylko tutaj. Kod normalizuje NIP do 10 cyfr i sprawdza sumę kontrolną (propozycja); NIP, który ma już konto, daje `409 tax_id_taken` („Ten NIP ma już konto w EQUENOR”, propozycja) i nic nie zapisuje. Osoba rejestrująca zostaje adminem konta: `businesses` i `business_admins` zapisują się w jednej transakcji (propozycja z erd.md).
 - [ ] `POST /stables`: „Załóż stajnię” w 2 krokach, jedno żądanie na końcu kroku 2 (propozycja).
   - Krok 1 „Stajnia” (PanelZalozStajnie): nazwa, adres, strefa, pierwsza hala z adresem stajni i boksy z ustawieniami (niżej). Bez NIP, bez wyboru działalności, bez języków i bez pytania o potwierdzenia flag.
   - Krok 2 „Powiadomienia” (PanelZalozPowiadomienia): które zdarzenia, do kogo (Admin, Obsługa stajni) i jakim kanałem (SMS, e-mail); zapis w `notification_rules`. Potem „Załóż stajnię” → PanelPulpitStart.
@@ -1214,7 +1214,7 @@ Zasady wspólne:
   - Zaproszenie: role Klient (z wyborem konia), Obsługa, Instruktor, Wsparcie IT (z opisem jednym zdaniem); kanał „SMS | E-mail”.
 - [ ] Ekrany bez makiet: profil (wyloguj wszędzie, usuń konto, język), dodawanie zadania przez admina, jazdy instruktora.
 - [ ] Przy kilku halach zawsze „Hala nowa · boks 4”; przy jednej hali bez podziału. Nawigacja do boksu zawsze po `id`.
-- [ ] Kolory i znak słowny „eKoniuszy” z `packages/theme` (tokeny LCD z `docs/paleta.md`): akcent tylko na elementach klikalnych; status zawsze jako ikona, słowo i pole, nigdy sam kolor; flaga krytyczna jako jasny tint z lewym paskiem 4 px.
+- [ ] Kolory i znak słowny „EQUENOR” z `packages/theme` (tokeny LCD z `docs/paleta.md`): akcent tylko na elementach klikalnych; status zawsze jako ikona, słowo i pole, nigdy sam kolor; flaga krytyczna jako jasny tint z lewym paskiem 4 px.
 
 #### 3.5.2 Apka tabletu (kiosk e-ink, kolorowy albo czarno-biały)
 - [ ] `apps/tablet`: Expo w development buildzie. Dystrybucja wyłącznie jako APK przez `releases`.
@@ -1357,7 +1357,7 @@ Zasady wspólne:
 - [ ] PanelDodajHale: nazwa i adres hali (z kopiowaniem adresu innej hali), potem jedno z trzech: nowe boksy od–do (numeracja w tej hali, domyślnie od 1; numery mogą powtarzać się z innymi halami) z listą boksów i ustawieniami każdego (numer, poidło, „Więcej ustawień ›”, „Ustaw dla wszystkich”), przeniesienie istniejących boksów albo pusta hala.
 - [ ] **Konto firmy i zakładanie stajni** (makiety; Damian, retrospekcja z pn 07.09.2026 i czw 01.10.2026):
   - PanelLogowanie z przełącznikiem „Telefon | E-mail” → PanelLogowanieKod → PanelWitaj;
-  - **PanelRejestracjaFirmy** (nowy, po PanelWitaj, tylko przy pierwszej rejestracji): nazwa firmy, NIP, siedziba i e-mail do faktur (NIP podaje się tylko tutaj); błąd „Ten NIP ma już konto w eKoniuszy”;
+  - **PanelRejestracjaFirmy** (nowy, po PanelWitaj, tylko przy pierwszej rejestracji): nazwa firmy, NIP, siedziba i e-mail do faktur (NIP podaje się tylko tutaj); błąd „Ten NIP ma już konto w EQUENOR”;
   - PanelZalozStajnie, krok 1 „Stajnia”: bez NIP, działalności, języków tabletów i pytania o potwierdzenia flag; hala i boksy z ustawieniami („Ustaw dla wszystkich”);
   - **PanelZalozPowiadomienia** (nowy), krok 2 „Powiadomienia”: zdarzenia, odbiorcy (Admin, Obsługa stajni), kanał SMS / e-mail; „Załóż stajnię” → PanelPulpitStart;
   - PanelPulpitStart → PanelZaprosOsobe: kanał SMS albo e-mail, role z Wyświetlaczem (konto telewizora);
@@ -1374,7 +1374,7 @@ Zasady wspólne:
 - [ ] Przy kilku halach każdy boks w tabelach, filtrach, alertach i formularzach przypisania ma halę razem z numerem; wybór boksu w formularzach wysyła `boxId`.
 - [ ] Plansze pierwszej fali (logowanie, PanelWitaj, Pulpit, zaproszenia, Ludzie) opisuje docs/makiety-plan.md. Ekrany bez makiet: Konie, Ludzie poza tym, co pokazują makiety (role Klient, Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz; przypisanie osoby do kolejnej stajni), pozostałe ustawienia stajni poza ekranem „Ustawienia stajni” (progi eskalacji, słowniki, sloty, domyślne godziny szablonów flag, okno APK).
 - [ ] Edycje z `If-Match` i obsługą 412.
-- [ ] Kolory i znak słowny „eKoniuszy” z `packages/theme` (tokeny LCD z `docs/paleta.md`, zmienne CSS); flaga krytyczna jako pigułka z pełnym ciemnym polem (`crit-solid` z tekstem `on-crit`).
+- [ ] Kolory i znak słowny „EQUENOR” z `packages/theme` (tokeny LCD z `docs/paleta.md`, zmienne CSS); flaga krytyczna jako pigułka z pełnym ciemnym polem (`crit-solid` z tekstem `on-crit`).
 
 #### 3.5.4 Wyświetlacz (`/wyswietlacz`) i `tools/display-kiosk`
 - [ ] Logowanie zwykłym kontem z rolą Wyświetlacz (`display`), tak jak wszędzie: WyswietlaczLogowanie z przełącznikiem „Telefon | E-mail”, potem WyswietlaczKod (kod z SMS-a albo e-maila). W seedzie „Telewizor korytarz” loguje się e-mailem; ekran pokazuje adres tylko zamaskowany (t•••@stajnielipowe.pl). Bez kont technicznych i bez nazw kont typu `wyswietlacz-korytarz`. Zablokowane konto pokazuje „wyświetlacz zablokowany”.
@@ -1423,7 +1423,7 @@ Zasady wspólne:
 #### 3.5.5 Strona www (przed logowaniem)
 - [ ] Publiczna strona produktu: prezentacja i blog (pseudo-blog). Makiety: StronaGlowna (1440), StronaGlownaTelefon (390), StronaWpis (1440, wpis bloga).
 - [ ] Treść: prezentacja produktu, lista wpisów bloga i pojedynczy wpis; link „Zaloguj się” do panelu. Bez danych stajni, bez logowania i bez API aplikacji.
-- [ ] Kolory i znak „eKoniuszy” z `docs/paleta.md` (tokeny LCD, przez `packages/theme`, propozycja); układ od 390 do 1440 px.
+- [ ] Kolory i znak „EQUENOR” (z hasłem pod spodem w nagłówku i stopce) z `docs/paleta.md` (tokeny LCD, przez `packages/theme`, propozycja); układ od 390 do 1440 px.
 - [ ] Gdzie żyje: statyczna strona czy CMS, do decyzji (sekcja 5 pkt 51). Propozycja: statyczny generator w monorepo (`apps/www`), wpisy w Markdown w repo, build w CI, hosting statyczny na domenie głównej (2.10); CMS dopiero, gdy wpisy pisze ktoś bez dostępu do repo. Hosting wybiera Dawid.
 - [ ] Na stronie mogą żyć polityka prywatności, strona wsparcia i strona usuwania konta, których wymagają Apple i Google (2.7, 2.8) (propozycja).
 - [ ] Testy: Playwright w 1440 i 390, linki do panelu, brak zewnętrznych skryptów śledzących bez zgody (propozycja).
@@ -1586,7 +1586,7 @@ Zasady wspólne:
     - wariant „pusta hala”;
     - usunięcia hali z boksami interfejs nie proponuje, a API je odrzuca; wyłączenie hali działa;
     - po dodaniu drugiej hali stajnia z jedną halą zaczyna pokazywać halę przy numerze w panelu.
-  - Konto firmy i zakładanie stajni: logowanie e-mailem, PanelRejestracjaFirmy (NIP zajęty: komunikat „Ten NIP ma już konto w eKoniuszy”), PanelZalozStajnie bez NIP, języków i potwierdzeń, boksy 1–6 z „Ustaw dla wszystkich” i jednym boksem z poidłem ręcznym, PanelZalozPowiadomienia, „Załóż stajnię” → PanelPulpitStart; druga stajnia bez rejestracji firmy; zaproszenie z kanałem SMS albo e-mail i rolą Wyświetlacz.
+  - Konto firmy i zakładanie stajni: logowanie e-mailem, PanelRejestracjaFirmy (NIP zajęty: komunikat „Ten NIP ma już konto w EQUENOR”), PanelZalozStajnie bez NIP, języków i potwierdzeń, boksy 1–6 z „Ustaw dla wszystkich” i jednym boksem z poidłem ręcznym, PanelZalozPowiadomienia, „Załóż stajnię” → PanelPulpitStart; druga stajnia bez rejestracji firmy; zaproszenie z kanałem SMS albo e-mail i rolą Wyświetlacz.
   - Ustawienia stajni (PanelUstawieniaStajni, PanelUstawieniaBrzozowa): stan przełączników i macierzy obu stajni z seedu; „Zapisz” z `If-Match`, konflikt 412 pokazuje komunikat; wyłączenie Derki i włączenie z powrotem; zakładki nie widzi nikt poza adminem; przełącznik stajni w nagłówku przechodzi między stajniami.
   - Płatności na fałszywym adapterze: podwójny webhook daje jedną płatność, brak płatności daje `suspended`.
   - `/wyswietlacz`:
@@ -2075,7 +2075,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
     - [ ] PanelWitaj → PanelRejestracjaFirmy: „Stajnie Lipowe sp. z o.o.”, NIP 123-456-32-18, siedziba ul. Lipowa 12, 05-520 Konstancin-Jeziorna. Powstaje konto firmy, a Damian zostaje jego adminem. NIP zapisuje się jako 10 cyfr (propozycja).
     - [ ] PanelZalozStajnie, krok 1: Stajnia Pod Lipami bez pytania o NIP, działalność, języki tabletów i potwierdzenia flag. Hala główna z boksami 1–8: lista boksów pojawia się od razu po zakresie, „Ustaw dla wszystkich” ustawia poidło automatyczne.
     - [ ] PanelZalozPowiadomienia, krok 2: zdarzenia, odbiorcy (Admin, Obsługa stajni) i kanał SMS / e-mail; „Załóż stajnię” → PanelPulpitStart. W bazie stajnia, hala, boksy i `notification_rules` są zapisane razem; ustawienia stajni: wszystko włączone, z potwierdzeniami.
-    - [ ] Inna osoba rejestruje konto firmy z NIP „1234563218”: dostaje „Ten NIP ma już konto w eKoniuszy” (`409 tax_id_taken`, propozycja), nic się nie zapisuje, a konto Damiana się nie zmienia.
+    - [ ] Inna osoba rejestruje konto firmy z NIP „1234563218”: dostaje „Ten NIP ma już konto w EQUENOR” (`409 tax_id_taken`, propozycja), nic się nie zapisuje, a konto Damiana się nie zmienia.
 23. **A-23 Druga stajnia i dostęp per stajnia (Damian, czw 01.10.2026).**
     - [ ] Damian w panelu zakłada drugą stajnię (PanelZalozStajnie → PanelZalozPowiadomienia): Stajnia Brzozowa, ul. Brzozowa 5, 05-500 Piaseczno, jedna hala, boksy 1–6 z poidłem automatycznym. Nikt nie pyta o NIP ani o firmę: stajnia trafia do konta „Stajnie Lipowe sp. z o.o.”.
     - [ ] Damian od razu ma w nagłówku „▾” z obiema stajniami, bez przypisywania. Nowa stajnia ma wszystko włączone; Damian zmienia ustawienia na te z seedu (PanelUstawieniaBrzozowa).
@@ -2224,7 +2224,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 26. Okresy retencji: audyt, `notifications`, pliki `deleted`, `payment_provider_events`.
 27. Domyślne sloty posiłków i szablony flag dla nowej stajni (erd.md wymienia kody szablonów, w tym `derka`, ale nie ich domyślne okna godzin poza przykładami z makiet) oraz domyślna nazwa pierwszej hali, którą kod zakłada razem ze stajnią (adres bierze ze stajni [erd]). Kto dostaje `health-due-reminders`.
 28. Parametry billingu potrzebne w kodzie: definicja metryki w `billing-usage-snapshot` (stan na koniec okresu czy maksimum w okresie) oraz to, czy `InvoiceSystem` w v1 ma prawdziwą integrację (KSeF 2.0). Zależy od otwartej kwestii pkt 47; do jej rozstrzygnięcia billing zostaje na fałszywych adapterach.
-29. **Identyfikatory od nazwy eKoniuszy.** Nazwa produktu jest ustalona (repozytorium nadal nazywa się KonskaAppka). Otwarta jest dokładna postać scope pakietów, bundle ID, `applicationId` i nazw w sklepach. Bundle ID i `applicationId` są nieodwracalne, więc muszą zapaść przed założeniem rekordów.
+29. **Identyfikatory od nazwy EQUENOR.** Nazwa produktu jest ustalona (repozytorium nadal nazywa się KonskaAppka). Otwarta jest dokładna postać scope pakietów, bundle ID, `applicationId` i nazw w sklepach. Bundle ID i `applicationId` są nieodwracalne, więc muszą zapaść przed założeniem rekordów.
 30. Kto może zmienić sieć Wi-Fi na tabletach przez ukryte ustawienia (np. Wsparcie IT), jak się przy tym uwierzytelnia i kto zna hasło.
 31. **Założenia tabletu do potwierdzenia** [erd, pkt 2]:
     - na tablecie jest zalogowany jeden użytkownik naraz (pilnuje apka);
@@ -2271,7 +2271,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 **Konto firmy i strona www** (po decyzjach z 13.10.2026)
 
 51. **Gdzie żyje strona www** (prezentacja i blog, 3.5.5): statyczna strona czy CMS. Propozycja: statyczny generator w monorepo (`apps/www`), wpisy w Markdown w repo, build w CI, hosting statyczny na domenie głównej; CMS dopiero, gdy wpisy będzie pisał ktoś bez dostępu do repo. Hosting i domenę wybiera Dawid.
-52. **Sprawdzanie NIP przy rejestracji.** Propozycja na PoC: tylko format i suma kontrolna, bez sprawdzania w rejestrach (GUS, VIES). Do ustalenia: co, gdy NIP zajęło konto, do którego właściciel firmy nie ma dostępu (np. były pracownik); propozycja: przejęcie przez zespół eKoniuszy po weryfikacji, bez UI na PoC.
+52. **Sprawdzanie NIP przy rejestracji.** Propozycja na PoC: tylko format i suma kontrolna, bez sprawdzania w rejestrach (GUS, VIES). Do ustalenia: co, gdy NIP zajęło konto, do którego właściciel firmy nie ma dostępu (np. były pracownik); propozycja: przejęcie przez zespół EQUENOR po weryfikacji, bez UI na PoC.
 53. **Reguły powiadomień** (`notification_rules`, erd.md pkt 17): które zdarzenia pokazać w kroku 2 i co zaznaczyć domyślnie w nowej stajni (propozycja: eskalacja niepotwierdzonej flagi do admina SMS-em i e-mailem, jak na makietach pulpitu).
 
 ## Źródła

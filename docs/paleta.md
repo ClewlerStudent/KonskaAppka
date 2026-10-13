@@ -1,6 +1,6 @@
-# eKoniuszy: paleta kolorów
+# EQUENOR: paleta kolorów
 
-> Wersja 2026-10-12. Paleta „Len, koniak i cegła”: ciepła, stonowana, z mocnymi rolami kolorów. Tak wyglądają makiety: [kanwas](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX).
+> Wersja 2026-10-13 (znak słowny EQUENOR). Paleta „Len, koniak i cegła”: ciepła, stonowana, z mocnymi rolami kolorów. Tak wyglądają makiety: [kanwas](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX).
 > Kontrasty liczone skryptem (WCAG): tekst ≥ 4,5:1, duże elementy i obrysy kontrolek ≥ 3:1. Statusy sprawdzone w symulacji deuteranopii i protanopii.
 
 ## Ekrany LCD: apka, panel web, wyświetlacz TV
@@ -16,14 +16,13 @@
 | `line-input` | `#907D6A` | obrys pól, wyszukiwarki, selecta, przycisków drugorzędnych, filtrów, checkboxów |
 | `ink` | `#2E241D` | tekst główny, zegar, liczby, tło plakietki numeru boksu |
 | `ink-2` | `#5C4E43` | tekst drugorzędny, ikony dekoracyjne |
-| `accent` | `#8A5230` | koniak: przycisk główny, linki, aktywna nawigacja, fokus, „e” w znaku |
+| `accent` | `#8A5230` | koniak: przycisk główny, linki, aktywna nawigacja, fokus |
 | `accent-strong` | `#6B3A1E` | hover i wciśnięcie akcentu |
 | `on-accent` | `#FFFCF7` | tekst na akcencie |
 | `ok-text` / `ok-tint` / `ok-line` | `#2D523D` / `#D4EADC` / `#407658` | podane, potwierdzona |
 | `warn-text` / `warn-tint` / `warn-tint-weak` / `warn-line` | `#664810` / `#F6E3B7` / `#FCF4E2` / `#8C6014` | niepotwierdzona, uwaga |
 | `crit-text` / `crit-tint` / `crit-line` | `#71251A` / `#EFCBBF` / `#86301F` | krytyczna, wstrzymane |
 | `crit-solid` + `on-crit` | `#86301F` + `#FFFCF7` | pełne pole flagi krytycznej (jedyne ciemne pole statusu) |
-| `e-on-dark` | `#E2A878` | litera „e” znaku na ciemnym tle |
 
 Nakładka pod modalem: `rgba(46,36,29,0.40)`. Cień karty (tylko apka i panel): `0 1px 2px rgba(46,36,29,.06), 0 4px 12px -6px rgba(46,36,29,.14)`.
 
@@ -31,10 +30,17 @@ Opcje akcentu (tweak), z kolorem hover: Koniak `#8A5230`/`#6B3A1E` (domyślny), 
 
 ### Zasady
 
-- **Znak słowny:**
-  - „eKoniuszy”, nigdy wielkimi literami;
-  - „Koniuszy” w `ink`, samo „e” w akcencie (waga 600);
-  - na ciemnym tle „e” w `e-on-dark`, reszta w `#FFFCF7`.
+- **Znak słowny „EQUENOR”:**
+  - zawsze wersalikami, rozstrzelony 0,16 em (`letter-spacing: 0.16em`), waga 700;
+  - cały w `ink`; na ciemnym tle w `#FFFCF7`; na tablecie w `t-ink` (czarny);
+  - bez akcentu, bo znak nie jest elementem klikalnym;
+  - w zdaniach marka to „EQUENOR”, nieodmienna („w EQUENOR”, „do EQUENOR”).
+- **Hasło „Equestrian Management, Refined”:**
+  - zawsze pod znakiem, nigdy obok; odstęp od znaku 2–6 px;
+  - ok. 0,45–0,55 rozmiaru znaku, co najmniej 11 px na LCD i 16 px na tablecie; waga 500; zwykłe litery, bez wersalików i rozstrzelenia;
+  - w `ink-2`; na tablecie w `t-ink-2` (gdy ma ≥ 20 px) albo w `t-ink`;
+  - tylko tam, gdzie znak jest wizytówką: ekrany logowania (apka, panel web, wyświetlacz TV, tablet), nagłówek i stopka strony www;
+  - w kompaktowych nagłówkach apki, panelu i TV sam znak, bez hasła.
 - **Akcent tylko na elementach klikalnych:** jeden przycisk główny na widok, linki tekstowe (z podkreśleniem), aktywna nawigacja, fokus. Nigdy na nagłówkach, liczbach, statusach. Na TV bez pól w akcencie.
 - **Kolor niosą tylko trzy statusy:** OK, uwaga, krytyczna. Info (leki, wet) jest neutralne: piasek i ikona typu.
 - **Każdy status ma trzy sygnały naraz:** ikonę, słowo i jasność albo polaryzację pola. Kolor nigdy nie występuje sam.

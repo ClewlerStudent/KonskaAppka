@@ -1,4 +1,4 @@
-# eKoniuszy: plan brakujących makiet
+# EQUENOR: plan brakujących makiet
 
 > 2026-10-12, poprawki po decyzjach użytkownika z 13.10.2026 · [erd.md](erd.md) · [development.md](development.md) (pełna wersja [development-szczegoly.md](development-szczegoly.md)) · [paleta.md](paleta.md) · kanwa [claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX) · bez cen i infrastruktury.
 
@@ -81,7 +81,7 @@ Rozstrzygnięte 13.10.2026: dec. 1, 2, 3, 7 (e-mail), 10, 11, 21, 28 (bez macier
 
 - **Role:** Klient, Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz. Admin to rola konta firmy (wszystkie stajnie firmy), pozostałe role przypisuje się per stajnia (dec. 35). Wsparcie IT dosłownie: „Wsparcie IT: techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami.”
 - **Flagi:** status „potwierdzona HH:MM” albo „niepotwierdzona” (nigdy „przyjęte”), tylko przy `requires_ack`, inaczej „obowiązuje od razu”; godziny „06:00–10:00”, „od 14:30”, „16:00–08:00”, „dziś, cały dzień”. „Przyjęte” wolno tylko przy zaproszeniach.
-- **Akcje:** „Ogarnięte”, „Podano śniadanie / obiad / kolację”, „Wyprowadzono na padok”, „Woda” tylko przy poidle ręcznym. Bez „Najemca”, „Serwisant”, „Właściciel konia” jako roli, „Nakarmiony”, „Czyszczenie”, „Ścielenie”; „Siano” tylko jako pasza; „eKoniuszy” nigdy wielkimi literami.
+- **Akcje:** „Ogarnięte”, „Podano śniadanie / obiad / kolację”, „Wyprowadzono na padok”, „Woda” tylko przy poidle ręcznym. Bez „Najemca”, „Serwisant”, „Właściciel konia” jako roli, „Nakarmiony”, „Czyszczenie”, „Ścielenie”; „Siano” tylko jako pasza; znak „EQUENOR” zawsze wersalikami, a w zdaniach nieodmienny („w EQUENOR”, „do EQUENOR”); hasło „Equestrian Management, Refined” tylko pod znakiem (zasady: paleta.md).
 - **Boks:** przy kilku halach „Hala nowa · boks 4”, w wąskich listach „Nowa 4”; w Brzozowej „boks 1”; formularze wysyłają `boxId`.
 - **Logowanie** (apka, panel, tablet, TV; dec. 7): nad polem przełącznik segmentowy „Telefon | E-mail” w stylu „Kanał: SMS | E-mail” z Zaproszenie (tablet: „TELEFON | E-MAIL”, e-ink); „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.” Zaproszenia SMS-em albo e-mailem.
 - **Adresy:** [PANEL] to subdomena panelu, TV otwiera [PANEL]/wyswietlacz, strona pobierania apki to [WWW]/app (dev 2).
@@ -214,7 +214,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 ### A. Apka: logowanie, zaproszenia, konto
 
 **LogowanieNumer** · apka, niezalogowany · 390×844 · P1 · erd pkt 6; szcz. 4.2; dev §5 pkt 1–2
-- Treść: nagłówek jak Logowanie (logo 60 px na accent-soft, „eKoniuszy” 28 px, „Twoja stajnia w jednym miejscu”), bez paska; H1 „Zaloguj się”; przełącznik „Telefon | E-mail” (2.3), wybrany Telefon: +48 „600 *** 412” (Anna); „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”; „Wyślij kod”; „Masz zaproszenie ze stajni? Wpisz numer albo e-mail, na który przyszło.”; mniejszym „Prowadzisz stajnię? Załóż konto firmy w panelu web.” (dec. 1); Polityka prywatności.
+- Treść: nagłówek jak Logowanie (logo 60 px na accent-soft, „EQUENOR” 28 px, pod nim hasło „Equestrian Management, Refined” ok. 14 px, `ink-2`), bez paska; H1 „Zaloguj się”; przełącznik „Telefon | E-mail” (2.3), wybrany Telefon: +48 „600 *** 412” (Anna); „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”; „Wyślij kod”; „Masz zaproszenie ze stajni? Wpisz numer albo e-mail, na który przyszło.”; mniejszym „Prowadzisz stajnię? Załóż konto firmy w panelu web.” (dec. 1); Polityka prywatności.
 - Stany: zły format („Wpisz 9 cyfr numeru”); numer spoza Polski (tekst zależy od szcz. 2.5 i §5 pkt 24; przy blokadzie krajów „Obsługujemy tylko numery z Polski (+48)”); limit wysyłek („Spróbuj ponownie za kilka minut”); brak sieci; E-mail (zły format: „Wpisz poprawny adres e-mail”). „600…”, „+48 600…”, „0048…” to ten sam numer, bez stanu.
 
 **LogowanieBlad** · wariant Logowanie · 390×844 · P1 · szcz. 3.6 etap 1, 4.2
@@ -226,11 +226,11 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 - Stany: brak zaproszenia na ten numer albo e-mail (także numer przejęty po innej osobie: dostęp idzie za kontem, szcz. 4.2); zaproszenie odwołane; członkostwo dezaktywowane („Twój dostęp do Stajni Pod Lipami zakończył się”).
 
 **WiadomosciSms** · plansza z treścią SMS · 390×844 · P1 · erd pkt 6; szcz. 2.5, 3.3 notifications, 4.2, A-02, §5 pkt 24
-- Treść: wątek od nadawcy „eKoniuszy” (nazwa: szcz. §5 pkt 24); pod dymkiem liczba znaków i segmentów (polskie znaki: segment 70): zaproszenie Marka „Stajnia Pod Lipami zaprasza Cię do eKoniuszy jako klienta (koń: Luna). Pobierz aplikację: [WWW]/app i zaloguj się tym numerem. Ważne do 15.10.” (bez tokenu); kod „Kod eKoniuszy: 482913”, bez linku; eskalacja do Damiana (A-02) „eKoniuszy: Bella · Hala nowa · boks 4 · „Nie na padok” niepotwierdzona. Sprawdź tablet albo potwierdź w aplikacji.”; obok wersja UA zaproszenia obsługi (dec. 8).
+- Treść: wątek od nadawcy „EQUENOR” (nazwa: szcz. §5 pkt 24); pod dymkiem liczba znaków i segmentów (polskie znaki: segment 70): zaproszenie Marka „Stajnia Pod Lipami zaprasza Cię do EQUENOR jako klienta (koń: Luna). Pobierz aplikację: [WWW]/app i zaloguj się tym numerem. Ważne do 15.10.” (bez tokenu); kod „Kod EQUENOR: 482913”, bez linku; eskalacja do Damiana (A-02) „EQUENOR: Bella · Hala nowa · boks 4 · „Nie na padok” niepotwierdzona. Sprawdź tablet albo potwierdź w aplikacji.”; obok wersja UA zaproszenia obsługi (dec. 8).
 - Stany: ponowne zaproszenie (+48 512 *** 908); e-mail zaproszenia (Kuba, k•••@stajnielipowe.pl) i e-mail z kodem (dec. 7).
 
 **ZaproszenieStrona** · www w telefonie · 390×844 · P1 · analiza 8.1; erd pkt 6; dev 2
-- Treść: znak; H1 „Masz zaproszenie do stajni?”; kroki: pobierz eKoniuszy (App Store, Google Play), zaloguj się numerem albo e-mailem, na który przyszło zaproszenie, przyjmij je w apce; „Zarządzasz stajnią? Panel: [PANEL]”; bez tokenu i danych zaproszenia.
+- Treść: znak; H1 „Masz zaproszenie do stajni?”; kroki: pobierz EQUENOR (App Store, Google Play), zaloguj się numerem albo e-mailem, na który przyszło zaproszenie, przyjmij je w apce; „Zarządzasz stajnią? Panel: [PANEL]”; bez tokenu i danych zaproszenia.
 - Stany: otwarcie na komputerze (QR do sklepów, propozycja).
 
 **ZaproszeniePrzyjmij** · apka, pierwsze logowanie zaproszonej osoby · 390×844 · P1 · dec. 4, 6, 9 · erd pkt 3, 6, 14; szcz. 3.3 access, 4.2, A-06, A-17
@@ -262,30 +262,30 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 - Stany: zły kod; numer należy do innego konta.
 
 **StronaUsunKonto** · www w telefonie · 390×844 · P2 · szcz. 2.1; analiza 8.5; erd pkt 6
-- Treść: „Usuń konto eKoniuszy”: co usuwamy (dane osobowe, konto logowania), co zostaje (wpisy w historii stajni bez nazwiska); kroki: apka → Profil → Usuń konto; kontakt [E-MAIL]; formularz: numer albo e-mail i kod (propozycja).
+- Treść: „Usuń konto EQUENOR”: co usuwamy (dane osobowe, konto logowania), co zostaje (wpisy w historii stajni bez nazwiska); kroki: apka → Profil → Usuń konto; kontakt [E-MAIL]; formularz: numer albo e-mail i kod (propozycja).
 
 **MainBezKonia** · wariant Main · 390×844 · P2 · dec. 24 · erd pkt 3; szcz. 4.2, §5 pkt 20
 - Treść: Tomasz L., dostęp do Groma zakończony 12.10 (poza seedem); karta neutralna „Nie masz teraz dostępu do żadnego konia w tej stajni. Dostęp do Groma zakończył się 12.10.”; bez kafelków flag; pasek Konie | Profil (propozycja).
 - Stany: dostęp odebrany przez admina („Admin stajni zakończył dostęp 13.10 07:00”); klient z drugą stajnią (przełącznik zostaje).
 
 **StajniaZawieszona** · apka, wszystkie role · 390×844 · P2 · erd pkt 10; szcz. 3.3 board, §5 pkt 20
-- Treść: Anna; karta krytyczna „Stajnia Pod Lipami jest teraz nieaktywna w eKoniuszy. Flagi i plany nie są pokazywane. Nie polegaj na aplikacji, zadzwoń do stajni.”; bez koni i kafelków; przełącznik do Brzozowej działa; pasek tylko z Profilem (propozycja).
+- Treść: Anna; karta krytyczna „Stajnia Pod Lipami jest teraz nieaktywna w EQUENOR. Flagi i plany nie są pokazywane. Nie polegaj na aplikacji, zadzwoń do stajni.”; bez koni i kafelków; przełącznik do Brzozowej działa; pasek tylko z Profilem (propozycja).
 - Stany: admin („Płatność po terminie · zapłać w panelu web”); obsługa (bez szybkich akcji); „Zaktualizuj aplikację” (`client_upgrade_required`).
 
 ### B. Panel: logowanie, stajnia, ludzie
 
 **PanelLogowanie** · panel, niezalogowany · 1440×900 fill · P1 · dec. 7, 18 · szcz. 3.6 etap 1, §5 pkt 1, 15; analiza §9
 - Scena: Damian, pn 07.09 (rejestracja konta firmy).
-- Treść: tło bg, bez menu; karta 440 px: logo, „eKoniuszy”, H1 „Zaloguj się do panelu stajni”; przełącznik „Telefon | E-mail” (2.3), +48 „602 *** 145”, „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”, „Wyślij kod”; obok neutralnie „Panel web stajni: hale i boksy, konie, ludzie, ustawienia, płatności.”, a „Obsługa i klienci pracują w apce eKoniuszy.” tylko przy dec. 18 a; Regulamin, Polityka prywatności.
+- Treść: tło bg, bez menu; karta 440 px: logo, „EQUENOR” z hasłem „Equestrian Management, Refined” pod spodem, H1 „Zaloguj się do panelu stajni”; przełącznik „Telefon | E-mail” (2.3), +48 „602 *** 145”, „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”, „Wyślij kod”; obok neutralnie „Panel web stajni: hale i boksy, konie, ludzie, ustawienia, płatności.”, a „Obsługa i klienci pracują w apce EQUENOR.” tylko przy dec. 18 a; Regulamin, Polityka prywatności.
 - Stany: ● **PanelLogowanieKod** (6 pól, „Kod jest ważny 10 minut”, „Wyślij ponownie za 0:42”, „Zmień numer” albo „Zmień e-mail”); zły albo wygasły kod; limit prób.
 
 **PanelWitaj** · panel, bez konta firmy i członkostwa · 1440×900 fill · P1 · dec. 1, 9, 18 · erd pkt 6, 15; szcz. 3.3 identity (`GET /me`, `PATCH /me`), access; analiza §9
-- Treść: Damian przy pierwszym logowaniu, pn 07.09 (kod nie daje imienia); karta „Witaj w eKoniuszy”: (1) „Jak się nazywasz?”: „Imię i nazwisko” = Damian, język Polski | Українська | English, „Zapisz”, link do polityki; (2) „Nie należysz jeszcze do żadnej stajni.”: „Załóż konto firmy” (główny, → PanelRejestracjaFirmy) i „Czekasz na zaproszenie?” („Poproś admina stajni o zaproszenie na +48 602 *** 145 i odśwież stronę.”); „Wyloguj”.
-- Stany: oczekujące zaproszenie (karta jak ZaproszeniePrzyjmij z „Przyjmij”); profil uzupełniony (tylko część 2); przy dec. 18 a rola inna niż Admin (Ola): „Panel web jest dla admina stajni. Flagi, szybkie akcje i zadania masz w apce eKoniuszy.” z linkami do sklepów.
+- Treść: Damian przy pierwszym logowaniu, pn 07.09 (kod nie daje imienia); karta „Witaj w EQUENOR”: (1) „Jak się nazywasz?”: „Imię i nazwisko” = Damian, język Polski | Українська | English, „Zapisz”, link do polityki; (2) „Nie należysz jeszcze do żadnej stajni.”: „Załóż konto firmy” (główny, → PanelRejestracjaFirmy) i „Czekasz na zaproszenie?” („Poproś admina stajni o zaproszenie na +48 602 *** 145 i odśwież stronę.”); „Wyloguj”.
+- Stany: oczekujące zaproszenie (karta jak ZaproszeniePrzyjmij z „Przyjmij”); profil uzupełniony (tylko część 2); przy dec. 18 a rola inna niż Admin (Ola): „Panel web jest dla admina stajni. Flagi, szybkie akcje i zadania masz w apce EQUENOR.” z linkami do sklepów.
 
 **PanelRejestracjaFirmy** · panel · 1440×900 fill · P1 · dec. 1, 3, 35 · erd pkt 14, 15
 - Treść: Damian, pn 07.09; nagłówek jak PanelZalozStajnie, bez menu; H1 „Załóż konto firmy”; „NIP” 123-456-32-18, „Nazwa firmy” Stajnie Lipowe sp. z o.o., „Adres siedziby” ul. Lipowa 12, 05-520 Konstancin-Jeziorna, „E-mail do faktur”; „NIP podajesz raz. Kolejne stajnie dodasz bez niego.”; „Zostaniesz adminem konta i będziesz mieć dostęp do wszystkich stajni firmy.”; „Dalej: załóż stajnię” → PanelZalozStajnie.
-- Stany: „Ten NIP ma już konto w eKoniuszy” (z podpowiedzią, żeby poprosić admina tego konta o zaproszenie, propozycja); zły NIP (cyfra kontrolna); „Zapisuję…”.
+- Stany: „Ten NIP ma już konto w EQUENOR” (z podpowiedzią, żeby poprosić admina tego konta o zaproszenie, propozycja); zły NIP (cyfra kontrolna); „Zapisuję…”.
 
 **PanelZalozStajnie** · panel, krok 1 z 2 · 1440×900 fill, wyższa w razie potrzeby · P1 · dec. 2, 3, 28 · analiza §5.5, §9; erd pkt 11, 15, 16, 17; szcz. 3.3 stable, §5 pkt 23, 27, 49
 - Scena: Damian (admin konta) dodaje Stajnię Brzozową, czw 01.10; zapis dopiero na końcu kroku 2 (`POST /stables`), reszta w Ustawieniach stajni i „Dodaj halę”.
@@ -378,7 +378,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 - Stany: koń z flagą o skutku `no_riding` (ostrzeżenie „uwaga” przy jeździe); pusty dzień; `rides_enabled = false` albo odznaczone `rides` (start na Flagach).
 
 **WsparcieITStart** · apka Wsparcia IT · 390×960 · P1 · dec. 13, 19 · erd pkt 2, 14; szcz. 2.12, 4.2, A-21, §5 pkt 11, 30, 50
-- Treść: konto `it_support` „Kuba”, „Stajnia Pod Lipami ▾”; H1 „Wsparcie IT” i opis roli dosłownie; „Tablety”: „eKoniuszy nie prowadzi listy tabletów. Stan tabletu sprawdzisz na miejscu: przytrzymaj 5 s „ONLINE · aktualne na …” w stopce → Diagnostyka.”; „Hale i boksy”: same numery (Hala główna 1–8, Hala nowa 1–6); „Aktualizacje tabletów”: [WERSJA], rollout, okno [OD–DO] (`app_releases`, `maintenance_from`/`to`); „Wyświetlacze”: „Telewizor korytarz” · aktywne (blokuje admin); „Instrukcje”: przygotowanie tabletu, zmiana Wi-Fi, instalacja telewizora; „Logi i błędy” [LINK]; pasek Start | Profil.
+- Treść: konto `it_support` „Kuba”, „Stajnia Pod Lipami ▾”; H1 „Wsparcie IT” i opis roli dosłownie; „Tablety”: „EQUENOR nie prowadzi listy tabletów. Stan tabletu sprawdzisz na miejscu: przytrzymaj 5 s „ONLINE · aktualne na …” w stopce → Diagnostyka.”; „Hale i boksy”: same numery (Hala główna 1–8, Hala nowa 1–6); „Aktualizacje tabletów”: [WERSJA], rollout, okno [OD–DO] (`app_releases`, `maintenance_from`/`to`); „Wyświetlacze”: „Telewizor korytarz” · aktywne (blokuje admin); „Instrukcje”: przygotowanie tabletu, zmiana Wi-Fi, instalacja telewizora; „Logi i błędy” [LINK]; pasek Start | Profil.
 - Stany: odznaczone `device_diagnostics` („W tej stajni nie masz dostępu do diagnostyki”).
 
 **PanelDiagnostyka** · wariant WsparcieITStart w panelu · 1440×900 fill · P1 · jak WsparcieITStart
@@ -415,7 +415,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 „Rejestracja” tabletu to provisioning (`tools/provision-tablet`), logowanie i lokalny wybór stajni i boksu.
 
 **TabletLogowanie** · tablet e-ink · 702×936 · P1 · dec. 12 · erd pkt 2; szcz. 2.4, 4.2, T-07, T-23, §5 pkt 5, 31; dev §5 pkt 5
-- Treść: „eKoniuszy” · „tablet przy boksie”; H1 42 px „ZALOGUJ TABLET”; 22 px „Zaloguj się kontem obsługi albo admina stajni. Tablica nie pokaże, kto jest zalogowany.”; przełącznik „TELEFON | E-MAIL” (wybrany: czarne pole, biały pogrubiony tekst); „NUMER TELEFONU” +48 (64 px, ramka 2 px #000), klawiatura 3×4 (przy E-MAIL klawiatura QWERTY); „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”; „WYŚLIJ KOD” (czarne pole, biały pogrubiony tekst); stopka „ONLINE · 07:15”, PL | UA; bez kłódki, „Zmień boks” i flag.
+- Treść: „EQUENOR”, pod nim hasło „Equestrian Management, Refined” (≥ 16 px, waga 500) · „tablet przy boksie”; H1 42 px „ZALOGUJ TABLET”; 22 px „Zaloguj się kontem obsługi albo admina stajni. Tablica nie pokaże, kto jest zalogowany.”; przełącznik „TELEFON | E-MAIL” (wybrany: czarne pole, biały pogrubiony tekst); „NUMER TELEFONU” +48 (64 px, ramka 2 px #000), klawiatura 3×4 (przy E-MAIL klawiatura QWERTY); „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”; „WYŚLIJ KOD” (czarne pole, biały pogrubiony tekst); stopka „ONLINE · 07:15”, PL | UA; bez kłódki, „Zmień boks” i flag.
 - Stany: ● **TabletLogowanieKod** („WPISZ KOD Z SMS”, „Wysłaliśmy kod na +48 607 *** 218”, 6 pól, „ZALOGUJ”, „WYŚLIJ PONOWNIE ZA 0:42” z ramką przerywaną, „ZMIEŃ NUMER”; zły kod: pole `t-warn`, ramka 4 px, „ZŁY KOD”); ● **TabletWylogowany** (H1 „TABLET WYLOGOWANY”, „Po zalogowaniu wróci: Hala główna · boks 7”, przyczyna: wylogowano tutaj, ze wszystkich urządzeń albo sesja wygasła; bez starych flag); ● **TabletBrakUprawnien** („TO KONTO NIE OBSŁUGUJE TABLETU · Zaloguj się kontem obsługi albo admina” dla Klienta, Instruktora i Wyświetlacza; stan „TO KONTO NIE MA JUŻ DOSTĘPU DO TEJ STAJNI · zaloguj się innym kontem” po dezaktywacji); brak sieci (stopka `t-warn` „BRAK POŁĄCZENIA · połącz Wi-Fi w ustawieniach”).
 
 **TabletWyborStajni** · tablet · 702×936 · P1 · dec. 15 · dev 3.5; szcz. A-17, A-18
@@ -467,11 +467,11 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 Pierwszy start prowadzi od razu do WyswietlaczCentralny z wszystkimi halami; osobnego ekranu wyboru widoku nie ma (szcz. 3.5.4, W-18, erd pkt 4).
 
 **PanelLudzieWyswietlacze** · wariant PanelLudzie z filtrem roli „Wyświetlacz” · 1440×900 fill · P1 · dec. 10, 11 · erd pkt 4, 14; szcz. 2.4, 3.3 access, identity, 4.2, §5 pkt 3–4
-- Treść: Damian, „Ludzie · Stajnia Pod Lipami” z wybranym filtrem „Wyświetlacz” (bez osobnej zakładki i sekcji kont technicznych); wiersz „Telewizor korytarz” · Wyświetlacz · t•••@stajnielipowe.pl · Aktywne · „Zablokuj”; „Telewizor loguje się zwykłym kontem z rolą Wyświetlacz. Jedno konto obsłuży kilka telewizorów, a osobne pozwala zablokować telewizor pojedynczo.”; „Zaproś osobę” → PanelZaprosOsobe z rolą Wyświetlacz; karta „Jak podłączyć telewizor”: (1) Raspberry Pi z obrazem eKoniuszy do HDMI; (2) telewizor otwiera [PANEL]/wyswietlacz; (3) zaloguj się telefonem albo e-mailem konta wyświetlacza i kodem, jak wszędzie; (4) telewizor pokazuje wszystkie hale, a żeby pokazywał jedną, kliknij przy niej „Pełny ekran” (mysz albo pilot) i telewizor to zapamięta. „Panel nie wie, który telewizor co pokazuje.”
+- Treść: Damian, „Ludzie · Stajnia Pod Lipami” z wybranym filtrem „Wyświetlacz” (bez osobnej zakładki i sekcji kont technicznych); wiersz „Telewizor korytarz” · Wyświetlacz · t•••@stajnielipowe.pl · Aktywne · „Zablokuj”; „Telewizor loguje się zwykłym kontem z rolą Wyświetlacz. Jedno konto obsłuży kilka telewizorów, a osobne pozwala zablokować telewizor pojedynczo.”; „Zaproś osobę” → PanelZaprosOsobe z rolą Wyświetlacz; karta „Jak podłączyć telewizor”: (1) Raspberry Pi z obrazem EQUENOR do HDMI; (2) telewizor otwiera [PANEL]/wyswietlacz; (3) zaloguj się telefonem albo e-mailem konta wyświetlacza i kodem, jak wszędzie; (4) telewizor pokazuje wszystkie hale, a żeby pokazywał jedną, kliknij przy niej „Pełny ekran” (mysz albo pilot) i telewizor to zapamięta. „Panel nie wie, który telewizor co pokazuje.”
 - Stany: konto zablokowane („Zablokowane od 07:20 · Odblokuj”) z dialogiem „Telewizory na tym koncie pokażą „Wyświetlacz zablokowany”.”; zaproszenie czeka (zakładka Zaproszenia, e-mail); Brzozowa: „Stajnia nie ma wyświetlacza” z „Zaproś osobę”. Formularza „Dodaj wyświetlacz” nie ma (dec. 11).
 
 **WyswietlaczLogowanie** · TV, kiosk [PANEL]/wyswietlacz · 1600×900 fill · P1 · dec. 7, 10 · erd pkt 4, 6; szcz. 1.3, 4.2, W-18, W-25, W-29, §5 pkt 3, 4, 15
-- Treść: logowanie jak wszędzie (2.3), w konwencji TV: tło bg, bez pól w akcencie; „eKoniuszy · wyświetlacz”, zegar 07:15, „wtorek, 13 października”; karta: H1 „Zaloguj ten telewizor”, „Zaloguj się kontem z rolą Wyświetlacz. Zaprasza je admin w panelu: Ludzie → Zaproś osobę.”; przełącznik „Telefon | E-mail” (wybrany E-mail) z fokusem 3 px (klawiatura, pilot CEC), „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”, „Wyślij kod”; bez danych stajni i flag.
+- Treść: logowanie jak wszędzie (2.3), w konwencji TV: tło bg, bez pól w akcencie; „EQUENOR · wyświetlacz” (pod znakiem hasło „Equestrian Management, Refined”), zegar 07:15, „wtorek, 13 października”; karta: H1 „Zaloguj ten telewizor”, „Zaloguj się kontem z rolą Wyświetlacz. Zaprasza je admin w panelu: Ludzie → Zaproś osobę.”; przełącznik „Telefon | E-mail” (wybrany E-mail) z fokusem 3 px (klawiatura, pilot CEC), „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”, „Wyślij kod”; bez danych stajni i flag.
 - Stany: ● **WyswietlaczKod** (6 dużych pól, „Wysłaliśmy kod na t•••@stajnielipowe.pl”, „Zły kod. Wpisz ponownie.”, „Zaloguj”, „Wyślij nowy kod”, „Zmień e-mail”); ● **WyswietlaczWylogowany** (ten układ z paskiem „uwaga” „Wyświetlacz wylogowany o 06:40 · dane są ukryte do ponownego logowania”; sesja wygasła albo global sign-out, szcz. 4.2 Sesje); konto bez roli Wyświetlacz („To konto nie ma dostępu do wyświetlacza”, propozycja); brak sieci.
 
 **WyswietlaczStart** · TV · 1600×900 fill · P1 · szcz. W-01, W-17
@@ -533,7 +533,7 @@ Pierwszy start prowadzi od razu do WyswietlaczCentralny z wszystkimi halami; oso
 Publiczna strona przed logowaniem: prezentacja produktu i pseudo-blog (prośba użytkownika z 13.10). Panelowa konwencja (Figtree, paleta, 1440 rosnące w dół), bez menu panelu i danych stajni. Treść stron to propozycja.
 
 **StronaGlowna** · www · 1440×900 fill, rośnie w dół · P1 · dev 2
-- Treść: nagłówek ze znakiem „eKoniuszy” i „Zaloguj się” (→ PanelLogowanie); prezentacja: dla kogo (stajnie, obsługa, klienci), co robi (flagi z potwierdzeniem, szybkie akcje obsługi, tablet przy boksie, telewizor w korytarzu, panel stajni), jak zacząć (konto firmy z NIP-em, stajnia, zaproszenia); sekcja bloga z kilkoma wpisami (→ StronaWpis); stopka: [WWW]/app, Regulamin, Polityka prywatności.
+- Treść: nagłówek ze znakiem „EQUENOR” (pod nim hasło „Equestrian Management, Refined”) i „Zaloguj się” (→ PanelLogowanie); prezentacja: dla kogo (stajnie, obsługa, klienci), co robi (flagi z potwierdzeniem, szybkie akcje obsługi, tablet przy boksie, telewizor w korytarzu, panel stajni), jak zacząć (konto firmy z NIP-em, stajnia, zaproszenia); sekcja bloga z kilkoma wpisami (→ StronaWpis); stopka: znak z hasłem pod spodem, [WWW]/app, Regulamin, Polityka prywatności.
 
 **StronaGlownaTelefon** · www w telefonie · 390×844 i dłuższe · P1
 - Treść: ta sama strona w jednej kolumnie, te same linki.
@@ -623,7 +623,7 @@ Format: opcje, **Rek.** (rekomendacja) i **Dok.** (co zmienić w dokumentach; uz
 
 1. **Kto zakłada stajnię?** **Rozstrzygnięte 13.10.2026:** samoobsługa, wyłącznie B2B: pierwsze logowanie (telefon albo e-mail i kod), PanelWitaj, konto firmy z NIP-em (PanelRejestracjaFirmy), potem PanelZalozStajnie. **Dok.:** erd pkt 15; `POST /stables` (szcz. 3.3) woła admin konta.
 2. **Kreator czy jedna strona?** **Rozstrzygnięte 13.10.2026:** dwa kroki: „Stajnia” (PanelZalozStajnie: bez pytania o potwierdzenia flag, boksy z konfiguracją każdego boksu) i „Powiadomienia” (PanelZalozPowiadomienia: zdarzenia, odbiorcy Admin i Obsługa, kanał SMS albo e-mail); zapis na końcu kroku 2, potem PanelPulpitStart. Bez kroku płatności: subskrypcję zakłada billing po `stable.created` (dev §5 pkt 25). **Dok.:** erd pkt 11, 17 (`notification_rules`).
-3. **Działalność = konto firmy.** **Rozstrzygnięte 13.10.2026:** konto firmy (`businesses`) z NIP-em, 1 konto = 1 NIP (drugi raz: „Ten NIP ma już konto w eKoniuszy”); NIP podaje się raz, przy rejestracji (PanelRejestracjaFirmy); „Załóż stajnię” nie pyta o działalność ani NIP; stajnie konta widzi admin konta (dec. 35). **Dok.:** erd pkt 14, 15; NIP do faktur z konta firmy (erd pkt 10).
+3. **Działalność = konto firmy.** **Rozstrzygnięte 13.10.2026:** konto firmy (`businesses`) z NIP-em, 1 konto = 1 NIP (drugi raz: „Ten NIP ma już konto w EQUENOR”); NIP podaje się raz, przy rejestracji (PanelRejestracjaFirmy); „Załóż stajnię” nie pyta o działalność ani NIP; stajnie konta widzi admin konta (dec. 35). **Dok.:** erd pkt 14, 15; NIP do faktur z konta firmy (erd pkt 10).
 4. **Przyjęcie zaproszenia.** (a) automatycznie (brzmienie erd pkt 6); (b) ekran „Przyjmij”; (c) „Przyjmij” i „Odrzuć”. **Rek.:** (b): przyjęcie nadaje rolę i dostęp do konia, a nieprzyjęte samo wygasa. **Dok.:** ujednolicić erd pkt 6 („dopasowuje”) z A-06 i szcz. 4.2 („akceptuje”).
 5. **Zaproszenie dla osoby już zalogowanej.** (a) widać je po ponownym logowaniu; (b) `GET /me/memberships` zwraca też oczekujące zaproszenia, apka pokazuje arkusz na starcie i przy odświeżeniu. **Rek.:** (b). **Dok.:** szcz. 3.3 access.
 6. **Imię zaproszonej osoby** (makiety: „Marek Nowak · zaproszenie czeka”). (a) opcjonalne `invitations.invitee_name` („Imię (widzi tylko admin)”), po przyjęciu nadpisane przez `users.display_name`; (b) tylko zamaskowany numer. **Rek.:** (a), imię jako podpowiedź w ZaproszeniePrzyjmij. **Dok.:** kolumna w `invitations`.
@@ -665,6 +665,10 @@ Format: opcje, **Rek.** (rekomendacja) i **Dok.** (co zmienić w dokumentach; uz
 33. **Zmiana roli, kolejny koń, admin konta.** Zmiana roli nie ma opisu UI, zaproszenie ma jeden `horse_id`. (a) w PanelLudzie „Zmień rolę” i „Nadaj dostęp do konia” członkowi, z `valid_to`; (b) tylko zaproszenia (osobne zaproszenie na konia). **Rek.:** (a). „Zmień rolę” obejmuje tylko role stajni (Obsługa, Instruktor, Wsparcie IT, Wyświetlacz, Klient). Admin to rola konta firmy (dec. 35): zaproszenie ani „Zmień rolę” jej nie nadają, a dodanie albo przekazanie admina konta jest poza PoC (erd pkt 14). Jedyny admin konta nie usunie konta (ProfilAdmin, `DELETE /me`, szcz. 3.3 identity; notatka R1). **Dok.:** zarządzanie członkami w erd pkt 3 i 14; czy rola inna niż `client` może mieć `horse_access`.
 34. **Słowniki pasz, padoków, ujeżdżalni** (szcz. 3.5.3: „słowniki” bez makiet). (a) na PoC z seedu i `stable.created`, dopisywanie przez „+ Nowa pasza” i „+ Nowy padok” w EdycjaPlanuKonia, PanelSlowniki w P2; (b) od razu tylko PanelSlowniki. **Rek.:** (a); dopisują admin i obsługa (propozycja).
 35. **Admin to rola konta firmy** (nowa reguła, rozstrzygnięte 13.10.2026). Admin (właściciel albo zarządca) ma dostęp do wszystkich stajni konta firmy, także nowych, bez przypisywania. Pozostałe role (Obsługa, Instruktor, Wsparcie IT, Wyświetlacz, Klient) przypisuje się per stajnia, a jedna osoba może być przypisana do kilku stajni (Ola). Zaproszenie nie nadaje roli Admin. **Dok.:** erd pkt 14 (`business_admins`, propozycja), szcz. 3.3 access, 4.2.
+
+**Marka**
+
+36. **Nazwa produktu.** **Rozstrzygnięte 13.10.2026:** produkt nazywa się EQUENOR (wcześniej robocza nazwa eKoniuszy), hasło „Equestrian Management, Refined” mniejszym tekstem pod znakiem, nie obok. **Dok.:** README, paleta.md (zasady znaku i hasła), erd „Zmiany”, dev i szcz.
 
 **Zmiany w dokumentach bez osobnej decyzji**
 - **Zdrowie:** kto wpisuje wizyty; czy dzierżawca widzi `owner_private` właściciela; wet i kowal są w notatce flagi i w `health_events`, bez jednego źródła na tablicy i TV.

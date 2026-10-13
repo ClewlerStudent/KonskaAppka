@@ -1,4 +1,4 @@
-# KonskaAppka: model danych (ERD) do zatwierdzenia
+# EQUENOR: model danych (ERD) do zatwierdzenia
 
 > Wersja robocza v3 · 2026-10-13, po feedbacku ze stajni i uwagach z 13.10. Uwzględnia decyzje:
 > - wyłącznie B2B: konto firmy z NIP (`businesses`, 1 konto = 1 NIP), NIP podaje się raz, przy rejestracji; admin konta ma dostęp do wszystkich stajni firmy;
@@ -170,7 +170,7 @@
    - **Wsparcie IT** (`it_support`, dawniej „serwisant”, co myliło się z weterynarzem): techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami.
 15. **Konto firmy (B2B) → stajnie → hale → boksy.**
    - Zakładamy wyłącznie konta firm. Konto firmy to wiersz w `businesses`:
-     - `tax_id`: NIP, z unikalnym indeksem, więc 1 konto = 1 NIP. Drugą rejestrację z tym samym NIP-em odrzuca indeks, a panel mówi „Ten NIP ma już konto w eKoniuszy”;
+     - `tax_id`: NIP, z unikalnym indeksem, więc 1 konto = 1 NIP. Drugą rejestrację z tym samym NIP-em odrzuca indeks, a panel mówi „Ten NIP ma już konto w EQUENOR”;
      - `name`: nazwa firmy;
      - adres siedziby: `address_line1`, `address_line2`, `postal_code`, `city`, `country_code` (jak adres hali);
      - `invoice_email`: e-mail do faktur.
@@ -938,6 +938,7 @@ erDiagram
 - **Zakładanie stajni w 2 krokach (13.10.2026):** bez pytania o potwierdzenia flag (nowa stajnia ma je włączone, zmienia się je w „Ustawieniach stajni”); drugi krok to powiadomienia, nowa tabela `notification_rules` (propozycja) w serwisie `stable` i cron `invitation-expiry-notifier` (propozycja). Termin eskalacji zostaje w `stable_settings.notify_offset_min`.
 - **Wyświetlacz to zwykłe konto (13.10.2026):** telewizor loguje się telefonem albo e-mailem i kodem, a konto zaprasza się przez „Zaproś osobę” z rolą Wyświetlacz. Odpadają konta techniczne i nazwy kont; tabele bez zmian.
 - **Admin to rola konta firmy (13.10.2026):** nowa tabela `business_admins` (propozycja) w serwisie `stable`; admin konta ma dostęp do wszystkich stajni firmy, także nowych. `stable_members.role` traci `admin`, a pozostałe role przypisuje się per stajnia (osoba może być w kilku stajniach).
+- **Nazwa produktu (13.10.2026):** EQUENOR (wcześniej robocza nazwa eKoniuszy), hasło „Equestrian Management, Refined”; bez zmian w tabelach.
 - **Strona główna przed logowaniem (13.10.2026):** publiczna strona www z prezentacją produktu i blogiem; bez tabel w `app` (wpisy jako treść statyczna strony, propozycja).
 - **Tablety:**
   - nie ma parowania (`device_pairing_requests`) ani PIN-ów obsługi (`stable_members.pin_verifier`, `stables.service_pin_verifier`): na tablecie zawsze jest zalogowany konkretny użytkownik;
