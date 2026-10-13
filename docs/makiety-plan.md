@@ -1,6 +1,6 @@
 # EQUENOR: plan brakujących makiet
 
-> 2026-10-12, poprawki po decyzjach użytkownika z 13.10.2026 · [erd.md](erd.md) · [development.md](development.md) (pełna wersja [development-szczegoly.md](development-szczegoly.md)) · [paleta.md](paleta.md) · kanwa [claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX) · bez cen i infrastruktury.
+> 2026-10-12, poprawki po decyzjach i komentarzach użytkownika z 13.10.2026 · [erd.md](erd.md) · [development.md](development.md) (pełna wersja [development-szczegoly.md](development-szczegoly.md)) · [paleta.md](paleta.md) · kanwa [claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX) · bez cen i infrastruktury.
 
 **Oznaczenia**
 - **P1:** rejestracja (konta firmy, stajni, osób, urządzeń), ekran główny roli, strona www, ekran wymagany przez kryterium gotowości etapów 1–6 (szcz. 3.6) albo cel linku z innej planszy P1. **P2:** domyka nawigację i stany przed pilotażem. **P3:** po PoC albo po decyzji, która może planszę usunąć.
@@ -10,25 +10,25 @@
 ## 1. Zakres
 
 - **Rejestracja:** konto firmy z NIP-em i stajnie w panelu (dec. 1, 3); zaproszenia SMS-em albo e-mailem i pierwsze logowanie (Klient, Obsługa, Instruktor, Wsparcie IT, Wyświetlacz); „rejestracja” urządzeń, czyli logowanie zwykłym kontem (telefon albo e-mail i kod) i lokalny wybór widoku TV albo boksu i języka tabletu (serwer urządzeń nie rejestruje, erd pkt 2 i 4).
-- **Strona www:** publiczna strona przed logowaniem: prezentacja produktu i blog (grupa I).
+- **Strona www:** publiczna strona przed logowaniem, sama prezentacja produktu (grupa I, dec. 37).
 - **Ekran główny:** start każdej roli w apce i panelu, pierwszy ekran tabletu i TV. Dziś są tylko Main, ListaDnia, TabletBoks i WyswietlaczCentralny.
 - **„Itd. itp.”:** cele martwych linków i stany wymagane przez dokumenty i testy.
 - **Poza zakresem:** zmiany układu zaakceptowanych makiet (tylko linki, 3.H; wyjątek: poprawki z decyzji 13.10, np. boksy w PanelDodajHale), pliki *BezAkcji, parowanie i rejestr urządzeń z analiza.md v3. W Stajni Brzozowej tylko pozycje z tabeli 2.2.
 
-## Na start: pierwsza fala (29 plansz)
+## Na start: pierwsza fala (27 plansz)
 
 Prośba dotyczyła rejestracji i ekranów głównych, więc zaczynamy od ścieżek, które pokazują je od początku do końca. Reszta P1 (stany, flagi, codzienna praca) idzie kolejnymi paczkami z sekcji 4.
 
 - **Stajnia od zera (panel):** PanelLogowanie → PanelLogowanieKod → PanelWitaj → PanelRejestracjaFirmy → PanelZalozStajnie → PanelZalozPowiadomienia → PanelPulpitStart → PanelZaprosOsobe.
 - **Zaproszona osoba (apka):** WiadomosciSms → LogowanieNumer → ZaproszeniePrzyjmij → MainLuna; BrakDostepu dla numeru bez zaproszenia.
 - **Ekrany główne ról:** MapaNawigacjiRol, AdminDzis, PanelPulpit, InstruktorJazdy, WsparcieITStart. Klient i Obsługa już je mają (Main, ListaDnia).
-- **Telewizor:** PanelLudzieWyswietlacze → WyswietlaczLogowanie → WyswietlaczKod → WyswietlaczCentralny (jest); konto telewizora zaprasza się w PanelZaprosOsobe z rolą Wyświetlacz.
-- **Tablet:** TabletLogowanie → TabletLogowanieKod → TabletWyborStajni → TabletPierwszyBoks → TabletBoks (jest); TabletUstawienia.
-- **Strona www:** StronaGlowna (w telefonie StronaGlownaTelefon) → StronaWpis; logowanie → PanelLogowanie.
+- **Telewizor:** PanelLudzieWyswietlacze → WyswietlaczLogowanie → WyswietlaczKod (zwykłe logowanie panelu kontem z rolą Wyświetlacz) → WyswietlaczCentralny (jest); konto telewizora zaprasza się w PanelZaprosOsobe z rolą Wyświetlacz.
+- **Tablet:** TabletLogowanie → TabletLogowanieKod → TabletPierwszyBoks (przy kilku stajniach boksy pogrupowane po stajniach) → TabletBoks (jest); TabletUstawienia.
+- **Strona www:** StronaGlowna (w telefonie StronaGlownaTelefon); „Zaloguj się” → PanelLogowanie.
 
-Rozstrzygnięte 13.10.2026: dec. 1, 2, 3, 7 (e-mail), 10, 11, 21, 28 (bez macierzy widoczności ról), 29 i nowa 35 (sekcja 5). Przed falą otwarte zostają już tylko dec. 12, 17 i 18. Bez odpowiedzi rysujemy według rekomendacji, z dopiskiem „(propozycja, dec. N)” w notatce kanwy.
+Rozstrzygnięte 13.10.2026: dec. 1, 2, 3, 7 (e-mail), 10, 11, 15, 21, 28 (bez macierzy widoczności ról), 29 i nowe 35, 37 (sekcja 5). Przed falą otwarte zostają już tylko dec. 12, 17 i 18. Bez odpowiedzi rysujemy według rekomendacji, z dopiskiem „(propozycja, dec. N)” w notatce kanwy.
 
-**Stan 13.10.2026:** pierwsza fala (24 plansze) jest na kanwie (sekcja „Pierwsza fala”), narysowana według rekomendacji. Numery decyzji i linki tymczasowe (np. „[WWW]/app” → LogowanieNumer) są w notatkach rzędów. Po decyzjach z 13.10 poprawiamy jej plansze, dokładamy PanelRejestracjaFirmy, PanelZalozPowiadomienia i stronę www (5 plansz) i podmieniamy linki (3.H).
+**Stan 13.10.2026:** pierwsza fala (24 plansze) jest na kanwie (sekcja „Pierwsza fala”), narysowana według rekomendacji. Numery decyzji i linki tymczasowe (np. „[WWW]/app” → LogowanieNumer) są w notatkach rzędów. Po decyzjach z 13.10 poprawiamy jej plansze, dokładamy PanelRejestracjaFirmy, PanelZalozPowiadomienia i stronę www (4 plansze) i podmieniamy linki (3.H); jedna plansza tabletu znika (dec. 15).
 
 ## 2. Zasady
 
@@ -69,7 +69,7 @@ Rozstrzygnięte 13.10.2026: dec. 1, 2, 3, 7 (e-mail), 10, 11, 21, 28 (bez macier
 | AdminDzis · PanelPulpit | AdminDzisBrzozowa · PanelPulpitBrzozowa | ● P1 · plik P2 |
 | AdminZadania | bez wyboru hali, „Obsługa nie widzi zadań w tej stajni” z linkiem do ustawień | stan |
 | InstruktorJazdy · WsparcieITStart · PanelLudzieWyswietlacze | brak jazd · jedna hala · filtr „Wyświetlacz” pusty: „Stajnia nie ma wyświetlacza” (z „Zaproś osobę”) | stany |
-| TabletWyborStajni, TabletPierwszyBoks | bez zakładek: 1 Kometa, 2 Dąb, 3 Iga, 4 Lord, 5 WOLNY, 6 Nuta | stan |
+| TabletPierwszyBoks | wybrana „STAJNIA BRZOZOWA”, bez zakładek hal: 1 Kometa, 2 Dąb, 3 Iga, 4 Lord, 5 WOLNY, 6 Nuta | stan |
 | TabletBoksWolny · ListaDniaOgarniete | boks 5 bez hali i padoku · lista 1–6 bez hal | stany |
 | EdycjaPlanuKonia | Kometa: owies 1 kg wieczorem (rano wstrzymane), siano, musli 0,5 kg wieczorem; bez „Namoczyć” i padoku | stan |
 | SzybkaFlaga · SzybkaFlagaObsluga | SzybkaFlagaBrzozowa · 6 kafelków, „obowiązuje od razu” | ● P1 · stan |
@@ -84,7 +84,8 @@ Rozstrzygnięte 13.10.2026: dec. 1, 2, 3, 7 (e-mail), 10, 11, 21, 28 (bez macier
 - **Akcje:** „Ogarnięte”, „Podano śniadanie / obiad / kolację”, „Wyprowadzono na padok”, „Woda” tylko przy poidle ręcznym. Bez „Najemca”, „Serwisant”, „Właściciel konia” jako roli, „Nakarmiony”, „Czyszczenie”, „Ścielenie”; „Siano” tylko jako pasza; znak „EQUENOR” zawsze wersalikami, a w zdaniach nieodmienny („w EQUENOR”, „do EQUENOR”); hasło „Equestrian Management, Refined” tylko pod znakiem (zasady: paleta.md).
 - **Boks:** przy kilku halach „Hala nowa · boks 4”, w wąskich listach „Nowa 4”; w Brzozowej „boks 1”; formularze wysyłają `boxId`.
 - **Logowanie** (apka, panel, tablet, TV; dec. 7): nad polem przełącznik segmentowy „Telefon | E-mail” w stylu „Kanał: SMS | E-mail” z Zaproszenie (tablet: „TELEFON | E-MAIL”, e-ink); „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.” Zaproszenia SMS-em albo e-mailem.
-- **Adresy:** [PANEL] to subdomena panelu, TV otwiera [PANEL]/wyswietlacz, strona pobierania apki to [WWW]/app (dev 2).
+- **Teksty:** tylko etykiety i wartości potrzebne do działania; bez komentarzy objaśniających w UI (np. „Wybór zapisze się…”, „tylko ten tablet”, „nie widać na tablicy”). Zasada ma pierwszeństwo przed cytatami w opisach plansz.
+- **Adresy:** [PANEL] to subdomena panelu; TV otwiera zwykłą stronę logowania [PANEL], a po zalogowaniu kontem z rolą Wyświetlacz panel pokazuje widok tablicy (dec. 10). Strona pobierania apki to [WWW]/app (dev 2).
 - **Paleta:** tylko paleta.md, jak w istniejących makietach; błędy i offline w rodzinie „uwaga”, na TV bez pól w akcencie; na tablecie nieaktywny przycisk z przerywaną ramką, OFFLINE jako `t-warn`, ekran działa na czarno-białym e-inku.
 - **Nagłówki:** jak w istniejących makietach (zakładka ze znakiem i stajnią, podstrona z „← Wróć” bez paska, logowanie z logo 60 px). Paski Klienta i Obsługi bez zmian, Admina według dec. 17, Instruktor i Wsparcie IT z 3 i 2 pozycjami (propozycja). Apka i panel: przełącznik stajni „▾” tylko przy kilku stajniach (admin konta, gdy firma ma kilka stajni; inni przy kilku członkostwach), inaczej sama nazwa (dec. 21, szcz. 3.5.1); bez dzwonka (dec. 22). Panel: „▾” jak w PanelUstawieniaStajni, menu 240 px, formularz jako `aside role=dialog` z prawej. Tablet i TV bez przełącznika.
 - **Widoczność:** funkcja odznaczona dla roli w `stable_role_features` znika (sekcja, pozycja paska); Admin widzi wszystko; wyłączona opcja stajni znika razem ze stanem. Wyświetlacz Pod Lipami nie widzi zdrowia ani jazd.
@@ -157,8 +158,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 | TabletLogowanieKod | tablet | P1 | kod z SMS-a albo e-maila na tablecie |
 | TabletWylogowany | tablet | P1 | po wylogowaniu i global sign-out |
 | TabletBrakUprawnien | tablet | P1 | konto bez prawa do tabletu |
-| TabletWyborStajni | tablet | P1 | stajnia tabletu przy kilku członkostwach |
-| TabletPierwszyBoks | tablet | P1 | pierwszy wybór boksu |
+| TabletPierwszyBoks | tablet | P1 | pierwszy wybór boksu, przy kilku stajniach pogrupowany po stajniach |
 | TabletBoksNiedostepny | tablet | P1 | odzyskanie: zapamiętany boks niedostępny |
 | TabletBoksWoda | tablet | P1 | tablica z poidłem ręcznym i WODA |
 | TabletBoksWolny | tablet | P1 | tablica wolnego boksu |
@@ -171,7 +171,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 | TabletWifi | tablet | P2 | zmiana sieci Wi-Fi |
 | **F. Wyświetlacz** | | | |
 | PanelLudzieWyswietlacze | panel | P1 | Ludzie z filtrem roli Wyświetlacz, instrukcja TV |
-| WyswietlaczLogowanie | TV | P1 | logowanie telewizora |
+| WyswietlaczLogowanie | TV | P1 | zwykłe logowanie panelu kontem z rolą Wyświetlacz |
 | WyswietlaczKod | TV | P1 | kod z e-maila albo SMS-a |
 | WyswietlaczWylogowany | TV | P1 | utrata sesji, dane ukryte |
 | WyswietlaczStart | TV | P1 | zimny start bez sieci |
@@ -190,9 +190,8 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 | MojBoksWyborKonia | apka | P2 | historia przy dwóch koniach |
 | ListaDniaOffline | apka | P2 | lista dnia offline |
 | **I. Strona www** | | | |
-| StronaGlowna | www | P1 | prezentacja produktu, blog, wejście do panelu |
+| StronaGlowna | www | P1 | prezentacja produktu, wejście do panelu |
 | StronaGlownaTelefon | www w telefonie | P1 | ta sama strona w telefonie |
-| StronaWpis | www | P1 | wpis bloga |
 | **S. Plansze zbiorcze stanów** | | | |
 | StanyApka · StanyPanel · StanyTablet · StanyWyswietlacz | wszystkie | P1 | stany bez ● (2.1) |
 | **H. P3** | | | |
@@ -359,8 +358,8 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
   - Admin w apce: AdminDzis; Boksy → BoksyAdmin, Zadania → AdminZadania, Ludzie → LudzieAdmin, Profil → ProfilAdmin (dec. 17);
   - Admin w panelu: PanelPulpit; Boksy, Konie → PanelKonie, Ludzie → PanelLudzie, Płatności, Ustawienia, konto → PanelMenuKonta;
   - Instruktor: InstruktorJazdy [rides + `rides_enabled`]; Flagi [flags]; Profil. Wsparcie IT: WsparcieITStart [device_diagnostics], Profil; w panelu PanelDiagnostyka;
-  - Wyświetlacz (zwykłe konto z rolą Wyświetlacz): WyswietlaczLogowanie → WyswietlaczKod → WyswietlaczCentralny (domyślnie wszystkie hale) ⇄ „Pełny ekran” WyswietlaczHala albo WyswietlaczHalaGlowna;
-  - Tablet: TabletLogowanie → (TabletWyborStajni) → TabletPierwszyBoks → TabletBoks; przytrzymanie „ONLINE · aktualne na …” → TabletUstawienia;
+  - Wyświetlacz (zwykłe konto z rolą Wyświetlacz, zwykłe logowanie panelu): WyswietlaczLogowanie → WyswietlaczKod → WyswietlaczCentralny (panel po roli pokazuje widok tablicy, domyślnie wszystkie hale) ⇄ „Pełny ekran” WyswietlaczHala albo WyswietlaczHalaGlowna;
+  - Tablet: TabletLogowanie → TabletPierwszyBoks (przy kilku stajniach boksy pogrupowane po stajniach) → TabletBoks; przytrzymanie „ONLINE · aktualne na …” → TabletUstawienia;
   - legenda: ✓ istnieje, ● P1, ○ P2 i P3; [funkcja] znika, gdy jest odznaczona dla roli; „Admin widzi wszystko”;
   - dopisek: Admin to rola konta firmy (wszystkie stajnie firmy, dec. 35), a pozostałe role są per stajnia, jedna w stajni (`stable_members`), więc zmiana stajni może zmienić nawigację; przypadku „staff w jednej, client w drugiej” z szcz. 4.2 dane demo nie mają.
 
@@ -412,19 +411,15 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 
 ### E. Tablet
 
-„Rejestracja” tabletu to provisioning (`tools/provision-tablet`), logowanie i lokalny wybór stajni i boksu.
+„Rejestracja” tabletu to provisioning (`tools/provision-tablet`), logowanie i lokalny wybór boksu; stajnia tabletu wynika z boksu (dec. 15).
 
 **TabletLogowanie** · tablet e-ink · 702×936 · P1 · dec. 12 · erd pkt 2; szcz. 2.4, 4.2, T-07, T-23, §5 pkt 5, 31; dev §5 pkt 5
 - Treść: „EQUENOR”, pod nim hasło „Equestrian Management, Refined” (≥ 16 px, waga 500) · „tablet przy boksie”; H1 42 px „ZALOGUJ TABLET”; 22 px „Zaloguj się kontem obsługi albo admina stajni. Tablica nie pokaże, kto jest zalogowany.”; przełącznik „TELEFON | E-MAIL” (wybrany: czarne pole, biały pogrubiony tekst); „NUMER TELEFONU” +48 (64 px, ramka 2 px #000), klawiatura 3×4 (przy E-MAIL klawiatura QWERTY); „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”; „WYŚLIJ KOD” (czarne pole, biały pogrubiony tekst); stopka „ONLINE · 07:15”, PL | UA; bez kłódki, „Zmień boks” i flag.
 - Stany: ● **TabletLogowanieKod** („WPISZ KOD Z SMS”, „Wysłaliśmy kod na +48 607 *** 218”, 6 pól, „ZALOGUJ”, „WYŚLIJ PONOWNIE ZA 0:42” z ramką przerywaną, „ZMIEŃ NUMER”; zły kod: pole `t-warn`, ramka 4 px, „ZŁY KOD”); ● **TabletWylogowany** (H1 „TABLET WYLOGOWANY”, „Po zalogowaniu wróci: Hala główna · boks 7”, przyczyna: wylogowano tutaj, ze wszystkich urządzeń albo sesja wygasła; bez starych flag); ● **TabletBrakUprawnien** („TO KONTO NIE OBSŁUGUJE TABLETU · Zaloguj się kontem obsługi albo admina” dla Klienta, Instruktora i Wyświetlacza; stan „TO KONTO NIE MA JUŻ DOSTĘPU DO TEJ STAJNI · zaloguj się innym kontem” po dezaktywacji); brak sieci (stopka `t-warn` „BRAK POŁĄCZENIA · połącz Wi-Fi w ustawieniach”).
 
-**TabletWyborStajni** · tablet · 702×936 · P1 · dec. 15 · dev 3.5; szcz. A-17, A-18
-- Treść: Ola; H1 „WYBIERZ STAJNIĘ TEGO TABLETU”; kafle „STAJNIA POD LIPAMI · 2 hale · 14 boksów” i „STAJNIA BRZOZOWA · 6 boksów”; „Tablet pokaże tylko boksy wybranej stajni, z jej ustawieniami. Zmienisz to w ustawieniach.”
-- Stany: wejście z ustawień (z „ANULUJ”); konto z jedną stajnią (ekran pominięty).
-
-**TabletPierwszyBoks** · wariant TabletZmianaBoksu · 702×936 · P1 · erd pkt 2, 11; szcz. 4.2, T-07, §5 pkt 32; dev §5 pkt 16
-- Treść: „WYBIERZ BOKS DLA TEGO TABLETU”, „Stajnia Pod Lipami”; zakładki HALA GŁÓWNA 1–8 i HALA NOWA 1–6 (wybrana); kafle 1 Grom, 2 Mgła, 3 Rumba, 4 Bella, 5 Bursztyn, 6 WOLNY (ramka przerywana); „Wybór zapisze się tylko na tym tablecie.”; bez „Anuluj” i powrotu po 30 s; stopka ONLINE, PL | UA.
-- Stany: zakładka Hala główna (1 Iskra … 8 Hetman, 3 WOLNY); ● **TabletBoksNiedostepny** (odzyskanie: zapamiętany boks w wyłączonej hali albo bez dostępu konta; linia `t-warn` „Hala główna · boks 7 jest niedostępny dla tego konta. Wybierz inny.”; lista od razu, bez powrotu po 30 s; propozycja z szcz. §5 pkt 32).
+**TabletPierwszyBoks** · wariant TabletZmianaBoksu · 702×936 · P1 · dec. 15 · erd pkt 2, 11; szcz. 4.2, T-07, A-17, A-18, §5 pkt 32; dev §5 pkt 16
+- Treść: Ola (dwie stajnie), od razu po zalogowaniu; „WYBIERZ BOKS DLA TEGO TABLETU”; przełącznik „STAJNIA POD LIPAMI | STAJNIA BRZOZOWA” (wybrana Pod Lipami), pod nim zakładki HALA GŁÓWNA 1–8 i HALA NOWA 1–6 (wybrana); kafle 1 Grom, 2 Mgła, 3 Rumba, 4 Bella, 5 Bursztyn, 6 WOLNY (ramka przerywana); bez „Anuluj” i powrotu po 30 s; stopka ONLINE, PL | UA. Stajnia tabletu wynika z wybranego boksu.
+- Stany: zakładka Hala główna (1 Iskra … 8 Hetman, 3 WOLNY); Stajnia Brzozowa (2.2); konto z jedną stajnią (bez przełącznika stajni); ● **TabletBoksNiedostepny** (odzyskanie: zapamiętany boks w wyłączonej hali albo bez dostępu konta; linia `t-warn` „Hala główna · boks 7 jest niedostępny dla tego konta. Wybierz inny.”; lista od razu, bez powrotu po 30 s; propozycja z szcz. §5 pkt 32).
 
 **TabletBoksWoda** · wariant TabletBoks · 702×936 · P1 · erd pkt 2, 3, 16; szcz. 4.1, A-16
 - Treść: „BOKS 5 · BURSZTYN”, „Hala nowa · wt 13.10 · 07:15”, kłódka, „Zmień boks”; bez flag: neutralna ramka „DZIŚ BEZ FLAG” (propozycja); KARMIENIE: plan Bursztyna (dec. 29); ramka 2 px „POIDŁO RĘCZNE · woda 06:55”; SZYBKIE AKCJE 2×2: OGARNIĘTE (dziś 07:14), ŚNIADANIE (podane 06:50), PADOK (A 10:00–14:00), WODA (06:55); OSTATNIE AKCJE „ostatnie · boks i koń”: 07:14 Ogarnięte; 06:55 Woda; 06:50 Podano śniadanie · Piotr (seed ma tylko te 3); bez zadania „Poidło w boksie 5 do wymiany”; stopka ONLINE, PL | UA.
@@ -435,8 +430,8 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 - Stany: po OGARNIĘTE (wpis „07:16 Ogarnięte” bez autora, A-05); po przypisaniu Luny („BOKS 6 · LUNA”, A-04).
 - Stany TabletBoks (fragmenty): drugi PADOK tego dnia na innym tablecie hali (`already_done`, „Padok już wyprowadzony 10:00”, A-13); akcja wyłączona w międzyczasie (`409 option_disabled`, „Stajnia wyłączyła tę akcję”, A-19, propozycja); nowa zakładka hali w „Zmień boks” po „Dodaj halę” (A-08, A-11); boks przeniesiony do innej hali z nową halą w nagłówku (A-11).
 
-**TabletUstawienia** · tablet, ukryte ustawienia · 702×936 · P1 · dec. 12, 13, 14, 28 · erd pkt 2; dev 3.5; szcz. 2.12, K-01, T-23, A-17, A-18, §5 pkt 30, 31, 40
-- Treść: Ola, Hala nowa · boks 5; „USTAWIENIA TABLETU”, „ZAMKNIJ” (64 px); wiersze 80 px z czarną linią: KONTO „Zalogowano: Ola · Obsługa” → „WYLOGUJ”; STAJNIA „Stajnia Pod Lipami” → „ZMIEŃ” (tylko przy kilku stajniach); BOKS „Hala nowa · boks 5 · Bursztyn” → „ZMIEŃ BOKS”; JĘZYK TABLICY „Polski” → „PL | UA” („Tylko na tym tablecie.”; zapamiętany jak boks, przełącznik PL | UA w stopce tablicy zostaje); SIEĆ „Stajnia-PodLipami · 5 GHz · sygnał dobry” → „ZMIEŃ SIEĆ”; DIAGNOSTYKA → „OTWÓRZ”; EKRAN: profil palety „Kaleido 3 (automatycznie)” i „PLANSZA TESTOWA” (propozycja); stopka: wersja [WERSJA], „Ustawienia zamkną się po 2 min bez dotyku” (propozycja). Wejście: przytrzymanie 5 s samego tekstu „ONLINE · aktualne na …” w stopce tablicy (nie przycisków PL i UA), bez etykiety; opis w notatce kanwy.
+**TabletUstawienia** · tablet, ukryte ustawienia · 702×936 · P1 · dec. 12, 13, 14, 15, 28 · erd pkt 2; dev 3.5; szcz. 2.12, K-01, T-23, A-17, A-18, §5 pkt 30, 31, 40
+- Treść: Ola, Hala nowa · boks 5; „USTAWIENIA TABLETU”, „ZAMKNIJ” (64 px); wiersze 80 px z czarną linią: KONTO „Zalogowano: Ola · Obsługa” → „WYLOGUJ”; BOKS „Hala nowa · boks 5 · Bursztyn” → „ZMIEŃ BOKS” (bez osobnego wiersza STAJNIA); JĘZYK TABLICY „Polski” → „PL | UA” (zapamiętany jak boks, przełącznik PL | UA w stopce tablicy zostaje); SIEĆ „Stajnia-PodLipami · 5 GHz · sygnał dobry” → „ZMIEŃ SIEĆ”; DIAGNOSTYKA → „OTWÓRZ”; EKRAN: profil palety „Kaleido 3 (automatycznie)” i „PLANSZA TESTOWA” (propozycja); stopka: wersja [WERSJA], „Ustawienia zamkną się po 2 min bez dotyku” (propozycja). Wejście: przytrzymanie 5 s samego tekstu „ONLINE · aktualne na …” w stopce tablicy (nie przycisków PL i UA), bez etykiety; opis w notatce kanwy.
 - Stany: dialog „WYLOGOWAĆ? Tablica zniknie do ponownego logowania. Boks 5 zostanie zapamiętany.”; bez zalogowanego konta (tylko SIEĆ i DIAGNOSTYKA); konto Wsparcia IT („TRYB WSPARCIA IT”, same ustawienia, bez tablicy); zablokowany ekran (wejście nie działa).
 
 **TabletDiagnostyka** · tablet, ukryte ustawienia · 702×936 · P1 · erd pkt 2; szcz. 2.12, T-10, T-11, T-13, T-16, N-01, N-04, §5 pkt 11
@@ -459,20 +454,20 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 - Treść: pełny ekran bez flag i karmienia: „SYSTEM NIEAKTYWNY · tablica wyłączona. Skontaktuj się z adminem stajni.”
 
 **TabletWifi** · wariant TabletUstawienia · 702×936 · P2 · dec. 14 · szcz. 4.5, T-15, N-04, N-06, §5 pkt 30; dev §5 pkt 15
-- Treść: „ZMIEŃ SIEĆ”, „ANULUJ”; Stajnia-PodLipami 5 GHz (POŁĄCZONO), Stajnia-PodLipami 2,4 GHz, inna sieć (nazwy: propozycja); wybrana sieć: hasło z klawiaturą QWERTY i „pokaż hasło”, WPA2 albo WPA3, „POŁĄCZ”; „Sieć bez strony logowania, z wyjściem na port 443. Zmiana dotyczy tylko tego tabletu.”
+- Treść: „ZMIEŃ SIEĆ”, „ANULUJ”; Stajnia-PodLipami 5 GHz (POŁĄCZONO), Stajnia-PodLipami 2,4 GHz, inna sieć (nazwy: propozycja); wybrana sieć: hasło z klawiaturą QWERTY i „pokaż hasło”, WPA2 albo WPA3, „POŁĄCZ”; „Sieć bez strony logowania, z wyjściem na port 443.”
 - Stany: łączenie; złe hasło (ramka 4 px `t-warn`); połączono („odpytanie 07:16 OK”); sieć bez internetu; brak uprawnień (dec. 14 b).
 
 ### F. Wyświetlacz (TV)
 
-Pierwszy start prowadzi od razu do WyswietlaczCentralny z wszystkimi halami; osobnego ekranu wyboru widoku nie ma (szcz. 3.5.4, W-18, erd pkt 4).
+Telewizor otwiera zwykłą stronę logowania panelu; strona nie wie, że to telewizor, a po zalogowaniu kontem z rolą Wyświetlacz panel pokazuje widok tablicy (dec. 10). Pierwszy start prowadzi od razu do WyswietlaczCentralny z wszystkimi halami; osobnego ekranu wyboru widoku nie ma (szcz. 3.5.4, W-18, erd pkt 4).
 
 **PanelLudzieWyswietlacze** · wariant PanelLudzie z filtrem roli „Wyświetlacz” · 1440×900 fill · P1 · dec. 10, 11 · erd pkt 4, 14; szcz. 2.4, 3.3 access, identity, 4.2, §5 pkt 3–4
-- Treść: Damian, „Ludzie · Stajnia Pod Lipami” z wybranym filtrem „Wyświetlacz” (bez osobnej zakładki i sekcji kont technicznych); wiersz „Telewizor korytarz” · Wyświetlacz · t•••@stajnielipowe.pl · Aktywne · „Zablokuj”; „Telewizor loguje się zwykłym kontem z rolą Wyświetlacz. Jedno konto obsłuży kilka telewizorów, a osobne pozwala zablokować telewizor pojedynczo.”; „Zaproś osobę” → PanelZaprosOsobe z rolą Wyświetlacz; karta „Jak podłączyć telewizor”: (1) Raspberry Pi z obrazem EQUENOR do HDMI; (2) telewizor otwiera [PANEL]/wyswietlacz; (3) zaloguj się telefonem albo e-mailem konta wyświetlacza i kodem, jak wszędzie; (4) telewizor pokazuje wszystkie hale, a żeby pokazywał jedną, kliknij przy niej „Pełny ekran” (mysz albo pilot) i telewizor to zapamięta. „Panel nie wie, który telewizor co pokazuje.”
+- Treść: Damian, „Ludzie · Stajnia Pod Lipami” z wybranym filtrem „Wyświetlacz” (bez osobnej zakładki i sekcji kont technicznych); wiersz „Telewizor korytarz” · Wyświetlacz · t•••@stajnielipowe.pl · Aktywne · „Zablokuj”; „Zaproś osobę” → PanelZaprosOsobe z rolą Wyświetlacz; karta „Jak podłączyć telewizor”: (1) zaproś konto z rolą Wyświetlacz; (2) w przeglądarce telewizora otwórz [PANEL]; (3) zaloguj się tym kontem, panel sam pokaże tablicę; (4) „Pełny ekran” wybiera halę.
 - Stany: konto zablokowane („Zablokowane od 07:20 · Odblokuj”) z dialogiem „Telewizory na tym koncie pokażą „Wyświetlacz zablokowany”.”; zaproszenie czeka (zakładka Zaproszenia, e-mail); Brzozowa: „Stajnia nie ma wyświetlacza” z „Zaproś osobę”. Formularza „Dodaj wyświetlacz” nie ma (dec. 11).
 
-**WyswietlaczLogowanie** · TV, kiosk [PANEL]/wyswietlacz · 1600×900 fill · P1 · dec. 7, 10 · erd pkt 4, 6; szcz. 1.3, 4.2, W-18, W-25, W-29, §5 pkt 3, 4, 15
-- Treść: logowanie jak wszędzie (2.3), w konwencji TV: tło bg, bez pól w akcencie; „EQUENOR · wyświetlacz” (pod znakiem hasło „Equestrian Management, Refined”), zegar 07:15, „wtorek, 13 października”; karta: H1 „Zaloguj ten telewizor”, „Zaloguj się kontem z rolą Wyświetlacz. Zaprasza je admin w panelu: Ludzie → Zaproś osobę.”; przełącznik „Telefon | E-mail” (wybrany E-mail) z fokusem 3 px (klawiatura, pilot CEC), „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”, „Wyślij kod”; bez danych stajni i flag.
-- Stany: ● **WyswietlaczKod** (6 dużych pól, „Wysłaliśmy kod na t•••@stajnielipowe.pl”, „Zły kod. Wpisz ponownie.”, „Zaloguj”, „Wyślij nowy kod”, „Zmień e-mail”); ● **WyswietlaczWylogowany** (ten układ z paskiem „uwaga” „Wyświetlacz wylogowany o 06:40 · dane są ukryte do ponownego logowania”; sesja wygasła albo global sign-out, szcz. 4.2 Sesje); konto bez roli Wyświetlacz („To konto nie ma dostępu do wyświetlacza”, propozycja); brak sieci.
+**WyswietlaczLogowanie** · TV, kiosk, zwykła strona logowania [PANEL] · 1600×900 fill · P1 · dec. 7, 10 · erd pkt 4, 6; szcz. 1.3, 4.2, W-18, W-25, W-29, §5 pkt 3, 4, 15
+- Treść: ta sama strona co PanelLogowanie, w 1600×900: wybrany E-mail, konto t•••@stajnielipowe.pl, fokus 3 px (klawiatura, pilot CEC); bez słowa „telewizor”, bez danych stajni i flag.
+- Stany: ● **WyswietlaczKod** (ta sama strona co PanelLogowanieKod, kod wysłany na t•••@stajnielipowe.pl; po zalogowaniu panel pokazuje WyswietlaczCentralny); ● **WyswietlaczWylogowany** (ten układ z paskiem „uwaga” „Wyświetlacz wylogowany o 06:40 · dane są ukryte do ponownego logowania”; sesja wygasła albo global sign-out, szcz. 4.2 Sesje); brak sieci.
 
 **WyswietlaczStart** · TV · 1600×900 fill · P1 · szcz. W-01, W-17
 - Treść: zimny start bez sieci i bez zapisanego stanu: znak, zegar z RTC, „Łączenie z serwerem…”, bez danych; po minucie „Brak połączenia. Sprawdź sieć telewizora.” (propozycja).
@@ -530,16 +525,13 @@ Pierwszy start prowadzi od razu do WyswietlaczCentralny z wszystkimi halami; oso
 
 ### I. Strona www
 
-Publiczna strona przed logowaniem: prezentacja produktu i pseudo-blog (prośba użytkownika z 13.10). Panelowa konwencja (Figtree, paleta, 1440 rosnące w dół), bez menu panelu i danych stajni. Treść stron to propozycja.
+Publiczna strona przed logowaniem, sama prezentacja produktu (dec. 37). Panelowa konwencja (Figtree, paleta, 1440 rosnące w dół), bez menu panelu i danych stajni. Bez drobnych zalet, ogólników, wstępów do sekcji i instrukcji: krótkie nagłówki i to, co produkt robi. Treść stron to propozycja.
 
-**StronaGlowna** · www · 1440×900 fill, rośnie w dół · P1 · dev 2
-- Treść: nagłówek ze znakiem „EQUENOR” (pod nim hasło „Equestrian Management, Refined”) i „Zaloguj się” (→ PanelLogowanie); prezentacja: dla kogo (stajnie, obsługa, klienci), co robi (flagi z potwierdzeniem, szybkie akcje obsługi, tablet przy boksie, telewizor w korytarzu, panel stajni), jak zacząć (konto firmy z NIP-em, stajnia, zaproszenia); sekcja bloga z kilkoma wpisami (→ StronaWpis); stopka: znak z hasłem pod spodem, [WWW]/app, Regulamin, Polityka prywatności.
+**StronaGlowna** · www · 1440×900 fill, rośnie w dół · P1 · dec. 37 · dev 2
+- Treść: nagłówek ze znakiem „EQUENOR” (pod nim hasło „Equestrian Management, Refined”) i „Zaloguj się” (→ PanelLogowanie); hero: nazwa, hasło, jedno zdanie, CTA; cztery ekrany (apka, tablet, telewizor, panel), każdy z obrazem i jednym zdaniem; przykład flag z godzinami; kontakt i CTA; stopka: znak z hasłem pod spodem, [WWW]/app, Regulamin, Polityka prywatności.
 
 **StronaGlownaTelefon** · www w telefonie · 390×844 i dłuższe · P1
 - Treść: ta sama strona w jednej kolumnie, te same linki.
-
-**StronaWpis** · www · 1440×900 fill, rośnie w dół · P1
-- Treść: wpis bloga (tytuł, data, autor, treść ze zdjęciem), „← Blog” → StronaGlowna, pod wpisem zachęta do założenia konta (→ PanelLogowanie).
 
 ### H. P3 (po PoC albo po decyzji)
 
@@ -558,10 +550,10 @@ Jedyny spis linków. **L1** wykonujemy po paczkach P1, **L2** po P2, **L3** po P
 
 **Nowe plansze.** Domyślnie: „← Wróć”, „Anuluj”, X i zapis wracają do ekranu wejścia; pasek i menu według MapaNawigacjiRol; „Wyloguj” → LogowanieNumer (apka) albo PanelLogowanie (panel); tablice tabletu mają linki jak TabletBoks (kłódka, „Zmień boks”, stopka → TabletUstawienia). Poza tym:
 - **A:** LogowanieNumer „Wyślij kod” → Logowanie; BrakDostepu „Sprawdź ponownie” → ZaproszeniePrzyjmij; WiadomosciSms link → ZaproszenieStrona → „Panel” → PanelLogowanie; ZaproszeniePrzyjmij „Przyjmij” → MainLuna, ListaDnia, InstruktorJazdy albo WsparcieITStart (według roli); ZaproszenieNoweStajnia „Przyjmij” → MainBrzozowa, „Później” → Main (toast Oli bez linku); MainLuna kafelki → SzybkaFlaga, „Karta” → KartaKonia (tymczasowo), Flagi → StatusFlagi (tymczasowo); Profil stajnia → PrzelacznikStajni, „Zmień numer” bez linku; ProfilAdmin → PanelPulpit, PanelUstawieniaStajni, PanelPlatnosci, „Konie” → PanelBoksy (tymczasowo); PrzelacznikStajni → Main, MainBrzozowa (Ola: ListaDnia, ListaDniaBrzozowa).
-- **B:** PanelLogowanie → PanelLogowanieKod → PanelPulpit (Admin), PanelWitaj (bez konta firmy i członkostwa, zaproszenie, inna rola) albo PanelDiagnostyka (Wsparcie IT); PanelWitaj „Załóż konto firmy” → PanelRejestracjaFirmy → PanelZalozStajnie → PanelZalozPowiadomienia („← Wstecz” → PanelZalozStajnie) → PanelPulpitStart; PanelPulpitStart „Dodaj konia” → PanelDodajKonia, „Zaproś osobę” → PanelZaprosOsobe, „Sprawdź” → PanelUstawieniaBrzozowa (stan docelowy po zmianach Damiana, nie z dnia założenia), wyświetlacz → PanelLudzieWyswietlacze; PanelDodajKonia i PanelPrzeniesKonia → PanelBoksy; PanelLudzie i PanelLudzieWyswietlacze „Zaproś osobę” → PanelZaprosOsobe, filtr roli wszyscy ⇄ „Wyświetlacz” → PanelLudzie ⇄ PanelLudzieWyswietlacze; PanelPulpit Konie → PanelBoksy (tymczasowo), „Zobacz flagę” → PanelBoksy (tymczasowo, alert Belli), konto bez linku.
+- **B:** PanelLogowanie → PanelLogowanieKod → PanelPulpit (Admin), PanelWitaj (bez konta firmy i członkostwa, zaproszenie, inna rola), PanelDiagnostyka (Wsparcie IT) albo WyswietlaczCentralny (Wyświetlacz); PanelWitaj „Załóż konto firmy” → PanelRejestracjaFirmy → PanelZalozStajnie → PanelZalozPowiadomienia („← Wstecz” → PanelZalozStajnie) → PanelPulpitStart; PanelPulpitStart „Dodaj konia” → PanelDodajKonia, „Zaproś osobę” → PanelZaprosOsobe, „Sprawdź” → PanelUstawieniaBrzozowa (stan docelowy po zmianach Damiana, nie z dnia założenia), wyświetlacz → PanelLudzieWyswietlacze; PanelDodajKonia i PanelPrzeniesKonia → PanelBoksy; PanelLudzie i PanelLudzieWyswietlacze „Zaproś osobę” → PanelZaprosOsobe, filtr roli wszyscy ⇄ „Wyświetlacz” → PanelLudzie ⇄ PanelLudzieWyswietlacze; PanelPulpit Konie → PanelBoksy (tymczasowo), „Zobacz flagę” → PanelBoksy (tymczasowo, alert Belli), konto bez linku.
 - **C:** MapaNawigacjiRol: nazwy ✓ i ● to linki do plików, nazwy ○ bez linku do L2 i L3; AdminDzis „+ Dodaj zadanie” → AdminZadaniaNowe, Ludzie → Zaproszenie (tymczasowo), „Zaznacz boksy” → ListaDniaOgarniete, Bella i „Przypisz boks” → BoksyAdmin (tymczasowo; szczegółu flagi dla admina w apce nie ma); InstruktorJazdy Flagi → ta sama makieta; WsparcieITStart instrukcje → TabletUstawienia, TabletDiagnostyka, WyswietlaczLogowanie.
 - **D:** SzybkaFlagaGodziny „Zapisz godziny” → SzybkaFlaga; SzybkaFlagaObsluga wysłanie → StatusFlagi (tymczasowo); SzybkaFlagaBrzozowa → MainBrzozowa; StatusFlagiOdwolaj → StatusFlagi; KlientFlagi wiersz → StatusFlagi, „Nowa flaga” → SzybkaFlaga.
-- **E:** TabletLogowanie „WYŚLIJ KOD” → TabletLogowanieKod, „ZALOGUJ” → TabletBoks (zapamiętany boks), TabletWyborStajni (kilka stajni) albo TabletPierwszyBoks; TabletWyborStajni → TabletPierwszyBoks; TabletPierwszyBoks i TabletBoksNiedostepny: Hala nowa · 5 → TabletBoksWoda, Hala nowa · 6 → TabletBoksWolny, pozostałe → TabletBoks (tymczasowo; tablice są tylko dla Hala główna · 7 i Hala nowa · 5 i 6); TabletUstawienia „WYLOGUJ” → TabletWylogowany, stajnia → TabletWyborStajni, „ZMIEŃ BOKS” → TabletZmianaBoksu, „ZMIEŃ SIEĆ” bez linku, „OTWÓRZ” → TabletDiagnostyka, „ZAMKNIJ” → TabletBoksWoda.
+- **E:** TabletLogowanie „WYŚLIJ KOD” → TabletLogowanieKod, „ZALOGUJ” → TabletBoks (zapamiętany boks) albo TabletPierwszyBoks; TabletPierwszyBoks i TabletBoksNiedostepny: Hala nowa · 5 → TabletBoksWoda, Hala nowa · 6 → TabletBoksWolny, pozostałe → TabletBoks (tymczasowo; tablice są tylko dla Hala główna · 7 i Hala nowa · 5 i 6); TabletUstawienia „WYLOGUJ” → TabletWylogowany, „ZMIEŃ BOKS” → TabletZmianaBoksu, „ZMIEŃ SIEĆ” bez linku, „OTWÓRZ” → TabletDiagnostyka, „ZAMKNIJ” → TabletBoksWoda.
 - **F:** PanelLudzieWyswietlacze instrukcja → WyswietlaczLogowanie; WyswietlaczLogowanie i WyswietlaczWylogowany → WyswietlaczKod → WyswietlaczCentralny; pozostałe plansze TV pasywne.
 - **I:** StronaGlowna i StronaGlownaTelefon: wpisy → StronaWpis, „Zaloguj się” → PanelLogowanie; StronaWpis „← Blog” → StronaGlowna, zachęta → PanelLogowanie.
 - **G:** BoksSzczegolyWoda „Karta konia” → KartaKonia (tymczasowo), „Przenieś konia” bez linku; EdycjaPlanuKonia → StajennyKonie; KartaKoniaObsluga „Edytuj plan” → EdycjaPlanuKonia, „Flaga” → SzybkaFlagaObsluga; PanelKonie „Przenieś” → PanelPrzeniesKonia, „Karta” i „Flaga” bez linku (brak planszy panelu); KartaKoniaKometa i StajennyKonieBrzozowa → MainBrzozowa i ListaDniaBrzozowa.
