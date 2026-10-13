@@ -1,6 +1,6 @@
 # eKoniuszy: development, testy i zakupy przed wdrożeniem
 
-> Stan na 2026-10-12, po feedbacku ze stajni (erd.md pkt 2, 3 i 12–16 oraz „Otwarte kwestie”), z konfiguracją per stajnia (erd.md pkt 16: „Ustawienia stajni”, potwierdzenia flag zależne od ustawień stajni, widoczność per rola). Model danych i decyzje: [docs/erd.md](erd.md) (v3), paleta kolorów: [docs/paleta.md](paleta.md), wersja zwięzła: [docs/development.md](development.md). Z [docs/analiza.md](analiza.md) (nieaktualna v3) bierzemy tylko szczegóły tabletu. Dokument opisuje, co kupić, jakie konta założyć, co zbudować i jak przetestować system przed wdrożeniem. Nie podaje cen i nie wskazuje, gdzie ani u kogo stoją klaster i baza; o tym decyduje Dawid.
+> Stan na 2026-10-13, po feedbacku ze stajni (erd.md pkt 2, 3 i 12–16 oraz „Otwarte kwestie”), z konfiguracją per stajnia (erd.md pkt 16: „Ustawienia stajni”, potwierdzenia flag zależne od ustawień stajni, widoczność per rola) i z decyzjami z 13.10 (sekcja 5, „Rozstrzygnięte”): logowanie telefonem albo e-mailem, konto firmy z NIP i admin konta, telewizor jako zwykłe konto z rolą Wyświetlacz, język tablicy per tablet, boksy z ustawieniami przy tworzeniu, powiadomienia jako krok 2 zakładania stajni, publiczna strona www. Model danych i decyzje: [docs/erd.md](erd.md) (v3), paleta kolorów: [docs/paleta.md](paleta.md), wersja zwięzła: [docs/development.md](development.md). Z [docs/analiza.md](analiza.md) (nieaktualna v3) bierzemy tylko szczegóły tabletu. Dokument opisuje, co kupić, jakie konta założyć, co zbudować i jak przetestować system przed wdrożeniem. Nie podaje cen i nie wskazuje, gdzie ani u kogo stoją klaster i baza; o tym decyduje Dawid.
 
 **Oznaczenia**
 - **[niepotwierdzone]**: weryfikacja nie znalazła potwierdzenia w źródłach. Rozstrzyga test albo karta produktu sprawdzona przed zakupem.
@@ -45,8 +45,9 @@ Pozycje z 1.0 wliczają się w ilości z 1.1–1.4; nie kupujemy ich drugi raz.
 | **Wykorzystać własne** | | | |
 | Telewizor albo monitor z HDMI | 1 | Ekran wyświetlacza centralnego. | Auto-off po 4 h bez interakcji wyłączyć, jeśli się da (1.3). Jeśli to OLED, nie zostawiać statycznego obrazu na noc (wypalenie). Telewizora nie podłączać do internetu. |
 | Domowe Wi-Fi | — | Sieć dla tabletu i Pi. | Bez portalu logowania. Pasma 2,4 i 5 GHz na Air6 C: [niepotwierdzone] (T-13). Osobny SSID i drugi AP do testów awarii sieci dopiero na stanowisku (1.2). |
-| Własny telefon | 1 | Logowanie SMS-em (OTP z Cognito) w apce i na koncie `display`, SMS-y eskalacji. | Numer trzeba zweryfikować w SMS sandbox AWS (limit 10 numerów, 1.4). |
-| Klawiatura i mysz USB | 1 + 1 | Konfiguracja Pi: logowanie na konto `display`, wybór hali, „Pełny ekran”, „Wszystkie hale”. | Bezprzewodowa klawiatura z 1.3 dopiero na stanowisko. |
+| Własny telefon | 1 | Logowanie SMS-em (OTP z Cognito) w apce i na tablecie, SMS-y eskalacji. | Numer trzeba zweryfikować w SMS sandbox AWS (limit 10 numerów, 1.4). |
+| Własna skrzynka e-mail (i druga do konta telewizora) | 1–2 | Logowanie e-mailem (kod z Cognito przez SES) w apce, panelu i na TV, zaproszenia e-mailem. | Adresy trzeba zweryfikować w sandboxie SES (2.6). |
+| Klawiatura i mysz USB | 1 + 1 | Konfiguracja Pi: logowanie kontem z rolą Wyświetlacz (e-mail i kod z e-maila), wybór hali, „Pełny ekran”, „Wszystkie hale”. | Bezprzewodowa klawiatura z 1.3 dopiero na stanowisko. |
 | **Dokupić tylko, jeśli coś nie zadziała** | | | |
 | Samsung Galaxy Tab Active5 (SM-X300, Wi-Fi) | 0 (warunkowo 1) | Wzorzec Device Owner i plan B. Odróżnia błąd naszego DPC od blokady w firmware Boox. | Dokupić, gdy T-01 albo T-02 nie przejdą na Air6 C (1.1). |
 | Boox Go 10.3 Gen II Lumi | 0 (warunkowo 1) | Test prawdziwego czarno-białego ekranu (Carta) na tym samym firmware co Air6 C (K-06). | Warunki dokupienia w 1.1 (rekomendacja, pkt 2). |
@@ -299,7 +300,7 @@ Zasilanie przy boksie i Wi-Fi zapewnia stajnia. Kupujemy więc tylko to, czego s
 | Monitor signage LCD 55″ lub większy, najlepiej do pracy 24/7 | 1 | Zestaw „hala”. | Power On Status, blokada przycisków, praca 24/7 i warunki pracy w europejskiej karcie produktu. CEC bywa tu okrojone; wtedy halę ustawiamy klawiaturą. Klasa 16/7 nie wystarczy, jeśli ekran ma działać całą dobę (sekcja 5). |
 | Uchwyt ścienny VESA (stały albo uchylny) i mocowanie Pi z tyłu telewizora | 2 + 2 kpl. | Montaż zestawów. | Dostęp do przycisku Pi i slotu karty bez zdejmowania telewizora. Metalowe plecy telewizora mogą tłumić Wi-Fi (W-19). |
 | Listwa z ochroną przeciwprzepięciową | 2 | Telewizor i zasilacz Pi z jednego miejsca. | — |
-| Bezprzewodowa klawiatura z touchpadem (odbiornik USB 2,4 GHz) | 1 | Instalacja: logowanie na konto `display`, wybór hali, „Pełny ekran”, „Wszystkie hale”. | Zostaje u osoby wdrażającej. W domu wystarczą własna klawiatura i mysz USB (1.0). |
+| Bezprzewodowa klawiatura z touchpadem (odbiornik USB 2,4 GHz) | 1 | Instalacja: logowanie kontem z rolą Wyświetlacz, wybór hali, „Pełny ekran”, „Wszystkie hale”. | Zostaje u osoby wdrażającej. W domu wystarczą własna klawiatura i mysz USB (1.0). |
 | Czytnik kart microSD na USB i patchcordy Ethernet | 1 + 2 | Nagrywanie obrazów; porównanie LAN z Wi-Fi. | — |
 | Emulator EDID | 0 | Dopiero gdy W-02 albo W-05 wykażą problem z HPD/EDID. | Sprawdzić, czy przepuszcza CEC. |
 | Obudowa ochronna TV IP54+ z filtrowaną wentylacją | 0–1 | Tylko jeśli W-28 wypadnie źle. | IP54 nie chroni przed myciem ciśnieniowym. |
@@ -314,7 +315,7 @@ Zasilanie przy boksie i Wi-Fi zapewnia stajnia. Kupujemy więc tylko to, czego s
 | Samsung, aktualny | 1 | Najpopularniejsza nakładka systemowa. | — |
 | Xiaomi albo Redmi | 1 | Agresywnie zamyka aplikacje w tle i inaczej uzupełnia kod z SMS. | — |
 | Pixel, najnowszy | 1 | Czysty Android i najnowsze API. | Android 10 lub nowszy jest też potrzebny do weryfikacji urządzenia w Play Console, jeśli konto okaże się osobiste. |
-| Karty SIM na kartę, z pakietem danych | ok. 12 + 2 zapasowe | Po jednej na osobę z danych przykładowych: admini obu stajni (Damian, Paweł), dwie osoby z obsługi, klienci (Anna, Karolina W., Tomasz L., Ewa K.), zaproszony klient (Marek Nowak), konta Wsparcia IT (`it_support`) i Instruktora (`instructor`), oba propozycja; do tego konto `display`, jeśli loguje się SMS-em. Ola i Anna mają jedno konto w obu stajniach (przełącznik stajni). | Sieci: Orange, Play, Plus i T-Mobile oraz 2–3 podmarki albo MVNO (np. nju mobile, Heyah, Virgin Mobile); jeden numer przeniesiony; opcjonalnie numer +380 (sekcja 5). Rejestracja na kartę wymaga danych osoby ([Antyweb](https://antyweb.pl/rejestracja-kart-sim-jak-to-zrobic)). Pilnować ważności kont. Nie używać tych numerów do 2FA kont Apple, Google i AWS. W SMS sandbox AWS mieści się tylko 10 zweryfikowanych numerów. |
+| Karty SIM na kartę, z pakietem danych | ok. 12 + 2 zapasowe | Po jednej na osobę z danych przykładowych: admin konta firmy (Damian), obsługa (Paweł, Ola, Piotr), klienci (Anna, Karolina W., Tomasz L., Ewa K.), zaproszony klient (Marek Nowak), Marta (Instruktor) i Kuba (Wsparcie IT), oboje propozycja. Telewizor loguje się e-mailem, więc karty nie potrzebuje. Damian, Ola, Anna, Marta i Kuba mają jedno konto w obu stajniach (przełącznik stajni). | Sieci: Orange, Play, Plus i T-Mobile oraz 2–3 podmarki albo MVNO (np. nju mobile, Heyah, Virgin Mobile); jeden numer przeniesiony; opcjonalnie numer +380 (sekcja 5). Rejestracja na kartę wymaga danych osoby ([Antyweb](https://antyweb.pl/rejestracja-kart-sim-jak-to-zrobic)). Pilnować ważności kont. Nie używać tych numerów do 2FA kont Apple, Google i AWS. W SMS sandbox AWS mieści się tylko 10 zweryfikowanych numerów. |
 | Modem USB LTE z kartą SIM albo telefon z Androidem przekazujący SMS-y do API testów | 1–2 | Automatyczny odczyt prawdziwych SMS-ów (OTP z Cognito, eskalacje) w przebiegu nocnym. | Custom SMS sender omija polskie sieci, więc tego testu nie zastąpi. |
 
 ### 1.5 Przyrządy na stanowisko testowe
@@ -356,6 +357,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
 - [ ] **Domena, DNS, strona www, skrzynki funkcyjne.**
   - Apple przy koncie organizacji wymaga publicznej strony i e-maila w domenie organizacji.
   - Ta sama domena posłuży do SES, Universal Links i App Links, polityki prywatności oraz strony usuwania konta.
+  - Publiczna strona www przed logowaniem (prezentacja produktu i blog, 3.5.5) spełnia wymóg publicznej strony; polityka prywatności i strona usuwania konta mogą być jej podstronami (propozycja).
   - Czas: godziny.
 - [ ] **Wnioski w AWS, które czekają w kolejce:** wyjście z SMS sandbox, podniesienie miesięcznego limitu SMS, dostęp produkcyjny do SES. Pierwsza odpowiedź przychodzi do 24 h, decyzja bywa później ([SMS sandbox](https://docs.aws.amazon.com/sns/latest/dg/sns-sms-sandbox-moving-to-production.html), [SES FAQ](https://repost.aws/knowledge-center/ses-production-access-request-faq)).
 - [ ] **Identyfikatory od nazwy produktu przed założeniem rekordów w sklepach.** Nazwa jest ustalona: eKoniuszy. Repozytorium nadal nazywa się KonskaAppka, ale ta nazwa nie musi trafiać do identyfikatorów.
@@ -385,21 +387,26 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
   - konsument zdarzeń: tylko własna kolejka SQS.
 
 ### 2.4 Cognito
-- [ ] Pula na każde środowisko, w planie Essentials albo Plus, bo `SMS_OTP` nie działa w planie Lite ([plany funkcji](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html)). W klientach aplikacji włączony `ALLOW_USER_AUTH` ([przepływy](https://docs.aws.amazon.com/cognito/latest/developerguide/authentication-flows-selection-sdk.html)). Czas: godziny.
+- [ ] Pula na każde środowisko, w planie Essentials albo Plus, bo `SMS_OTP` i `EMAIL_OTP` nie działają w planie Lite ([plany funkcji](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html)). W klientach aplikacji włączony `ALLOW_USER_AUTH` ([przepływy](https://docs.aws.amazon.com/cognito/latest/developerguide/authentication-flows-selection-sdk.html)). Czas: godziny.
+- [ ] Logowanie bez hasła numerem telefonu albo e-mailem, wszędzie tak samo: w apce, panelu, na tablecie i na TV.
+  - Kod jednorazowy SMS-em (`SMS_OTP`) albo e-mailem (`EMAIL_OTP`); konta nie mają hasła.
+  - Jedno konto może mieć telefon i e-mail. Kanał wybiera osoba przełącznikiem „Telefon | E-mail” przy logowaniu, a klient prosi Cognito o ten rodzaj kodu (propozycja).
+  - Telefon i e-mail muszą być atrybutami logowania od utworzenia puli, bo potem nie da się tego zmienić (niżej).
+  - E-maile z kodami wysyła SES (niżej i 2.6).
 - [ ] Osobne klienty aplikacji: mobile, tablet, web i display. Każdy ma własne ustawienia:
   - czas życia refresh tokenu: od 60 minut do 10 lat, domyślnie 30 dni; bez rotacji ważność liczy się od zalogowania ([refresh tokens](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-the-refresh-token.html));
   - decyzję o rotacji refresh tokenu (okno łaski do 60 s). Czy obsługuje ją Amplify albo SDK w React Native, trzeba sprawdzić.
 - [ ] Klient tablet [erd]:
-  - tablet nie ma własnego konta: loguje się na nim użytkownik tym samym kontem co w apce, a tablet zostaje zalogowany na stałe. Dlatego ten klient potrzebuje długiego refresh tokenu (wartość: sekcja 5);
+  - tablet nie ma własnego konta: loguje się na nim użytkownik tym samym kontem co w apce (telefonem albo e-mailem i kodem), a tablet zostaje zalogowany na stałe. Dlatego ten klient potrzebuje długiego refresh tokenu (wartość: sekcja 5);
   - token wskazuje użytkownika, ale akcje z tabletu (potwierdzenie flagi w stajni, która wymaga potwierdzeń, „Ogarnięte”, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu, „Woda” przy poidle ręcznym) zapisujemy bez autora: `source = tablet`, `user_id` NULL, `id` boksu i czas [erd]. Serwisy rozpoznają tablet po kliencie Cognito, nie po treści żądania (propozycja);
   - tablet wysyła `id` wybranego boksu, nie numer, bo numer (`boxes.label`) powtarza się w halach.
-- [ ] Klient display: konto techniczne stajni z rolą `display` w `stable_members`, jedno na wszystkie telewizory albo osobne na każdy telewizor [erd]. Tylko odczyt, długi refresh token jak dla tabletu.
+- [ ] Klient display: telewizor loguje się zwykłym kontem z rolą `display` (Wyświetlacz) w stajni, telefonem albo e-mailem i kodem, tak samo jak wszędzie. Konto zaprasza admin przez „Zaproś osobę” z rolą Wyświetlacz; kont technicznych i osobnego formularza nie ma. W seedzie „Telewizor korytarz” loguje się e-mailem. Jedno konto na kilka telewizorów albo osobne na każdy, wybiera admin. Tylko odczyt, długi refresh token jak dla tabletu.
 - [ ] Wysyłka SMS jedną z dwóch ścieżek ([ustawienia SMS](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-sms-settings.html)):
   - przez SNS: rola z `sns:Publish` i warunkiem `sts:ExternalId`;
   - bezpośrednio przez AWS End User Messaging SMS (`EumsSms`): rola z `sms-voice:SendTextMessage`, origination identity i configuration set.
 
   Ścieżki EUMS nie ma jeszcze w providerze Terraform ([#50066](https://github.com/hashicorp/terraform-provider-aws/issues/50066)).
-- [ ] E-maile z Cognito przez SES w trybie `DEVELOPER` ([EmailConfiguration](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cognito-userpool-emailconfiguration.html)).
+- [ ] E-maile z Cognito przez SES w trybie `DEVELOPER` ([EmailConfiguration](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cognito-userpool-emailconfiguration.html)). Na tym opiera się `EMAIL_OTP`, więc kody e-mailem podlegają limitom SES i jego sandboxu (2.6).
 - [ ] TOTP to w Cognito MFA typu software token. Logowanie bez hasła i MFA wykluczają się dla tego samego użytkownika ([MFA](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html)). Decyzja przed etapem 1 (sekcja 5).
 - [ ] Atrybutów logowania nie da się zmienić po utworzeniu puli ([atrybuty](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html)), więc pule dev i test muszą dać się odtworzyć z kodu.
 - [ ] Sesje i blokada konta:
@@ -429,6 +436,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
 - [ ] **SES.**
   - Domena: Easy DKIM, MAIL FROM i DMARC, osobno w każdym regionie.
   - Sandbox: wysyłka tylko na zweryfikowane adresy, 200 e-maili na dobę, 1 na sekundę. Odbicia i skargi testuje mailbox simulator.
+  - E-mailem idą kody logowania (`EMAIL_OTP`), zaproszenia i powiadomienia. W sandboxie dochodzą tylko na zweryfikowane adresy, więc dostęp produkcyjny jest potrzebny przed recenzją sklepów (sekcja 5 pkt 2) i przed stajnią pilotażową.
   - Wniosek o dostęp produkcyjny składamy po wdrożeniu obsługi odbić i skarg. Odpowiedź do 24 h, bywa kilka dni, zdarzają się odmowy ([FAQ](https://repost.aws/knowledge-center/ses-production-access-request-faq)).
 - [ ] **S3.**
   - Bucket na każde środowisko, Block Public Access, szyfrowanie, CORS dla uploadów.
@@ -449,7 +457,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
   - Apple pobiera go przez własny CDN, więc zmiany dochodzą z opóźnieniem;
   - nie działają w Expo Go.
 - [ ] Do recenzji ([wytyczne](https://developer.apple.com/app-store/review/guidelines/)):
-  - działające konto demo (wytyczna 2.1); recenzent nie odbierze SMS, sposób logowania rozstrzyga sekcja 5;
+  - działające konto demo (wytyczna 2.1); recenzent nie odbierze SMS, więc loguje się e-mailem i kodem z e-maila (sekcja 5 pkt 2, propozycja);
   - usuwanie konta w apce (5.1.1(v));
   - URL polityki prywatności i strony wsparcia.
 
@@ -461,7 +469,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
   - APK tabletu idzie poza Play i tego wymogu nie ma, ale Boox Note Air6 C z zestawu domowego działa na Androidzie 16, więc ten sam `targetSdk` (API 36) w obu projektach upraszcza testy (propozycja).
 - [ ] Play App Signing: klucz uploadu (EAS) i klucz podpisu Google. W `assetlinks.json` odciski SHA-256 obu kluczy i kluczy buildów testowych.
 - [ ] EAS Submit z kontem usługi i kluczem JSON ([Expo](https://docs.expo.dev/submit/introduction)). Pierwszy build wgrać ręcznie na ścieżkę testów wewnętrznych.
-- [ ] Do recenzji: formularz Data safety, link www do usuwania konta ([wymagania](https://support.google.com/googleplay/android-developer/answer/13327111)), instrukcje dostępu dla recenzentów.
+- [ ] Do recenzji: formularz Data safety, link www do usuwania konta ([wymagania](https://support.google.com/googleplay/android-developer/answer/13327111)), instrukcje dostępu dla recenzentów (logowanie e-mailem, sekcja 5 pkt 2).
 - [ ] APK tabletu poza Play.
   - Weryfikacja deweloperów obowiązuje od 30.09.2026 w Brazylii, Indonezji, Singapurze i Tajlandii, a globalnie od 2027 na certyfikowanych urządzeniach.
   - Instalacje przez ADB są zwolnione ([FAQ](https://developer.android.com/developer-verification/guides/faq), [przewodniki](https://developer.android.com/developer-verification/guides?hl=en), [Android Developer Console](https://support.google.com/android-developer-console/answer/16561738?hl=en)).
@@ -488,7 +496,8 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
   - API;
   - panel razem z `/wyswietlacz`. Wybór widoku na telewizorze (wszystkie hale albo pełny ekran jednej hali) pamięta przeglądarka dla tej domeny, bez tabeli w bazie [erd]. Zmiana subdomeny panelu kasuje ten wybór na każdym telewizorze, więc subdomena musi być stała;
   - `.well-known` (AASA i `assetlinks.json`);
-  - MAIL FROM.
+  - MAIL FROM;
+  - publiczna strona www na domenie głównej (propozycja; 3.5.5).
 - [ ] TLS przez ACME z automatycznym odnawianiem. Maksymalna ważność certyfikatu: 200 dni od 15.03.2026, 100 dni od 15.03.2027, 47 dni od 15.03.2029 ([SC-081](https://sslinsights.com/200-day-ssl-certificate-validity/)). Łańcuch sprawdzić na tabletach (Boox Note Air6 C, Android 16; po dokupieniu także Go 10.3 Gen II Lumi i Galaxy Tab Active5) i w Chromium na Raspberry Pi 5.
 - [ ] Dostęp z internetu do środowiska testowego dla tabletów, telefonów w sieci komórkowej, Pi i webhooków. Sposób wybiera Dawid.
   - W zestawie domowym tablet i Pi łączą się przez domowe Wi-Fi, a telefon także przez sieć komórkową, więc środowisko testowe musi być osiągalne zarówno z domowego Wi-Fi, jak i z sieci komórkowej.
@@ -528,9 +537,9 @@ Zasady wspólne:
 #### 3.1.1 Monorepo i narzędzia
 - [ ] pnpm workspaces i Turborepo. Przypięte `packageManager` (corepack) i wersja Node (`.nvmrc`, `engines`). Każda zależność w jednej wersji (pnpm catalogs albo syncpack).
 - [ ] Układ katalogów:
-  - `apps/{mobile,tablet,web}`: `tablet` z `modules/kiosk` w Kotlinie, `web` to panel i `/wyswietlacz`;
+  - `apps/{mobile,tablet,web}`: `tablet` z `modules/kiosk` w Kotlinie, `web` to panel i `/wyswietlacz`; strona www osobno, miejsce według sekcji 5 pkt 51 (propozycja: `apps/www`);
   - `services/{identity,access,stable,flags,care,health,rides,tasks,board,billing,files,releases,notifications,audit}`;
-  - `crons/{escalation-scheduler,health-due-reminders,files-gc,billing-usage-snapshot,billing-invoicing,billing-dunning,horse-left-reconciler,retention-pruner}`;
+  - `crons/{escalation-scheduler,health-due-reminders,files-gc,billing-usage-snapshot,billing-invoicing,billing-dunning,horse-left-reconciler,retention-pruner}`, do tego `invitation-expiry-notifier` (propozycja z erd.md);
   - `packages/{db,contracts,api-client,service-kit,cron-kit,messaging,auth,authz,tenancy,audit,rules,i18n,theme,testing,eslint-config,tsconfig}`; `theme` to tokeny palety z `docs/paleta.md` (3.1.12);
   - `tools/{sql-gate,migrate,seed,synth-data,local,fake-sms,provision-tablet,display-kiosk,opctl}`.
 - [ ] Generatory `turbo gen service` i `turbo gen cron` oparte na szablonach z 3.1.6 i 3.1.7.
@@ -600,7 +609,7 @@ Zasady wspólne:
 - [ ] squawk na każdej nowej migracji: blokady, indeksy bez `CONCURRENTLY`, `NOT NULL` bez uzupełnienia danych.
 
 #### 3.1.4 `packages/db` (Drizzle)
-- [ ] `pgSchema('app')` i `pgSchema('audit')`: 46 tabel w `app` (z `stable_role_features`) i 2 w `audit` [erd], pliki pogrupowane według serwisu-właściciela. Hierarchia `businesses` → `stables` (`business_id`) → `buildings` → `boxes` [erd].
+- [ ] `pgSchema('app')` i `pgSchema('audit')`: tabele `app` według erd.md (z `stable_role_features`, `business_admins` i `notification_rules`, bez `stable_locales`) i 2 w `audit` [erd], pliki pogrupowane według serwisu-właściciela. Hierarchia `businesses` (konto firmy z NIP) → `stables` (`business_id`) → `buildings` → `boxes` [erd].
 - [ ] `owners.ts` (tabela → serwis) to jedno źródło dla reguły lint o zapisie, generatora grantów i README serwisów.
 - [ ] Konwencje [erd]:
   - identyfikatory UUIDv7 nadawane w kodzie;
@@ -611,19 +620,20 @@ Zasady wspólne:
 - [ ] Izolacja w schemacie [erd]: `UNIQUE (stable_id, id)` w tabelach-rodzicach i wielokolumnowe klucze obce `(stable_id, x_id)`, bez akcji kaskadowych.
 - [ ] Spisana lista tabel bez `stable_id` i zasada dostępu do nich:
   - **tabele podrzędne:** `flag_template_labels`, `meal_slot_labels`, `feeding_plan_items`, `paddock_plan_companions`, `invoice_lines`. Dostęp tylko przez wiersz-rodzica, czyli złączenie z rodzicem w zakresie stajni;
-  - **tabele globalne:** `users`, `businesses` (działalność nad stajniami; izolacja, uprawnienia i płatności zostają na poziomie stajni [erd]), `stables` (kluczem jest samo `id`), `billing_plans`, `billing_plan_prices`, `app_releases`, `payment_provider_events`. Dostęp tylko przez jawne `crossTenant()`;
+  - **tabele globalne:** `users`, `businesses` i `business_admins` (konto firmy nad stajniami, z NIP; admin konta ma dostęp do wszystkich jego stajni, a dane, izolacja i płatności zostają na poziomie stajni), `stables` (kluczem jest samo `id`), `billing_plans`, `billing_plan_prices`, `app_releases`, `payment_provider_events`. Dostęp tylko przez jawne `crossTenant()`;
   - `audit.audit_log_changes`: tylko przez `audit_log`.
 - [ ] Unikalności i indeksy [erd]:
   - `horses.box_id` (unikalne, dopuszcza `NULL`);
   - częściowe unikalne otwarte wpisy `horse_box_history` na konia i na boks;
   - `buildings (stable_id, name)`, `flag_templates (stable_id, code)`, `stable_members (stable_id, user_id)`;
+  - NIP konta firmy (`businesses.tax_id`) [erd]: unikalny, bo jedno konto to jeden NIP. Kod zapisuje sam ciąg 10 cyfr, bez kresek, więc „123-456-32-18” i „1234563218” to ten sam NIP (propozycja);
   - `flag_escalations (flag_id, level)`;
   - `building_routines`: jedna akcja na halę, posiłek i dzień (`building_id`, `meal_slot_id`, `service_date` przy `kind = meal_served`) oraz jeden padok na halę i dzień (`building_id`, `service_date` przy `kind = paddock_out`) [erd]. Propozycja: dwa częściowe unikalne indeksy z warunkiem `cancelled_at IS NULL`, bo `meal_slot_id` padoku jest `NULL`, a po „Cofnij” akcję trzeba móc zapisać ponownie;
   - `notifications.dedupe_key`, `payment_provider_events.provider_event_id`;
   - `usage_snapshots (subscription_id, period_start, metric)`;
   - indeks `box_care_events (stable_id, box_id, kind, occurred_at)` do najnowszego „Ogarnięte” i najnowszej „Wody” (wpisów może być kilka dziennie) (propozycja);
   - `horse_flags.valid_from` i `valid_to` są `NOT NULL` (bez „do odwołania”) [erd];
-  - `boxes.auto_waterer` jest `NOT NULL` bez `DEFAULT`: wartość `true` (poidło automatyczne) nadaje kod nowemu boksowi [erd];
+  - `boxes.auto_waterer` jest `NOT NULL` bez `DEFAULT`: wartość wybiera admin w wierszu boksu przy tworzeniu, a bez wyboru kod nadaje `true` (poidło automatyczne) [erd];
   - ustawienia stajni [erd]: `stable_settings` 1:1 ze stajnią (klucz `stable_id`) z przełącznikami `flags_require_ack`, `soak_enabled`, `tidy_enabled`, `meal_served_enabled`, `paddock_out_enabled`; `stable_role_features` z kluczem `(stable_id, role, feature)` i kolumną `visible`. Kolumny `NOT NULL` bez `DEFAULT` (propozycja): wartości domyślne nowej stajni („wszystko włączone, łącznie z potwierdzeniami” [erd]) nadaje kod;
   - `horse_flags.requires_ack` (kopia `stable_settings.flags_require_ack` w chwili zapisu flagi [erd]) jest `NOT NULL` bez `DEFAULT` (propozycja); `flag_templates` nie ma już `requires_ack` [erd];
   - celowo **bez** unikalności numeru boksu: ani `(stable_id, label)`, ani `(building_id, label)` [erd]. Boksy numeruje się w obrębie hali, więc każda hala może mieć swój boks 1, a boks identyfikuje wyłącznie `boxes.id`. Test katalogu sprawdza, że na `boxes.label` nie ma unikalnego indeksu; zwykły indeks `boxes (stable_id, building_id)` do listy boksów hali (propozycja).
@@ -660,6 +670,7 @@ Zasady wspólne:
   - `target_passed` (422);
   - `option_disabled` (409, propozycja): zapis opcji wyłączonej w ustawieniach stajni, np. flaga z nieaktywnego szablonu (`derka` w Stajni Brzozowej), „namoczyć” przy wyłączonym moczeniu, szybka akcja z wyłączonym przyciskiem;
   - `ack_not_required` (409, propozycja): potwierdzenie flagi z `requires_ack = false`;
+  - `tax_id_taken` (409, propozycja): rejestracja konta firmy z NIP, który ma już konto („Ten NIP ma już konto w eKoniuszy”);
   - `profile_missing`;
   - `client_upgrade_required`;
   - 404 dla obiektów innej stajni.
@@ -729,17 +740,17 @@ Zasady wspólne:
   - tablet: `source = tablet` i `user_id = NULL` w potwierdzeniach flag, „Ogarnięte”, akcjach hali tego boksu (posiłek, padok) i „Wodzie” (poidło ręczne) [erd]; zadania z klienta tablet dają 403, a akcja dla innej hali niż hala boksu z `X-Box-Id` też 403 (propozycja);
   - `display`: tylko odczyt.
 - [ ] `sub` mapuje się na `users.id`. Gdy wiersza brak, serwis zwraca `409 profile_missing`, a klient woła `identity GET /me` [erd].
-- [ ] Role w stajni (`stable_members.role`) [erd]: `admin` (Admin: zarządca albo właściciel stajni), `staff` (Obsługa), `instructor` (Instruktor), `it_support` (Wsparcie IT: techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami), `display` (Wyświetlacz), `client` (Klient: właściciel albo dzierżawca konia).
-- [ ] Uprawnienia czytane z bazy przy każdym żądaniu: `stable_members` oraz `horse_access` (rola `client`) z `valid_from`, `valid_to` i `revoked_at`. Dzięki temu blokada działa od razu, bez czekania na wygaśnięcie tokenu. Klient nie ma osobnego dostępu do boksu: widzi boks, w którym stoi jego koń (`horses.box_id`), i historię tego boksu od otwarcia wpisu konia w `horse_box_history` [erd].
+- [ ] Role [erd]: `admin` (Admin: właściciel albo zarządca; rola konta firmy, daje dostęp do wszystkich stajni firmy, także nowych, bez przypisywania; tabela `business_admins`). Role w stajni (`stable_members.role`; jedna osoba może być przypisana do kilku stajni): `staff` (Obsługa), `instructor` (Instruktor), `it_support` (Wsparcie IT: techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami), `display` (Wyświetlacz: zwykłe konto telewizora), `client` (Klient: właściciel albo dzierżawca konia).
+- [ ] Uprawnienia czytane z bazy przy każdym żądaniu: `business_admins` (admin konta firmy, dla stajni z jego `business_id`), `stable_members` oraz `horse_access` (rola `client`) z `valid_from`, `valid_to` i `revoked_at`. Dzięki temu blokada działa od razu, bez czekania na wygaśnięcie tokenu. Klient nie ma osobnego dostępu do boksu: widzi boks, w którym stoi jego koń (`horses.box_id`), i historię tego boksu od otwarcia wpisu konia w `horse_box_history` [erd].
 - [ ] Polityki jako czyste funkcje: rola w stajni × dostęp do konia (boks wynika z konia). Macierz testów rola × akcja. Dla `display` DTO z listą dozwolonych pól.
 - [ ] Widoczność per rola (`stable_role_features`) [erd] czytana z bazy przy każdym żądaniu, tak jak uprawnienia, więc zmiana w panelu działa przy najbliższym odpytaniu. Widoczność tylko zawęża to, na co pozwala rola, nigdy tego nie rozszerza (propozycja): klient z zaznaczonymi „Szybkimi akcjami i ich stanem” widzi stan, ale zapis dalej daje 403. Odpowiedzi złożone (`board`, lista dnia, karta konia) pomijają ukryte sekcje, a trasy funkcji ukrytej dla roli dają 403 (propozycja). `admin` nie ma wierszy w macierzy i widzi wszystko [erd]. Członkostwo i widoczność liczą się osobno w każdej stajni (Ola jest obsługą w dwóch stajniach o różnych ustawieniach).
 - [ ] `X-Box-Id` z tabletu walidowany: boks tej stajni, do którego użytkownik ma dostęp. Nagłówek niesie `boxes.id` (UUID), nigdy numer boksu, bo numer nie jest unikalny. Trafia do `box_id` w potwierdzeniach flag, „Ogarnięte” i „Wodzie”; przy akcji hali z tabletu wyznacza halę (`boxes.building_id`), bo `building_routines` nie ma `box_id`.
 - [ ] Krótki czas życia access tokenu, długi refresh token dla tabletu i wyświetlacza (wartości: sekcja 5).
 
 #### 3.1.10 Izolacja stajni (`packages/tenancy`)
-- [ ] `TenantScope` powstaje dopiero po sprawdzeniu członkostwa albo dostępu.
+- [ ] `TenantScope` powstaje dopiero po sprawdzeniu dostępu do stajni: admin konta firmy ma każdą stajnię swojej firmy, pozostali tylko stajnie, do których są przypisani (albo w których stoi ich koń).
 - [ ] `scoped(table)` dokłada `stable_id = $scope`; `joinScoped` dokłada równość `stable_id` po obu stronach złączenia; tabele podrzędne dostępne tylko przez rodzica.
-- [ ] Obiekt innej stajni daje 404, nie 403.
+- [ ] Obiekt stajni bez dostępu daje 404, nie 403; tak samo obiekt innej firmy (inne konto, inny NIP).
 - [ ] Zapytania przekrojowe (crony, billing, releases) tylko przez `crossTenant()`, każde z testem.
 - [ ] Strażnik w testach: parser SQL wymaga predykatu `stable_id` w każdym zapytaniu do tabeli stajni, zgodnie z listą z 3.1.4.
 - [ ] Klucze S3 z prefiksem `stable_id/` [erd]. Presigned URL wydaje dopiero serwis-właściciel po sprawdzeniu uprawnień.
@@ -765,7 +776,7 @@ Zasady wspólne:
     - lista koni pominiętych przy akcjach zbiorczych hali: flagi obowiązujące w chwili posiłku albo wyprowadzenia, także niepotwierdzone (propozycja).
   - Etykiety godzin flagi: „06:00–10:00”, „od 14:30” (flaga, która zacznie się później), „16:00–08:00”, „dziś, cały dzień”. Etykieta statusu tylko dla flagi z `requires_ack`; flaga bez potwierdzeń ma „obowiązuje od razu” zamiast statusu.
   - Testy właściwości (fast-check) oraz nocy 25.10.2026 i 28.03.2027.
-- [ ] `packages/i18n`: polski, ukraiński i angielski. Etykiety słowników pochodzą z tabel `*_labels`.
+- [ ] `packages/i18n`: polski, ukraiński i angielski. Etykiety słowników pochodzą z tabel `*_labels` (opcjonalne tłumaczenia nazw, np. pory posiłków po ukraińsku). Stajnia nie ma listy języków (bez `stable_locales`): język tablicy ustawia każdy tablet osobno (3.5.2), a język apki i panelu każda osoba w profilu.
 - [ ] `packages/theme`: tokeny palety z `docs/paleta.md`, jedno źródło dla apki, panelu, wyświetlacza TV i tabletu.
   - **Tokeny LCD** (apka, panel, TV): `bg`, `surface`, `sand`, `accent-soft`, `line`, `line-strong`, `line-input`, `ink`, `ink-2`, `accent`, `accent-strong`, `on-accent`, rodziny statusów `ok-*` (text, tint, line), `warn-*` (text, tint, tint-weak, line) i `crit-*` (text, tint, line), `crit-solid` z `on-crit`, `e-on-dark`; do tego nakładka pod modalem i cień karty (cień tylko apka i panel).
   - **Tokeny tabletu** `t-*`: `t-paper`, `t-ok`, `t-line`, `t-warn`, `t-scrim`, `t-crit`, `t-ink-2`, `t-ink`, z wartością szarości przy każdym. Profil domyślny (Kaleido 3) i profil Gallery 3, który podmienia tylko `t-ok`, `t-warn` i `t-crit`.
@@ -813,15 +824,16 @@ Zasady wspólne:
     - Zastosowanie: CI i praca nad backendem.
     - Test porównuje jego claimy z prawdziwym tokenem z puli dev.
     - Nie startuje przy `NODE_ENV=production`.
-  - **A, deweloperska pula Cognito:** do pracy nad apkami i do E2E. Kody SMS idą tylko na zweryfikowane numery. Opcjonalnie osobny klient „e2e” z hasłem, wyłącznie w puli dev.
-  - **B, emulator** (cognito-local, moto, LocalStack): tylko jeśli spike pokaże wystarczającą zgodność. Wierne odwzorowanie `USER_AUTH`/`SMS_OTP`, TOTP i global sign-out jest [niepotwierdzone].
+  - **A, deweloperska pula Cognito:** do pracy nad apkami i do E2E. Kody SMS idą tylko na zweryfikowane numery, a kody e-mailem tylko na zweryfikowane adresy (sandbox SMS i SES). Opcjonalnie osobny klient „e2e” z hasłem, wyłącznie w puli dev.
+  - **B, emulator** (cognito-local, moto, LocalStack): tylko jeśli spike pokaże wystarczającą zgodność. Wierne odwzorowanie `USER_AUTH`/`SMS_OTP`/`EMAIL_OTP`, TOTP i global sign-out jest [niepotwierdzone].
 - [ ] **Spike Cognito (etap 0):**
-  - logowanie SMS OTP;
+  - logowanie SMS OTP i e-mail OTP; jedno konto z telefonem i e-mailem loguje się oboma kanałami; pula z telefonem i e-mailem jako atrybutami logowania;
+  - zaproszenie e-mailem dopasowane do zweryfikowanego e-maila z tokenu;
   - TOTP obok logowania bez hasła;
   - global sign-out;
   - refresh token tabletu i wyświetlacza ważny tygodniami, z rotacją i bez, przy zrywanym Wi-Fi;
-  - logowanie konta `display`;
-  - logowanie recenzentów sklepów;
+  - telewizor zalogowany zwykłym kontem z rolą `display` (e-mail i kod);
+  - logowanie recenzentów sklepów e-mailem;
   - kod SMS w formacie SMS Retriever na Androidzie (z zapasem: SMS User Consent API).
 - [ ] **`fake-sms`:**
   - adaptery `SmsSender` (`console`, `dev-inbox`) w `notifications`;
@@ -829,12 +841,18 @@ Zasady wspólne:
   - `GET /messages?to=` dla E2E;
   - liczenie segmentów UCS-2 z ostrzeżeniem o zbyt długim szablonie.
 
-  Obejmuje eskalacje, zaproszenia i przypomnienia; kody logowania wysyła Cognito. E-mail idzie przez SES w LocalStack.
+  Obejmuje eskalacje, zaproszenia i przypomnienia; kody logowania (SMS i e-mail) wysyła Cognito. E-mail z `notifications` idzie przez SES w LocalStack.
 - [ ] Fałszywe adaptery `PaymentProvider` i `InvoiceSystem`; ręczne wywołanie webhooka (`pnpm dev:webhook …`).
 - [ ] **Seed z makiet** (`pnpm db:seed`).
   - Przechodzi przez API albo repozytoria właścicieli, razem z audytem.
   - Czas jest liczony względem „dziś” w strefie Europe/Warsaw. Tryb stałej daty (wt 13.10.2026, teraz 07:15, pop-up tabletu o 06:01, jak na makietach) służy do zrzutów ekranu.
-  - **Działalność i dwie stajnie o różnych ustawieniach:** działalność (`businesses`), a w niej Stajnia Pod Lipami (pełna opcja, z potwierdzeniami; dane poniżej) i Stajnia Brzozowa (mała, bez derek, moczenia i potwierdzeń; osobny punkt na końcu seedu). Obie w tej samej działalności (propozycja; erd.md tego nie przesądza), bo seed ma pokazać, że ustawienia są per stajnia, a nie dla całej działalności, i że izolacja idzie po `stable_id`. Stajnia Pod Lipami: języki pl i uk, `warn_offset_min = 30`, `notify_offset_min = 15`.
+  - **Konto firmy i dwie stajnie o różnych ustawieniach:**
+    - konto firmy (`businesses`): „Stajnie Lipowe sp. z o.o.”, NIP 123-456-32-18 (fikcyjny), siedziba ul. Lipowa 12, 05-520 Konstancin-Jeziorna;
+    - na tym koncie Stajnia Pod Lipami (pełna opcja, z potwierdzeniami; dane poniżej) i Stajnia Brzozowa (mała, bez derek, moczenia, padoku i potwierdzeń; osobny punkt na końcu seedu). Seed pokazuje, że ustawienia są per stajnia, a nie dla całego konta;
+    - historia konta: Damian zarejestrował konto firmy w pn 07.09.2026 (PanelLogowanie → kod → PanelWitaj → PanelRejestracjaFirmy) i od razu założył Stajnię Pod Lipami; w czw 01.10.2026 dodał Stajnię Brzozową (PanelZalozStajnie → PanelZalozPowiadomienia → PanelPulpitStart → PanelZaprosOsobe), bez pytania o NIP;
+    - Stajnia Pod Lipami: `warn_offset_min = 30`, `notify_offset_min = 15`; bez listy języków (język tablicy ustawia każdy tablet);
+    - reguły powiadomień obu stajni (`notification_rules`) jak na makiecie PanelZalozPowiadomienia (propozycja);
+    - **drugie konto firmy do testów izolacji** (fixture, propozycja, poza makietami): inna firma z innym NIP i jedną stajnią, np. Stajnia Olszynka, z własnym adminem i boksami 1–6.
   - **Ustawienia Stajni Pod Lipami** (`stable_settings`, `flag_templates.active`, `stable_role_features`) [erd]:
     - `flags_require_ack = true` (potwierdzenia włączone);
     - usługi: Derka (szablon `derka` aktywny) i moczenie (`soak_enabled = true`); flagi: wszystkie szablony aktywne; przyciski: „Ogarnięte”, posiłek i padok (`tidy_enabled`, `meal_served_enabled`, `paddock_out_enabled` = `true`);
@@ -854,17 +872,16 @@ Zasady wspólne:
     - Hala nowa: Grom 1, Mgła 2, Rumba 3, Bella 4, Bursztyn 5;
     - Luna bez boksu (dodana 12.10);
     - wolne boksy: Hala główna · boks 3 i Hala nowa · boks 6. W historii boksu 6 w Hali nowej Wicher stał do 01.10, potem został przeniesiony do boksu 5 w Hali głównej.
-  - **Ludzie:**
-    - Damian: admin (zarządca);
-    - Ola i Piotr: obsługa;
+  - **Ludzie** (przypisania per stajnia; Stajnia Brzozowa niżej):
+    - Damian: admin konta firmy (właściciel), dostęp do obu stajni bez przypisywania; telefon i e-mail (w interfejsie „+48 602 *** 145” i „d•••@stajnielipowe.pl”, propozycja);
+    - Ola: obsługa przypisana do obu stajni (w interfejsie „+48 607 *** 218”); Piotr: obsługa tylko w Pod Lipami;
+    - Marta (Instruktor) i Kuba (Wsparcie IT, zaproszony e-mailem k•••@stajnielipowe.pl): przypisani do obu stajni (propozycja);
     - klienci (rola `client`, dostęp przez `horse_access`): Anna (Kasztan i Bella), Karolina W. (Iskra), Tomasz L. (Grom), Ewa K. (Sonata);
     - Marek Nowak: oczekujące zaproszenie SMS jako klient do Luny (`invitations.horse_id`, bez boksu);
     - wygasłe zaproszenie dla obsługi;
-    - konto `wyswietlacz-korytarz` z rolą `display`;
-    - konto z rolą `it_support` do macierzy ról (propozycja, poza makietami);
-    - konto z rolą `instructor` do macierzy ról (propozycja, poza makietami).
+    - telewizor: zwykłe konto „Telewizor korytarz”, e-mail tv.korytarz@stajnielipowe.pl (w interfejsie zamaskowany: t•••@stajnielipowe.pl), z rolą Wyświetlacz (`display`) w Pod Lipami; loguje się na TV e-mailem i kodem z e-maila.
 
-    Numery są fikcyjne; numery do puli dev leżą w lokalnym `.env`, poza repo.
+    Numery i adresy są fikcyjne; numery i adresy do puli dev leżą w lokalnym `.env`, poza repo.
   - **Słowniki:**
     - posiłki 06:30, 12:00 i 18:00;
     - pasze (m.in. owies, siano, suplement X, wysłodki, sieczka);
@@ -893,19 +910,19 @@ Zasady wspólne:
     - „Przywieźć słomę z magazynu”, zrobione: Ola 06:30.
   - **Zdrowie, jazdy i billing** jak na makietach: wet 08:00 i kowal 15:00 (Kasztan), jazda 16:00 (Iskra, kryta ujeżdżalnia). Kwoty to wartości testowe.
   - **Wariant bez przycisków obsługi** (makiety BezAkcji i zrzuty A-19; np. flaga seedu albo fixture, propozycja): Stajnia Pod Lipami z danymi jak wyżej, ale z `tidy_enabled = meal_served_enabled = paddock_out_enabled = false`, bez wierszy `box_care_events.kind = tidy` i bez `building_routines`. Zostają flagi, plan karmienia, zadania i „Woda” 06:55 przy Hala nowa · boks 5.
-  - **Druga stajnia: Stajnia Brzozowa** (ta sama działalność, mała, prowadzona przez właściciela, który sam jest stajennym). Służy do pokazania innych ustawień, do testów izolacji po `stable_id`, a nie po działalności (te same numery boksów 1–6 co w Hali nowej), i do interfejsu bez podziału na hale.
-    - Adres ul. Brzozowa 5, Piaseczno. Jedna hala, więc nigdzie nie pokazujemy podziału na hale (nagłówek tabletu „BOKS 1 · KOMETA”, w apce „boks 1”). Boksy 1–6: 1 Kometa, 2 Dąb, 3 Iga, 4 Lord, 5 wolny, 6 Nuta.
-    - Ludzie: Paweł, admin i właściciel (sam też obsługuje); Ola, obsługa także w Pod Lipami (drugie członkostwo `staff`), przychodzi rano do pomocy; Anna, klientka także w Pod Lipami (`horse_access` do Komety). Ola i Anna mają więc w apce przełącznik stajni. Damian nie jest członkiem tej stajni. Konta `it_support` i `instructor` z Pod Lipami także tutaj (propozycja, poza makietami). Konta `display` nie ma. Klienci pozostałych koni poza makietami (propozycja: bez kont).
-    - Ustawienia [erd]:
+  - **Druga stajnia: Stajnia Brzozowa** (to samo konto firmy, mała, prowadzona na co dzień przez Pawła, który sam obsługuje konie). Służy do pokazania innych ustawień, dostępu per stajnia (obsługa widzi tylko przypisane stajnie; te same numery boksów 1–6 co w Hali nowej, więc zapisy idą po `stable_id` i `boxes.id`) i interfejsu bez podziału na hale.
+    - Adres ul. Brzozowa 5, 05-500 Piaseczno. Jedna hala „Hala główna”, której nazwy nie pokazujemy, bo jest jedna (nagłówek tabletu „BOKS 1 · KOMETA”, w apce „boks 1”). Boksy 1–6 z poidłem automatycznym: 1 Kometa, 2 Dąb, 3 Iga, 4 Lord, 5 wolny, 6 Nuta.
+    - Ludzie: Damian, admin konta firmy, ma tu dostęp bez przypisania; Paweł, obsługa tylko w tej stajni (w interfejsie „+48 601 *** 377”; zaprosił go Damian 01.10 SMS-em), nie jest adminem; Ola, obsługa także w Pod Lipami (drugie przypisanie `staff`), przychodzi rano do pomocy; Anna, klientka także w Pod Lipami (`horse_access` do Komety). Przełącznik stajni mają Damian, Ola i Anna; Paweł i Piotr widzą samą nazwę stajni. Marta i Kuba z Pod Lipami także tutaj (propozycja). Wyświetlacza nie ma. Klienci pozostałych koni poza makietami (propozycja: bez kont).
+    - Ustawienia (Damian zmienił je po założeniu, bo nowa stajnia ma wszystko włączone) [erd]:
       - `flags_require_ack = false` (potwierdzenia wyłączone);
       - Derka: nie (szablon `derka` nieaktywny); moczenie: nie (`soak_enabled = false`);
       - flagi: Bez śniadania, Bez kolacji, Nie na padok, Wet, Leki (aktywne szablony);
       - przyciski: „Ogarnięte” i posiłek; padok wyłączony (`paddock_out_enabled = false`), bo konie stoją w systemie padokowo-boksowym i wychodzą same;
       - widoczność per rola: klient `flags`, `routine`, `box_history`, `health` (bez planu karmienia i jazd); obsługa `flags`, `feeding_plan`, `routine`, `box_history`, `health` (bez zadań i jazd); wyświetlacz: nic (stajnia nie ma wyświetlacza); Wsparcie IT `device_diagnostics`; instruktor `flags` i `rides` (propozycja, jak na makiecie PanelUstawieniaBrzozowa).
-    - Słowniki: posiłki jak w Pod Lipami, 06:30, 12:00 i 18:00 (propozycja; makieta tabletu pokazuje „potem obiad 12:00”); szablony flag jak wyżej. Plan karmienia Komety bez „namoczyć”: owies (rano, wieczorem 1 kg), siano (bez ograniczeń), musli wieczorem 0,5 kg (jak na makiecie TabletBoksBrzozowa).
+    - Słowniki: posiłki jak w Pod Lipami, 06:30, 12:00 i 18:00; szablony flag jak wyżej. Plan karmienia Komety bez „namoczyć”: owies (rano, wieczorem 1 kg), siano (bez ograniczeń), musli wieczorem 0,5 kg (jak na makiecie TabletBoksBrzozowa).
     - Dziś (wt 13.10, 07:15):
       - Kometa: „Bez śniadania” 06:00–09:00, notatka „dentysta o 8:30”, ustawiona przez Annę (`author_role = client`) o 05:50, `requires_ack = false`: obowiązuje od razu, bez statusu, bez terminów potwierdzenia i bez eskalacji;
-      - Lord: „Leki rano” 06:00–09:00, ustawił Paweł (`author_role = admin`), też bez potwierdzenia;
+      - Lord: „Leki rano” 06:00–09:00, ustawił Paweł (`author_role = staff`), też bez potwierdzenia;
       - „Podano śniadanie” 06:35 (Paweł, apka), pominięta Kometa (flaga); jedna hala, więc „cała stajnia”;
       - „Ogarnięte” 3 z 6: boks 1 Kometa 07:00 (z tabletu, bez autora), 2 Dąb 06:55 (Ola, apka), 4 Lord 07:05; pozostałe wczoraj;
       - wczoraj: „Podano kolację” 18:00 i „Ogarnięte” boksu 1 o 16:30 (Paweł, apka), żeby „OSTATNIE AKCJE” tabletu boksu 1 miały 5 wpisów jak na makiecie;
@@ -925,28 +942,34 @@ Zasady wspólne:
 **identity** (`users`)
 - [ ] `GET /me`: upsert po `cognito_sub` i odświeżenie kopii telefonu i e-maila (`contact_synced_at`).
 - [ ] `PATCH /me`: nazwa wyświetlana i język.
-- [ ] `DELETE /me`: pseudonimizacja i usunięcie konta w Cognito. Blokada, gdy użytkownik jest jedynym adminem stajni.
+- [ ] `DELETE /me`: pseudonimizacja i usunięcie konta w Cognito. Blokada, gdy użytkownik jest jedynym adminem konta firmy.
 - [ ] `POST /me/sign-out-everywhere`.
-- [ ] `POST /internal/users`: konto techniczne, np. `display`.
+- [ ] Kont technicznych nie ma: telewizor to zwykłe konto zaproszone z rolą `display` (`access`).
 
 **access** (`stable_members`, `horse_access`, `invitations`)
-- [ ] `GET /me/memberships`: stajnie, role i dostępy. Osoba może być członkiem kilku stajni z różnymi rolami albo tą samą rolą (w seedzie Ola jako obsługa i Anna jako klientka w Stajni Pod Lipami i w Stajni Brzozowej); apka przełącza między nimi stajnię bez ponownego logowania.
-- [ ] Zarządzanie członkami: zmiana roli (`admin | staff | instructor | it_support | display | client`), `active`.
-- [ ] `POST …/display-accounts`: konta wyświetlaczy.
+- [ ] `GET /me/memberships`: stajnie, role i dostępy. Admin konta firmy dostaje wszystkie stajnie firmy, także nową od razu po jej założeniu, bez przypisywania. Pozostałe role przypisuje się per stajnia, a osoba może być przypisana do kilku stajni z różnymi rolami albo tą samą rolą (w seedzie Ola jako obsługa, Marta, Kuba i Anna jako klientka w obu stajniach; Paweł tylko w Brzozowej, Piotr tylko w Pod Lipami); apka przełącza między nimi stajnię bez ponownego logowania.
+- [ ] Zarządzanie członkami: zmiana roli w stajni (`staff | instructor | it_support | display | client`), `active`; rola Admin dotyczy całego konta firmy (`business_admins`), a dodawanie kolejnych adminów konta jest poza PoC (propozycja z erd.md); przypisanie osoby do kolejnej stajni firmy i jego odebranie (np. Ola do Brzozowej; propozycja: w Ludziach, bez nowego zaproszenia). W Ludziach telewizor to członek z rolą Wyświetlacz (filtr po roli).
 - [ ] Zaproszenia.
-  - Role do wyboru: Klient (z wyborem konia), Obsługa, Instruktor, Wsparcie IT (z opisem jednym zdaniem) [erd].
+  - Kanał: telefon (SMS) albo e-mail (`invitations.channel`), wybór „Kanał: SMS | E-mail” jak na makiecie Zaproszenie.
+  - Role do wyboru: Klient (z wyborem konia), Obsługa, Instruktor, Wsparcie IT (z opisem jednym zdaniem) [erd]; w panelu („Zaproś osobę”) także Wyświetlacz, czyli konto telewizora. Osobnego „Dodaj wyświetlacz” i endpointu kont wyświetlaczy nie ma.
   - Zaproszenie klienta wskazuje konia (`horse_id`, wymagane dla klienta), bez boksu i bez osobnej roli dostępu [erd].
   - Wymagane `expires_at`, domyślnie 7 dni.
   - „Wyślij ponownie” tworzy nowe zaproszenie.
-  - Zaakceptowanie zaproszenia dopasowuje się wyłącznie do zweryfikowanego telefonu albo e-maila z tokenu. Członkostwo i dostęp do konia powstają w jednej transakcji.
+  - Zaakceptowanie zaproszenia dopasowuje się wyłącznie do zweryfikowanego telefonu albo e-maila z tokenu (e-mail bez rozróżniania wielkości liter, propozycja). Członkostwo i dostęp do konia powstają w jednej transakcji.
 - [ ] Dostęp klienta do konia: `horse_access` z rolą `client` (właściciel albo dzierżawca konia), `valid_to` np. równe końcowi dzierżawy, `revoked_at`, gdy koń opuszcza stajnię. Osobnego dostępu do boksu nie ma: boks i jego historię (od dnia, w którym koń do niego trafił) klient widzi przez konia [erd].
-- [ ] `/internal/stables/{id}/admins` (idempotentne), `/internal/horses/{id}/left`, `/internal/prune`.
+- [ ] `/internal/horses/{id}/left`, `/internal/prune`. Pierwszego admina konta zapisuje `stable` przy rejestracji konta firmy, więc `access` nie ma do tego trasy.
 
-**stable** (`businesses`, `stables`, `stable_locales`, `stable_settings`, `stable_role_features`, `buildings`, `boxes`, `horses`, `horse_box_history`)
-- [ ] Działalność (`businesses`) z kilkoma stajniami (`stables.business_id`): działalność → stajnie → hale → boksy [erd]. Uprawnienia, dane, izolacja, płatności i ustawienia zostają na poziomie stajni; działalność tylko grupuje stajnie [erd].
-- [ ] `POST /stables`: stajnia (w istniejącej albo nowej działalności), ustawienia i pierwsza hala z adresem stajni; po COMMIT wywołanie `access` i zdarzenie `stable.created`. Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami [erd]; domyślna macierz widoczności per rola: sekcja 5.
+**stable** (`businesses`, `business_admins`, `stables`, `stable_settings`, `stable_role_features`, `notification_rules`, `buildings`, `boxes`, `horses`, `horse_box_history`)
+- [ ] Konto firmy (`businesses`) z kilkoma stajniami (`stables.business_id`): konto firmy → stajnie → hale → boksy [erd]. Tylko B2B: jedno konto to jeden NIP. Admin konta ma dostęp do wszystkich stajni firmy; dane, izolacja, płatności i ustawienia zostają na poziomie stajni.
+- [ ] `POST /businesses` (propozycja): rejestracja konta firmy po pierwszym logowaniu (PanelWitaj → PanelRejestracjaFirmy): nazwa firmy, NIP i siedziba. NIP podaje się tylko tutaj. Kod normalizuje NIP do 10 cyfr i sprawdza sumę kontrolną (propozycja); NIP, który ma już konto, daje `409 tax_id_taken` („Ten NIP ma już konto w eKoniuszy”, propozycja) i nic nie zapisuje. Osoba rejestrująca zostaje adminem konta: `businesses` i `business_admins` zapisują się w jednej transakcji (propozycja z erd.md).
+- [ ] `POST /stables`: „Załóż stajnię” w 2 krokach, jedno żądanie na końcu kroku 2 (propozycja).
+  - Krok 1 „Stajnia” (PanelZalozStajnie): nazwa, adres, strefa, pierwsza hala z adresem stajni i boksy z ustawieniami (niżej). Bez NIP, bez wyboru działalności, bez języków i bez pytania o potwierdzenia flag.
+  - Krok 2 „Powiadomienia” (PanelZalozPowiadomienia): które zdarzenia, do kogo (Admin, Obsługa stajni) i jakim kanałem (SMS, e-mail); zapis w `notification_rules`. Potem „Załóż stajnię” → PanelPulpitStart.
+  - Stajnia trafia do konta firmy zalogowanego admina, więc admin ma do niej dostęp od razu; po COMMIT zdarzenie `stable.created`.
+  - Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami [erd]; zmienia się je potem w „Ustawieniach stajni”. Domyślna macierz widoczności per rola: sekcja 5.
+  - Stajnia, ustawienia, hala, boksy i reguły powiadomień zapisują się w jednej transakcji `stable`, z audytem [erd]; kod wstawia wiersz `notification_rules` dla każdej kombinacji zdarzenia, odbiorcy i kanału, z `enabled` według kroku 2.
 - [ ] Ustawienia z `If-Match`: progi eskalacji, `author_display`, `owner_edits_feeding`, `rides_enabled`, okno instalacji APK.
-- [ ] **„Ustawienia stajni”** (konfiguracja per stajnia, erd.md pkt 16), tylko admin tej stajni; obsługa, klient, instruktor i `it_support` dostają 403, a admin innej stajni 404 (Damian w Stajni Brzozowej). Na PoC przełączniki gotowych opcji, bez własnych reguł:
+- [ ] **„Ustawienia stajni”** (konfiguracja per stajnia, erd.md pkt 16), tylko admin konta firmy (Damian w obu stajniach); obsługa, klient, instruktor i `it_support` tej stajni dostają 403, a osoba bez dostępu do stajni (Paweł w Pod Lipami) i admin innej firmy 404. Na PoC przełączniki gotowych opcji, bez własnych reguł:
   - `GET …/settings` i `PATCH …/settings` z `If-Match` i audytem: „Flagi wymagają potwierdzenia” (`flags_require_ack`), moczenie paszy (`soak_enabled`), przyciski „Ogarnięte” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`) [erd]. „Woda” nie ma przełącznika, zależy od poidła boksu [erd];
   - `GET …/role-features` i `PUT …/role-features` z `If-Match` i audytem: macierz ról `client | staff | instructor | it_support | display` × funkcji ze stałej listy `flags`, `feeding_plan`, `routine`, `box_history`, `tasks`, `health`, `rides`, `device_diagnostics` [erd]. `admin` nie występuje w macierzy, bo widzi wszystko; nieznana rola albo funkcja daje 422 (propozycja);
   - flagi włącza się i wyłącza przez `flag_templates.active` (także Derkę, szablon `derka`) [erd]; tę tabelę zapisuje serwis `flags`, więc panel wysyła przełączniki flag do `flags`, a resztę do `stable`. Jeden przycisk „Zapisz” w panelu robi dwa żądania; przy błędzie jednego panel mówi, która część się nie zapisała (propozycja);
@@ -956,17 +979,22 @@ Zasady wspólne:
   - każda hala ma nazwę (unikalną w stajni), własny adres (`address_line1`, `address_line2`, `postal_code`, `city`, `country_code`), `sort_order` i `active`; adres pierwszej hali to adres podany przy zakładaniu stajni;
   - lista i edycja hal (nazwa, adres, kolejność) z `If-Match`;
   - dodanie hali przez admina w panelu web (Boksy i konie → „Dodaj halę”): nazwa i adres (z opcją skopiowania adresu innej hali), a potem jedno z trzech:
-    - nowe boksy z zakresu numerów od–do, numerowane w obrębie tej hali (domyślnie od 1), niezależnie od numerów w innych halach;
+    - nowe boksy z zakresu numerów od–do, numerowane w obrębie tej hali (domyślnie od 1), niezależnie od numerów w innych halach, z ustawieniami każdego boksu od razu (niżej, „Boksy z ustawieniami przy tworzeniu”);
     - przeniesienie istniejących boksów;
     - pusta hala;
   - hala i boksy w jednej transakcji z audytem; innym serwisom nic nie wysyłamy, bo tablet i wyświetlacz widzą nową halę przy najbliższym odpytaniu;
   - usunąć można tylko pustą halę (inaczej 409);
   - wyłączenie przez `active = false`.
+- [ ] Boksy z ustawieniami przy tworzeniu (Załóż stajnię i „Dodaj halę”), bo ustawień boksu będzie przybywać:
+  - po podaniu zakresu („od 1 do 6”) od razu lista boksów; w wierszu numer (`label`), poidło automatyczne albo ręczne (`auto_waterer`) i „Więcej ustawień ›” jako miejsce na kolejne opcje;
+  - akcja zbiorcza „Ustaw dla wszystkich”;
+  - żądanie niesie listę boksów z ustawieniami; brak wartości poidła daje od kodu `true` (propozycja);
+  - numer można zmienić w wierszu; powtórzone numery przechodzą, jak wszędzie.
 - [ ] Boksy:
   - boks identyfikuje `id`; numer (`label`) nie jest unikalny ani w bazie, ani w kodzie: serwis nie sprawdza powtórzeń w hali ani w stajni;
   - `building_id` wymagane; zmiana `building_id` to przeniesienie boksu, a koń, historia i zdarzenia zostają przy boksie;
   - DTO boksu zawsze niesie `id`, `label`, halę (`buildingId`, nazwa) i `autoWaterer`, żeby klienci przy kilku halach pokazywali „Hala nowa · boks 4”;
-  - poidło to ustawienie boksu (`boxes.auto_waterer`) [erd]: przełącznik „Automatyczne poidło: tak/nie” zmienia tylko admin w szczegółach boksu (apka BoksSzczegoly, panel), z `If-Match` i audytem; nowy boks, także z „Dodaj halę”, dostaje od kodu `true`.
+  - poidło to ustawienie boksu (`boxes.auto_waterer`) [erd]: przełącznik „Automatyczne poidło: tak/nie” zmienia tylko admin w szczegółach boksu (apka BoksSzczegoly, panel), z `If-Match` i audytem; przy tworzeniu boksu admin wybiera poidło w wierszu boksu, a bez wyboru kod nadaje `true`.
 - [ ] Konie: przypisanie, przeniesienie, zamiana (jedna transakcja z zamknięciem i otwarciem wpisów historii), wyjazd (`left`, zwolnienie boksu, `horse.left`). Przypisanie i przeniesienie przyjmują `boxId`, nie numer.
 - [ ] Testy:
   - dwa równoległe przypisania do jednego boksu dają jedno 409;
@@ -974,11 +1002,14 @@ Zasady wspólne:
   - dodanie hali z boksami 1–6 obok hali z boksami 1–8 przechodzi, a każdy boks dostaje własne `id`;
   - dwa boksy o tym samym numerze w jednej hali też przechodzą (kod nie blokuje powtórzeń);
   - przeniesienie boksu do innej hali zachowuje konia, historię i zdarzenia;
-  - nowe boksy mają `auto_waterer = true`; przełącznik poidła zmienia tylko admin, obsługa dostaje 403;
+  - nowe boksy bez wybranego poidła mają `auto_waterer = true`, a boks z wybranym poidłem ręcznym `false`; „Ustaw dla wszystkich” ustawia każdy wiersz; przełącznik poidła zmienia tylko admin, obsługa dostaje 403;
   - usunięcie hali z boksami daje 409;
   - przy jednej hali interfejs nie pokazuje podziału na hale;
-  - „Ustawienia stajni” i macierz widoczności zmienia tylko admin tej stajni (`If-Match`, audyt); obsługa, klient i `it_support` dostają 403, admin innej stajni 404; zmiana w jednej stajni nie zmienia drugiej stajni tej samej działalności;
-  - nowa stajnia ma ustawienia domyślne z kodu (wszystko włączone, z potwierdzeniami) [erd].
+  - „Ustawienia stajni” i macierz widoczności zmienia tylko admin konta firmy (`If-Match`, audyt); obsługa, klient i `it_support` dostają 403, osoba bez dostępu do stajni i admin innej firmy 404; zmiana w jednej stajni nie zmienia drugiej stajni tego samego konta;
+  - nowa stajnia ma ustawienia domyślne z kodu (wszystko włączone, z potwierdzeniami) [erd];
+  - rejestracja konta firmy: NIP z kreskami i bez to ten sam NIP; drugi raz ten sam NIP, także równolegle, daje jedno konto i jedno `409 tax_id_taken` (propozycja); zła suma kontrolna daje 422 (propozycja);
+  - „Załóż stajnię” nie przyjmuje NIP ani działalności: stajnia zawsze trafia do konta firmy admina, a admin widzi ją od razu, bez przypisania; stajnia, hala, boksy z ustawieniami i reguły powiadomień zapisują się razem albo wcale;
+  - przypisanie osoby (np. Oli) do drugiej stajni daje jej dostęp tylko do tej stajni; po odebraniu przypisania obiekty tej stajni dają 404.
 
 **flags** (`flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_escalations`)
 - [ ] Szablony flag z domyślnym oknem godzin (`default_window`), w tym `derka` z efektem `rug` [erd]. `flag-preview` (propozycja) zwraca podpowiedź okna i jej skutki, np. „dziś 06:00–10:00 · wstrzymane śniadanie 06:30”, liczone na serwerze.
@@ -1043,7 +1074,7 @@ Zasady wspólne:
 - [ ] Konsumuje `horse.left`: anuluje przyszłe jazdy.
 
 **tasks** (`tasks`)
-- [ ] Zadania tylko jednorazowe, np. „Poidło w boksie 5 do wymiany” [erd]. Dodaje je wyłącznie admin (zarządca albo właściciel stajni): tytuł, notatka, opcjonalnie hala, boks albo koń; odwołanie przez `cancelled_at`. Zadań cyklicznych nie ma, codzienną rutynę obsługują szybkie akcje `care`.
+- [ ] Zadania tylko jednorazowe, np. „Poidło w boksie 5 do wymiany” [erd]. Dodaje je wyłącznie admin (właściciel albo zarządca, rola konta firmy): tytuł, notatka, opcjonalnie hala, boks albo koń; odwołanie przez `cancelled_at`. Zadań cyklicznych nie ma, codzienną rutynę obsługują szybkie akcje `care`.
 - [ ] Lista dla obsługi: „Do wzięcia”, „Moje”, „Zrobione dziś”. Widzi ją tylko rola z zaznaczonym `tasks` (w Pod Lipami obsługa i wyświetlacz; w Stajni Brzozowej nikt poza adminem, więc Ola nie ma tam zakładki „Zadania”) [erd]; bez tej widoczności trasy zadań dają 403 (propozycja).
 - [ ] „Biorę”: stajenny sam bierze zadanie z listy (`taken_by`, `taken_at`), warunkową zmianą `taken_by IS NULL`; drugie „Biorę” na wzięte zadanie daje 409 z osobą, która je wzięła (propozycja).
 - [ ] „Zrobione”: `done_by`, `done_at`; tylko osoba, która wzięła zadanie, albo admin (propozycja).
@@ -1051,7 +1082,7 @@ Zasady wspólne:
 - [ ] Konsumuje `horse.left`: odwołuje otwarte zadania konia (propozycja).
 
 **board** (bez tabel, rola tylko `SELECT`)
-- [ ] `GET /boxes/{boxId}` (tablet). `boxId` to `boxes.id` (UUID) zapamiętany na tablecie, nigdy numer boksu, bo numer nie jest unikalny. Odpowiedź:
+- [ ] `GET /boxes/{boxId}` (tablet). `boxId` to `boxes.id` (UUID) zapamiętany na tablecie, nigdy numer boksu, bo numer nie jest unikalny. Język tablicy przychodzi w zapytaniu z tabletu, bo to ustawienie tabletu, nie stajni (propozycja z erd.md). Odpowiedź:
   - halę (nazwa, liczba hal w stajni, żeby tablet wiedział, czy pokazać halę przy numerze), numer boksu i konia;
   - flagi z notatką, autorem flagi (według `author_display`), godzinami („06:00–10:00”; flaga, która zacznie się później, jako „od 14:30”), wariantem („Derka: zakładać”) i statusem: tylko „potwierdzona HH:MM” albo „niepotwierdzona”, i tylko dla flagi z `requires_ack`; flaga bez potwierdzeń (Stajnia Brzozowa) nie ma statusu, ma „obowiązuje od razu” i od razu stoi w banerze (przed początkiem okna pod banerem z „od HH:MM”), bez plakietki „POTWIERDZONA” [erd];
   - bez danych zalogowanego użytkownika: tablica nie pokazuje, kto jest zalogowany;
@@ -1080,7 +1111,7 @@ Zasady wspólne:
   - Treść zależy od upływu czasu, więc na start składamy całą odpowiedź przy każdym zapytaniu.
 
 **billing** (9 tabel; na PoC bez rozbudowy, na fałszywych adapterach, poziom stajni [erd])
-- [ ] Subskrypcja i zużycie, dane do faktury, faktury z `pdf-url`, sesja metody płatności przez adapter.
+- [ ] Subskrypcja i zużycie, dane do faktury, faktury z `pdf-url`, sesja metody płatności przez adapter. NIP, nazwę i siedzibę konto rozliczeniowe stajni dostaje z konta firmy przy zakładaniu stajni; w płatnościach NIP-u się nie wpisuje (propozycja z erd.md).
 - [ ] Webhook dostawcy:
   - weryfikacja podpisu;
   - surowe body do S3;
@@ -1118,6 +1149,7 @@ Zasady wspólne:
   - treść renderowana przy tworzeniu.
 - [ ] Wysyłka asynchroniczna (propozycja: własna kolejka SQS), z licznikiem prób. Przed wysyłką sprawdza, czy wiadomość ma jeszcze sens: dla flagi już potwierdzonej ustawia `cancelled`.
 - [ ] Adaptery `SmsSender` (dostawca: sekcja 5) i `EmailSender` (SES).
+- [ ] Reguły powiadomień stajni (`notification_rules`, z kroku 2 „Załóż stajnię”; tabela `stable`) [erd]: dla zdarzenia `notifications` bierze włączone wiersze tej stajni; odbiorca `admin` to admini konta firmy (`business_admins`), `staff` to aktywna obsługa tej stajni; kanał SMS albo e-mail. Eskalacja niepotwierdzonej flagi idzie według tych reguł, tylko dla flag z `requires_ack`. Lista zdarzeń: erd.md. Zaproszenie idzie kanałem wybranym w zaproszeniu.
 - [ ] Konsumuje `invitation.created` i `user.deleted`.
 
 **audit** (schemat `audit`)
@@ -1126,7 +1158,7 @@ Zasady wspólne:
 ### 3.4 Crony
 - [ ] `escalation-scheduler`, co minutę.
   - Flagi z `requires_ack`, minionym `warn_at` albo `notify_at`, bez potwierdzenia i nieodwołane [erd]. Flag bez `requires_ack` (stajnia bez potwierdzeń, np. Stajnia Brzozowa) nie bierze wcale, także po późniejszym włączeniu potwierdzeń w stajni.
-  - Woła `flags`, a przy `admin_notify` także `notifications`.
+  - Woła `flags`, a przy `admin_notify` także `notifications`, które wysyła powiadomienie według reguł stajni (`notification_rules`: odbiorcy i kanał SMS albo e-mail, propozycja).
   - Klucze idempotencji: `(flag_id, level)` i `dedupe_key`.
 - [ ] `health-due-reminders`, co godzinę. Wysyła o stałej godzinie lokalnej stajni. Klucz: `health:{eventId}:{rodzaj}`.
 - [ ] `files-gc`, co godzinę. Najpierw usuwa obiekt w S3, potem zmienia wiersz.
@@ -1137,6 +1169,7 @@ Zasady wspólne:
   - Propozycja: przy rozjeździe `subscriptions.status` i `stables.status` ponawia zdarzenie.
 - [ ] `horse-left-reconciler`, co godzinę. Woła ten sam handler co konsument `horse.left` w `access`, `flags`, `care`, `tasks` i `rides`.
 - [ ] `retention-pruner`, co noc. Woła `POST /internal/prune` każdego serwisu i sam niczego nie usuwa.
+- [ ] `invitation-expiry-notifier` (propozycja z erd.md): znajduje zaproszenia po `expires_at`, nieprzyjęte i nieodwołane, i zleca powiadomienie według reguł stajni (`notification_rules`).
 - [ ] Każdy cron testujemy na cztery przypadki: powtórzony przebieg, przebieg równoległy, przerwanie w połowie, fałszywy zegar (w tym noc zmiany czasu).
 - **Nie śledzimy wyświetleń flag na tabletach** [erd]: nie ma do tego ani tabeli, ani crona. Status flagi to tylko „potwierdzona HH:MM” albo „niepotwierdzona” (w stajni, która wymaga potwierdzeń; czy wymaga, zależy od ustawień stajni). Brak potwierdzenia w terminie, także przy martwym tablecie, obsługuje wyłącznie `escalation-scheduler` przez `flag_escalations` (scenariusz A-02).
 - **Bez crona zadań i rutyny** [erd]: zadania są jednorazowe, więc nie ma generatora wystąpień. Rutyny dnia też nie generujemy z wyprzedzeniem: szybkie akcje zapisuje obsługa (apka albo tablet przy boksie), a pominięte konie i skutki flag liczy `packages/rules` przy zapisie i przy odczycie `board`.
@@ -1149,15 +1182,15 @@ Zasady wspólne:
   - TanStack Query z trwałym cache;
   - `api-client` i i18n;
   - `react-native-get-random-values` jako pierwszy import, bo id nadaje klient.
-- [ ] Logowanie: Cognito `USER_AUTH` z SMS OTP, tokeny w `expo-secure-store`. Po zalogowaniu `GET /me` i członkostwa, nawigacja według roli, przełącznik stajni.
-- [ ] Przełącznik stajni w nagłówku („Stajnia Pod Lipami ▾”) dla osób z członkostwem w kilku stajniach (Ola, Anna). Po przełączeniu apka pobiera konfigurację tej stajni (`stable GET …/features`) i pokazuje tylko włączone opcje i funkcje widoczne dla roli: kafelki aktywnych flag, „namoczyć” przy włączonym moczeniu, włączone przyciski, status tylko przy flagach z `requires_ack` (w praktyce: stajnia z potwierdzeniami). Cache i kolejka zapisów są osobne dla każdej stajni (propozycja). Przy jednej stajni przełącznika nie ma.
+- [ ] Logowanie: Cognito `USER_AUTH` z `SMS_OTP` albo `EMAIL_OTP`, tokeny w `expo-secure-store`. Wzorzec wspólny dla apki, panelu, tabletu i TV: nad polem przełącznik segmentowy „Telefon | E-mail” (w stylu „Kanał: SMS | E-mail” z makiety Zaproszenie), dopisek „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”, potem kod. Autouzupełnianie kodu z SMS-a (`one-time-code`, SMS Retriever); kod z e-maila wpisuje się ręcznie albo wkleja. Po zalogowaniu `GET /me` i członkostwa, nawigacja według roli, przełącznik stajni.
+- [ ] Przełącznik stajni w nagłówku („Stajnia Pod Lipami ▾”) dla osób z dostępem do kilku stajni (Damian jako admin konta firmy, Ola, Anna); Paweł i Piotr widzą samą nazwę stajni. Po przełączeniu apka pobiera konfigurację tej stajni (`stable GET …/features`) i pokazuje tylko włączone opcje i funkcje widoczne dla roli: kafelki aktywnych flag, „namoczyć” przy włączonym moczeniu, włączone przyciski, status tylko przy flagach z `requires_ack` (w praktyce: stajnia z potwierdzeniami). Cache i kolejka zapisów są osobne dla każdej stajni (propozycja). Przy jednej stajni przełącznika nie ma.
 - [ ] Odpytywanie z ETag tylko na widocznym ekranie.
 - [ ] Zapisy:
   - flaga wyłącznie online, z jawnym stanem „zapisano na serwerze”;
   - „Biorę” przy zadaniu wyłącznie online, bo zajęte zadanie trzeba pokazać od razu (409, gdy ktoś już wziął; propozycja);
   - pozostałe zapisy (potwierdzenia, „Ogarnięte”, „Woda”, akcje hali, „Cofnij” i „Zrobione”) przez lokalną kolejkę.
 - [ ] Ekrany z makiet:
-  - Logowanie;
+  - Logowanie (przełącznik „Telefon | E-mail”);
   - Moje konie (Main), także MainBrzozowa (klientka Anna po przełączeniu na Stajnię Brzozową);
   - SzybkaFlaga, StatusFlagi, KartaKonia;
   - MojBoks;
@@ -1178,7 +1211,7 @@ Zasady wspólne:
   - StajennyZadania (zakładka „Zadania”, tylko przy widoczności `tasks` dla obsługi): „Do wzięcia” z „Biorę”, „Moje” z „Zrobione”, „Zrobione dziś”; „+ Dodaj zadanie” widzi tylko admin;
   - StajennyKonie: kafelki szybkiej flagi włączonych w stajni (z Derką tylko tam, gdzie stajnia oferuje derki), godziny przy flagach;
   - BoksyAdmin i BoksSzczegoly: „Ogarnięte dziś 07:10” zamiast osobnych czynności, flagi z godzinami, klient przy koniu (Marek Nowak przy Lunie, „zaproszenie czeka”), przyciski „Ogarnięte” i „Przypisz konia”; przy poidle ręcznym (Hala nowa · boks 5) znacznik „Poidło ręczne · woda 06:55” i przycisk „Woda”, przy automatycznym bez znacznika wody; w BoksSzczegoly admin ma przełącznik „Automatyczne poidło: tak/nie” (wolny boks 6 w Hali nowej: „tak”); BoksyAdminBezAkcji bez linii „Ogarnięte …”, reszta bez zmian;
-  - Zaproszenie: role Klient (z wyborem konia), Obsługa, Instruktor, Wsparcie IT (z opisem jednym zdaniem).
+  - Zaproszenie: role Klient (z wyborem konia), Obsługa, Instruktor, Wsparcie IT (z opisem jednym zdaniem); kanał „SMS | E-mail”.
 - [ ] Ekrany bez makiet: profil (wyloguj wszędzie, usuń konto, język), dodawanie zadania przez admina, jazdy instruktora.
 - [ ] Przy kilku halach zawsze „Hala nowa · boks 4”; przy jednej hali bez podziału. Nawigacja do boksu zawsze po `id`.
 - [ ] Kolory i znak słowny „eKoniuszy” z `packages/theme` (tokeny LCD z `docs/paleta.md`): akcent tylko na elementach klikalnych; status zawsze jako ikona, słowo i pole, nigdy sam kolor; flaga krytyczna jako jasny tint z lewym paskiem 4 px.
@@ -1238,7 +1271,7 @@ Zasady wspólne:
     - bez zadań: tablet ich nie pokazuje ani nie odhacza;
     - OSTATNIE AKCJE: najwyżej 5 najnowszych wpisów (flagi i przyciski), bez przewijania i bez „Cała historia” [erd]; pełna historia w apce i panelu;
     - bez siana i ścielenia;
-    - stopka „ONLINE · aktualne na HH:MM”, przełącznik PL i UA.
+    - stopka „ONLINE · aktualne na HH:MM”, przełącznik PL i UA; wybrany język tablet pamięta lokalnie, jak boks.
   - **TabletEkranZablokowany** (blokada dotyku na czas mycia albo wycierania) [erd]:
     - „Zablokuj ekran” (kłódka) obok „Zmień boks” włącza blokadę;
     - tablica dalej się odświeża i jest czytelna, ale dotyk nic nie zmienia; pasek „EKRAN ZABLOKOWANY · przytrzymaj kłódkę 3 s, aby odblokować”, przy kłódce kółko postępu przytrzymania;
@@ -1269,7 +1302,9 @@ Zasady wspólne:
     - bez sekcji „SZYBKIE AKCJE” (OGARNIĘTE, ŚNIADANIE, PADOK) i bez planu padoku;
     - baner „BEZ ŚNIADANIA · 06:00–10:00” z „POTWIERDZONA 06:02” i „Później: Nie na padok od 14:30 (kowal 15:00)” oraz KARMIENIE z WSTRZYMANE i „NAMOCZYĆ” bez zmian;
     - OSTATNIE AKCJE: 4 zdarzenia flag (06:02 dwa potwierdzenia, 03:16 i 03:14 nowe flagi · Anna), nagłówek „ostatnie · boks i koń”, bo w makiecie stajnia nie ma zdarzeń z przycisków (A-19); tablet z poidłem ręcznym (Hala nowa · boks 5) dalej ma „Poidło ręczne · woda 06:55” i „WODA”.
-- [ ] Ukryte ustawienia (długie przytrzymanie): logowanie i wylogowanie, wybór stajni (tablet pokazuje tylko boksy wybranej stajni, z jej ustawieniami) (propozycja), diagnostyka, dodanie sieci Wi-Fi. Kto może zmienić sieć: sekcja 5.
+- [ ] Ukryte ustawienia (długie przytrzymanie): logowanie i wylogowanie, wybór stajni (tablet pokazuje tylko boksy wybranej stajni, z jej ustawieniami) (propozycja), język tablicy, diagnostyka, dodanie sieci Wi-Fi. Kto może zmienić sieć: sekcja 5.
+- [ ] Logowanie tabletu (TabletLogowanie, TabletLogowanieKod): kontem obsługi albo admina, telefonem albo e-mailem; nad polem przełącznik „TELEFON | E-MAIL” w stylu e-ink (wersaliki, tylko czerń, biel i `t-*`), dopisek „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”, potem kod.
+- [ ] Język tablicy to ustawienie tego tabletu, nie stajni: każdy tablet ma własny (ukryte ustawienia albo PL | UA w stopce), zapisany lokalnie jak wybrany boks. Przetrwa restart, aktualizację APK i ponowne logowanie. Tablet wysyła go w zapytaniu do `board` (propozycja z erd.md), a serwer go nie zapisuje. Tłumaczenia nazw z `*_labels` (np. pory posiłków po ukraińsku) są opcjonalne; bez tłumaczenia tablet pokazuje nazwę polską (propozycja).
 - [ ] Stany ekranu:
   - wylogowany, także po global sign-out; nigdy nie pokazuje wtedy starych flag;
   - bez wybranego boksu;
@@ -1319,9 +1354,17 @@ Zasady wspólne:
   - sekcje hal z adresem;
   - konie bez boksu (Luna, klient Marek Nowak, „zaproszenie czeka”).
 - [ ] PanelBoksyBezAkcji (Damian, Stajnia Pod Lipami z wyłączonymi przyciskami Ogarnięte, posiłek i padok; A-19): tabela bez kolumny „Ostatnio ogarnięte” (Boks, Koń, Klient, Aktywne flagi, Akcje), alert o Belli zostaje; karta „Przyciski obsługi” ma tylko „Woda” (poidło ręczne) i linię „Ogarnięte, posiłek i padok są wyłączone w ustawieniach tej stajni.” z linkiem do PanelUstawieniaBezAkcji.
-- [ ] PanelDodajHale: nazwa i adres hali (z kopiowaniem adresu innej hali), potem jedno z trzech: nowe boksy od–do (numeracja w tej hali, domyślnie od 1; numery mogą powtarzać się z innymi halami), przeniesienie istniejących boksów albo pusta hala.
+- [ ] PanelDodajHale: nazwa i adres hali (z kopiowaniem adresu innej hali), potem jedno z trzech: nowe boksy od–do (numeracja w tej hali, domyślnie od 1; numery mogą powtarzać się z innymi halami) z listą boksów i ustawieniami każdego (numer, poidło, „Więcej ustawień ›”, „Ustaw dla wszystkich”), przeniesienie istniejących boksów albo pusta hala.
+- [ ] **Konto firmy i zakładanie stajni** (makiety; Damian, retrospekcja z pn 07.09.2026 i czw 01.10.2026):
+  - PanelLogowanie z przełącznikiem „Telefon | E-mail” → PanelLogowanieKod → PanelWitaj;
+  - **PanelRejestracjaFirmy** (nowy, po PanelWitaj, tylko przy pierwszej rejestracji): nazwa firmy, NIP i siedziba (NIP podaje się tylko tutaj); błąd „Ten NIP ma już konto w eKoniuszy”;
+  - PanelZalozStajnie, krok 1 „Stajnia”: bez NIP, działalności, języków tabletów i pytania o potwierdzenia flag; hala i boksy z ustawieniami („Ustaw dla wszystkich”);
+  - **PanelZalozPowiadomienia** (nowy), krok 2 „Powiadomienia”: zdarzenia, odbiorcy (Admin, Obsługa stajni), kanał SMS / e-mail; „Załóż stajnię” → PanelPulpitStart;
+  - PanelPulpitStart → PanelZaprosOsobe: kanał SMS albo e-mail, role z Wyświetlaczem (konto telewizora);
+  - druga stajnia (Brzozowa, 01.10) tą samą ścieżką od PanelZalozStajnie, bez rejestracji firmy i bez NIP;
+  - w Ludziach telewizor to członek z rolą Wyświetlacz (filtr po roli), bez osobnej listy kont technicznych.
 - [ ] PanelPlatnosci.
-- [ ] **Ustawienia stajni** (PanelUstawieniaStajni dla Stajni Pod Lipami z Damianem, PanelUstawieniaBrzozowa dla Stajni Brzozowej z Pawłem, PanelUstawieniaBezAkcji dla Stajni Pod Lipami z wyłączonymi przyciskami Ogarnięte, Posiłek i Padok, A-19; erd.md pkt 16), tylko admin:
+- [ ] **Ustawienia stajni** (PanelUstawieniaStajni dla Stajni Pod Lipami, PanelUstawieniaBrzozowa dla Stajni Brzozowej, PanelUstawieniaBezAkcji dla Stajni Pod Lipami z wyłączonymi przyciskami Ogarnięte, Posiłek i Padok, A-19; wszędzie Damian; erd.md pkt 16), tylko admin konta firmy:
   - zakładka „Ustawienia” w nawigacji panelu, w nagłówku przełącznik stajni („Stajnia Pod Lipami ▾”) i podtytuł „ustawienia dotyczą tylko tej stajni”;
   - sekcja „Potwierdzenia flag”: przełącznik „Flagi wymagają potwierdzenia” z opisem obu trybów (włączone: nowa flaga → pop-up na tablecie → „Potwierdzono flagę”, status u klienta, eskalacja do admina; wyłączone: flaga obowiązuje od razu i od razu stoi w banerze tabletu, bez pop-upu, statusu oczekiwania, sekcji „Wymaga potwierdzenia” i eskalacji) i dopiskiem „Dotyczy nowych flag. Flagi, które już trwają, zostają w swoim trybie.”;
   - sekcja „Usługi”: przełączniki derek (flaga „Derka”) i moczenia paszy („namoczyć” + ile), flag (Bez śniadania, Bez kolacji, Nie na padok, Wet, Leki) i szybkich przycisków (Ogarnięte, Posiłek, Padok z opisem „przycisk i plan padoku”, ten sam na wszystkich trzech ekranach ustawień); dopisek, że wyłączona opcja znika z kafelków klienta, widoku obsługi, tabletu i wyświetlacza razem ze swoim stanem, i że „Woda” nie ma przełącznika (ustawienie boksu);
@@ -1329,12 +1372,12 @@ Zasady wspólne:
   - przycisk „Zapisz” z dopiskiem „Zmiany działają przy najbliższym odświeżeniu apki, tabletów i wyświetlacza”; zapis z `If-Match` do `stable` (ustawienia i widoczność) i `flags` (aktywne szablony), obsługa 412;
   - przełączniki i checkboxy jako `role="switch"` i `role="checkbox"` z etykietami, obsługiwane klawiaturą (propozycja).
 - [ ] Przy kilku halach każdy boks w tabelach, filtrach, alertach i formularzach przypisania ma halę razem z numerem; wybór boksu w formularzach wysyła `boxId`.
-- [ ] Ekrany bez makiet: rejestracja stajni (w działalności), Pulpit, Konie, Ludzie (role Klient, Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz; zaproszenia, konta wyświetlaczy), pozostałe ustawienia stajni poza ekranem „Ustawienia stajni” (progi eskalacji, słowniki, sloty, domyślne godziny szablonów flag, okno APK).
+- [ ] Plansze pierwszej fali (logowanie, PanelWitaj, Pulpit, zaproszenia, Ludzie) opisuje docs/makiety-plan.md. Ekrany bez makiet: Konie, Ludzie poza tym, co pokazują makiety (role Klient, Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz; przypisanie osoby do kolejnej stajni), pozostałe ustawienia stajni poza ekranem „Ustawienia stajni” (progi eskalacji, słowniki, sloty, domyślne godziny szablonów flag, okno APK).
 - [ ] Edycje z `If-Match` i obsługą 412.
 - [ ] Kolory i znak słowny „eKoniuszy” z `packages/theme` (tokeny LCD z `docs/paleta.md`, zmienne CSS); flaga krytyczna jako pigułka z pełnym ciemnym polem (`crit-solid` z tekstem `on-crit`).
 
 #### 3.5.4 Wyświetlacz (`/wyswietlacz`) i `tools/display-kiosk`
-- [ ] Logowanie kontem `display`; zablokowane konto pokazuje „wyświetlacz zablokowany”.
+- [ ] Logowanie zwykłym kontem z rolą Wyświetlacz (`display`), tak jak wszędzie: WyswietlaczLogowanie z przełącznikiem „Telefon | E-mail”, potem WyswietlaczKod (kod z SMS-a albo e-maila). W seedzie „Telewizor korytarz” loguje się e-mailem; ekran pokazuje adres tylko zamaskowany (t•••@stajnielipowe.pl). Bez kont technicznych i bez nazw kont typu `wyswietlacz-korytarz`. Zablokowane konto pokazuje „wyświetlacz zablokowany”.
 - [ ] WyswietlaczCentralny:
   - nagłówek z „Teraz”, następnym posiłkiem i zegarem;
   - pasek pilnych flag wszystkich hal;
@@ -1377,21 +1420,29 @@ Zasady wspólne:
   15. Nazwę pakietu (`chromium` czy `chromium-browser`) skrypt wykrywa sam.
   16. Overlay FS wyłączony.
 
+#### 3.5.5 Strona www (przed logowaniem)
+- [ ] Publiczna strona produktu: prezentacja i blog (pseudo-blog). Makiety: StronaGlowna (1440), StronaGlownaTelefon (390), StronaWpis (1440, wpis bloga).
+- [ ] Treść: prezentacja produktu, lista wpisów bloga i pojedynczy wpis; link „Zaloguj się” do panelu. Bez danych stajni, bez logowania i bez API aplikacji.
+- [ ] Kolory i znak „eKoniuszy” z `docs/paleta.md` (tokeny LCD, przez `packages/theme`, propozycja); układ od 390 do 1440 px.
+- [ ] Gdzie żyje: statyczna strona czy CMS, do decyzji (sekcja 5 pkt 51). Propozycja: statyczny generator w monorepo (`apps/www`), wpisy w Markdown w repo, build w CI, hosting statyczny na domenie głównej (2.10); CMS dopiero, gdy wpisy pisze ktoś bez dostępu do repo. Hosting wybiera Dawid.
+- [ ] Na stronie mogą żyć polityka prywatności, strona wsparcia i strona usuwania konta, których wymagają Apple i Google (2.7, 2.8) (propozycja).
+- [ ] Testy: Playwright w 1440 i 390, linki do panelu, brak zewnętrznych skryptów śledzących bez zgody (propozycja).
+
 ### 3.6 Kolejność prac
 - [ ] **Etap 0, od pierwszego dnia, trzy tory równolegle:**
   - **A, fundament:** 3.1 i 3.2; najpierw stub tokenów i seed.
   - **B, bramka sprzętowa tabletu:** punkty (B) z 4.3.1 (T-01…T-04, T-08, T-13, T-24, T-25) oraz testy koloru K-01 i K-05 na Boox Note Air6 C, na sztucznych odpowiedziach `board`, z paletą `t-*` w profilu właściwym dla ekranu. Kończy się decyzją: model zostaje albo bierzemy plan B. Planem B jest Samsung Galaxy Tab Active5, dokupiony dopiero wtedy, gdy T-01 albo T-02 nie przejdą na Boox; ten sam moduł DO przechodzi na nim T-01…T-03, co oddziela błąd naszego kodu od ograniczeń firmware e-ink. Innym wyjściem jest kolejny model e-ink z działającym DO, kolorowy albo czarno-biały.
   - **C, spike Cognito:** lista z 3.2.
-- [ ] **Etap 1, logowanie:** `identity`, `access` (role z `client` i `it_support`, zaproszenie klienta do konia), `auth` i `authz`, logowanie w apce i w panelu.
-  - Gotowe, gdy działa logowanie na puli dev, zaakceptowanie zaproszenia tworzy członkostwo (dla klienta także dostęp do konia), a macierz izolacji dla tych tras jest zielona.
-- [ ] **Etap 2, stajnia, hale, boksy, konie:** `stable` (działalność → stajnie → hale → boksy), ustawienia stajni i widoczność per rola (`stable_settings`, `stable_role_features`, `GET …/features`), panel (Boksy i konie, Dodaj halę, Ustawienia stajni), apka admina, przełącznik stajni w apce.
-  - Gotowe, gdy seed z dwiema halami (boksy 1–8 i 1–6) jest widoczny w panelu i w apce z halą przy numerze, dodanie hali z adresem i boksami od 1 działa, a przypisanie, przeniesienie i zamiana koni przechodzą testy współbieżności; obie stajnie z seedu mają swoje ustawienia, a ekran „Ustawienia stajni” zmienia je tylko admin tej stajni.
+- [ ] **Etap 1, logowanie i konto firmy:** `identity`, `access` (role z `client` i `it_support`, admin konta firmy, przypisania per stajnia, zaproszenia SMS-em albo e-mailem), `auth` i `authz`, logowanie telefonem albo e-mailem w apce i w panelu, rejestracja konta firmy z NIP (`POST /businesses`).
+  - Gotowe, gdy działa logowanie na puli dev oboma kanałami, rejestracja konta firmy z NIP przechodzi A-22, zaakceptowanie zaproszenia tworzy członkostwo (dla klienta także dostęp do konia), a macierz izolacji dla tych tras jest zielona, także między dwoma kontami firm.
+- [ ] **Etap 2, stajnia, hale, boksy, konie:** `stable` (konto firmy → stajnie → hale → boksy), „Załóż stajnię” w 2 krokach z regułami powiadomień (`notification_rules`) i boksami z ustawieniami, ustawienia stajni i widoczność per rola (`stable_settings`, `stable_role_features`, `GET …/features`), panel (PanelRejestracjaFirmy, PanelZalozStajnie, PanelZalozPowiadomienia, Boksy i konie, Dodaj halę, Ustawienia stajni), apka admina, przełącznik stajni w apce.
+  - Gotowe, gdy seed z dwiema halami (boksy 1–8 i 1–6) jest widoczny w panelu i w apce z halą przy numerze, dodanie hali z adresem i boksami od 1 działa, a przypisanie, przeniesienie i zamiana koni przechodzą testy współbieżności; obie stajnie z seedu mają swoje ustawienia, a ekran „Ustawienia stajni” zmienia je tylko admin konta firmy; druga stajnia bez NIP i przypisania per stajnia przechodzą A-23.
 - [ ] **Etap 3, flagi:** `flags` z obowiązkowymi godzinami, skutkami z okna (`packages/rules`) i Derką, `requires_ack` kopiowanym z ustawień stajni, szablonami włączanymi w „Ustawieniach stajni”, `notifications` z `fake-sms`, `escalation-scheduler` (tylko flagi z `requires_ack`), ekrany klienta (kafelki flag) i obsługi.
   - Gotowe, gdy scenariusze A-01, A-02, A-12, A-18 i A-20 odtwarzają się od zera, a test wyścigu potwierdzenia z eskalacją jest zielony.
 - [ ] **Etap 4, tablica i tablet:** `board` z ETag i konfiguracją stajni, kiosk, pop-up (dla flag z `requires_ack`), „Zmień boks”, blokada ekranu, kolejka zapisów, `releases`.
-  - Gotowe, gdy flaga z telefonu pojawia się jako pop-up w ustalonym czasie (flaga bez potwierdzeń od razu w banerze), potwierdzenie i odwołanie usuwają pop-up, „Zmień boks” przełącza między halami i wraca do poprzedniego boksu po 30 s, zablokowany ekran nie reaguje na dotyk (T-30, A-15), a APK aktualizuje się bez dotykania tabletu.
+  - Gotowe, gdy flaga z telefonu pojawia się jako pop-up w ustalonym czasie (flaga bez potwierdzeń od razu w banerze), potwierdzenie i odwołanie usuwają pop-up, „Zmień boks” przełącza między halami i wraca do poprzedniego boksu po 30 s, zablokowany ekran nie reaguje na dotyk (T-30, A-15), język tablicy jest ustawieniem tabletu (A-25), a APK aktualizuje się bez dotykania tabletu.
 - [ ] **Etap 5, wyświetlacz:** widok `board` dla wyświetlacza, `/wyswietlacz` z pełnym ekranem hali i przełącznikiem hal, obraz Pi.
-  - Gotowe, gdy działa 72 h bez przerwy, wybór hali przetrwa restart, pełny ekran pokazuje tylko flagi tej hali, a w odpowiedziach nie ma danych osobowych.
+  - Gotowe, gdy telewizor loguje się zwykłym kontem z rolą Wyświetlacz e-mailem i kodem (A-24), działa 72 h bez przerwy, wybór hali przetrwa restart, pełny ekran pokazuje tylko flagi tej hali, a w odpowiedziach nie ma danych osobowych.
 - [ ] **Etap 6, karmienie, padok i rutyna obsługi:** `care`; szybkie akcje („Ogarnięte” per boks i kilka naraz, „Woda” przy poidle ręcznym, posiłek i padok dla hali z pominiętymi, z apki i z „SZYBKICH AKCJI” tabletu, „Cofnij”); przełącznik poidła w `stable`; wstrzymany posiłek i skrócony albo odwołany padok na tablicy z okna flag; „NAMOCZYĆ” w tabeli karmienia; ListaDnia i MojBoks; konsumenci `horse.left` i `horse-left-reconciler`.
   - Gotowe, gdy przechodzą A-13, A-16, A-17 i A-19 (przyciski i moczenie według ustawień stajni).
 - [ ] **Etap 7, zdrowie, jazdy, zadania:** `health` z `files`, `rides`, `tasks` (zadania jednorazowe, „Biorę”, „Zrobione”, StajennyZadania); crony `health-due-reminders` i `files-gc`.
@@ -1404,13 +1455,14 @@ Zasady wspólne:
   - alerty;
   - przegląd bezpieczeństwa;
   - runbooki (4.5);
-  - wyjście z SMS sandbox.
+  - wyjście z sandboxów SMS i SES (kody logowania e-mailem).
 - **Prace równoległe:**
   - `packages/theme` od etapu 0, zanim powstaną pierwsze ekrany;
   - po etapie 1 interfejsy apek, tabletu i wyświetlacza na fixture'ach z kontraktów;
   - `care` zaraz po etapie 2;
   - `health`, `rides` i `tasks` niezależnie od siebie;
-  - adaptery `billing` w dowolnym momencie.
+  - adaptery `billing` w dowolnym momencie;
+  - strona www (3.5.5) niezależnie od reszty, po decyzji z sekcji 5 pkt 51.
 
 ## 4. Testy
 
@@ -1428,7 +1480,8 @@ Zasady wspólne:
   - Składanie `board` z ustawieniami: przy wyłączonej opcji w odpowiedzi nie ma ani przycisku, ani jego stanu (np. bez planu padoku, czyli godzin i towarzyszy, i stanu „Wyprowadzono na padok” przy `paddock_out_enabled = false`, bez „NAMOCZYĆ” przy `soak_enabled = false`); przy wszystkich trzech przyciskach wyłączonych bez „SZYBKIE AKCJE”, a plan karmienia, flaga „Nie na padok” i „Woda” przy poidle ręcznym zostają; flaga bez `requires_ack` stoi w banerze bez znacznika pop-upu; zmiana ustawień zmienia ETag.
   - Widoczność: `display` bez danych osobowych; na tablet nie trafiają opisy wizyt; tablica tabletu nie pokazuje, kto jest zalogowany.
   - Billing: kwoty w groszach.
-  - Normalizacja telefonu do E.164.
+  - Normalizacja telefonu do E.164 i e-maila (wielkość liter, spacje; propozycja).
+  - NIP: kreski i spacje usuwane, 10 cyfr, suma kontrolna (propozycja).
   - Komplet tłumaczeń PL, UA i EN.
   - Paleta (`packages/theme`): wartości zgodne z `docs/paleta.md`, kontrasty WCAG oraz drabina jasności tokenów `t-*` w profilu Kaleido 3 i Gallery 3 (testy z 3.1.12).
 - [ ] **Integracyjne (Testcontainers: PostgreSQL i LocalStack; Cognito zastępuje stub, prawdziwa pula w przebiegu nocnym).**
@@ -1456,7 +1509,14 @@ Zasady wspólne:
     - wyłączenie Derki (`flag_templates.active = false` dla `derka`) usuwa kafelek z `GET …/features` klienta i obsługi przy najbliższym odpytaniu, a zapis flagi z tego szablonu daje `409 option_disabled` (propozycja); trwająca Derka Sonaty: sekcja 5;
     - przy `paddock_out_enabled = false` „Wyprowadzono na padok”, przy `tidy_enabled = false` „Ogarnięte”, a przy `meal_served_enabled = false` „Podano śniadanie” dają `409 option_disabled` z apki i z tabletu (propozycja); przy `soak_enabled = false` pozycja planu z `soak = true` daje 409, a istniejące „namoczyć” znika z odczytów, ale zostaje w bazie;
     - macierz widoczności: dla każdej roli i funkcji w obu stajniach trasa odczytu i sekcja odpowiedzi złożonej są albo dostępne, albo pominięte (403 dla trasy, propozycja); zmiana macierzy działa przy najbliższym żądaniu;
-    - ustawienia, macierz i szablony zmienia tylko admin tej stajni, z `If-Match` i audytem; zmiana w Stajni Pod Lipami nie zmienia Stajni Brzozowej.
+    - ustawienia, macierz i szablony zmienia tylko admin konta firmy, z `If-Match` i audytem; zmiana w Stajni Pod Lipami nie zmienia Stajni Brzozowej.
+  - Konto firmy i dostęp do stajni (serwisy `stable`, `access`, `notifications`):
+    - rejestracja konta firmy z NIP tworzy konto i admina w jednej transakcji; drugi raz ten sam NIP (także z kreskami albo bez) daje `409 tax_id_taken` (propozycja) i niczego nie zapisuje;
+    - druga stajnia bez NIP: `POST /stables` nie przyjmuje NIP ani działalności, stajnia trafia do konta firmy admina, a admin ma do niej dostęp bez przypisania;
+    - zakładanie stajni w 2 krokach: stajnia, ustawienia (wszystko włączone, z potwierdzeniami), hala, boksy z ustawieniami (poidło per boks, „Ustaw dla wszystkich”) i reguły powiadomień (`notification_rules`) zapisują się razem; błąd wstrzyknięty w środku nie zostawia stajni bez reguł ani boksów;
+    - eskalacja `admin_notify` trafia do odbiorców i kanałem z reguł stajni (propozycja);
+    - Damian (admin konta) ma dostęp do obu stajni; Piotr dostaje 404 w Brzozowej, Paweł w Pod Lipami; przypisanie Oli do drugiej stajni działa przy najbliższym żądaniu, a po odebraniu daje 404;
+    - drugie konto firmy (fixture z innym NIP, propozycja): każdy obiekt Stajni Pod Lipami i Brzozowej daje jego adminowi 404, a Damianowi obiekt tamtej firmy też 404.
   - Zadania (serwis `tasks`): dwa równoległe „Biorę” na to samo zadanie dają jedno wzięcie i jedno 409; „Zrobione” bez wzięcia albo przez inną osobę niż biorąca, poza adminem, jest odrzucane (propozycja); nie-admin nie doda zadania (403).
   - Dostęp klienta: Anna widzi boks 7 Hali głównej (Kasztan) i jego historię od dnia, w którym Kasztan do niego trafił; po przeniesieniu Kasztana widzi nowy boks od dnia przeniesienia, a starego już nie (dostęp do boksu wynika wyłącznie z konia).
   - Dodanie hali (serwis `stable`):
@@ -1514,7 +1574,8 @@ Zasady wspólne:
   - Flaga wysłana przy zrywanym połączeniu nie tworzy duplikatu, a apka pokazuje stan „nie wysłano”.
   - Języki, duża czcionka systemowa, mały i duży ekran.
   - Przy kilku halach lista boksów w grupach hal z filtrem, a każdy boks z halą przy numerze; wybór boksu wysyła `boxId`. Status flagi tylko „potwierdzona HH:MM” albo „niepotwierdzona”, i tylko dla flag z `requires_ack` (w praktyce: stajnia z potwierdzeniami).
-  - Przełącznik stajni (A-17): Anna i Ola przechodzą między Stajnią Pod Lipami a Stajnią Brzozową; kafelki, status flag, plan karmienia, szybkie akcje, „Wymaga potwierdzenia” i zakładka „Zadania” zmieniają się według ustawień i widoczności wybranej stajni; zapis z kolejki trafia do stajni, w której powstał.
+  - Logowanie telefonem i e-mailem: przełącznik „Telefon | E-mail”, kod z SMS-a i kod z e-maila (skrzynka testowa), ten sam użytkownik oboma kanałami.
+  - Przełącznik stajni (A-17): Anna i Ola przechodzą między Stajnią Pod Lipami a Stajnią Brzozową; Damian (admin konta) też, a Paweł i Piotr nie mają przełącznika; kafelki, status flag, plan karmienia, szybkie akcje, „Wymaga potwierdzenia” i zakładka „Zadania” zmieniają się według ustawień i widoczności wybranej stajni; zapis z kolejki trafia do stajni, w której powstał.
   - Na fizycznych iPhone'ach skrypt ręczny przez TestFlight (wsparcie Maestro dla fizycznych iPhone'ów: [niepotwierdzone]).
 - [ ] **Panel web (Playwright: Chromium, Firefox, WebKit).**
   - Boksy i konie (kolumny Klient, Aktywne flagi z godzinami, Ostatnio ogarnięte; znacznik „Poidło ręczne · woda HH:MM” tylko przy Hala nowa · boks 5; przełącznik poidła w szczegółach boksu tylko dla admina). Przy kilku halach każdy boks w tabelach, filtrach, alertach i formularzach przypisania ma halę przy numerze; wyszukanie „4” zwraca dwa boksy z nazwami hal; formularze wysyłają `boxId`.
@@ -1525,6 +1586,7 @@ Zasady wspólne:
     - wariant „pusta hala”;
     - usunięcia hali z boksami interfejs nie proponuje, a API je odrzuca; wyłączenie hali działa;
     - po dodaniu drugiej hali stajnia z jedną halą zaczyna pokazywać halę przy numerze w panelu.
+  - Konto firmy i zakładanie stajni: logowanie e-mailem, PanelRejestracjaFirmy (NIP zajęty: komunikat „Ten NIP ma już konto w eKoniuszy”), PanelZalozStajnie bez NIP, języków i potwierdzeń, boksy 1–6 z „Ustaw dla wszystkich” i jednym boksem z poidłem ręcznym, PanelZalozPowiadomienia, „Załóż stajnię” → PanelPulpitStart; druga stajnia bez rejestracji firmy; zaproszenie z kanałem SMS albo e-mail i rolą Wyświetlacz.
   - Ustawienia stajni (PanelUstawieniaStajni, PanelUstawieniaBrzozowa): stan przełączników i macierzy obu stajni z seedu; „Zapisz” z `If-Match`, konflikt 412 pokazuje komunikat; wyłączenie Derki i włączenie z powrotem; zakładki nie widzi nikt poza adminem; przełącznik stajni w nagłówku przechodzi między stajniami.
   - Płatności na fałszywym adapterze: podwójny webhook daje jedną płatność, brak płatności daje `suspended`.
   - `/wyswietlacz`:
@@ -1533,7 +1595,8 @@ Zasady wspólne:
     - widok wszystkich hal: sekcje hal z przyciskiem „Pełny ekran”, pasek pilnych flag wszystkich hal, kafel z halą przy numerze;
     - pełny ekran hali: tylko flagi tej hali, także w pasku pilnych; skrót pozostałych hal tylko liczbowy; przełącznik hal przechodzi na inną halę bez wracania do widoku wszystkich; „Wszystkie hale” wraca do widoku ogólnego;
     - wybór widoku zapamiętany w `localStorage`: przetrwa przeładowanie i nowy kontekst przeglądarki z tym samym profilem; bez zapisanego wyboru, przy wyjątku z `localStorage` albo gdy zapisana hala zniknęła lub jest wyłączona, strona pokazuje wszystkie hale;
-    - jedna hala (Stajnia Brzozowa; w seedzie nie ma wyświetlacza, więc test zakłada konto `display` i zaznacza jego widoczność w fixture'ach, nie w seedzie): bez sekcji, bez „Pełny ekran” i bez przełącznika;
+    - logowanie kontem z rolą Wyświetlacz: „Telefon | E-mail”, kod z e-maila, adres tylko zamaskowany;
+    - jedna hala (Stajnia Brzozowa; w seedzie nie ma wyświetlacza, więc test zaprasza konto z rolą Wyświetlacz i zaznacza jego widoczność w fixture'ach, nie w seedzie): bez sekcji, bez „Pełny ekran” i bez przełącznika;
     - sekcje według widoczności roli `display` (w Stajni Pod Lipami bez zdrowia i historii boksu); stan „niepotwierdzona” tylko dla flag z `requires_ack`: flaga bez potwierdzeń go nie ma, a trwająca niepotwierdzona flaga ma go dalej po wyłączeniu potwierdzeń (A-20);
     - nowa hala dodana w panelu pojawia się w ciągu 10 s;
     - regresja wizualna przy 1920×1080 i 3840×2160, w widoku wszystkich hal i na pełnym ekranie każdej hali.
@@ -1542,11 +1605,13 @@ Zasady wspólne:
   - Testy zrzutów (propozycja, 3.5.2): ekrany z fixture'ów renderowane w profilu Kaleido 3 i Gallery 3 i przeliczone na skalę szarości. Statusy (papier, OK, uwaga, krytyczna) muszą się różnić jasnością i grubością obrysu także bez koloru; na polach koloru tylko czarny albo biały pogrubiony tekst.
   - „Zmień boks” na emulatorze ze sztucznym zegarem: zakładki hal (otwarta zakładka hali bieżącego boksu), przełączenie od razu po stuknięciu, powrót do poprzedniego boksu po 30 s bez wyboru, wybór (`boxes.id`) zachowany po zabiciu procesu; przy jednej hali lista bez zakładek.
   - Blokada ekranu na emulatorze ze sztucznym zegarem: seria stuknięć i przeciągnięć po zablokowanym ekranie nie wysyła żadnego zapisu; odblokowanie dopiero po 3 s przytrzymania kłódki; pop-up nowej flagi (stajnia z potwierdzeniami) pojawia się mimo blokady, a POTWIERDZAM działa po odblokowaniu; po 10 min blokada schodzi sama (propozycja).
+  - Logowanie i język na emulatorze: „TELEFON | E-MAIL” z kodem z SMS-a i z e-maila; język tablicy zmieniony w ukrytych ustawieniach albo przełącznikiem PL | UA w stopce zostaje po zabiciu procesu i po ponownym logowaniu, a drugi tablet (emulator) ma swój język.
   - Konfiguracja stajni na emulatorze: tablet przełączony w ukrytych ustawieniach na Stajnię Brzozową, boks 1 (TabletBoksBrzozowa): nagłówek bez hali, baner bez plakietki „POTWIERDZONA” i bez pop-upu, „SZYBKIE AKCJE” tylko „OGARNIĘTE” i „ŚNIADANIE”, karmienie bez „NAMOCZYĆ”; zrzut porównany z makietą (propozycja).
   - Scenariusze UI na sztukach deweloperskich z ADB (Maestro albo UI Automator).
   - Na sztukach produkcyjnych (ADB wyłączone) obserwacja kamerą i w logach, a stuknięcia ręczne.
 - [ ] **Prawdziwe SMS w przebiegu nocnym:** modem z kartą SIM odczytuje kod OTP i eskalację.
-- [ ] **E-mail:** doręczalność zaproszeń i przypomnień do skrzynek WP, Onet, Interia, o2 i Gmail; zgodność SPF, DKIM i DMARC w nagłówkach.
+- [ ] **E-mail:** doręczalność kodów logowania (`EMAIL_OTP`), zaproszeń, powiadomień i przypomnień do skrzynek WP, Onet, Interia, o2 i Gmail (czas doręczenia kodu, folder spam); zgodność SPF, DKIM i DMARC w nagłówkach.
+- [ ] **Strona www:** 3.5.5.
 
 ### 4.2 Bezpieczeństwo
 - [ ] **Izolacja stajni.**
@@ -1555,17 +1620,18 @@ Zasady wspólne:
   - Zdarzenie z cudzym `stable_id` jest odrzucane.
   - `X-Box-Id` albo `boxId` boksu stajni B (Stajnia Brzozowa ma te same numery boksów 1–6 co Hala nowa) daje 404 i nie tworzy zapisu. Lista „Zmień boks” zawiera tylko hale i boksy stajni zalogowanego użytkownika.
   - Strażnik predykatu `stable_id`, w tym tabele podrzędne przez rodzica.
-  - Stajnia Brzozowa należy do tej samej działalności (`businesses`) co Stajnia Pod Lipami (propozycja seedu): wspólna działalność nie daje dostępu między stajniami, a obiekty drugiej stajni dają 404, bo uprawnienia, izolacja i ustawienia są na poziomie stajni [erd]. Damian (admin Pod Lipami) dostaje 404 na ustawieniach i boksach Stajni Brzozowej, Paweł odwrotnie.
+  - Dostęp w obrębie konta firmy: obie stajnie należą do konta „Stajnie Lipowe sp. z o.o.”. Admin konta (Damian) ma dostęp do obu, także do ustawień. Obsługa ma dostęp tylko do przypisanych stajni: Piotr dostaje 404 na każdym obiekcie Stajni Brzozowej, Paweł na każdym obiekcie Stajni Pod Lipami; Ola ma obie.
+  - Izolacja między firmami: drugie konto firmy z innym NIP (fixture, np. Stajnia Olszynka, propozycja). Jego admin dostaje 404 na obiektach obu stajni Damiana, a Damian na obiektach tamtej firmy. Ten sam numer boksu (1–6) w trzech stajniach niczego nie miesza.
 - [ ] **Role, macierz rola × akcja (to, co dozwolone, i to, co zabronione).**
   - client: flagi swoich koni (ustawienie, zmiana godzin, odwołanie), podgląd boksu, w którym stoi jego koń, i historii tego boksu od dnia, w którym koń do niego trafił; bez szybkich akcji obsługi i bez zadań (403); boks bez jego konia (np. wolny Hala główna · boks 3) daje 404; po `valid_to` albo `revoked_at` traci dostęp.
-  - staff: wszystkie konie, także Luna bez boksu; szybkie akcje obsługi (także „Woda” przy poidle ręcznym); „Biorę” i „Zrobione” przy zadaniach, ale bez dodawania zadań i bez przełącznika poidła (403).
-  - admin: hale (z adresem), boksy (także przełącznik „Automatyczne poidło”), zaproszenia, konta `display`, dodawanie i odwoływanie zadań, „Ustawienia stajni” (potwierdzenia, usługi, aktywne szablony flag, widoczność per rola). Dodać halę i zmienić ustawienia stajni może tylko admin tej stajni; staff, client, instructor, it_support i display dostają 403.
+  - staff (tylko w stajniach, do których jest przypisany): wszystkie konie tej stajni, także Luna bez boksu; szybkie akcje obsługi (także „Woda” przy poidle ręcznym); „Biorę” i „Zrobione” przy zadaniach, ale bez dodawania zadań i bez przełącznika poidła (403).
+  - admin (konta firmy, w każdej stajni firmy): zakładanie stajni, hale (z adresem), boksy (także przełącznik „Automatyczne poidło”), zaproszenia (także telewizorów z rolą Wyświetlacz), przypisania osób do stajni, dodawanie i odwoływanie zadań, „Ustawienia stajni” (potwierdzenia, usługi, aktywne szablony flag, widoczność per rola). Dodać halę, założyć stajnię i zmienić ustawienia stajni może tylko admin konta firmy; staff, client, instructor, it_support i display dostają 403.
   - it_support: konfiguracja i diagnostyka tabletów i wyświetlaczy; zapis koni, flag, zaproszeń i zadań daje 403, bez danych osobowych klientów [erd].
   - klient Cognito tablet: tylko potwierdzenie flagi, „Ogarnięte” i „Woda” (poidło ręczne) dla boksu z `X-Box-Id` oraz posiłek i padok dla hali tego boksu [erd]; zadania i akcja dla innej hali dają 403 (propozycja).
-  - display: tylko GET, każdy zapis daje 403.
+  - display (zwykłe konto telewizora): tylko GET, każdy zapis daje 403.
   - Widoczność per rola (`stable_role_features`) tylko zawęża uprawnienia (propozycja): odznaczona funkcja daje 403 na trasach tej funkcji i znika z odpowiedzi złożonych, a zaznaczona nie daje roli prawa zapisu, którego rola nie ma (np. klient z widocznością „Szybkie akcje i ich stan” dalej dostaje 403 na zapis).
   - Opcje wyłączone w ustawieniach stajni: zapis daje `409 option_disabled` (propozycja) dla każdej roli, także admina i tabletu; potwierdzenie flagi bez `requires_ack` daje `409 ack_not_required` (propozycja).
-  - Kombinacje ról: ta sama osoba jako client dwóch koni w różnych halach (Anna: Kasztan i Bella); ta sama osoba w dwóch stajniach o różnych ustawieniach (Ola: staff w obu, Anna: client w obu), gdzie uprawnienia, widoczność i konfiguracja liczą się osobno dla każdej stajni; staff w jednej stajni i client w drugiej.
+  - Kombinacje ról: ta sama osoba jako client dwóch koni w różnych halach (Anna: Kasztan i Bella); ta sama osoba w dwóch stajniach o różnych ustawieniach (Ola: staff w obu, Anna: client w obu, Damian: admin konta), gdzie uprawnienia, widoczność i konfiguracja liczą się osobno dla każdej stajni; staff w jednej stajni i client w drugiej.
 - [ ] **Wyświetlacz bez danych osobowych.** Dane-kanarki (unikalne telefony, e-maile, nazwiska) w seedzie. Skan każdej odpowiedzi dla `display` oraz HTML i JS strony `/wyswietlacz` nie może znaleźć kanarka ani wzorca E.164 czy e-maila.
 - [ ] **Tablica tabletu nie pokazuje, kto jest zalogowany.** Tablet zalogowany kontem z danymi-kanarkami: na żadnym ekranie poza ukrytymi ustawieniami nie ma imienia, telefonu ani e-maila zalogowanej osoby. Akcje z tabletu zapisują się bez autora: `source = tablet` (przy potwierdzeniu flagi `method = tablet`), `user_id = NULL`, `audit_log.actor_type = tablet` [erd].
 - [ ] **Presigned URL.**
@@ -1575,12 +1641,13 @@ Zasady wspólne:
   - Upload z ograniczonym typem i rozmiarem, z kontrolą `sha256`.
 - [ ] **Zaproszenia.**
   - Nie da się ich zaakceptować po `expires_at` ani po `revoked_at`, ani zaakceptować drugi raz.
-  - Dopasowanie tylko do zweryfikowanego kontaktu; formaty `+48 600…`, `600…` i `0048…` dają ten sam wynik.
+  - Dopasowanie tylko do zweryfikowanego kontaktu; formaty `+48 600…`, `600…` i `0048…` dają ten sam wynik, a e-mail pisany wielkimi i małymi literami też (propozycja).
+  - Zaproszenie e-mailem nie daje dostępu osobie, która ma ten sam numer, ale inny e-mail, i odwrotnie.
   - Numer przydzielony przez operatora nowej osobie nie przejmuje dostępów poprzedniego właściciela.
 - [ ] **Sesje.**
   - Po global sign-out zmierzyć czas do utraty dostępu na telefonie, tablecie, w panelu i na wyświetlaczu.
   - Skradziony tablet czyta tablicę najwyżej przez czas życia access tokenu.
-  - Blokada konta `display` przez admina: zmierzyć czas do zniknięcia danych; sprawdzane także w członkostwie.
+  - Blokada konta telewizora (rola Wyświetlacz) przez admina: zmierzyć czas do zniknięcia danych; sprawdzane także w członkostwie.
   - Wygaśnięcie refresh tokenu (pula testowa ze skróconą ważnością) daje czytelny ekran logowania, bez zamrożonych danych.
   - Usunięcie konta: pseudonimizacja i usunięcie w Cognito.
 - [ ] **Cognito i SMS na prawdziwych numerach.**
@@ -1590,6 +1657,7 @@ Zasady wspólne:
   - Ponowne wysłanie kodu i limity Cognito.
   - Ważność kodu (makieta podaje 10 min) porównana z oknem sesji Cognito.
   - Zmiana numeru, numer przeniesiony, roaming, 5 minut bez zasięgu.
+  - Kod e-mailem: czas doręczenia do skrzynek z 4.1, folder spam, ponowne wysłanie i limity, kod użyty drugi raz; konto z telefonem i e-mailem loguje się oboma kanałami.
 - [ ] **TOTP (jeśli zostaje).**
   - Rejestracja przez QR i przez ręczne przepisanie sekretu w Google Authenticator, Microsoft Authenticator, Aegis i 1Password.
   - Zegar telefonu przesunięty o ±30 s i ±2 min.
@@ -1744,7 +1812,8 @@ Zasady wspólne:
 
 **E. Logowanie**
 - [ ] **T-23 Sesja na tablecie.**
-  - Logowanie SMS OTP.
+  - Logowanie przełącznikiem „TELEFON | E-MAIL”: kod z SMS-a i kod z e-maila.
+  - Język tablicy ustawiony na tym tablecie zostaje po restarcie, rozładowaniu i ponownym logowaniu innym kontem.
   - Odnawianie sesji przez cały test ciągły.
   - Global sign-out z telefonu: tablet pokazuje ekran logowania i pamięta boks.
   - Po zalogowaniu innym kontem tablet wraca do tego samego boksu (to samo `id`).
@@ -1845,11 +1914,11 @@ Zasady wspólne:
   - Poranek po mroźnej nocy.
   - Korozja złączy HDMI i USB-C oraz listew po pilotażu.
 - [ ] **W-29 Pełny ekran hali i zapamiętany wybór.**
-  - Telewizor ustawiony na pełny ekran Hali nowej wraca na ten sam widok po restarcie Pi, `kill -9` Chromium, zaniku prądu (W-02) i ponownym logowaniu konta `display`.
+  - Telewizor ustawiony na pełny ekran Hali nowej wraca na ten sam widok po restarcie Pi, `kill -9` Chromium, zaniku prądu (W-02) i ponownym logowaniu konta telewizora (rola Wyświetlacz, e-mail i kod).
   - Na pełnym ekranie są tylko flagi tej hali, także w pasku pilnych; flaga Kasztana (Hala główna · boks 7) nie występuje, a skrót Hali głównej jest tylko liczbowy.
   - Przełącznik hal przechodzi na pełny ekran Hali głównej bez wracania do widoku wszystkich; „Wszystkie hale” wraca do sekcji wszystkich hal z paskiem pilnych obejmującym obie hale.
   - Zapisana hala wyłączona w panelu albo usunięta: po najbliższym odpytaniu strona pokazuje wszystkie hale. Wyczyszczony profil przeglądarki: wszystkie hale.
-  - Dwa telewizory na jednym koncie `display` pamiętają różne wybory niezależnie; serwer o wyborze nie wie.
+  - Dwa telewizory na jednym koncie z rolą Wyświetlacz pamiętają różne wybory niezależnie; serwer o wyborze nie wie.
 
 #### 4.3.3 Sieć
 - [ ] **N-01 Przed montażem w stajni pilotażowej:**
@@ -1866,7 +1935,7 @@ Zasady wspólne:
 
 Każdy scenariusz przechodzi automatycznie (backend, Playwright, Maestro, skrypt tabletu na sztuce z ADB) i ręcznie na stanowisku. Dane pochodzą z seedu z 3.2 (wt 13.10.2026, teraz 07:15): Hala główna, boksy 1–8 (Kasztan w boksie 7, wolny boks 3), i Hala nowa, boksy 1–6 (Grom 1, Mgła 2, Rumba 3, Bella 4, Bursztyn 5, wolny boks 6). Numery boksów powtarzają się między halami, więc skrypty i asercje odwołują się do boksów po `id` ze stałych UUID seedu, a interfejs zawsze pokazuje halę razem z numerem.
 
-A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia flag. Pop-upy, POTWIERDZAM, status „potwierdzona / niepotwierdzona”, sekcja „Wymaga potwierdzenia” i eskalacje są w nich dlatego, że tak jest ustawiona ta stajnia: czy flagi wymagają potwierdzenia, zależy od ustawień stajni (erd.md pkt 12 i 16). A-17…A-21 sprawdzają konfigurację per stajnia na obu stajniach z seedu; Stajnia Brzozowa ma jedną halę (boksy 1–6, Kometa w boksie 1, wolny boks 5), więc tam interfejs pokazuje sam numer boksu.
+A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia flag. Pop-upy, POTWIERDZAM, status „potwierdzona / niepotwierdzona”, sekcja „Wymaga potwierdzenia” i eskalacje są w nich dlatego, że tak jest ustawiona ta stajnia: czy flagi wymagają potwierdzenia, zależy od ustawień stajni (erd.md pkt 12 i 16). A-17…A-21 sprawdzają konfigurację per stajnia na obu stajniach z seedu; Stajnia Brzozowa ma jedną halę (boksy 1–6, Kometa w boksie 1, wolny boks 5), więc tam interfejs pokazuje sam numer boksu. A-22…A-25 sprawdzają konto firmy z NIP, dostęp do stajni (admin konta i przypisania per stajnia), logowanie telefonem i e-mailem, telewizor jako zwykłe konto i język tablicy per tablet.
 
 1. **A-01 Kasztan (Hala główna · boks 7): wet o 8:00, kowal o 15:00.**
    - [ ] O 03:14 Anna wybiera kafelek „Bez śniadania”: godziny podpowiadają się jako dziś 06:00–10:00, dopisuje notatkę „Wet o 8:00, koń na czczo” i zapisuje. O 03:16 wybiera „Nie na padok”, zmienia podpowiedziane godziny padoku na 14:30–16:00 i dopisuje „Kowal o 15:00”.
@@ -1984,23 +2053,44 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
       - panel (PanelBoksyBezAkcji): bez kolumny „Ostatnio ogarnięte”, w karcie „Przyciski obsługi” tylko „Woda” z linkiem do ustawień stajni.
 
       Zostają flagi i potwierdzenia (Bella „niepotwierdzona” z eskalacją, „Nie na padok” Kasztana 14:30–16:00), plan karmienia z WSTRZYMANE i „NAMOCZYĆ” (osobna funkcja), godziny posiłków jako plan („Następny posiłek: obiad 12:00”), wizyty (wet 08:00, kowal 15:00), zadania oraz „Woda” przy Hala nowa · boks 5 („Poidło ręczne · woda 06:55”, „WODA” na jego tablecie), bo „Woda” nie ma przełącznika. Wpisy zapisane przed wyłączeniem zostają w „Historii” (apka, panel), ale „OSTATNIE AKCJE” tabletu, „Ostatnie akcje” wyświetlacza i „Ostatnio” w apce pomijają zdarzenia wyłączonych przycisków [erd]. Makiety pokazują stajnię, która tych przycisków nie używa (wariant seedu z 3.2), więc „Historia” Kasztana i „OSTATNIE AKCJE” jego tabletu to tylko 4 zdarzenia flag z dziś (06:02 dwa potwierdzenia, 03:16 i 03:14 nowe flagi · Anna), a ostatnie akcje Hali nowej na wyświetlaczu to 06:55 Woda · boks 5 i 01:20 nowa flaga Belli; zrzuty porównujemy z makietami na seedzie wariantu bez zdarzeń z tych przycisków (propozycja). Po włączeniu przyciski, ich stan i plan padoku wracają.
-    - [ ] Ola (obsługa) i Ewa K. (klientka) nie mają ekranu „Ustawienia stajni”, a API daje im 403; Paweł dostaje 404 dla ustawień Stajni Pod Lipami. Zmiany w Pod Lipami nie zmieniają Stajni Brzozowej. Każda zmiana ma wpis audytu.
+    - [ ] Ola (obsługa) i Ewa K. (klientka) nie mają ekranu „Ustawienia stajni”, a API daje im 403; Paweł (obsługa tylko w Brzozowej) dostaje 404 dla ustawień Stajni Pod Lipami. Zmiany w Pod Lipami nie zmieniają Stajni Brzozowej. Każda zmiana ma wpis audytu.
 20. **A-20 Zmiana przełącznika potwierdzeń nie zmienia trwających flag.**
     - [ ] Stajnia Pod Lipami, 07:20: Damian wyłącza „Flagi wymagają potwierdzenia” (panel pokazuje „Dotyczy nowych flag. Flagi, które już trwają, zostają w swoim trybie.”). Flaga Belli (`requires_ack = true`) dalej jest „niepotwierdzona”, dalej ma pop-up na tablecie Hala nowa · boks 4 i jest w „Wymaga potwierdzenia”, a `escalation-scheduler` dalej ją eskaluje; TV (pasek pilnych, pełny ekran Hali nowej) i alert w panelu dalej pokazują Bellę jako niepotwierdzoną; potwierdzone flagi Kasztana zachowują „potwierdzona 06:02”.
     - [ ] O 07:25 Ola ustawia flagę dla Iskry (Hala główna · boks 1): `requires_ack = false`, obowiązuje od razu, bez pop-upu na tablecie i bez statusu u Karoliny W.
     - [ ] O 07:30 Damian włącza potwierdzenia z powrotem: flaga Iskry zostaje bez statusu i bez eskalacji; nowa flaga dla Groma (Hala nowa · boks 1) daje pop-up i „niepotwierdzona” do potwierdzenia.
-    - [ ] Stajnia Brzozowa: Paweł włącza potwierdzenia. Flaga Komety zostaje „obowiązuje od razu”, bez statusu i eskalacji; nowa flaga dla Lorda (boks 4) daje pop-up na tablecie i status „niepotwierdzona”. Po teście Paweł wyłącza potwierdzenia (stan z seedu).
+    - [ ] Stajnia Brzozowa: Damian (admin konta) włącza potwierdzenia. Flaga Komety zostaje „obowiązuje od razu”, bez statusu i eskalacji; nowa flaga dla Lorda (boks 4) daje pop-up na tablecie i status „niepotwierdzona”. Po teście Damian wyłącza potwierdzenia (stan z seedu). Paweł (obsługa) nie ma ekranu „Ustawienia stajni” (403).
 21. **A-21 Macierz widoczności per rola.**
     - [ ] W obu stajniach każda rola widzi w apce, panelu, na tablecie i na wyświetlaczu tylko funkcje zaznaczone w macierzy z seedu:
       - klient: w Pod Lipami Anna ma flagi, plan karmienia (KartaKonia), stan szybkich akcji, historię boksu (MojBoks), zdrowie (wet 08:00, kowal 15:00) i jazdy, bez zadań; w Stajni Brzozowej bez planu karmienia i jazd;
-      - obsługa: Ola w Pod Lipami ma wszystko poza diagnostyką, z zadaniami; w Stajni Brzozowej bez zadań i jazd;
-      - instruktor (konto `instructor` z seedu, w obu stajniach): flagi i jazdy (propozycja, jak na makietach);
-      - Wsparcie IT: tylko diagnostyka tabletów i wyświetlaczy, w obu stajniach, bez danych koni i klientów;
+      - obsługa: Ola w Pod Lipami ma wszystko poza diagnostyką, z zadaniami; w Stajni Brzozowej (Ola i Paweł) bez zadań i jazd;
+      - instruktor (Marta, w obu stajniach): flagi i jazdy (propozycja, jak na makietach);
+      - Wsparcie IT (Kuba): tylko diagnostyka tabletów i wyświetlaczy, w obu stajniach, bez danych koni i klientów;
       - wyświetlacz Pod Lipami: flagi, plan karmienia, szybkie akcje i ich stan, zadania, bez zdrowia i historii boksu; Stajnia Brzozowa wyświetlacza nie ma;
       - tablet: widoczność obsługi (propozycja, sekcja 5);
-      - admin (Damian, Paweł): wszystko, niezależnie od macierzy.
+      - admin konta firmy (Damian, w obu stajniach): wszystko, niezależnie od macierzy.
     - [ ] Damian odznacza klientowi „Plan karmienia”: przy najbliższym odpytaniu KartaKonia Anny w Pod Lipami nie ma planu, a trasa planu daje jej 403 (propozycja); po zaznaczeniu plan wraca. Zaznaczenie klientowi „Zadania” pokazuje Annie listę zadań, ale „Biorę” dalej daje 403, bo widoczność nie dodaje uprawnień (propozycja).
     - [ ] Ustawienia Pod Lipami nie zmieniają widoku Anny i Oli w Stajni Brzozowej.
+22. **A-22 Rejestracja konta firmy (Damian, retrospekcja z pn 07.09.2026).**
+    - [ ] Damian w PanelLogowanie wybiera „Telefon”, dostaje kod SMS-em i loguje się (PanelLogowanieKod). Konto nie ma hasła.
+    - [ ] PanelWitaj → PanelRejestracjaFirmy: „Stajnie Lipowe sp. z o.o.”, NIP 123-456-32-18, siedziba ul. Lipowa 12, 05-520 Konstancin-Jeziorna. Powstaje konto firmy, a Damian zostaje jego adminem. NIP zapisuje się jako 10 cyfr (propozycja).
+    - [ ] PanelZalozStajnie, krok 1: Stajnia Pod Lipami bez pytania o NIP, działalność, języki tabletów i potwierdzenia flag. Hala główna z boksami 1–8: lista boksów pojawia się od razu po zakresie, „Ustaw dla wszystkich” ustawia poidło automatyczne.
+    - [ ] PanelZalozPowiadomienia, krok 2: zdarzenia, odbiorcy (Admin, Obsługa stajni) i kanał SMS / e-mail; „Załóż stajnię” → PanelPulpitStart. W bazie stajnia, hala, boksy i `notification_rules` są zapisane razem; ustawienia stajni: wszystko włączone, z potwierdzeniami.
+    - [ ] Inna osoba rejestruje konto firmy z NIP „1234563218”: dostaje „Ten NIP ma już konto w eKoniuszy” (`409 tax_id_taken`, propozycja), nic się nie zapisuje, a konto Damiana się nie zmienia.
+23. **A-23 Druga stajnia i dostęp per stajnia (Damian, czw 01.10.2026).**
+    - [ ] Damian w panelu zakłada drugą stajnię (PanelZalozStajnie → PanelZalozPowiadomienia): Stajnia Brzozowa, ul. Brzozowa 5, 05-500 Piaseczno, jedna hala, boksy 1–6 z poidłem automatycznym. Nikt nie pyta o NIP ani o firmę: stajnia trafia do konta „Stajnie Lipowe sp. z o.o.”.
+    - [ ] Damian od razu ma w nagłówku „▾” z obiema stajniami, bez przypisywania. Nowa stajnia ma wszystko włączone; Damian zmienia ustawienia na te z seedu (PanelUstawieniaBrzozowa).
+    - [ ] Damian zaprasza Pawła SMS-em (PanelZaprosOsobe) jako Obsługę Stajni Brzozowej. Paweł po zalogowaniu widzi samą nazwę stajni, bez „▾”. Każdy obiekt Stajni Pod Lipami daje mu 404, a Piotrowi każdy obiekt Stajni Brzozowej.
+    - [ ] Damian przypisuje Olę (obsługa Pod Lipami) także do Stajni Brzozowej. Przy najbliższym odświeżeniu Ola ma przełącznik stajni, bez ponownego logowania. Po odebraniu przypisania Brzozowa daje jej 404, a Pod Lipami działa bez zmian.
+    - [ ] Admin drugiego konta firmy (fixture z innym NIP, propozycja) nie widzi żadnej stajni Damiana (404), a Damian jego stajni.
+24. **A-24 Telewizor jako zwykłe konto (Stajnia Pod Lipami).**
+    - [ ] Damian w „Zaproś osobę” wybiera rolę Wyświetlacz i kanał e-mail: tv.korytarz@stajnielipowe.pl, nazwa „Telewizor korytarz”. Osobnego formularza wyświetlacza i kont technicznych nie ma.
+    - [ ] Na telewizorze WyswietlaczLogowanie: „Telefon | E-mail” → e-mail → WyswietlaczKod z kodem z e-maila. Ekran pokazuje adres tylko zamaskowany (t•••@stajnielipowe.pl); potem widok wszystkich hal (A-08).
+    - [ ] W Ludziach telewizor jest członkiem z rolą Wyświetlacz (filtr po roli). Blokada konta: przy najbliższym odpytaniu TV pokazuje ekran logowania, bez starych flag.
+    - [ ] Każdy zapis tym kontem daje 403; odpowiedzi nie mają danych osobowych. Stajnia Brzozowa nie ma wyświetlacza.
+25. **A-25 Logowanie e-mailem i język tablicy.**
+    - [ ] Kuba (Wsparcie IT, zaproszony e-mailem k•••@stajnielipowe.pl) loguje się w panelu e-mailem i kodem z e-maila i widzi tylko diagnostykę w obu stajniach.
+    - [ ] Ola loguje tablet Hala nowa · boks 5 przez „TELEFON | E-MAIL”, raz SMS-em, raz e-mailem; tablica nie pokazuje, kto jest zalogowany.
+    - [ ] W ukrytych ustawieniach tego tabletu ktoś wybiera język UA: tablica jest po ukraińsku (pory posiłków z etykiet `*_labels`, gdy są), a tablet Hala główna · boks 7 dalej po polsku. Język zostaje po restarcie i ponownym logowaniu; serwer o nim nie wie, a stajnia nie ma ustawienia języków.
 
 ### 4.5 Stanowisko testowe i kryteria gotowości do wdrożenia
 
@@ -2008,14 +2098,14 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 - Sprzęt (sekcja 1):
   - 1× Boox Note Air6 C (kolorowy 10,3", Android 16) z zasilaczem USB-C PD 20–30 W;
   - Raspberry Pi 5 4 GB z oficjalnym zasilaczem 27 W, obudową z wentylatorem, microSD 64 GB A2 i kablem micro-HDMI → HDMI;
-  - własne: TV albo monitor z HDMI, domowe Wi-Fi, własny telefon (SMS), klawiatura i mysz USB.
+  - własne: TV albo monitor z HDMI, domowe Wi-Fi, własny telefon (SMS), własna skrzynka e-mail (kody e-mailem, adres zweryfikowany w sandboxie SES), klawiatura i mysz USB.
 - Co tu przechodzi:
   - bramka tabletu (punkty (B) z 4.3.1) i pozostałe testy T-xx na jednej sztuce, z paletą `t-*` w profilu właściwym dla ekranu; cykle zasilania (T-08) ręcznie wtyczką zasilacza, dopóki nie ma przekaźników, a testy wymagające komory albo dwóch AP (T-14, T-22) dopiero na stanowisku;
   - T-20, T-21 i K-01…K-05, K-07 w kolorze, a wariant czarno-biały (K-06) tylko na zrzutach przeliczonych na szarość;
   - T-28 i A-10 z jednym tabletem: drugim tabletem jest emulator albo skrypt odpytujący `board` z `X-Box-Id` drugiego boksu (propozycja); boks 4 obu hal wybiera się przez „Zmień boks”;
   - A-17 i A-18 na tablecie: ten sam tablet przełączony w ukrytych ustawieniach na Stajnię Brzozową (boks 1) albo emulator (propozycja);
   - testy W na własnym TV albo monitorze, w tym W-29 (pełny ekran hali po restarcie); testy porównawcze (NVMe, obudowa pasywna, drugi telewizor) dopiero na stanowisku;
-  - SMS OTP na własnym telefonie; pełna lista sieci z 1.4 dopiero na stanowisku.
+  - SMS OTP na własnym telefonie i e-mail OTP na własnej skrzynce (także logowanie TV e-mailem); pełna lista sieci z 1.4 i skrzynek z 4.1 dopiero na stanowisku.
 - Dokupić tylko, jeśli coś nie zadziała:
   - Samsung Galaxy Tab Active5, gdy T-01 albo T-02 nie przejdą na Boox: wzorzec Device Owner i plan B;
   - Boox Go 10.3 Gen II Lumi do testu prawdziwego czarno-białego ekranu (K-06, T-20, T-21).
@@ -2048,9 +2138,9 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
   - kontrakty API, zdarzeń i bazy;
   - bramka zakazanych obiektów;
   - migracje N-1 → N;
-  - pełna macierz izolacji, bez żadnej trasy bez testu.
+  - pełna macierz izolacji (stajnie bez dostępu i drugie konto firmy), bez żadnej trasy bez testu.
 - [ ] Test obciążenia w docelowej skali przeszedł, a wyniki są zapisane jako linia bazowa.
-- [ ] Wszystkie scenariusze A-01…A-21 przechodzą automatycznie i na stanowisku (z seedem obu stajni); w stajni pilotażowej A-01…A-16 oraz te części A-17…A-21, które pasują do jej ustawień (propozycja).
+- [ ] Wszystkie scenariusze A-01…A-25 przechodzą automatycznie i na stanowisku (z seedem obu stajni i fixture'em drugiego konta firmy); w stajni pilotażowej A-01…A-16 oraz te części A-17…A-25, które pasują do jej ustawień (propozycja).
 - [ ] **Tablet:**
   - 100% autostartów do Lock Task w serii cykli zasilania;
   - 100% aktualizacji APK udanych albo bezpiecznie przerwanych;
@@ -2066,14 +2156,14 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
   - opóźnienie flagi w p95 i trafność dotyku w rękawicach w ustalonych progach;
   - działa w najniższej temperaturze zanotowanej w hali pilotażowej.
 - [ ] Wyświetlacz pracuje tygodniami bez interwencji, po zaniku prądu sam wraca do zapamiętanego widoku (wszystkie hale albo pełny ekran hali, na którym są tylko flagi tej hali) i nie ma śladów retencji.
-- [ ] SMS OTP dochodzi we wszystkich testowanych sieciach w ustalonym czasie. Odzyskiwanie dostępu działa. Global sign-out i blokada konta odbierają dostęp w zmierzonym czasie.
+- [ ] SMS OTP dochodzi we wszystkich testowanych sieciach, a e-mail OTP do testowanych skrzynek, w ustalonym czasie. Odzyskiwanie dostępu działa. Global sign-out i blokada konta odbierają dostęp w zmierzonym czasie.
 - [ ] Eskalacja działa przy martwym tablecie (A-02). Dla flag z `requires_ack` (w stajni, która wymaga potwierdzeń) to jedyne zabezpieczenie, bo stanu tabletów nie śledzimy; flaga zapisana w stajni bez potwierdzeń (zależy od ustawień stajni) obowiązuje od razu i nie eskaluje (A-18), a trwająca niepotwierdzona flaga eskaluje także po wyłączeniu przełącznika (A-20).
 - [ ] Zmiana czasu przeszła bez błędów, w symulacji albo na stanowisku.
 - [ ] **Przećwiczone runbooki:**
   - wymiana tabletu i jego provisioning;
   - odzyskanie zablokowanego tabletu;
   - zmiana Wi-Fi w stajni;
-  - ponowne logowanie tabletu i telewizora;
+  - ponowne logowanie tabletu i telewizora (telefonem albo e-mailem i kodem);
   - cofnięcie wydania APK;
   - redrive z DLQ;
   - odtworzenie bazy (po stronie platformy).
@@ -2082,10 +2172,20 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 
 ## 5. Decyzje do podjęcia przed startem
 
+**Rozstrzygnięte 13.10.2026** (decyzje właściciela produktu; mają pierwszeństwo przed wcześniejszymi propozycjami)
+- **Logowanie i e-mail.** Oprócz telefonów obsługujemy e-maile: logowanie w apce, panelu, na tablecie i TV numerem telefonu albo e-mailem, kod SMS-em albo e-mailem (`SMS_OTP`, `EMAIL_OTP`, e-maile przez SES), konta bez hasła; zaproszenia SMS-em albo e-mailem (2.4, 2.6, 3.5). TOTP bez zmian, dalej otwarte (pkt 1).
+- **Tylko B2B.** Konto to konto firmy z NIP; jedno konto, jeden NIP. NIP podaje się raz, przy rejestracji (PanelRejestracjaFirmy); „Załóż stajnię” nie pyta o NIP ani o działalność (3.3 `stable`).
+- **Admin konta firmy.** Admin ma dostęp do wszystkich stajni firmy, także nowych, bez przypisywania. Pozostałe role przypisuje się per stajnia; jedna osoba może mieć kilka stajni (3.1.9, 3.3 `access`).
+- **Telewizor.** Zwykłe konto z rolą Wyświetlacz, telefon albo e-mail i kod, zaproszenie przez „Zaproś osobę”; bez kont technicznych i osobnego formularza (pkt 3).
+- **Język tablicy per tablet.** Bez języków na poziomie stajni (bez `stable_locales`); tłumaczenia nazw zostają jako opcjonalne etykiety (3.5.2).
+- **Boksy z ustawieniami przy tworzeniu** (Załóż stajnię, „Dodaj halę”): lista boksów z numerem, poidłem i „Więcej ustawień ›”, akcja „Ustaw dla wszystkich” (3.3 `stable`).
+- **Zakładanie stajni w 2 krokach.** Krok 1 bez pytania o potwierdzenia flag (nowa stajnia ma wszystko włączone, także potwierdzenia), krok 2 powiadomienia: zdarzenia, odbiorcy, kanał SMS albo e-mail (`notification_rules`).
+- **Strona www przed logowaniem:** prezentacja i blog (3.5.5); gdzie żyje: pkt 51.
+
 **Blokują etap 1 (Cognito)**
-1. **TOTP a logowanie SMS bez hasła.** W Cognito oba wykluczają się dla tego samego użytkownika. Kto ma mieć TOTP i w jakim przepływie, np. tylko admin panelu z hasłem? Jak ma działać „Użyj aplikacji uwierzytelniającej” z makiety Logowanie?
-2. **Logowanie recenzentów Apple i Google**, którzy nie odbiorą SMS. Do wyboru: konto demo z innym sposobem logowania w osobnym kliencie albo tryb demo uzgodniony z Apple. Custom SMS sender w produkcji odpada.
-3. **Konto `display`.** Jak się loguje (SMS na własny numer, unikalny w puli, albo e-mail OTP)? Kto loguje telewizor przy instalacji i po wygaśnięciu sesji? Jedno konto na wszystkie telewizory czy osobne konto na każdy: erd.md dopuszcza oba warianty, wybiera admin [erd]; do ustalenia, który zalecamy przy instalacji.
+1. **TOTP a logowanie bez hasła (SMS albo e-mail).** W Cognito oba wykluczają się dla tego samego użytkownika. Kto ma mieć TOTP i w jakim przepływie, np. tylko admin panelu z hasłem? Jak ma działać „Użyj aplikacji uwierzytelniającej” z makiety Logowanie? Nowe plansze logowania TOTP nie pokazują.
+2. **Logowanie recenzentów Apple i Google.** Rozstrzygnięte (propozycja): recenzent nie odbierze SMS, więc loguje się na konto demo e-mailem i kodem z e-maila, tak samo jak inni użytkownicy, bez osobnego klienta i bez custom SMS sendera. Dostęp do skrzynki konta demo podajemy w notatce do recenzji. Czy Apple i Google akceptują kod z e-maila z udostępnionej skrzynki: [niepotwierdzone]; zapasem jest tryb demo uzgodniony z Apple.
+3. **Konto `display`.** Rozstrzygnięte: telewizor loguje się zwykłym kontem z rolą Wyświetlacz, telefonem albo e-mailem i kodem, tak samo jak wszędzie (w seedzie e-mailem). Konto zaprasza admin przez „Zaproś osobę”. Telewizor przy instalacji loguje osoba wdrażająca, a po wygaśnięciu sesji admin albo Wsparcie IT (propozycja). Otwarte zostaje tylko zalecenie: jedno konto na kilka telewizorów czy osobne na każdy (erd.md dopuszcza oba).
 4. **Czasy życia tokenów i rotacja dla klientów tabletu i wyświetlacza.** Decydują, jak szybko global sign-out i blokada konta zadziałają i jak często trzeba ponownie logować sprzęt na miejscu.
 5. **Global sign-out a tablety.** Czy wylogowanie użytkownika może wylogować wszystkie tablety na jego koncie? Czy tablety mają używać osobnego konta obsługi, np. jednego na halę? Akcje z tabletu i tak nie mają autora (`source = tablet`), a tablica nie pokazuje, kto jest zalogowany [erd], więc wybór konta wpływa tylko na uprawnienia (np. które boksy są na liście „Zmień boks”) i na skutki wylogowania.
 
@@ -2101,7 +2201,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 13. Środowisko stajni pilotażowej:
     - test, prod czy osobny pilot;
     - z jaką pulą Cognito;
-    - czy SMS jest już poza sandboxem;
+    - czy SMS i SES są już poza sandboxem;
     - co dzieje się z danymi po wdrożeniu.
 14. Zdalny dostęp do Pi (SSH, Raspberry Pi Connect albo inne narzędzie).
 15. Sposób przechowywania tokenów w panelu i na wyświetlaczu: pamięć i storage przeglądarki albo cienki BFF z ciasteczkiem httpOnly.
@@ -2165,8 +2265,14 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 **Konfiguracja per stajnia** (erd.md pkt 16; do potwierdzenia przed etapem 2)
 
 48. **Wyłączenie flagi przy flagach, które już trwają.** erd.md mówi, że wyłączona opcja znika razem ze swoim stanem. Propozycja: przy wyłączeniu szablonu (np. Derki) znika kafelek i nie da się zapisać nowej flagi, ale flagi, które już trwają, obowiązują i są widoczne do końca okna (bezpieczeństwo konia, np. trwająca „Bez śniadania” przed wetem). Alternatywa: ukrycie także trwających flag.
-49. **Domyślna widoczność per rola dla nowej stajni.** erd.md: „wszystko włączone, łącznie z potwierdzeniami”. Czy to dotyczy też macierzy ról (np. `display` i `it_support` widzą wszystkie funkcje; uprawnienia ról i tak ograniczają zapis), czy nowa stajnia dostaje węższą macierz, np. jak Stajnia Pod Lipami (propozycja do decyzji).
+49. **Domyślna widoczność per rola dla nowej stajni.** erd.md: „wszystko włączone, łącznie z potwierdzeniami”; decyzja z 13.10 potwierdza to dla ustawień nowej stajni (zakładanie nie pyta o potwierdzenia), ale nie mówi o macierzy ról. Czy to dotyczy też macierzy ról (np. `display` i `it_support` widzą wszystkie funkcje; uprawnienia ról i tak ograniczają zapis), czy nowa stajnia dostaje węższą macierz, np. jak Stajnia Pod Lipami (propozycja do decyzji).
 50. **Widoczność na tablecie.** Tablet nie jest rolą w macierzy, a tablica nie zależy od zalogowanej osoby. Propozycja: tablet używa widoczności roli Obsługa (`staff`) w tej stajni. Do tego: widoczność instruktora w danych demo (arkusz jej nie podaje; propozycja: Flagi i Jazdy, jak na makietach).
+
+**Konto firmy i strona www** (po decyzjach z 13.10.2026)
+
+51. **Gdzie żyje strona www** (prezentacja i blog, 3.5.5): statyczna strona czy CMS. Propozycja: statyczny generator w monorepo (`apps/www`), wpisy w Markdown w repo, build w CI, hosting statyczny na domenie głównej; CMS dopiero, gdy wpisy będzie pisał ktoś bez dostępu do repo. Hosting i domenę wybiera Dawid.
+52. **Sprawdzanie NIP przy rejestracji.** Propozycja na PoC: tylko format i suma kontrolna, bez sprawdzania w rejestrach (GUS, VIES). Do ustalenia: co, gdy NIP zajęło konto, do którego właściciel firmy nie ma dostępu (np. były pracownik); propozycja: przejęcie przez zespół eKoniuszy po weryfikacji, bez UI na PoC.
+53. **Reguły powiadomień** (`notification_rules`, erd.md pkt 17): które zdarzenia pokazać w kroku 2 i co zaznaczyć domyślnie w nowej stajni (propozycja: eskalacja niepotwierdzonej flagi do admina SMS-em i e-mailem, jak na makietach pulpitu).
 
 ## Źródła
 

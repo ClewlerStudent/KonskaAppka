@@ -1,20 +1,23 @@
 # KonskaAppka: model danych (ERD) do zatwierdzenia
 
-> Wersja robocza v3 · 2026-10-12, po feedbacku ze stajni. Uwzględnia decyzje:
+> Wersja robocza v3 · 2026-10-13, po feedbacku ze stajni i uwagach z 13.10. Uwzględnia decyzje:
+> - wyłącznie B2B: konto firmy z NIP (`businesses`, 1 konto = 1 NIP), NIP podaje się raz, przy rejestracji; admin konta ma dostęp do wszystkich stajni firmy;
 > - każdy moduł i każdy cron to osobny mikroserwis w monorepo;
 > - płatności (serwis `billing`);
 > - Cognito jako serwer autoryzacji (OTP przez SMS albo e-mail i TOTP z RFC 6238);
 > - pliki w S3;
 > - koń i boks w relacji 0..1 do 0..1 (koń może stać bez boksu, boks bez konia);
 > - bez WebSocketów i bez outboxów; zdarzenia między serwisami idą przez SNS + SQS;
-> - użytkownik logowany na tabletach; boks wybiera się na tablecie przyciskiem „Zmień boks”, a wybór jest zapamiętany na tablecie (bez blokady i bez tabeli urządzeń);
+> - użytkownik logowany na tabletach; boks wybiera się na tablecie przyciskiem „Zmień boks”, a wybór jest zapamiętany na tablecie (bez blokady i bez tabeli urządzeń); język tablicy też ustawia się na każdym tablecie osobno;
+> - telewizor loguje się zwykłym kontem z rolą Wyświetlacz, bez kont technicznych;
 > - stajnia może mieć kilka hal z boksami (`buildings`), każda z własnym adresem;
 > - status flagi to tylko „potwierdzona” albo „niepotwierdzona” (w stajni, która wymaga potwierdzeń), bez śledzenia wyświetleń na tablecie;
 > - boks jako kontener: obsługa zapisuje „Ogarnięte” jednym tapnięciem, a posiłki i padok jedną akcją dla całej hali; klient widzi boks swojego konia;
 > - flagi mają godziny od–do i tylko one mogą wymagać potwierdzenia obsługi; czy wymagają, zależy od ustawień stajni;
-> - ustawienia per stajnia: usługi (np. derki, moczenie paszy, szybkie przyciski), potwierdzenia flag i widoczność per rola;
-> - role: Klient (właściciel albo dzierżawca konia), Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz;
-> - działalność → stajnie → hale → boksy (`businesses`);
+> - ustawienia per stajnia: usługi (np. derki, moczenie paszy, szybkie przyciski), potwierdzenia flag, widoczność per rola i powiadomienia;
+> - zakładanie stajni w 2 krokach: stajnia (z konfiguracją każdego boksu), potem powiadomienia;
+> - role: Admin to rola konta firmy (wszystkie stajnie firmy); w stajni: Klient (właściciel albo dzierżawca konia), Obsługa, Instruktor, Wsparcie IT, Wyświetlacz;
+> - konto firmy → stajnie → hale → boksy (`businesses`);
 > - sesje tylko w Cognito, bez tabel sesji w bazie.
 
 ## Do zatwierdzenia
@@ -32,6 +35,7 @@
    - Jeden użytkownik może być zalogowany na kilku tabletach naraz i wszędzie widzi te same dane, bo decydują jego uprawnienia.
    - Tablet pokazuje jeden boks. Wybrany boks zapamiętuje apka na tablecie. Serwer o tym wyborze nie wie, a jeden boks może być pokazywany na kilku tabletach.
    - Nie ma blokady boksu. Na tablicy jest przycisk „Zmień boks”, który otwiera listę boksów pogrupowaną po halach. Stuknięcie w boks od razu przełącza tablet. Bez wyboru tablet po 30 s wraca do poprzedniego boksu.
+   - **Język tablicy to ustawienie lokalne tabletu**, tak jak wybrany boks: ustawia się go w ustawieniach tabletu, osobno na każdym tablecie, a przełącznik PL | UA w stopce tablicy zostaje. Wybór zapamiętuje apka na tablecie i wysyła go w zapytaniu do `board` (propozycja). Bez tabeli i bez języków na poziomie stajni. Tłumaczenia nazw (np. pory posiłków po ukraińsku) to opcjonalne etykiety `*_labels` z `locale`; gdy etykiety w danym języku nie ma, tablica pokazuje nazwę po polsku (propozycja).
    - Tablica boksu nie pokazuje, kto jest zalogowany. Logowanie i wylogowanie są w ustawieniach tabletu.
    - Wylogowanie użytkownika ze wszystkich urządzeń robi Cognito (global sign-out).
    - Tablety są stale włączone i zalogowane, więc akcji z tabletu (potwierdzenie flagi, „Ogarnięte”, „Woda” przy poidle ręcznym, „Podano śniadanie” i „Wyprowadzono na padok” dla hali tego boksu) nie przypisujemy zalogowanej osobie. Zapisujemy `source = tablet`, boks i czas. Osobę zapisujemy tylko przy akcjach z apki albo panelu.
@@ -47,7 +51,7 @@
      - na tablecie jest zalogowany jeden użytkownik naraz (pilnuje apka);
      - boks może zmienić każdy, kto stoi przy tablecie;
      - ustawienia tabletu otwiera się dłuższym przytrzymaniem, żeby nikt nie trafił w nie przypadkiem;
-     - po wylogowaniu tablet pamięta wybrany boks i wraca do niego po kolejnym logowaniu.
+     - po wylogowaniu tablet pamięta wybrany boks i język i wraca do nich po kolejnym logowaniu.
 3. **Boks jako kontener, rutyna obsługi i widok klienta.**
    - Boks ma tylko podstawowe dane. Codzienna rutyna obsługi to trzy szybkie akcje, żeby było jak najmniej klikania:
      - **„Ogarnięte”** (sprzątanie i ścielenie razem): per boks, jedno tapnięcie na tablecie przy boksie albo zaznaczenie kilku boksów w apce i jeden zapis. Wpis trafia do `box_care_events` (`kind = tidy`). Boks ogarnia się codziennie, czasem 2–3 razy dziennie, więc wpisów może być kilka, a „Ogarnięte dziś 07:10” to najnowszy.
@@ -55,7 +59,7 @@
      - **„Wyprowadzono na padok”**: jedna akcja dla całej hali (`kind = paddock_out`), też z apki albo z tabletu. Obejmuje konie z planem padoku na teraz i pomija konie z flagą „Nie na padok” obowiązującą w tym czasie.
      - Zasada spójności: gdzie pokazujemy, kiedy coś zrobiono (posiłek, padok, ogarnięcie), obsługa ma też przycisk, żeby to zapisać. Tablet przy boksie ma więc trzy szybkie akcje: „Ogarnięte” (ten boks), posiłek i padok (cała hala), o ile stajnia ich nie wyłączyła (pkt 16). Klient i wyświetlacz tylko je oglądają.
      - Każdą akcję można cofnąć przez godzinę od zapisu (`cancelled_at`, propozycja), np. gdy ktoś stuknął niewłaściwą halę. Z tabletu akcja nie ma autora, z apki ma.
-   - **Poidło to ustawienie boksu** (`boxes.auto_waterer`). Ustawia je admin w szczegółach boksu, a nowy boks ma domyślnie poidło automatyczne (wartość nadaje kod).
+   - **Poidło to ustawienie boksu** (`boxes.auto_waterer`). Ustawia je admin już przy tworzeniu boksów (pkt 11) albo później w szczegółach boksu. Formularz podpowiada poidło automatyczne (wartość nadaje kod).
      - Przy automatycznym poidle znacznik wody nie wyświetla się nigdzie, bo zawsze jest w porządku.
      - Boks z poidłem ręcznym (np. wiadro, gdy automat czeka na wymianę) pokazuje na tablecie, wyświetlaczu, w apce i panelu znacznik „Poidło ręczne” z godziną ostatniego dolania. Ma też szybką akcję „Woda” (`box_care_events.kind = water`), dostępną tylko dla takiego boksu.
    - Nie ma osobnych wpisów „siano” i „karma”.
@@ -72,12 +76,12 @@
    - Każde zaproszenie ma obowiązkowy termin ważności (`invitations.expires_at`, domyślny czas ustawia kod). Po terminie nie da się go przyjąć, a admin może wysłać nowe.
 4. **Wyświetlacz centralny (TV z Raspberry Pi).**
    - Telewizor z Raspberry Pi otwiera w przeglądarce, w trybie kiosku, stronę panelu web z widokiem wszystkich boksów. Strona sama odpytuje serwer co kilka sekund, tak jak tablet.
-   - Wyświetlacz loguje się raz na konto techniczne stajni z rolą `display` w `stable_members` (np. `wyswietlacz-korytarz`). Konto zakłada admin w ustawieniach; sesję podtrzymuje Cognito, a admin może konto zablokować.
+   - Wyświetlacz loguje się zwykłym kontem z rolą `display` w `stable_members`: numerem telefonu albo e-mailem i kodem z SMS-a albo e-maila, tak jak każde konto (pkt 6). Konto zaprasza admin przez „Zaproś osobę” z rolą Wyświetlacz (`invitations.role = display`). Nie ma kont technicznych, nazw kont ani osobnego formularza wyświetlacza. Sesję podtrzymuje Cognito, a admin blokuje konto jak każde członkostwo (`stable_members.active`).
    - Rola `display` daje tylko odczyt widoku wszystkich boksów: konie, flagi, posiłki, zdarzenia przy boksie. Bez danych osobowych (telefony, e-maile) i bez zapisu.
    - Przy kilku halach strona pokazuje wszystkie hale, każdą w osobnej sekcji.
    - Każda sekcja hali ma przycisk „Pełny ekran”. Hala zajmuje wtedy cały ekran, większymi kaflami, a pasek pilnych flag i panel boczny pokazują tylko tę halę. Przycisk „Wszystkie hale” wraca do widoku wszystkich.
    - Wybór widoku zapamiętuje przeglądarka na tym telewizorze, tak jak tablet pamięta wybrany boks. Telewizor w hali głównej ustawia się więc raz na pełny ekran tej hali (myszką przy instalacji albo pilotem przez HDMI-CEC). Serwer o tym nie wie i nie potrzeba tabeli wyświetlaczy.
-   - Jedno konto `display` może obsłużyć wszystkie telewizory. Admin może też założyć osobne konto na każdy telewizor, jeśli chce blokować je pojedynczo.
+   - Jedno konto `display` może obsłużyć wszystkie telewizory stajni. Admin może też zaprosić osobne konto na każdy telewizor (np. osobny e-mail), jeśli chce blokować je pojedynczo.
    - Gdy boksów jest dużo, strona zmniejsza kafle do wersji skróconej (numer, koń, flaga, posiłki). Jeśli dalej się nie mieszczą, przełącza strony co 20 s. Pasek pilnych flag zostaje zawsze na górze. W widoku wszystkich hal obejmuje wszystkie hale, a na pełnym ekranie tylko tę halę.
    - Nie potrzeba nowych tabel.
 5. **Jedna baza: schemat `app` dla wszystkich serwisów i osobny schemat `audit`.**
@@ -97,7 +101,8 @@
    - Serwis `identity` tworzy wiersz `users` przy pierwszym uwierzytelnionym żądaniu (upsert po `cognito_sub`).
    - Usunięcie konta to pseudonimizacja w `users` i usunięcie konta w Cognito.
    - Zaproszenie nie ma własnego tokenu: po zalogowaniu przez Cognito serwis `access` dopasowuje zweryfikowany telefon albo e-mail z tokenu do `invitations.target`.
-   - Tablet wysyła token zalogowanego użytkownika i identyfikator (`id`) wybranego boksu.
+   - Tablet wysyła token zalogowanego użytkownika, identyfikator (`id`) wybranego boksu i język tablicy (pkt 2).
+   - Rejestracja konta firmy to pierwsze logowanie (telefon albo e-mail i kod) i formularz z NIP-em (pkt 15).
 7. **Pliki w S3.**
    - `files` trzyma metadane, `s3_key` (z prefiksem `stable_id/`) i właściciela (`owner_service`, `owner_id`).
    - Link do pobrania wydaje tylko serwis-właściciel po sprawdzeniu uprawnień. Na przykład `health` sprawdza widoczność wpisu i dostęp do konia, a dopiero potem prosi `files` o krótko ważny presigned URL.
@@ -115,7 +120,8 @@
    - E-maile z `notifications` mogą iść przez SES (adapter `EmailSender`).
 9. **Sloty posiłków i padoki należą do `care`, a kryte ujeżdżalnie (`arenas`) do `rides`**, bo te serwisy z nich korzystają. Ujeżdżalnie to co innego niż hale z boksami (`buildings`).
 10. **Płatności (`billing`).**
-   - Płaci stajnia: ma konto rozliczeniowe (dane do faktury) i subskrypcję planu.
+   - Płaci stajnia: ma konto rozliczeniowe (dane do faktury) i subskrypcję planu. Czy zamiast niej ma płacić konto firmy, zob. „Otwarte kwestie”.
+   - NIP pochodzi z konta firmy: kod kopiuje `businesses.tax_id` do `billing_accounts.tax_id` przy zakładaniu stajni, razem z nazwą, adresem siedziby i e-mailem do faktur (propozycja). NIP-u nie wpisuje się w stajni ani w płatnościach.
    - Comiesięczny cron zapisuje zużycie (np. boksy z koniem). Z niego powstaje faktura z pozycjami, a płatności przychodzą od dostawcy przez webhooki.
    - Kwoty są w groszach (`bigint`).
    - Status subskrypcji steruje `stables.status`: brak płatności daje `suspended`.
@@ -124,10 +130,13 @@
    - Stajnia może mieć kilka hal. Hala to wiersz w `buildings` (nazwa nadana przez admina, kolejność, aktywność). Każdy boks należy do jednej hali (`boxes.building_id`, wymagane).
    - Hala ma własny adres (`address_line1`, `address_line2`, `postal_code`, `city`, `country_code`), bo hale jednej stajni mogą stać pod różnymi adresami. Adres widać w panelu przy hali i w szczegółach boksu.
    - Nowa stajnia dostaje od kodu jedną halę. Dopóki stajnia ma jedną halę, apka, panel, tablet i wyświetlacz nie pokazują podziału na hale.
-   - Adres pierwszej hali to adres podany przy zakładaniu stajni.
+   - Adres pierwszej hali to adres podany przy zakładaniu stajni, a jej boksy podaje się w pierwszym kroku „Załóż stajnię” (pkt 17).
+   - **Boksy konfiguruje się od razu przy tworzeniu** („Załóż stajnię” i „Dodaj halę”):
+     - po podaniu zakresu numerów („od 1 do 6”) widać listę boksów, a każdy wiersz ma swoje ustawienia: numer (`boxes.label`) i poidło automatyczne albo ręczne (`boxes.auto_waterer`); akcja „Ustaw dla wszystkich” zmienia ustawienie we wszystkich wierszach;
+     - „Więcej ustawień” to miejsce na kolejne ustawienia boksu. Dojdą jako kolumny `boxes` i będą w tym samym wierszu przy tworzeniu i w szczegółach boksu.
    - Nową halę dodaje admin w panelu web: Boksy i konie → „Dodaj halę”.
      - Podaje nazwę i adres (może skopiować adres innej hali).
-     - Potem wybiera jedno: dodaje nowe boksy z zakresu numerów (każda hala numeruje boksy od siebie, np. od 1; nowe boksy mają domyślnie poidło automatyczne), przenosi istniejące boksy albo zostawia halę pustą.
+     - Potem wybiera jedno: dodaje nowe boksy z zakresu numerów i od razu konfiguruje każdy (wyżej; każda hala numeruje boksy od siebie, np. od 1), przenosi istniejące boksy albo zostawia halę pustą.
      - Serwis `stable` zapisuje halę i boksy w jednej transakcji i dopisuje audyt.
      - Innym serwisom nic nie trzeba wysyłać: tablet („Zmień boks”) i wyświetlacz widzą nową halę przy najbliższym odpytaniu.
    - Usunąć można tylko pustą halę. Halę z boksami trzeba najpierw opróżnić (przenieść boksy) albo wyłączyć (`active = false`).
@@ -149,18 +158,28 @@
    - **Flaga „Derka”** (szablon `derka`) ma wariant `horse_flags.variant`: `on` znaczy zakładać, `off` nie zakładać. Jest tylko w stajni, która oferuje zakładanie derek (szablon aktywny, pkt 16).
    - Termin potwierdzenia i eskalacje (`ack_deadline_at`, `warn_at`, `notify_at`) liczy się od początku okna flagi i tylko dla flag z `requires_ack`.
 13. **Zadania jednorazowe.**
-   - Zadanie wpisuje admin, czyli zarządca albo właściciel stajni, np. „Poidło w boksie 5 do wymiany”. Może wskazać halę, boks albo konia.
+   - Zadanie wpisuje admin (zarządca albo właściciel, rola konta firmy z pkt 14), np. „Poidło w boksie 5 do wymiany”. Może wskazać halę, boks albo konia.
    - Stajenny w apce sam wybiera zadanie z listy i bierze je na siebie („Biorę”: `taken_by`, `taken_at`), a potem oznacza jako zrobione (`done_by`, `done_at`). Tablet zadań nie obsługuje, bo potrzebna jest osoba.
    - Zadań cyklicznych nie ma, więc odpadają `task_occurrences` i cron `task-occurrence-generator`. Codzienną rutynę obsługują szybkie akcje z pkt 3.
 14. **Role.**
-   - `stable_members.role`: `admin` (zarządca albo właściciel stajni), `staff` (obsługa), `instructor`, `it_support`, `display` (konto telewizora), `client` (klient, pkt 3).
+   - **Admin to rola konta firmy**, a nie stajni: tabela `business_admins` (`business_id`, `user_id`, `created_at`; PK złożony `business_id`, `user_id`) (propozycja).
+     - Admin konta (właściciel albo zarządca) ma dostęp do wszystkich stajni firmy, także nowych, bez przypisywania. Nie potrzebuje wiersza w `stable_members`.
+     - Wszystko, co jest „tylko dla admina” (ustawienia stajni, reguły powiadomień, hale, poidło, zadania, zaproszenia), może admin konta, do którego należy stajnia (`stables.business_id`). Admin innego konta firmy tej stajni nie widzi.
+     - Pierwszego admina zapisuje rejestracja konta firmy (pkt 15). Dodawanie kolejnych adminów konta jest poza PoC (propozycja).
+   - Pozostałe role przypisuje się per stajnia w `stable_members.role`: `staff` (obsługa), `instructor`, `it_support`, `display` (konto telewizora, pkt 4), `client` (klient, pkt 3). Jedna osoba może mieć członkostwa w kilku stajniach (jedno na stajnię: `stable_id` z `user_id` są unikalne), np. obsługa w dwóch stajniach tej samej firmy; apka przełącza wtedy stajnię.
    - **Wsparcie IT** (`it_support`, dawniej „serwisant”, co myliło się z weterynarzem): techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami.
-15. **Działalność → stajnie → hale → boksy.**
-   - Jedna działalność (`businesses`) może mieć kilka stajni (`stables.business_id`). Tabela jest od razu, żeby nie migrować później.
-   - Uprawnienia, dane i izolacja zostają na poziomie stajni (`stable_id`). Płatności też zostają przy stajni, bez rozbudowy (zob. „Otwarte kwestie”).
+15. **Konto firmy (B2B) → stajnie → hale → boksy.**
+   - Zakładamy wyłącznie konta firm. Konto firmy to wiersz w `businesses`:
+     - `tax_id`: NIP, z unikalnym indeksem, więc 1 konto = 1 NIP. Drugą rejestrację z tym samym NIP-em odrzuca indeks, a panel mówi „Ten NIP ma już konto w eKoniuszy”;
+     - `name`: nazwa firmy;
+     - adres siedziby: `address_line1`, `address_line2`, `postal_code`, `city`, `country_code` (jak adres hali);
+     - `invoice_email`: e-mail do faktur.
+   - Konto firmy zakłada się samodzielnie przy rejestracji: po pierwszym logowaniu osoba podaje NIP i dane firmy, a serwis `stable` zapisuje w jednej transakcji `businesses` i ją jako admina konta (`business_admins`). NIP podaje się raz.
+   - Stajnie dodaje admin konta („Załóż stajnię”, pkt 17) bez ponownego pytania o NIP i dane firmy: nowa stajnia dostaje `business_id` konta.
+   - Jedno konto firmy może mieć kilka stajni (`stables.business_id`). Dane i izolacja zostają na poziomie stajni (`stable_id`); wyjątkiem jest admin konta, który ma dostęp do wszystkich stajni firmy (pkt 14). Płatności zostają przy stajni, a NIP pochodzi z konta firmy (pkt 10, „Otwarte kwestie”).
 16. **Ustawienia stajni (konfiguracja per stajnia).**
-   - Stajnie działają różnie: jedna nie oferuje derek ani moczenia paszy, inna ma pełną opcję. Właściciel, który sam jest stajennym, nie potwierdza flag, a stajnia ze 100 boksami i 10 stajennymi tego wymaga. Dlatego część zachowania aplikacji ustawia admin stajni (właściciel albo zarządca) na ekranie „Ustawienia stajni” w panelu web.
-   - Ustawienia są per stajnia (`stable_id`), a nie dla całej działalności. Na PoC są to przełączniki gotowych opcji, bez własnych reguł:
+   - Stajnie działają różnie: jedna nie oferuje derek ani moczenia paszy, inna ma pełną opcję. Właściciel, który sam jest stajennym, nie potwierdza flag, a stajnia ze 100 boksami i 10 stajennymi tego wymaga. Dlatego część zachowania aplikacji ustawia admin konta (właściciel albo zarządca) na ekranie „Ustawienia stajni” w panelu web.
+   - Ustawienia są per stajnia (`stable_id`), a nie dla całego konta firmy. Na PoC są to przełączniki gotowych opcji, bez własnych reguł:
      - **Potwierdzenia:** „Flagi wymagają potwierdzenia” (`stable_settings.flags_require_ack`), skutki w pkt 12;
      - **Usługi:**
        - zakładanie derek, czyli flaga „Derka” (`flag_templates.active` szablonu `derka`);
@@ -168,18 +187,31 @@
        - pozostałe flagi, każda osobno (`flag_templates.active`);
        - szybkie przyciski obsługi: „Ogarnięte” (`tidy_enabled`), posiłek (`meal_served_enabled`) i padok (`paddock_out_enabled`). „Woda” zależy od poidła boksu (pkt 3);
      - **Widoczność per rola** (`stable_role_features`): admin zaznacza, co pojawia się w panelu klienta, obsługi, instruktora, wsparcia IT i wyświetlacza. Funkcje to stała lista (sekcja „Słowniki”). Admin widzi wszystko.
+     - **Powiadomienia** (`notification_rules`): które zdarzenia, do kogo i jakim kanałem; ustawia się je w drugim kroku zakładania stajni (pkt 17).
    - **Wyłączona opcja znika:** kafelek flagi, „namoczyć”, przycisk albo sekcja nie pokazują się klientowi, obsłudze, na tablecie ani na wyświetlaczu. Zgodnie z zasadą spójności z pkt 3 znika też stan tego, czego nie da się zapisać.
      - Wyłączony szybki przycisk znika razem ze stanem wykonania, np. „Ogarnięte dziś 07:10”, „podane 06:40” albo „Wyprowadzono na padok wczoraj 10:05”. Plan karmienia zostaje, bo to osobna funkcja (widoczność `feeding_plan`), a godziny posiłków zostają jako plan dnia (np. „Następny posiłek: obiad 12:00”).
      - Wyłączony „Padok” chowa też plan padoku (godziny i towarzyszy) wszędzie: na tablecie, wyświetlaczu i w apce (lista koni, karta konia), bo stajnia nie prowadzi wtedy padoków w aplikacji. Flaga „Nie na padok” zostaje, jeśli jest włączona; podpowiada wtedy okno „dziś, cały dzień” (propozycja).
      - „Woda” przy poidle ręcznym zostaje, bo nie ma przełącznika (pkt 3). Sekcja „Szybkie akcje” na tablecie znika, gdy nie ma w niej żadnego przycisku; w boksie z poidłem ręcznym zostaje z samą „Wodą”.
    - Zmiana działa przy najbliższym odpytaniu (apka, tablet, wyświetlacz). Wpisy już zapisane zostają w „Historii” (apka, panel web), ale „Ostatnie akcje” na tablecie i wyświetlaczu oraz „Ostatnio” w apce pomijają zdarzenia wyłączonych przycisków, bo to też stan wykonania.
-   - Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami.
+   - Nowa stajnia dostaje od kodu ustawienia domyślne: wszystko włączone, łącznie z potwierdzeniami. „Załóż stajnię” nie pyta o potwierdzenia flag; zmienia się je potem w „Ustawieniach stajni”.
+17. **Zakładanie stajni i powiadomienia.**
+   - „Załóż stajnię” (panel web, admin konta) ma 2 kroki, a zapis jest na końcu drugiego:
+     - Krok 1 „Stajnia”: dane stajni, adres pierwszej hali i boksy z konfiguracją każdego boksu (pkt 11). Bez pytania o NIP i dane firmy (są w koncie firmy), języki tabletów (pkt 2) i potwierdzenia flag (pkt 16).
+     - Krok 2 „Powiadomienia”: które zdarzenia, do kogo (Admin, Obsługa stajni) i jakim kanałem (SMS, e-mail).
+     - „Załóż stajnię” zapisuje w jednej transakcji serwisu `stable` stajnię, ustawienia domyślne (pkt 16), halę, boksy i reguły powiadomień, z audytem. Potem panel otwiera pulpit nowej stajni.
+   - **Reguły powiadomień** to tabela `notification_rules` (propozycja): `stable_id`, `event`, `recipient_role` (`admin` | `staff`), `channel` (`sms` | `email`), `enabled`; PK (`stable_id`, `event`, `recipient_role`, `channel`).
+     - Kod wstawia przy zakładaniu stajni wiersz dla każdej kombinacji, z `enabled` według wyboru z kroku 2 (bez `DEFAULT`). Później reguły zmienia admin konta w „Ustawieniach stajni” (propozycja).
+     - Zdarzenia (`event`) to stała lista z sekcji „Słowniki”. `flag_unacknowledged` (eskalacja) działa tylko dla flag z `requires_ack`, więc w stajni bez potwierdzeń nic nie wysyła.
+     - Termin eskalacji zostaje w `stable_settings.notify_offset_min`; reguła mówi tylko, do kogo i jakim kanałem.
+     - Tabela należy do `stable`, bo powstaje w tej samej transakcji co stajnia, tak jak `stable_settings`.
+   - **`notifications` wysyła według reguł:** dla zdarzenia bierze włączone wiersze tej stajni i wyznacza odbiorców: `admin` to admini konta firmy, do którego należy stajnia (`business_admins`), a `staff` to aktywni członkowie z rolą `staff` w tej stajni. Adres bierze z kopii w `users` (`phone_e164` albo `email`); osobę bez adresu dla danego kanału pomija (propozycja). `dedupe_key` pilnuje, żeby ta sama wiadomość nie poszła dwa razy.
+     - Źródła zdarzeń: eskalację liczy cron `escalation-scheduler`, flagę od klienta, przyjęte zaproszenie, wystawioną fakturę i nieudaną płatność publikują serwisy-właściciele (SNS + SQS), a wygasłe zaproszenia znajduje cron `invitation-expiry-notifier` (propozycja).
 
 ## Otwarte kwestie
 
 1. **Model karmienia:** pudełko (porcja przygotowana wcześniej), namaczanie (co, w ilu litrach wody, jak długo), ile. Dziś jest tylko „namoczyć” i ile przy pozycji planu karmienia.
 2. **Ekran dotykowy z blokadą czy zaprogramowany fizyczny przycisk przy boksie.** Dziś tablet ma blokadę dotyku na czas mycia (pkt 2). Alternatywą jest fizyczny przycisk, np. „Ogarnięte”, zamiast dotyku.
-3. **Płatności, faktury, KSeF:** czy to nie za dużo na PoC. Na razie bez rozbudowy: model `billing` zostaje jak jest, na poziomie stajni.
+3. **Płatności, faktury, KSeF:** czy to nie za dużo na PoC. Na razie bez rozbudowy: model `billing` zostaje jak jest, na poziomie stajni, a NIP pochodzi z konta firmy (pkt 10). Kto płaci: stajnia (osobna subskrypcja i faktura za każdą stajnię, jak dziś) czy konto firmy (jedna subskrypcja i faktura na NIP za wszystkie stajnie)?
 
 ## Zasady wspólne
 
@@ -187,7 +219,7 @@
   - identyfikatory UUIDv7 nadaje kod;
   - czas w `timestamptz` (UTC), godziny lokalne w `time` ze strefą stajni;
   - statusy jako `text` walidowany w kodzie.
-- **Izolacja stajni:** każda tabela danych stajni ma `stable_id`, a filtruje po nim kod. Tabele-rodzice mają `UNIQUE (stable_id, id)`, a klucze obce są wielokolumnowe (`stable_id`, `x_id`), więc koń nie trafi do boksu innej stajni.
+- **Izolacja stajni:** każda tabela danych stajni ma `stable_id`, a filtruje po nim kod. Tabele-rodzice mają `UNIQUE (stable_id, id)`, a klucze obce są wielokolumnowe (`stable_id`, `x_id`), więc koń nie trafi do boksu innej stajni. Tabele konta firmy (`businesses`, `business_admins`) nie mają `stable_id`; admin konta widzi stajnie swojej firmy przez `stables.business_id`.
 - **Wersje:** tabele edytowalne mają `version` (`bigint`, zwiększany w kodzie) i `updated_at`. Wersja służy do `If-Match` przy edycji i do `ETag` tablicy.
 - **Czego nie rysujemy:** `version`, `created_at` i `updated_at` pomijamy na diagramach.
 - **Dozwolone w bazie:**
@@ -205,7 +237,7 @@
 |---|---|---|
 | `identity` | różowy | `users` |
 | `access` | fioletowy | `stable_members`, `horse_access`, `invitations` |
-| `stable` | niebieski | `businesses`, `stables`, `stable_locales`, `stable_settings`, `stable_role_features`, `buildings`, `boxes`, `horses`, `horse_box_history` |
+| `stable` | niebieski | `businesses`, `business_admins`, `stables`, `stable_settings`, `stable_role_features`, `notification_rules`, `buildings`, `boxes`, `horses`, `horse_box_history` |
 | `board` | — (bez tabel) | brak; składa stan tablicy z tabel innych serwisów przy każdym zapytaniu tabletu |
 | `flags` | czerwony | `flag_templates`, `flag_template_labels`, `horse_flags`, `flag_acknowledgements`, `flag_escalations` |
 | `care` | zielony | `meal_slots`, `meal_slot_labels`, `feeds`, `paddocks`, `feeding_plans`, `feeding_plan_items`, `building_routines`, `box_care_events`, `paddock_plans`, `paddock_plan_companions` |
@@ -222,7 +254,8 @@
 
 | Cron | Serwisy | Co robi |
 |---|---|---|
-| `escalation-scheduler` | `flags`, `notifications` | Znajduje flagi z `requires_ack`, minionym `warn_at` albo `notify_at` i bez potwierdzenia |
+| `escalation-scheduler` | `flags`, `notifications` | Znajduje flagi z `requires_ack`, minionym `warn_at` albo `notify_at` i bez potwierdzenia; powiadomienie idzie według reguły `flag_unacknowledged` |
+| `invitation-expiry-notifier` (propozycja) | `access`, `notifications` | Znajduje zaproszenia po `expires_at`, nieprzyjęte i nieodwołane, i zleca powiadomienie według reguły `invitation_expired` |
 | `health-due-reminders` | `health`, `notifications` | Przypomnienia o zbliżających się wizytach |
 | `files-gc` | `files` | Usuwa z S3 pliki `pending` starsze niż 24 h i pliki `deleted` po retencji |
 | `billing-usage-snapshot` | `billing` (czyta `horses`) | Raz w okresie zapisuje zużycie: boksy z koniem |
@@ -233,11 +266,12 @@
 
 ## Współpraca serwisów
 
-- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `buildings`, `boxes`, `horses`, `horse_flags`, `feeding_plans` z pozycjami, `building_routines`, `box_care_events`, `paddock_plans` i `health_events` (sam typ i termin). Uprawnienia sprawdza w `stable_members` i `horse_access`.
+- **Odczyt:** każdy serwis może czytać tabele innych serwisów. `board` składa stan tablicy z `stables`, `buildings`, `boxes`, `horses`, `horse_flags`, `feeding_plans` z pozycjami, `building_routines`, `box_care_events`, `paddock_plans` i `health_events` (sam typ i termin). Uprawnienia sprawdza w `business_admins`, `stable_members` i `horse_access`.
 - **Zapis:** tylko przez serwis-właściciela, czyli przez jego REST albo jego kolejkę SQS. Zapisy z tabletu i apki (potwierdzenia flag, szybkie akcje obsługi) idą synchronicznym REST, bo klient potrzebuje wyniku dla każdego zdarzenia.
 - **Zdarzenia** (SNS + SQS, publikowane po zatwierdzeniu transakcji) służą reakcjom, a nie kopiowaniu danych:
   - `horse.left` zamyka flagi, plany i dostępy w serwisach-właścicielach;
-  - `subscription.status_changed` zmienia `stables.status`.
+  - `subscription.status_changed` zmienia `stables.status`;
+  - `flag.created` (flaga od klienta), `invitation.accepted`, `invoice.issued` i `payment.failed` konsumuje `notifications` i wysyła według `notification_rules` (pkt 17, propozycja).
 - **Widoczność:** notatki flag są widoczne wszędzie, gdzie widać boks albo konia (tablet, apka, panel), bez podziału na „tylko w apce”. Na tablet nie trafiają tylko opisy wizyt z historii zdrowia; pilnuje tego kod `board`.
 
 ## Legenda
@@ -260,7 +294,7 @@
 
 ![ERD aplikacji, schemat app](erd/app.png)
 
-Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 46 tabel i 60 relacji.
+Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 47 tabel i 62 relacje.
 
 <details>
 <summary>Źródło mermaid</summary>
@@ -269,7 +303,18 @@ Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 46 tabel i 60 re
 erDiagram
     businesses {
         uuid id PK
-        text name "działalność, np. firma"
+        text tax_id UK "NIP, 1 konto = 1 NIP"
+        text name "nazwa firmy"
+        text address_line1 "siedziba"
+        text address_line2
+        text postal_code
+        text city
+        text country_code "PL"
+        text invoice_email "e-mail do faktur"
+    }
+    business_admins {
+        uuid business_id PK, FK "businesses"
+        uuid user_id PK, FK "users, admin konta: wszystkie stajnie firmy"
     }
     stables {
         uuid id PK
@@ -277,11 +322,6 @@ erDiagram
         text name
         text timezone "IANA, np. Europe/Warsaw"
         text status "active | suspended"
-    }
-    stable_locales {
-        uuid stable_id PK, FK
-        text locale PK "pl | uk | en"
-        int sort_order
     }
     stable_settings {
         uuid stable_id PK, FK "1:1 ze stajnią"
@@ -304,6 +344,13 @@ erDiagram
         text role PK "client | staff | instructor | it_support | display"
         text feature PK "stała lista, np. feeding_plan, tasks"
         boolean visible
+    }
+    notification_rules {
+        uuid stable_id PK, FK "stables"
+        text event PK "lista pod diagramem"
+        text recipient_role PK "admin | staff"
+        text channel PK "sms | email"
+        boolean enabled
     }
     buildings {
         uuid id PK
@@ -360,7 +407,7 @@ erDiagram
         uuid id PK
         uuid stable_id FK "stables"
         uuid user_id FK "users, unikalne ze stable_id"
-        text role "admin | staff | instructor | it_support | display | client"
+        text role "staff | instructor | it_support | display | client"
         boolean active
         timestamptz deactivated_at
     }
@@ -380,7 +427,7 @@ erDiagram
         uuid stable_id FK "stables"
         text channel "sms | email"
         text target "porównywany z claimem z Cognito"
-        text role
+        text role "jak stable_members.role"
         uuid horse_id FK "horses, wymagane dla klienta"
         uuid created_by FK "users"
         timestamptz expires_at "wymagane"
@@ -653,7 +700,7 @@ erDiagram
         uuid id PK
         uuid stable_id FK, UK "jedno konto na stajnię"
         text legal_name
-        text tax_id "NIP"
+        text tax_id "NIP, kopia z businesses.tax_id"
         text address_line1
         text address_line2
         text postal_code
@@ -749,9 +796,11 @@ erDiagram
         timestamptz processed_at
     }
     businesses ||--o{ stables : "stajnie"
-    stables ||--o{ stable_locales : "języki"
+    businesses ||--o{ business_admins : "admini konta"
+    users ||--o{ business_admins : "jest adminem"
     stables ||--|| stable_settings : "ustawienia"
     stables ||--o{ stable_role_features : "widoczność per rola"
+    stables ||--o{ notification_rules : "powiadomienia"
     stables ||--o{ buildings : "hale"
     buildings ||--o{ boxes : "boksy w hali"
     stables ||--o{ horses : "ma"
@@ -820,7 +869,7 @@ erDiagram
     classDef svc_files fill:#e5e7eb,stroke:#374151
     classDef svc_releases fill:#f1f5f9,stroke:#475569
     classDef svc_notifications fill:#fae8ff,stroke:#a21caf
-    class businesses,stables,stable_locales,stable_settings,stable_role_features,buildings,boxes,horses,horse_box_history svc_stable
+    class businesses,business_admins,stables,stable_settings,stable_role_features,notification_rules,buildings,boxes,horses,horse_box_history svc_stable
     class stable_members,horse_access,invitations svc_access
     class users svc_identity
     class flag_templates,flag_template_labels,horse_flags,flag_acknowledgements,flag_escalations svc_flags
@@ -874,13 +923,22 @@ erDiagram
 - `building_routines.kind`: `meal_served` („Podano śniadanie / obiad / kolację”, z `meal_slot_id`), `paddock_out` („Wyprowadzono na padok”).
 - `flag_templates`: domyślne szablony wstawiane przez kod: `bez_sniadania`, `bez_kolacji`, `nie_na_padok`, `derka` (warianty `on` = zakładać, `off` = nie zakładać), `leki`, `wet`. Admin może dodać własne.
 - `stable_role_features.feature` (stała lista na PoC): `flags` (flagi i kafelki), `feeding_plan` (plan karmienia), `routine` (szybkie akcje i ich stan), `box_history` (historia boksu), `tasks` (zadania), `health` (wizyty i zdrowie), `rides` (jazdy), `device_diagnostics` (diagnostyka tabletów i wyświetlaczy).
-- `stable_members.role`: `admin` (Admin: zarządca albo właściciel stajni), `staff` (Obsługa), `instructor` (Instruktor), `it_support` (Wsparcie IT), `display` (Wyświetlacz), `client` (Klient).
+- `stable_members.role` (i `invitations.role`): `staff` (Obsługa), `instructor` (Instruktor), `it_support` (Wsparcie IT), `display` (Wyświetlacz: zwykłe konto telewizora), `client` (Klient). Admin (zarządca albo właściciel) nie jest rolą w stajni, tylko rolą konta firmy (`business_admins`).
+- `notification_rules.event` (stała lista na PoC): `flag_unacknowledged` (flaga niepotwierdzona w terminie, czyli eskalacja; tylko flagi z `requires_ack`), `flag_created_by_client` (klient ustawił flagę), `invitation_accepted` (zaproszenie przyjęte), `invitation_expired` (zaproszenie wygasło nieprzyjęte), `invoice_issued` (wystawiona faktura), `payment_failed` (nieudana płatność).
+- `notification_rules.recipient_role`: `admin` (admini konta firmy, do którego należy stajnia), `staff` (obsługa tej stajni). `notification_rules.channel`: `sms`, `email`.
 - `horse_flags.source`: `app` (właściciel w apce) albo flaga wpisana w imieniu właściciela: `on_behalf_phone`, `on_behalf_sms`, `on_behalf_in_person`.
 
 ## Zmiany względem modelu z analizy v3
 
 - **Przejmuje Cognito:** `otp_challenges`, `auth_sessions`, `access_tokens`, `refresh_tokens`, `device_auth_challenges`, `rate_limit_buckets`, a także `invitations.token_hash` (zaproszenie dopasowuje się do zweryfikowanego telefonu albo e-maila).
 - **E-mail obok telefonu (13.10.2026):** logowanie numerem telefonu albo e-mailem (kod SMS-em albo e-mailem) i zaproszenia na telefon albo e-mail; bez nowych tabel i kolumn, bo `users.email` i `invitations.channel` już są.
+- **Tylko B2B, konto firmy z NIP (13.10.2026):** `businesses` to konto firmy: dochodzą `tax_id` (NIP, unikalny indeks), adres siedziby i `invoice_email`. NIP podaje się raz, przy rejestracji; „Załóż stajnię” nie pyta o NIP ani działalność. `billing_accounts.tax_id` zostaje jako kopia z `businesses.tax_id` (propozycja).
+- **Języki tabletów per tablet (13.10.2026):** odpada `stable_locales`. Język tablicy to ustawienie lokalne tabletu, bez tabeli; etykiety `*_labels` z `locale` zostają jako opcjonalne tłumaczenia nazw.
+- **Konfiguracja boksów przy tworzeniu (13.10.2026):** w „Załóż stajnię” i „Dodaj halę” każdy boks od razu ma numer i poidło; kolejne ustawienia boksu dojdą jako kolumny `boxes`. Bez zmian w tabelach.
+- **Zakładanie stajni w 2 krokach (13.10.2026):** bez pytania o potwierdzenia flag (nowa stajnia ma je włączone, zmienia się je w „Ustawieniach stajni”); drugi krok to powiadomienia, nowa tabela `notification_rules` (propozycja) w serwisie `stable` i cron `invitation-expiry-notifier` (propozycja). Termin eskalacji zostaje w `stable_settings.notify_offset_min`.
+- **Wyświetlacz to zwykłe konto (13.10.2026):** telewizor loguje się telefonem albo e-mailem i kodem, a konto zaprasza się przez „Zaproś osobę” z rolą Wyświetlacz. Odpadają konta techniczne i nazwy kont; tabele bez zmian.
+- **Admin to rola konta firmy (13.10.2026):** nowa tabela `business_admins` (propozycja) w serwisie `stable`; admin konta ma dostęp do wszystkich stajni firmy, także nowych. `stable_members.role` traci `admin`, a pozostałe role przypisuje się per stajnia (osoba może być w kilku stajniach).
+- **Strona główna przed logowaniem (13.10.2026):** publiczna strona www z prezentacją produktu i blogiem; bez tabel w `app` (wpisy jako treść statyczna strony, propozycja).
 - **Tablety:**
   - nie ma parowania (`device_pairing_requests`) ani PIN-ów obsługi (`stable_members.pin_verifier`, `stables.service_pin_verifier`): na tablecie zawsze jest zalogowany konkretny użytkownik;
   - nie ma tabel urządzeń (`devices`, `device_boxes`, `device_presence`, komendy, alerty): wybrany boks jest zapamiętany na tablecie, bez blokady, a sesje są w Cognito;
@@ -899,7 +957,7 @@ erDiagram
   - `outbox_seq` i `outbox_events`; zdarzenia idą wprost do SNS + SQS, bez outboxów;
   - `jobs`, bo crony są serwisami;
   - `boxes.board_version` znika razem z cache tablic: serwis `board` nie trzyma stanu.
-- **Bez jsonb:** ustawienia stajni, języki, etykiety, pozycje karmienia, towarzysze na padoku, rollout APK, ceny planów, adres do faktury i zmiany w audycie mają własne kolumny albo tabele.
+- **Bez jsonb:** ustawienia stajni, reguły powiadomień, etykiety w językach, pozycje karmienia, towarzysze na padoku, rollout APK, ceny planów, adres do faktury i zmiany w audycie mają własne kolumny albo tabele.
 - **Załączniki:** ogólne `attachments` zastępuje `health_attachments`, bo w v1 załączniki są tylko w zdrowiu.
 - **Poza v1, do decyzji:**
   - eksporty danych (`data_exports`, w przyszłości osobny serwis `exports`, który czyta dane wprost z bazy);

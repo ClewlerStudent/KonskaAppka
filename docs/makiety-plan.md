@@ -1,32 +1,34 @@
 # eKoniuszy: plan brakujących makiet
 
-> 2026-10-12 · [erd.md](erd.md) · [development.md](development.md) (pełna wersja [development-szczegoly.md](development-szczegoly.md)) · [paleta.md](paleta.md) · kanwa [claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX) · bez cen i infrastruktury.
+> 2026-10-12, poprawki po decyzjach użytkownika z 13.10.2026 · [erd.md](erd.md) · [development.md](development.md) (pełna wersja [development-szczegoly.md](development-szczegoly.md)) · [paleta.md](paleta.md) · kanwa [claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX) · bez cen i infrastruktury.
 
 **Oznaczenia**
-- **P1:** rejestracja (stajni, osób, urządzeń), ekran główny roli, ekran wymagany przez kryterium gotowości etapów 1–6 (szcz. 3.6) albo cel linku z innej planszy P1. **P2:** domyka nawigację i stany przed pilotażem. **P3:** po PoC albo po decyzji, która może planszę usunąć.
-- **Wariant:** kopia istniejącego pliku z innym stanem albo danymi. **(propozycja):** tego dokumenty nie przesądzają. **dec. N:** decyzja z sekcji 5. **●** przy stanie: osobna plansza; stan bez ● to fragment na planszy zbiorczej (2.1).
+- **P1:** rejestracja (konta firmy, stajni, osób, urządzeń), ekran główny roli, strona www, ekran wymagany przez kryterium gotowości etapów 1–6 (szcz. 3.6) albo cel linku z innej planszy P1. **P2:** domyka nawigację i stany przed pilotażem. **P3:** po PoC albo po decyzji, która może planszę usunąć.
+- **Wariant:** kopia istniejącego pliku z innym stanem albo danymi. **(propozycja):** tego dokumenty nie przesądzają. **dec. N:** decyzja z sekcji 5. Oba dopiski są tylko w planie i notatkach kanwy, nigdy w UI. **●** przy stanie: osobna plansza; stan bez ● to fragment na planszy zbiorczej (2.1).
 - Skróty: **erd**, **dev** (development.md), **szcz.** (development-szczegoly.md); numeracja §5 w dev i szcz. jest różna, więc zawsze podajemy plik. Testy A, T, K, W, N: szcz. 4. Po nazwie planszy: powierzchnia, rozmiar, priorytet, decyzje i źródła; szcz. 3.5.1–3.5.4 (ekrany apki, tabletu, panelu i TV) dotyczą każdej planszy swojej powierzchni, więc ich nie powtarzamy.
 
 ## 1. Zakres
 
-- **Rejestracja:** założenie działalności i stajni w panelu; zaproszenia i pierwsze logowanie (Klient, Obsługa, Instruktor, Wsparcie IT); „rejestracja” urządzeń, czyli logowanie kontem i lokalny wybór widoku TV albo boksu tabletu (serwer urządzeń nie rejestruje, erd pkt 2 i 4).
+- **Rejestracja:** konto firmy z NIP-em i stajnie w panelu (dec. 1, 3); zaproszenia SMS-em albo e-mailem i pierwsze logowanie (Klient, Obsługa, Instruktor, Wsparcie IT, Wyświetlacz); „rejestracja” urządzeń, czyli logowanie zwykłym kontem (telefon albo e-mail i kod) i lokalny wybór widoku TV albo boksu i języka tabletu (serwer urządzeń nie rejestruje, erd pkt 2 i 4).
+- **Strona www:** publiczna strona przed logowaniem: prezentacja produktu i blog (grupa I).
 - **Ekran główny:** start każdej roli w apce i panelu, pierwszy ekran tabletu i TV. Dziś są tylko Main, ListaDnia, TabletBoks i WyswietlaczCentralny.
 - **„Itd. itp.”:** cele martwych linków i stany wymagane przez dokumenty i testy.
-- **Poza zakresem:** zmiany układu zaakceptowanych makiet (tylko linki, 3.H), pliki *BezAkcji, parowanie i rejestr urządzeń z analiza.md v3. W Stajni Brzozowej tylko pozycje z tabeli 2.2.
+- **Poza zakresem:** zmiany układu zaakceptowanych makiet (tylko linki, 3.H; wyjątek: poprawki z decyzji 13.10, np. boksy w PanelDodajHale), pliki *BezAkcji, parowanie i rejestr urządzeń z analiza.md v3. W Stajni Brzozowej tylko pozycje z tabeli 2.2.
 
-## Na start: pierwsza fala (24 plansze)
+## Na start: pierwsza fala (29 plansz)
 
 Prośba dotyczyła rejestracji i ekranów głównych, więc zaczynamy od ścieżek, które pokazują je od początku do końca. Reszta P1 (stany, flagi, codzienna praca) idzie kolejnymi paczkami z sekcji 4.
 
-- **Stajnia od zera (panel):** PanelLogowanie → PanelLogowanieKod → PanelWitaj → PanelZalozStajnie → PanelPulpitStart → PanelZaprosOsobe.
+- **Stajnia od zera (panel):** PanelLogowanie → PanelLogowanieKod → PanelWitaj → PanelRejestracjaFirmy → PanelZalozStajnie → PanelZalozPowiadomienia → PanelPulpitStart → PanelZaprosOsobe.
 - **Zaproszona osoba (apka):** WiadomosciSms → LogowanieNumer → ZaproszeniePrzyjmij → MainLuna; BrakDostepu dla numeru bez zaproszenia.
 - **Ekrany główne ról:** MapaNawigacjiRol, AdminDzis, PanelPulpit, InstruktorJazdy, WsparcieITStart. Klient i Obsługa już je mają (Main, ListaDnia).
-- **Telewizor:** PanelLudzieWyswietlacze → WyswietlaczLogowanie → WyswietlaczKod → WyswietlaczCentralny (jest).
+- **Telewizor:** PanelLudzieWyswietlacze → WyswietlaczLogowanie → WyswietlaczKod → WyswietlaczCentralny (jest); konto telewizora zaprasza się w PanelZaprosOsobe z rolą Wyświetlacz.
 - **Tablet:** TabletLogowanie → TabletLogowanieKod → TabletWyborStajni → TabletPierwszyBoks → TabletBoks (jest); TabletUstawienia.
+- **Strona www:** StronaGlowna (w telefonie StronaGlownaTelefon) → StronaWpis; logowanie → PanelLogowanie.
 
-Przed pierwszą falą warto rozstrzygnąć dec. 1, 7, 10, 12, 17 i 18 (sekcja 5). Bez odpowiedzi rysujemy według rekomendacji, z dopiskiem „(propozycja, dec. N)”.
+Rozstrzygnięte 13.10.2026: dec. 1, 2, 3, 7 (e-mail), 10, 11, 21, 28, 29 i nowa 35 (sekcja 5). Przed falą otwarte zostają już tylko dec. 12, 17 i 18. Bez odpowiedzi rysujemy według rekomendacji, z dopiskiem „(propozycja, dec. N)” w notatce kanwy.
 
-**Stan 13.10.2026:** pierwsza fala jest na kanwie (sekcja „Pierwsza fala”), narysowana według rekomendacji. Numery decyzji i linki tymczasowe (np. „[WWW]/app” → LogowanieNumer, „Ludzie” w PanelPulpit → PanelLudzieWyswietlacze) są w notatkach rzędów. Po decyzjach poprawiamy plansze i podmieniamy linki (3.H).
+**Stan 13.10.2026:** pierwsza fala (24 plansze) jest na kanwie (sekcja „Pierwsza fala”), narysowana według rekomendacji. Numery decyzji i linki tymczasowe (np. „[WWW]/app” → LogowanieNumer) są w notatkach rzędów. Po decyzjach z 13.10 poprawiamy jej plansze, dokładamy PanelRejestracjaFirmy, PanelZalozPowiadomienia i stronę www (5 plansz) i podmieniamy linki (3.H).
 
 ## 2. Zasady
 
@@ -38,32 +40,35 @@ Przed pierwszą falą warto rozstrzygnąć dec. 1, 7, 10, 12, 17 i 18 (sekcja 5)
 |---|---|---|---|
 | Apka, www w telefonie | 390×844; dłuższe 390×960, 1000, 1160 | div w px, `overflow: hidden` | Figtree |
 | Tablet e-ink | 702×936 | div w px, białe tło, tylko `t-*`, linki czarne | Atkinson Hyperlegible |
-| Panel web | 1440×900, `"expand": "fill"` | width 100%, min-height 900, kontener 1280, padding 24/20 | Figtree |
+| Panel web, strona www | 1440×900, `"expand": "fill"`, rośnie w dół | width 100%, min-height 900, kontener 1280, padding 24/20 | Figtree |
 | Wyświetlacz | 1600×900, `"expand": "fill"` | width 100%, min-height 900, padding 16/24 | Figtree |
 
 - **Stany:** stan z ● to osobna plansza. Każdy inny stan z list „Stany” rysujemy jako fragment na planszy zbiorczej: **StanyApka** (4 kolumny po 390 px), **StanyTablet** (2 kolumny po 702 px), **StanyPanel** (1440 fill), **StanyWyswietlacz** (1600 fill); wysokość według treści, powyżej 3000 px kolejny plik. Fragment to zmieniony element w skali 1:1 z kawałkiem tła i podpisem „plik · stan · źródło albo test”. Żaden stan nie zostaje samym opisem.
 - **Linki:** jedynym spisem jest 3.H. Link prowadzi do pliku tej samej powierzchni, chyba że ekran wprost otwiera inną (ProfilAdmin „w panelu web”, strona www → panel, instrukcja z ekranem TV albo tabletu). Plansza P1 nie linkuje do P2 ani P3, a P2 do P3: do czasu narysowania celu ma cel „(tymczasowo)” albo nie ma linku, a wymiana idzie w L2 i L3. Pliki Brzozowej linkują tylko do plików Brzozowej.
-- **Zaakceptowane makiety:** nie zmieniamy układu; nowe ekrany to nowe pliki; linki podmieniamy paczkami za zgodą (dec. 30); *BezAkcji nie ruszamy. WyswietlaczCentralny i WyswietlaczHala powstają z generatora; nowe pliki TV rysujemy według ich konwencji, bez ruszania tych dwóch.
+- **Zaakceptowane makiety:** nie zmieniamy układu (poza poprawkami z decyzji 13.10); nowe ekrany to nowe pliki; linki podmieniamy paczkami za zgodą (dec. 30); *BezAkcji nie ruszamy. WyswietlaczCentralny i WyswietlaczHala powstają z generatora; nowe pliki TV rysujemy według ich konwencji, bez ruszania tych dwóch.
 - **Kanwa:** ostatnia plansza kończy się na y = 10536; pierwszy nowy tytuł (`title1`) na y = 10836, plansze na y = 11136; kolejny tytuł 300 px pod najniższą planszą rzędu. Odstęp 80 px: telefon co 470, tablet co 782, panel co 1520, TV co 1680. Każdy plik w `boards` i `order`, tytuł planszy zaczyna się od priorytetu („P1 · …”).
-- **Rzędy = grupy z sekcji 3:** R1 A, R2 B, R3 C, R4 D, R5 E, R6 F, R7 G, R8 plansze zbiorcze, R9 P3. P2 na końcu rzędu swojej grupy. Każdy rząd ma pomarańczową notatkę z numerami decyzji i źródeł; do tego notatki: R1 „Konto i odzyskanie” (utrata numeru: bez numeru nie ma logowania, więc admin zaprasza nowy numer i dezaktywuje stare członkostwo, propozycja; przekazanie roli admina: dec. 33), R2 „Stajnię zakłada zespół eKoniuszy” (dec. 1 b), R5 „Zgubiony tablet” (dec. 12).
+- **Rzędy = grupy z sekcji 3:** R1 A, R2 B, R3 C, R4 D, R5 E, R6 F, R7 G, R8 plansze zbiorcze, R9 P3, R10 I (strona www). P2 na końcu rzędu swojej grupy. Każdy rząd ma pomarańczową notatkę z numerami decyzji i źródeł; do tego notatki: R1 „Konto i odzyskanie” (utrata numeru: logowanie e-mailem, jeśli konto go ma; inaczej admin zaprasza nowy numer i dezaktywuje stare członkostwo, propozycja; przekazanie roli admina: dec. 33, 35), R5 „Zgubiony tablet” (dec. 12).
 
 ### 2.2 Dane
 
 - **Moment:** wt 13.10.2026, 07:15, Europe/Warsaw (pop-up tabletu 06:01). Konie, flagi, posiłki, padoki, zadania, wizyty i Stajnia Brzozowa: seed (dev 3.2).
-- **Pod Lipami:** Damian (Admin), Ola i Piotr (Obsługa), Anna (Kasztan, Bella), Karolina W. (Iskra), Tomasz L. (Grom), Ewa K. (Sonata), Marek Nowak (zaproszenie do Luny, wygasa czw 15.10), `wyswietlacz-korytarz`.
-- **Brzozowa:** Paweł (Admin, sam obsługuje), Ola (Obsługa), Anna (Kometa); bez wyświetlacza. Zakładanie stajni to retrospekcja z czw 01.10.2026 (dec. 29).
-- Nowe osoby i dane mają „(propozycja)” (lista: dec. 29). Numery zawsze zamaskowane: „+48 607 *** 218”.
+- **Konto firmy:** „Stajnie Lipowe sp. z o.o.”, NIP 123-456-32-18 (fikcyjny), siedziba ul. Lipowa 12, 05-520 Konstancin-Jeziorna; należą do niego obie stajnie. Damian to admin konta (właściciel): ma dostęp do obu stajni, +48 602 *** 145, d•••@stajnielipowe.pl.
+- **Pod Lipami:** Damian (admin konta), Ola (Obsługa, także w Brzozowej), Piotr (Obsługa tylko tu), Anna (Kasztan, Bella), Karolina W. (Iskra), Tomasz L. (Grom), Ewa K. (Sonata), Marek Nowak (zaproszenie do Luny, wygasa czw 15.10); telewizor: konto „Telewizor korytarz” z rolą Wyświetlacz (t•••@stajnielipowe.pl), loguje się e-mailem i kodem z e-maila.
+- **Brzozowa:** ul. Brzozowa 5, 05-500 Piaseczno; jedna hala „Hala główna” (nazwy nie pokazujemy), boksy 1–6 z poidłem automatycznym, posiłki 06:30, 12:00, 18:00. Damian (admin konta), Paweł (Obsługa tylko tu, prowadzi stajnię na co dzień i sam obsługuje konie, +48 601 *** 377), Ola (Obsługa), Anna (Kometa); bez wyświetlacza. Ustawienia jak PanelUstawieniaBrzozowa: Damian zmienił je po założeniu (potwierdzenia wyłączone, bez Derki, moczenia i padoku).
+- **W obu stajniach:** Ola (Obsługa), Anna (Klient), Marta (Instruktor), Kuba (Wsparcie IT, zaproszony e-mailem k•••@stajnielipowe.pl). Przełącznik stajni „▾” mają Damian i Ola; Paweł i Piotr widzą samą nazwę stajni.
+- **Sceny zakładania (retrospekcje, dec. 29):** pn 07.09.2026 Damian rejestruje konto firmy (PanelLogowanie → PanelLogowanieKod → PanelWitaj → PanelRejestracjaFirmy) i zakłada Stajnię Pod Lipami; czw 01.10.2026 dodaje Stajnię Brzozową bez pytania o NIP (PanelZalozStajnie → PanelZalozPowiadomienia → PanelPulpitStart → PanelZaprosOsobe: zaproszenie Pawła SMS-em).
+- Dane spoza seedu i sekcji M arkusza mają „(propozycja)” w notatce kanwy (dec. 29). Numery i e-maile zawsze zamaskowane: „+48 607 *** 218”, „d•••@stajnielipowe.pl”.
 
 **Stajnia Brzozowa w nowych planszach** (jedyne miejsce z jej wariantami):
 
 | Plansza | Wersja Brzozowej | Forma |
 |---|---|---|
-| PanelLogowanie, PanelWitaj, PanelZalozStajnie, PanelPulpitStart, PanelZaprosOsobe | zakładanie (Paweł, 01.10) | treść główna |
+| PanelZalozStajnie, PanelZalozPowiadomienia, PanelPulpitStart, PanelZaprosOsobe | dodanie Brzozowej (Damian, 01.10; zaproszenie Pawła) | treść główna |
 | ZaproszeniePrzyjmij | ZaproszenieNoweStajnia: Anna (Kometa); Ola (Obsługa) | ● P1 · stan |
 | PanelDodajKonia | Kometa, „boks 1” bez hali, zaproszenie Anny | stan |
 | AdminDzis · PanelPulpit | AdminDzisBrzozowa · PanelPulpitBrzozowa | ● P1 · plik P2 |
 | AdminZadania | bez wyboru hali, „Obsługa nie widzi zadań w tej stajni” z linkiem do ustawień | stan |
-| InstruktorJazdy · WsparcieITStart · PanelLudzieWyswietlacze | brak jazd · jedna hala · „Stajnia nie ma wyświetlacza” (z „Dodaj wyświetlacz”) | stany |
+| InstruktorJazdy · WsparcieITStart · PanelLudzieWyswietlacze | brak jazd · jedna hala · filtr „Wyświetlacz” pusty: „Stajnia nie ma wyświetlacza” (z „Zaproś osobę”) | stany |
 | TabletWyborStajni, TabletPierwszyBoks | bez zakładek: 1 Kometa, 2 Dąb, 3 Iga, 4 Lord, 5 WOLNY, 6 Nuta | stan |
 | TabletBoksWolny · ListaDniaOgarniete | boks 5 bez hali i padoku · lista 1–6 bez hal | stany |
 | EdycjaPlanuKonia | Kometa: owies 1 kg wieczorem (rano wstrzymane), siano, musli 0,5 kg wieczorem; bez „Namoczyć” i padoku | stan |
@@ -74,13 +79,14 @@ Przed pierwszą falą warto rozstrzygnąć dec. 1, 7, 10, 12, 17 i 18 (sekcja 5)
 
 ### 2.3 Słownictwo i wygląd
 
-- **Role:** Klient, Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz. Wsparcie IT dosłownie: „Wsparcie IT: techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami.”
+- **Role:** Klient, Obsługa, Admin, Instruktor, Wsparcie IT, Wyświetlacz. Admin to rola konta firmy (wszystkie stajnie firmy), pozostałe role przypisuje się per stajnia (dec. 35). Wsparcie IT dosłownie: „Wsparcie IT: techniczny dostęp do konfiguracji i diagnostyki tabletów i wyświetlaczy, bez zarządzania końmi i klientami.”
 - **Flagi:** status „potwierdzona HH:MM” albo „niepotwierdzona” (nigdy „przyjęte”), tylko przy `requires_ack`, inaczej „obowiązuje od razu”; godziny „06:00–10:00”, „od 14:30”, „16:00–08:00”, „dziś, cały dzień”. „Przyjęte” wolno tylko przy zaproszeniach.
 - **Akcje:** „Ogarnięte”, „Podano śniadanie / obiad / kolację”, „Wyprowadzono na padok”, „Woda” tylko przy poidle ręcznym. Bez „Najemca”, „Serwisant”, „Właściciel konia” jako roli, „Nakarmiony”, „Czyszczenie”, „Ścielenie”; „Siano” tylko jako pasza; „eKoniuszy” nigdy wielkimi literami.
 - **Boks:** przy kilku halach „Hala nowa · boks 4”, w wąskich listach „Nowa 4”; w Brzozowej „boks 1”; formularze wysyłają `boxId`.
+- **Logowanie** (apka, panel, tablet, TV; dec. 7): nad polem przełącznik segmentowy „Telefon | E-mail” w stylu „Kanał: SMS | E-mail” z Zaproszenie (tablet: „TELEFON | E-MAIL”, e-ink); „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.” Zaproszenia SMS-em albo e-mailem.
 - **Adresy:** [PANEL] to subdomena panelu, TV otwiera [PANEL]/wyswietlacz, strona pobierania apki to [WWW]/app (dev 2).
 - **Paleta:** tylko paleta.md, jak w istniejących makietach; błędy i offline w rodzinie „uwaga”, na TV bez pól w akcencie; na tablecie nieaktywny przycisk z przerywaną ramką, OFFLINE jako `t-warn`, ekran działa na czarno-białym e-inku.
-- **Nagłówki:** jak w istniejących makietach (zakładka ze znakiem i stajnią, podstrona z „← Wróć” bez paska, logowanie z logo 60 px). Paski Klienta i Obsługi bez zmian, Admina według dec. 17, Instruktor i Wsparcie IT z 3 i 2 pozycjami (propozycja). Apka: przełącznik stajni tylko przy kilku członkostwach, inaczej sama nazwa (szcz. 3.5.1); bez dzwonka (dec. 22). Panel: przełącznik „▾” jak w PanelUstawieniaStajni (dec. 21), menu 240 px, formularz jako `aside role=dialog` z prawej. Tablet i TV bez przełącznika.
+- **Nagłówki:** jak w istniejących makietach (zakładka ze znakiem i stajnią, podstrona z „← Wróć” bez paska, logowanie z logo 60 px). Paski Klienta i Obsługi bez zmian, Admina według dec. 17, Instruktor i Wsparcie IT z 3 i 2 pozycjami (propozycja). Apka i panel: przełącznik stajni „▾” tylko przy kilku stajniach (admin konta, gdy firma ma kilka stajni; inni przy kilku członkostwach), inaczej sama nazwa (dec. 21, szcz. 3.5.1); bez dzwonka (dec. 22). Panel: „▾” jak w PanelUstawieniaStajni, menu 240 px, formularz jako `aside role=dialog` z prawej. Tablet i TV bez przełącznika.
 - **Widoczność:** funkcja odznaczona dla roli w `stable_role_features` znika (sekcja, pozycja paska); Admin widzi wszystko; wyłączona opcja stajni znika razem ze stanem. Wyświetlacz Pod Lipami nie widzi zdrowia ani jazd.
 - **Urządzenia i prywatność:** bez parowania QR, PIN-ów, kodów serwisowych, listy tabletów, telemetrii w bazie i zdalnych komend. Tablica nie pokazuje zalogowanej osoby (tylko ukryte ustawienia). TV bez danych osobowych, także przy logowaniu. Po wylogowaniu, blokadzie konta albo zawieszeniu stajni nie pokazujemy starych flag.
 
@@ -88,12 +94,12 @@ Przed pierwszą falą warto rozstrzygnąć dec. 1, 7, 10, 12, 17 i 18 (sekcja 5)
 
 ### 3.0 Przegląd
 
-Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
+Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www”). Istniejące pliki poprawiane po decyzjach z 13.10 (np. PanelDodajHale) nie wchodzą do liczb.
 
 | Plik | Powierzchnia | Prio | Po co |
 |---|---|---|---|
 | **A. Apka: logowanie, zaproszenia, konto** | | | |
-| LogowanieNumer | apka | P1 | krok 1 logowania: numer telefonu |
+| LogowanieNumer | apka | P1 | krok 1 logowania: telefon albo e-mail |
 | LogowanieBlad | apka | P1 | zły albo wygasły kod, limit prób |
 | BrakDostepu | apka | P1 | zalogowany bez stajni i zaproszenia |
 | WiadomosciSms | apka | P1 | treść SMS: zaproszenie, kod, eskalacja |
@@ -112,17 +118,19 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 | StajniaZawieszona | apka | P2 | stajnia `suspended` |
 | **B. Panel: logowanie, stajnia, ludzie** | | | |
 | PanelLogowanie | panel | P1 | wejście do panelu i rejestracji |
-| PanelLogowanieKod | panel | P1 | kod SMS w panelu |
+| PanelLogowanieKod | panel | P1 | kod z SMS-a albo e-maila w panelu |
 | PanelWitaj | panel | P1 | imię, język, wybór drogi po pierwszym logowaniu |
-| PanelZalozStajnie | panel | P1 | założenie działalności i stajni |
+| PanelRejestracjaFirmy | panel | P1 | konto firmy: NIP, nazwa, siedziba |
+| PanelZalozStajnie | panel | P1 | krok 1: stajnia, adres, boksy z konfiguracją, pory posiłków |
+| PanelZalozPowiadomienia | panel | P1 | krok 2: zdarzenia, odbiorcy, SMS albo e-mail |
 | PanelPulpitStart | panel | P1 | pierwsze kroki nowej stajni |
 | PanelDodajKonia | panel | P1 | dodanie konia i zaproszenie klienta |
 | PanelZaprosOsobe | panel | P1 | zaproszenie z rolą i walidacją |
 | PanelLudzie | panel | P1 | członkowie, zaproszenia, role |
 | PanelPrzeniesKonia | panel | P1 | przeniesienie, zamiana, przypisanie, wyjazd konia |
 | PanelPulpit | panel | P1 | start admina w panelu |
-| PanelPulpitBrzozowa | panel | P2 | pulpit Pawła |
-| PanelMenuKonta | panel | P2 | konto, stajnie, wylogowanie |
+| PanelPulpitBrzozowa | panel | P2 | pulpit Brzozowej (Damian) |
+| PanelMenuKonta | panel | P2 | konto firmy, stajnie, wylogowanie |
 | PanelKonie | panel | P2 | lista koni |
 | PanelEdytujHale | panel | P2 | edycja hali i boksów |
 | PanelSlowniki | panel | P2 | pasze, padoki, ujeżdżalnie |
@@ -146,7 +154,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 | SzybkaFlagaNieWyslano | apka | P2 | flaga niewysłana, bez duplikatu |
 | **E. Tablet** | | | |
 | TabletLogowanie | tablet | P1 | logowanie tabletu |
-| TabletLogowanieKod | tablet | P1 | kod SMS na tablecie |
+| TabletLogowanieKod | tablet | P1 | kod z SMS-a albo e-maila na tablecie |
 | TabletWylogowany | tablet | P1 | po wylogowaniu i global sign-out |
 | TabletBrakUprawnien | tablet | P1 | konto bez prawa do tabletu |
 | TabletWyborStajni | tablet | P1 | stajnia tabletu przy kilku członkostwach |
@@ -154,7 +162,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 | TabletBoksNiedostepny | tablet | P1 | odzyskanie: zapamiętany boks niedostępny |
 | TabletBoksWoda | tablet | P1 | tablica z poidłem ręcznym i WODA |
 | TabletBoksWolny | tablet | P1 | tablica wolnego boksu |
-| TabletUstawienia | tablet | P1 | ukryte ustawienia: konto, boks, sieć |
+| TabletUstawienia | tablet | P1 | ukryte ustawienia: konto, boks, język tablicy, sieć |
 | TabletDiagnostyka | tablet | P1 | lokalna diagnostyka |
 | TabletOffline | tablet | P1 | brak sieci, kolejka zapisów |
 | TabletAktualizacja | tablet | P1 | instalacja APK bez dotykania |
@@ -162,10 +170,9 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 | TabletZawieszona | tablet | P2 | stajnia zawieszona |
 | TabletWifi | tablet | P2 | zmiana sieci Wi-Fi |
 | **F. Wyświetlacz** | | | |
-| PanelLudzieWyswietlacze | panel | P1 | konta wyświetlaczy i instrukcja TV |
-| PanelDodajWyswietlacz | panel | P1 | nowe konto wyświetlacza |
+| PanelLudzieWyswietlacze | panel | P1 | Ludzie z filtrem roli Wyświetlacz, instrukcja TV |
 | WyswietlaczLogowanie | TV | P1 | logowanie telewizora |
-| WyswietlaczKod | TV | P1 | kod z e-maila |
+| WyswietlaczKod | TV | P1 | kod z e-maila albo SMS-a |
 | WyswietlaczWylogowany | TV | P1 | utrata sesji, dane ukryte |
 | WyswietlaczStart | TV | P1 | zimny start bez sieci |
 | WyswietlaczZablokowany | TV | P1 | konto zablokowane, stajnia zawieszona |
@@ -182,6 +189,10 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 | PrzeniesKonia | apka | P2 | przeniesienie konia w apce admina |
 | MojBoksWyborKonia | apka | P2 | historia przy dwóch koniach |
 | ListaDniaOffline | apka | P2 | lista dnia offline |
+| **I. Strona www** | | | |
+| StronaGlowna | www | P1 | prezentacja produktu, blog, wejście do panelu |
+| StronaGlownaTelefon | www w telefonie | P1 | ta sama strona w telefonie |
+| StronaWpis | www | P1 | wpis bloga |
 | **S. Plansze zbiorcze stanów** | | | |
 | StanyApka · StanyPanel · StanyTablet · StanyWyswietlacz | wszystkie | P1 | stany bez ● (2.1) |
 | **H. P3** | | | |
@@ -203,8 +214,8 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 ### A. Apka: logowanie, zaproszenia, konto
 
 **LogowanieNumer** · apka, niezalogowany · 390×844 · P1 · erd pkt 6; szcz. 4.2; dev §5 pkt 1–2
-- Treść: nagłówek jak Logowanie (logo 60 px na accent-soft, „eKoniuszy” 28 px, „Twoja stajnia w jednym miejscu”), bez paska; H1 „Zaloguj się”; „Numer telefonu” +48 „600 *** 412” (Anna); „Wyślemy kod SMS. Konto nie ma hasła.”; „Wyślij kod”; „Masz zaproszenie ze stajni? Wpisz numer, na który przyszło.”; mniejszym „Prowadzisz stajnię? Załóż ją w panelu web.” (dec. 1); Polityka prywatności.
-- Stany: zły format („Wpisz 9 cyfr numeru”); numer spoza Polski (tekst zależy od szcz. 2.5 i §5 pkt 24; przy blokadzie krajów „Obsługujemy tylko numery z Polski (+48)”); limit wysyłek („Spróbuj ponownie za kilka minut”); brak sieci. „600…”, „+48 600…”, „0048…” to ten sam numer, bez stanu. Zakładka „E-mail” tylko przy dec. 7 b.
+- Treść: nagłówek jak Logowanie (logo 60 px na accent-soft, „eKoniuszy” 28 px, „Twoja stajnia w jednym miejscu”), bez paska; H1 „Zaloguj się”; przełącznik „Telefon | E-mail” (2.3), wybrany Telefon: +48 „600 *** 412” (Anna); „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”; „Wyślij kod”; „Masz zaproszenie ze stajni? Wpisz numer albo e-mail, na który przyszło.”; mniejszym „Prowadzisz stajnię? Załóż konto firmy w panelu web.” (dec. 1); Polityka prywatności.
+- Stany: zły format („Wpisz 9 cyfr numeru”); numer spoza Polski (tekst zależy od szcz. 2.5 i §5 pkt 24; przy blokadzie krajów „Obsługujemy tylko numery z Polski (+48)”); limit wysyłek („Spróbuj ponownie za kilka minut”); brak sieci; E-mail (zły format: „Wpisz poprawny adres e-mail”). „600…”, „+48 600…”, „0048…” to ten sam numer, bez stanu.
 
 **LogowanieBlad** · wariant Logowanie · 390×844 · P1 · szcz. 3.6 etap 1, 4.2
 - Treść: układ Logowanie, numer zamaskowany, 6 pól z ramką „uwaga”: „Zły kod. Sprawdź SMS i wpisz go ponownie.”; „Wyślij kod ponownie”, „Zmień numer”.
@@ -216,7 +227,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 
 **WiadomosciSms** · plansza z treścią SMS · 390×844 · P1 · erd pkt 6; szcz. 2.5, 3.3 notifications, 4.2, A-02, §5 pkt 24
 - Treść: wątek od nadawcy „eKoniuszy” (nazwa: szcz. §5 pkt 24); pod dymkiem liczba znaków i segmentów (polskie znaki: segment 70): zaproszenie Marka „Stajnia Pod Lipami zaprasza Cię do eKoniuszy jako klienta (koń: Luna). Pobierz aplikację: [WWW]/app i zaloguj się tym numerem. Ważne do 15.10.” (bez tokenu); kod „Kod eKoniuszy: 482913”, bez linku; eskalacja do Damiana (A-02) „eKoniuszy: Bella · Hala nowa · boks 4 · „Nie na padok” niepotwierdzona. Sprawdź tablet albo potwierdź w aplikacji.”; obok wersja UA zaproszenia obsługi (dec. 8).
-- Stany: ponowne zaproszenie (+48 512 *** 908); e-mail zaproszenia tylko przy dec. 7 b.
+- Stany: ponowne zaproszenie (+48 512 *** 908); e-mail zaproszenia (Kuba, k•••@stajnielipowe.pl) i e-mail z kodem (dec. 7).
 
 **ZaproszenieStrona** · www w telefonie · 390×844 · P1 · analiza 8.1; erd pkt 6; dev 2
 - Treść: znak; H1 „Masz zaproszenie do stajni?”; kroki: pobierz eKoniuszy (App Store, Google Play), zaloguj się numerem, na który przyszło zaproszenie, przyjmij je w apce; „Zarządzasz stajnią? Panel: [PANEL]”; bez tokenu i danych zaproszenia.
@@ -225,7 +236,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 **ZaproszeniePrzyjmij** · apka, pierwsze logowanie zaproszonej osoby · 390×844 · P1 · dec. 4, 6, 9 · erd pkt 3, 6, 14; szcz. 3.3 access, 4.2, A-06, A-17
 - Treść: Marek Nowak; logo, bez paska; H1 „Masz zaproszenie”; karta „Stajnia Pod Lipami zaprasza Cię” · „Klient: widzisz konia i jego boks, ustawiasz flagi.” · „Koń: Luna · jeszcze bez boksu” · „Zaprosił: Damian (admin)” · „Ważne do czw 15.10”; „O Tobie” (tylko nowe konto): „Imię i nazwisko” = Marek Nowak (podpowiedź z zaproszenia), „Tak zobaczy Cię obsługa przy Twoich flagach.”, język Polski | Українська | English, polityka prywatności; „Przyjmij zaproszenie”; „To nie mój numer · Wyloguj”.
 - Stany: Obsługa: Bartek (+48 512 *** 908, nowe zaproszenie), „Zobaczysz wszystkie konie, szybkie akcje i zadania.”; Instruktor (Marta) i Wsparcie IT (Kuba, opis z erd pkt 14); kilka zaproszeń (lista kart); „Przyjmuję…”; 409 „To zaproszenie zostało już przyjęte”; po terminie → BrakDostepu.
-- ● **ZaproszenieNoweStajnia** (dec. 5): arkusz na ekranie startowym apki (logo na accent-soft, scena czw 01.10): „Stajnia Brzozowa zaprasza Cię jako Klient · Kometa · boks 1 · Zaprosił: Paweł (admin) · ważne do czw 08.10”, „Przyjmij”, „Później”; po przyjęciu toast „Masz teraz 2 stajnie” i przełącznik w nagłówku. Stan: Ola jako Obsługa.
+- ● **ZaproszenieNoweStajnia** (dec. 5): arkusz na ekranie startowym apki (logo na accent-soft, scena czw 01.10): „Stajnia Brzozowa zaprasza Cię jako Klient · Kometa · boks 1 · Zaprosił: Damian (admin) · ważne do czw 08.10”, „Przyjmij”, „Później”; po przyjęciu toast „Masz teraz 2 stajnie” i przełącznik w nagłówku. Stan: Ola jako Obsługa.
 
 **MainLuna** · wariant Main · 390×844 · P1 · erd pkt 1, 3; szcz. A-04, A-06
 - Treść: „Stajnia Pod Lipami” bez ▾, bez dzwonka; H1 „Dzień dobry, Marek”; jednorazowa karta „Witaj w Stajni Pod Lipami” z „Zamknij”; „Luna · bez boksu · w stajni od pn 12.10”, „Brak aktywnych flag”, „Luna nie ma jeszcze boksu. Flagi Luny obsługa widzi w apce, a na tablecie przy boksie pojawią się po przypisaniu boksu.”; bez linii rutyny; „Szybka flaga · dla: Luna”, 7 kafelków z Derką; pasek klienta.
@@ -233,7 +244,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 
 **Profil** · apka, wszystkie role · 390×960 · P1 · dec. 12, 33 · erd pkt 2, 6; szcz. 2.1, 2.7, 2.8, 3.3 identity, 4.2, T-23; analiza 8.5
 - Treść: Ola z paskiem obsługi; H1 „Profil”; „Ty”: Ola („Zmień”), „+48 607 *** 218” ze „Zmień numer”; „Język aplikacji”: Polski | Українська | English; „Moje stajnie”: Stajnia Pod Lipami · Obsługa (✓), Stajnia Brzozowa · Obsługa; „Sesja”: „Wyloguj”, „Wyloguj ze wszystkich urządzeń” („Wyloguje też tablety przy boksach zalogowane tym kontem.”), „Usuń konto” (tekst destrukcyjny); polityka prywatności, wersja.
-- Stany: Anna (pasek klienta); ● **ProfilAdmin** (Damian): „Zarządzanie stajnią · w panelu web” (Pulpit, Konie, Ustawienia stajni, Płatności „Subskrypcja aktywna”), „Usuń konto” zablokowane: „Jesteś jedynym adminem Stajni Pod Lipami. Przekaż rolę admina, zanim usuniesz konto.”; dialog „Wyloguj ze wszystkich urządzeń?”; dialog usunięcia „Twoje dane osobowe zostaną usunięte, a wpisy w historii stajni zostaną bez nazwiska.” (`DELETE /me`).
+- Stany: Anna (pasek klienta); ● **ProfilAdmin** (Damian): „Zarządzanie stajnią · w panelu web” (Pulpit, Konie, Ustawienia stajni, Płatności „Subskrypcja aktywna”), „Usuń konto” zablokowane: „Jesteś jedynym adminem konta firmy. Przekaż rolę admina, zanim usuniesz konto.”; dialog „Wyloguj ze wszystkich urządzeń?”; dialog usunięcia „Twoje dane osobowe zostaną usunięte, a wpisy w historii stajni zostaną bez nazwiska.” (`DELETE /me`).
 
 **PrzelacznikStajni** · apka, arkusz nad Main · 390×844 · P1 · dec. 21 · szcz. 3.3 access, stable, 4.2, A-17
 - Treść: Anna; Main pod nakładką rgba(46,36,29,.40); „Twoje stajnie”, wiersze 64 px: „Stajnia Pod Lipami · Klient · Kasztan, Bella” (✓ teraz), „Stajnia Brzozowa · Klient · Kometa · flagi obowiązują od razu”; „Każda stajnia ma własne ustawienia. Po zmianie zobaczysz tylko to, co ta stajnia włączyła.”; „Zamknij”.
@@ -244,7 +255,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 - Stany: odwołane; przyjęte („przyjęte 13.10 07:24 · Bartek”); błąd wysyłki.
 
 **LudzieAdmin** · apka admina · 390×960 · P2 · jak PanelLudzie
-- Treść: Damian; H1 „Ludzie”, „+ Zaproś osobę”, chipy Wszyscy · Obsługa · Klienci · Inne; grupy jak PanelLudzie; `wyswietlacz-korytarz` z „zarządzanie w panelu”; „Zaproszenia”.
+- Treść: Damian; H1 „Ludzie”, „+ Zaproś osobę”, chipy Wszyscy · Obsługa · Klienci · Inne; grupy jak PanelLudzie; „Telewizor korytarz · Wyświetlacz” z „zarządzanie w panelu”; „Zaproszenia”.
 
 **ProfilZmianaNumeru** · apka · 390×844 · P2 · erd pkt 6; szcz. 4.2
 - Treść: nowy numer, kod SMS na nowy numer, „Stary numer przestanie służyć do logowania. Stajnie i dostępy zostają przy koncie.”
@@ -264,33 +275,42 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 ### B. Panel: logowanie, stajnia, ludzie
 
 **PanelLogowanie** · panel, niezalogowany · 1440×900 fill · P1 · dec. 7, 18 · szcz. 3.6 etap 1, §5 pkt 1, 15; analiza §9
-- Treść: tło bg, bez menu; karta 440 px: logo, „eKoniuszy”, H1 „Zaloguj się do panelu stajni”; numer +48 (Paweł „601 *** 377”), „Wyślij kod”; obok neutralnie „Panel web stajni: hale i boksy, konie, ludzie, ustawienia, płatności.”, a „Obsługa i klienci pracują w apce eKoniuszy.” tylko przy dec. 18 a; Regulamin, Polityka prywatności.
-- Stany: ● **PanelLogowanieKod** (6 pól, „Kod jest ważny 10 minut”, „Wyślij ponownie za 0:42”, „Zmień numer”); zły albo wygasły kod; limit prób.
+- Scena: Damian, pn 07.09 (rejestracja konta firmy).
+- Treść: tło bg, bez menu; karta 440 px: logo, „eKoniuszy”, H1 „Zaloguj się do panelu stajni”; przełącznik „Telefon | E-mail” (2.3), +48 „602 *** 145”, „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”, „Wyślij kod”; obok neutralnie „Panel web stajni: hale i boksy, konie, ludzie, ustawienia, płatności.”, a „Obsługa i klienci pracują w apce eKoniuszy.” tylko przy dec. 18 a; Regulamin, Polityka prywatności.
+- Stany: ● **PanelLogowanieKod** (6 pól, „Kod jest ważny 10 minut”, „Wyślij ponownie za 0:42”, „Zmień numer” albo „Zmień e-mail”); zły albo wygasły kod; limit prób.
 
-**PanelWitaj** · panel, bez stajni albo bez roli Admin · 1440×900 fill · P1 · dec. 1, 9, 18 · erd pkt 6; szcz. 3.3 identity (`GET /me`, `PATCH /me`), access; analiza §9
-- Treść: Paweł przy pierwszym logowaniu (SMS OTP nie daje imienia); karta „Witaj w eKoniuszy”: (1) „Jak się nazywasz?”: „Imię i nazwisko” = Paweł, język Polski | Українська | English, „Zapisz”, link do polityki; (2) „Nie należysz jeszcze do żadnej stajni.”: „Załóż stajnię” (główny, „Zostaniesz jej adminem.”) i „Czekasz na zaproszenie?” („Poproś admina stajni o zaproszenie na +48 601 *** 377 i odśwież stronę.”); „Wyloguj”.
-- Stany: oczekujące zaproszenie (karta jak ZaproszeniePrzyjmij z „Przyjmij”); profil uzupełniony (tylko część 2); przy dec. 18 a rola inna niż Admin (Ola): „Panel web jest dla admina stajni. Flagi, szybkie akcje i zadania masz w apce eKoniuszy.” z linkami do sklepów; przy dec. 1 b kontakt zamiast „Załóż stajnię”.
+**PanelWitaj** · panel, bez konta firmy i członkostwa · 1440×900 fill · P1 · dec. 1, 9, 18 · erd pkt 6, 15; szcz. 3.3 identity (`GET /me`, `PATCH /me`), access; analiza §9
+- Treść: Damian przy pierwszym logowaniu, pn 07.09 (kod nie daje imienia); karta „Witaj w eKoniuszy”: (1) „Jak się nazywasz?”: „Imię i nazwisko” = Damian, język Polski | Українська | English, „Zapisz”, link do polityki; (2) „Nie należysz jeszcze do żadnej stajni.”: „Załóż konto firmy” (główny, → PanelRejestracjaFirmy) i „Czekasz na zaproszenie?” („Poproś admina stajni o zaproszenie na +48 602 *** 145 i odśwież stronę.”); „Wyloguj”.
+- Stany: oczekujące zaproszenie (karta jak ZaproszeniePrzyjmij z „Przyjmij”); profil uzupełniony (tylko część 2); przy dec. 18 a rola inna niż Admin (Ola): „Panel web jest dla admina stajni. Flagi, szybkie akcje i zadania masz w apce eKoniuszy.” z linkami do sklepów.
 
-**PanelZalozStajnie** · panel · 1440×900 fill, wyższa w razie potrzeby · P1 · dec. 2, 3, 28, 29 · analiza §5.5, §9; erd pkt 10, 11, 15, 16; szcz. 3.3 stable, §5 pkt 23, 27, 49
-- Scena: Paweł zakłada Stajnię Brzozową; jedna strona zamiast kreatora (`POST /stables`), reszta w Ustawieniach stajni i „Dodaj halę”.
-- Treść: nagłówek: znak, „Zakładasz stajnię”, „P Paweł ▾”, bez menu; H1 „Załóż stajnię”; **Działalność:** „Nowa działalność” „Gospodarstwo Brzozowa”, „Istniejąca działalność” nieaktywna, „Działalność grupuje stajnie. Ludzie, konie, ustawienia i płatności są osobne w każdej stajni.”; **Stajnia:** „Stajnia Brzozowa”, strefa „Europa/Warszawa”, języki tabletów polski i ukraiński, angielski jako opcja; **Adres:** „ul. Brzozowa 5, 05-500 Piaseczno”, „To adres pierwszej hali. Kolejne hale dodasz w Boksy i konie → Dodaj halę.”; **Boksy:** „od 1 do 6” → „6 boksów: 1–6, automatyczne poidło”, hala „Hala główna” (propozycja), „Przy jednej hali nie pokazujemy podziału na hale.”, opcja „Bez boksów na razie”; **Pory posiłków:** 06:30, 12:00, 18:00 „codziennie”, „+ Dodaj porę”, etykiety UA i EN zwinięte; **Potwierdzenia flag** (propozycja): „Obsługa potwierdza flagi (domyślnie)” albo „Flagi obowiązują od razu” (Paweł: drugie); „Pozostałe usługi są włączone: derki, moczenie paszy, wszystkie flagi, Ogarnięte, Posiłek, Padok. Zmienisz je w Ustawieniach stajni.” (erd pkt 16); kolumna „Co dalej”: konie, zaproszenia, tablety, wyświetlacz (opcjonalnie); stopka „Zostaniesz adminem tej stajni.”, „Załóż stajnię”.
-- Stany: walidacja (brak nazwy albo adresu, „od” większe niż „do”); „Zakładamy stajnię…”; błąd „Nie udało się. Spróbuj ponownie, druga kopia nie powstanie.”; wariant „Dodaj stajnię do działalności” z PanelMenuKonta (P2): „Istniejąca działalność: Gospodarstwo Brzozowa”, „Stajnia Olszynka”, „Wspólna działalność nie daje dostępu między stajniami.”
+**PanelRejestracjaFirmy** · panel · 1440×900 fill · P1 · dec. 1, 3, 35 · erd pkt 14, 15
+- Treść: Damian, pn 07.09; nagłówek jak PanelZalozStajnie, bez menu; H1 „Załóż konto firmy”; „NIP” 123-456-32-18, „Nazwa firmy” Stajnie Lipowe sp. z o.o., „Adres siedziby” ul. Lipowa 12, 05-520 Konstancin-Jeziorna, „E-mail do faktur”; „NIP podajesz raz. Kolejne stajnie dodasz bez niego.”; „Zostaniesz adminem konta i będziesz mieć dostęp do wszystkich stajni firmy.”; „Dalej: załóż stajnię” → PanelZalozStajnie.
+- Stany: „Ten NIP ma już konto w eKoniuszy” (z podpowiedzią, żeby poprosić admina tego konta o zaproszenie, propozycja); zły NIP (cyfra kontrolna); „Zapisuję…”.
 
-**PanelPulpitStart** · wariant PanelPulpit · 1440×900 fill · P1 · erd pkt 11, 16; analiza §9
-- Treść: Paweł w dniu założenia; nagłówek panelu („Stajnia Brzozowa ▾”, „P Paweł (admin) ▾”), menu z Pulpitem; baner OK „Stajnia Brzozowa założona. Jesteś jej adminem.”; „Pierwsze kroki · 3 z 7”: ✓ Stajnia (ul. Brzozowa 5, Piaseczno); ✓ Boksy 1–6; ✓ Ustawienia „potwierdzenia wyłączone, pozostałe usługi włączone” z „Sprawdź”; ○ „Dodaj konia” (0 z 6 boksów zajętych); ○ „Zaproś osobę”; ○ zaloguj tablety (3 kroki); ○ wyświetlacz (opcjonalnie, „Pomiń”); kafle 6 boksów · 0 koni · 1 osoba (Ty); puste karty, np. „Flagi pojawią się, gdy dodasz konie i klientów.”
-- Stany: w połowie (5 koni, zaproszenia Anny i Oli „czeka”); wszystko zrobione (karta znika: PanelPulpitBrzozowa).
+**PanelZalozStajnie** · panel, krok 1 z 2 · 1440×900 fill, wyższa w razie potrzeby · P1 · dec. 2, 3, 28 · analiza §5.5, §9; erd pkt 11, 15, 16, 17; szcz. 3.3 stable, §5 pkt 23, 27, 49
+- Scena: Damian (admin konta) dodaje Stajnię Brzozową, czw 01.10; zapis dopiero na końcu kroku 2 (`POST /stables`), reszta w Ustawieniach stajni i „Dodaj halę”.
+- Treść: nagłówek: znak, „Zakładasz stajnię”, „D Damian ▾”, bez menu; kroki „1 Stajnia · 2 Powiadomienia”; H1 „Załóż stajnię”; bez działalności i NIP-u (są w koncie firmy), języków tabletów (ustawia każdy tablet) i potwierdzeń flag; **Stajnia:** „Stajnia Brzozowa”, strefa „Europa/Warszawa”; **Adres:** „ul. Brzozowa 5, 05-500 Piaseczno”, „To adres pierwszej hali. Kolejne hale dodasz w Boksy i konie → Dodaj halę.”; **Boksy:** „od 1 do 6” i od razu lista 6 wierszy: numer, poidło automatyczne | ręczne, „Więcej ustawień ›”; „Ustaw dla wszystkich”; hala „Hala główna”, „Przy jednej hali nie pokazujemy podziału na hale.”, opcja „Bez boksów na razie”; **Pory posiłków:** 06:30, 12:00, 18:00 „codziennie”, „+ Dodaj porę”, etykiety UA i EN zwinięte; „Nowa stajnia ma włączone wszystkie usługi i potwierdzenia flag. Zmienisz je w Ustawieniach stajni.” (erd pkt 16); kolumna „Co dalej”: konie, zaproszenia, tablety, wyświetlacz (opcjonalnie); stopka „Dalej: powiadomienia” → PanelZalozPowiadomienia.
+- Stany: walidacja (brak nazwy albo adresu, „od” większe niż „do”); „Ustaw dla wszystkich” (np. poidło ręczne w każdym wierszu); pierwsza stajnia zaraz po PanelRejestracjaFirmy (Pod Lipami, 07.09).
+
+**PanelZalozPowiadomienia** · panel, krok 2 z 2 · 1440×900 fill · P1 · dec. 2, 7 · erd pkt 16, 17
+- Treść: Damian, Stajnia Brzozowa, czw 01.10; nagłówek i kroki jak w kroku 1 („2 Powiadomienia”); H1 „Powiadomienia”; tabela: zdarzenia (flaga niepotwierdzona na czas, nowa flaga od klienta, przyjęte i wygasłe zaproszenie, faktura i nieudana płatność) × odbiorcy (Admin, Obsługa stajni) × kanał (SMS, e-mail), z checkboxami; przy eskalacji „Działa, gdy flagi wymagają potwierdzenia.”; „Zmienisz to później w Ustawieniach stajni.”; „← Wstecz”, „Załóż stajnię” → PanelPulpitStart.
+- Stany: „Zakładamy stajnię…”; błąd „Nie udało się. Spróbuj ponownie, druga kopia nie powstanie.”
+
+**PanelPulpitStart** · wariant PanelPulpit · 1440×900 fill · P1 · erd pkt 11, 16, 17; analiza §9
+- Treść: Damian w dniu dodania Brzozowej (czw 01.10); nagłówek panelu („Stajnia Brzozowa ▾”, „D Damian (admin) ▾”), menu z Pulpitem; baner OK „Stajnia Brzozowa założona.”; „Pierwsze kroki”: ✓ Stajnia (ul. Brzozowa 5, Piaseczno); ✓ Boksy 1–6; ✓ Powiadomienia; ✓ Ustawienia „wszystko włączone, także potwierdzenia flag” z „Sprawdź”; ○ „Dodaj konia” (0 z 6 boksów zajętych); ○ „Zaproś osobę”; ○ zaloguj tablety (3 kroki); ○ wyświetlacz (opcjonalnie, „Pomiń”; konto zaprasza się z rolą Wyświetlacz); kafle 6 boksów · 0 koni · osoby; puste karty, np. „Flagi pojawią się, gdy dodasz konie i klientów.”
+- Stany: w połowie (5 koni, zaproszenia Pawła, Anny i Oli „czeka”); wszystko zrobione (karta znika: PanelPulpitBrzozowa).
 
 **PanelDodajKonia** · panel, dialog · 1440×900 fill · P1 · dec. 6 · erd pkt 1, 3; szcz. 3.3 stable, access; A-04
 - Treść: dialog nad „Boksy i konie” Pod Lipami, Damian dodaje Lunę (pn 12.10): „Imię” Luna; rasa, data urodzenia, zdjęcie (opcjonalne); „Boks”: „Bez boksu na razie” (wybrane) albo „Wolny boks”: „Hala główna · boks 3” / „Hala nowa · boks 6”, „Koń bez boksu nie pojawi się na tablecie. Obsługa widzi go w apce.”; „Klient”: „Zaproś klienta teraz” (SMS, numer, „Imię (widzi tylko admin)” = Marek Nowak, „Ważne do” czw 15.10 zamiast domyślnych 7 dni), „Później” albo „Koń bez klienta”; „Plan karmienia ustawisz w karcie konia.”; „Anuluj”, „Dodaj konia i wyślij zaproszenie”.
 - Stany: zapisano (Luna w „Konie bez boksu”, „Klient: Marek Nowak · zaproszenie czeka”); 409 „Boks zajął inny koń, wybierz inny”.
 
-**PanelZaprosOsobe** · panel, dialog · 1440×900 fill · P1 · dec. 6, 7, 8, 33 · erd pkt 3, 6, 14; szcz. 3.3 access, 4.2, §5 pkt 24
-- Treść: dialog nad PanelPulpitStart (Paweł); kanał SMS (E-mail tylko przy dec. 7 b); „+48 607 *** 218” (Ola); rola jako radio z opisami: Klient (wymaga konia), Obsługa (zaznaczona, „widzi wszystkie konie, robi szybkie akcje”), Instruktor, Wsparcie IT (opis z erd pkt 14); „Imię (widzi tylko admin)” = Ola; „Język wiadomości” PL | UA; „Ważne do” czw 08.10 (domyślnie 7 dni); podgląd SMS; „Wyślij zaproszenie”.
-- Stany: Klient (wymagany „Koń”: Anna · Kometa); Instruktor; Wsparcie IT; wysłano (toast „Wysłano zaproszenie SMS · ważne do 08.10”); błąd wysyłki („Nie wysłano, spróbuj ponownie”); walidacja na jednym fragmencie: zły format numeru, „Ważne do” w przeszłości, Klient bez konia, na ten numer czeka już zaproszenie („Wyślij ponownie” zamiast nowego), osoba jest już członkiem z inną rolą („Zmień rolę w Ludzie”); klient już w stajni: „Nadaj dostęp do konia” (propozycja, dec. 33).
+**PanelZaprosOsobe** · panel, dialog · 1440×900 fill · P1 · dec. 6, 7, 8, 11, 33, 35 · erd pkt 3, 4, 6, 14; szcz. 3.3 access, 4.2, §5 pkt 24
+- Treść: dialog nad PanelPulpitStart (Damian zaprasza Pawła do Brzozowej, czw 01.10); „Kanał: SMS | E-mail” jak w Zaproszenie (SMS); „+48 601 *** 377”; rola jako radio z opisami: Klient (wymaga konia), Obsługa (zaznaczona, „widzi wszystkie konie, robi szybkie akcje”), Instruktor, Wsparcie IT (opis z erd pkt 14), Wyświetlacz (konto telewizora); bez roli Admin (rola konta firmy, dec. 35); „Imię (widzi tylko admin)” = Paweł; „Język wiadomości” PL | UA; „Ważne do” czw 08.10 (domyślnie 7 dni); podgląd SMS; „Wyślij zaproszenie”.
+- Stany: Klient (wymagany „Koń”: Anna · Kometa); Instruktor; Wsparcie IT (Kuba, e-mail k•••@stajnielipowe.pl); Wyświetlacz (Pod Lipami, „Telewizor korytarz”, e-mail); wysłano (toast „Wysłano zaproszenie SMS · ważne do 08.10”); błąd wysyłki („Nie wysłano, spróbuj ponownie”); walidacja na jednym fragmencie: zły format numeru, „Ważne do” w przeszłości, Klient bez konia, na ten numer czeka już zaproszenie („Wyślij ponownie” zamiast nowego), osoba jest już członkiem z inną rolą („Zmień rolę w Ludzie”); klient już w stajni: „Nadaj dostęp do konia” (propozycja, dec. 33).
 
 **PanelLudzie** · panel · 1440×900 fill · P1 · dec. 33 · erd pkt 3, 14; szcz. 3.3 access
-- Treść: Damian; H1 „Ludzie · Stajnia Pod Lipami”, „Zaproś osobę”; zakładki Członkowie | Zaproszenia 2 | Wyświetlacze 1; chipy ról, wyszukiwarka; tabela (Osoba, Rola, Konie, Kontakt zamaskowany, Status, Akcje): Damian · Admin; Ola, Piotr · Obsługa; Anna · Klient · Kasztan, Bella; Karolina W. · Iskra; Tomasz L. · Grom; Ewa K. · Sonata; Marta · Instruktor, Kuba · Wsparcie IT; akcje „Zmień rolę”, „Dezaktywuj”, u klienta „Konie i dostęp” (`valid_to`, `revoked_at`).
-- Stany: zakładka Zaproszenia (Marek Nowak „wygasa za 2 dni” z „Odwołaj”; +48 512 *** 908 „wygasło 08.10” z „Wyślij ponownie”; filtr przyjętych i odwołanych); dezaktywacja („Dostęp znika od razu. Tablety zalogowane tym kontem pokażą brak uprawnień.”); nadanie roli Admin i dostępu do kolejnego konia; nowa stajnia (sam admin).
+- Treść: Damian; H1 „Ludzie · Stajnia Pod Lipami”, „Zaproś osobę”; zakładki Członkowie | Zaproszenia 2; filtr roli (chipy, także „Wyświetlacz”), wyszukiwarka; tabela (Osoba, Rola, Konie, Kontakt zamaskowany, Status, Akcje): Damian · Admin konta (wszystkie stajnie); Ola, Piotr · Obsługa; Anna · Klient · Kasztan, Bella; Karolina W. · Iskra; Tomasz L. · Grom; Ewa K. · Sonata; Marta · Instruktor, Kuba · Wsparcie IT; Telewizor korytarz · Wyświetlacz · t•••@stajnielipowe.pl; akcje „Zmień rolę”, „Dezaktywuj”, u klienta „Konie i dostęp” (`valid_to`, `revoked_at`).
+- Stany: zakładka Zaproszenia (Marek Nowak „wygasa za 2 dni” z „Odwołaj”; +48 512 *** 908 „wygasło 08.10” z „Wyślij ponownie”; filtr przyjętych i odwołanych); dezaktywacja („Dostęp znika od razu. Tablety zalogowane tym kontem pokażą brak uprawnień.”); nadanie dostępu do kolejnego konia; nowa stajnia (pusta lista, admin konta tylko w nagłówku).
 
 **PanelPrzeniesKonia** · panel, dialog · 1440×900 fill · P1 · erd pkt 1; szcz. 3.3 stable, 3.6 etap 2, A-04
 - Treść: „Przenieś konia · Wicher” nad PanelBoksy: wolne boksy z halą („Hala główna · boks 3”, „Hala nowa · boks 6”), „Zamień z…”, „Wyjazd ze stajni” ze skutkami (zamyka flagi, plany, dostępy i jazdy; koń zostaje w historii, `horse.left`).
@@ -301,26 +321,28 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 - Stany: bez pilnych flag; przyciski obsługi wyłączone (jak PanelBoksyBezAkcji); pusta stajnia → PanelPulpitStart; płatność po terminie albo zawieszenie (baner).
 
 **PanelPulpitBrzozowa** · wariant PanelPulpit · 1440×900 fill · P2 · dev 3.2
-- Treść: Paweł; bez alertów i hal; śniadanie ✓ 06:35 · Paweł bez Komety; Ogarnięte 3 z 6; flagi Komety i Lorda „obowiązują od razu”; „Stajnia nie ma wyświetlacza · Dodaj”.
+- Treść: Damian po przełączeniu na Brzozową; bez alertów i hal; śniadanie ✓ 06:35 · Paweł bez Komety; Ogarnięte 3 z 6; flagi Komety i Lorda „obowiązują od razu”; „Stajnia nie ma wyświetlacza” z „Zaproś osobę”.
 
 **PanelMenuKonta** · panel, popover · 1440×900 fill · P2 · dec. 1, 3 · erd pkt 15; szcz. 3.3 stable, 4.2
-- Treść: popover 320 px nad PanelPulpit: „Damian · Admin · Stajnia Pod Lipami”, telefon zamaskowany, „Profil i język”, „Twoje stajnie” (Stajnia Pod Lipami · Admin ✓), „Załóż nową stajnię”, „Wyloguj”, „Wyloguj ze wszystkich urządzeń” z dopiskiem o tabletach.
-- Stany: Paweł z dwiema stajniami w „Gospodarstwo Brzozowa” (Stajnia Brzozowa ✓, Stajnia Olszynka) i „+ Dodaj stajnię do tej działalności”.
+- Treść: popover 320 px nad PanelPulpit: „Damian · admin konta · Stajnie Lipowe sp. z o.o.”, telefon i e-mail zamaskowane, „Profil i język”, „Konto firmy” (NIP, siedziba; na PoC do odczytu, propozycja), „Stajnie firmy” (Stajnia Pod Lipami ✓, Stajnia Brzozowa), „Załóż stajnię” (→ PanelZalozStajnie, bez NIP-u), „Wyloguj”, „Wyloguj ze wszystkich urządzeń” z dopiskiem o tabletach.
 
 **PanelKonie** · panel · 1440×900 fill · P2 · erd pkt 1; szcz. 3.3 stable
 - Treść: Damian; H1 „Konie · 13 koni · 1 bez boksu”, „Dodaj konia”; filtr hali, chipy Wszystkie · Z flagą · Bez boksu · Odeszły, wyszukiwarka; kolumny Koń, Boks z halą, Klient, Aktywne flagi z godzinami, Plan karmienia, Najbliższa wizyta, Akcje (Karta, Flaga, Przenieś); np. Kasztan · Główna 7 · Anna · Bez śniadania 06:00–10:00, Nie na padok od 14:30 · wet 08:00; Bella · Nowa 4 · Anna · niepotwierdzona; Luna · bez boksu · Marek Nowak (zaproszenie czeka) · „Przypisz boks”.
 - Stany: filtr „Bez boksu” (Luna); pusta stajnia („Dodaj pierwszego konia”); „Odeszły” pusty w seedzie.
 
+**PanelDodajHale** (jest, poprawka po decyzji 13.10) · panel · 1440×900 fill · erd pkt 11
+- Boksy jak w PanelZalozStajnie: po zakresie („od 1 do 6”) od razu lista boksów, w wierszu numer, poidło automatyczne | ręczne i „Więcej ustawień ›”; „Ustaw dla wszystkich”.
+
 **PanelEdytujHale** · wariant PanelDodajHale · 1440×900 fill · P2 · erd pkt 11; szcz. 3.3 stable, A-11
-- Treść: Hala nowa: nazwa, adres ul. Polna 3, kolejność, „Aktywna”, „Usuń halę” nieaktywne z „Hala ma 6 boksów”; „+ Dodaj boks” (numer, domyślnie poidło automatyczne).
+- Treść: Hala nowa: nazwa, adres ul. Polna 3, kolejność, „Aktywna”, „Usuń halę” nieaktywne z „Hala ma 6 boksów”; „+ Dodaj boks” (wiersz jak w PanelDodajHale: numer, poidło, „Więcej ustawień ›”).
 - Stany: przeniesienie boksu do innej hali (zachowuje `id` i historię, A-11); wyłączenie hali (`active = false`); usunięcie pustej hali; 409 przy hali z boksami.
 
 **PanelSlowniki** · panel, zakładka ustawień · 1440×900 fill · P2 · dec. 34 · erd pkt 9; szcz. 3.3 (`stable.created`)
 - Treść: zakładki Pasze | Padoki | Ujeżdżalnie; pasze z rodzajem (`feed | supplement | medicine`) i jednostką (`kg | g | miarka | szt`): owies, siano, suplement X, wysłodki, sieczka; Padok A, Padok B; kryta ujeżdżalnia z pojemnością; „+ Dodaj”; pozycja użyta w planach tylko „Wyłącz” (`active`, propozycja).
 - Stany: 412; nowa stajnia (słowniki z `stable.created`).
 
-**PanelUstawieniaOgolne** · panel, zakładka ustawień · 1440×900 fill · P2 · dec. 28 · erd `stables`, `stable_settings`, `stable_locales`, `meal_slots`; szcz. 3.3 stable
-- Treść: Damian: nazwa, strefa i języki stajni; „Eskalacje”: ostrzeżenie na tablicy 30 min, powiadomienie admina 15 min; „Autor flagi na tablecie”: rola, inicjał albo imię; „Klient edytuje plan karmienia”; „Jazdy” (`rides_enabled`); pory posiłków 06:30, 12:00, 18:00; „Okno instalacji aktualizacji tabletów”.
+**PanelUstawieniaOgolne** · panel, zakładka ustawień · 1440×900 fill · P2 · dec. 28 · erd `stables`, `stable_settings`, `meal_slots`; szcz. 3.3 stable
+- Treść: Damian: nazwa i strefa stajni (bez języków: język ustawia każdy tablet); „Eskalacje”: ostrzeżenie na tablicy 30 min, powiadomienie admina 15 min; „Powiadomienia”: tabela jak w PanelZalozPowiadomienia; „Autor flagi na tablecie”: rola, inicjał albo imię; „Klient edytuje plan karmienia”; „Jazdy” (`rides_enabled`); pory posiłków 06:30, 12:00, 18:00; „Okno instalacji aktualizacji tabletów”.
 - Stany: 412 przy równoległej edycji.
 
 **PanelUstawieniaZapis** · wariant PanelUstawieniaStajni · 1440×900 fill · P2 · szcz. 3.3 stable, flags, A-19, §5 pkt 48
@@ -337,15 +359,15 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
   - Admin w apce: AdminDzis; Boksy → BoksyAdmin, Zadania → AdminZadania, Ludzie → LudzieAdmin, Profil → ProfilAdmin (dec. 17);
   - Admin w panelu: PanelPulpit; Boksy, Konie → PanelKonie, Ludzie → PanelLudzie, Płatności, Ustawienia, konto → PanelMenuKonta;
   - Instruktor: InstruktorJazdy [rides + `rides_enabled`]; Flagi [flags]; Profil. Wsparcie IT: WsparcieITStart [device_diagnostics], Profil; w panelu PanelDiagnostyka;
-  - Wyświetlacz: WyswietlaczLogowanie → WyswietlaczCentralny (domyślnie wszystkie hale) ⇄ „Pełny ekran” WyswietlaczHala albo WyswietlaczHalaGlowna;
+  - Wyświetlacz (zwykłe konto z rolą Wyświetlacz): WyswietlaczLogowanie → WyswietlaczKod → WyswietlaczCentralny (domyślnie wszystkie hale) ⇄ „Pełny ekran” WyswietlaczHala albo WyswietlaczHalaGlowna;
   - Tablet: TabletLogowanie → (TabletWyborStajni) → TabletPierwszyBoks → TabletBoks; przytrzymanie „ONLINE · aktualne na …” → TabletUstawienia;
   - legenda: ✓ istnieje, ● P1, ○ P2 i P3; [funkcja] znika, gdy jest odznaczona dla roli; „Admin widzi wszystko”;
-  - dopisek: jedna rola w stajni (`stable_members`), więc zmiana stajni może zmienić nawigację; przypadku „staff w jednej, client w drugiej” z szcz. 4.2 dane demo nie mają.
+  - dopisek: Admin to rola konta firmy (wszystkie stajnie firmy, dec. 35), a pozostałe role są per stajnia, jedna w stajni (`stable_members`), więc zmiana stajni może zmienić nawigację; przypadku „staff w jednej, client w drugiej” z szcz. 4.2 dane demo nie mają.
 
 **AdminDzis** · apka admina, wariant ListaDnia · 390×1160 · P1 · dec. 17, 22, 23 · erd pkt 3, 12, 13, 16; szcz. A-02, A-14, A-18; dev 3.2
 - Dlaczego nie sama ListaDnia: szcz. 3.5.1 daje ją obsłudze i adminowi, ale admin dostaje eskalację (A-02) i ma sprawy do załatwienia. Plik kopiuje układ ListaDnia („Szybkie akcje”, „Flagi dziś”) i dokłada „Pilne”, „Wizyty”, „Do załatwienia” i pasek admina.
-- Treść: Damian; „Stajnia Pod Lipami” bez ▾, „Damian · Admin”; H1 „Dziś · wt 13.10”; „Pilne”: „Bella · Hala nowa · boks 4 · Nie na padok · dziś, cały dzień · niepotwierdzona od 01:20 · dostałeś SMS i e-mail”, „Potwierdzam”, „Zadzwoń do klienta (Anna)”; „Szybkie akcje” jak ListaDnia (śniadanie Główna 06:40 · Ola bez Kasztana, Nowa 06:50 · Piotr, „Cofnij”; padok 10:00: Główna 4 konie, Nowa 3 bez Belli; „Ogarnięte 7 z 14 · Zaznacz boksy”); „Flagi dziś”: Kasztan (dwie), Bella, Hetman, Sonata; „Wizyty”: wet 08:00 i kowal 15:00 · Kasztan, jazda 16:00 · Iskra; „Zadania”: 1 do wzięcia · 1 w toku (Piotr) · 1 zrobione, „+ Dodaj zadanie”; „Do załatwienia”: Luna bez boksu („Przypisz boks”), Marek Nowak · zaproszenie wygasa czw 15.10, +48 512 *** 908 · zaproszenie wygasło 08.10 („Wyślij ponownie”); pasek Dziś · Boksy · Zadania · Ludzie · Profil.
-- Stany: ● **AdminDzisBrzozowa** (Paweł, 390×960: bez „Pilne”, padoku i hal; „Podano śniadanie ✓ 06:35 · Paweł”, pominięta Kometa; „Ogarnięte 3 z 6”; flagi Komety i Lorda „obowiązują od razu”; „Zadania: brak”, „Obsługa nie widzi zadań w tej stajni”); bez pilnych flag; przyciski obsługi wyłączone (jak ListaDniaBezAkcji); pusta stajnia (karta „Pierwsze kroki” z linkami do panelu); offline; subskrypcja po terminie (baner „uwaga”).
+- Treść: Damian; „Stajnia Pod Lipami ▾” (2 stajnie firmy, dec. 21), „Damian · Admin”; H1 „Dziś · wt 13.10”; „Pilne”: „Bella · Hala nowa · boks 4 · Nie na padok · dziś, cały dzień · niepotwierdzona od 01:20 · dostałeś SMS i e-mail”, „Potwierdzam”, „Zadzwoń do klienta (Anna)”; „Szybkie akcje” jak ListaDnia (śniadanie Główna 06:40 · Ola bez Kasztana, Nowa 06:50 · Piotr, „Cofnij”; padok 10:00: Główna 4 konie, Nowa 3 bez Belli; „Ogarnięte 7 z 14 · Zaznacz boksy”); „Flagi dziś”: Kasztan (dwie), Bella, Hetman, Sonata; „Wizyty”: wet 08:00 i kowal 15:00 · Kasztan, jazda 16:00 · Iskra; „Zadania”: 1 do wzięcia · 1 w toku (Piotr) · 1 zrobione, „+ Dodaj zadanie”; „Do załatwienia”: Luna bez boksu („Przypisz boks”), Marek Nowak · zaproszenie wygasa czw 15.10, +48 512 *** 908 · zaproszenie wygasło 08.10 („Wyślij ponownie”); pasek Dziś · Boksy · Zadania · Ludzie · Profil.
+- Stany: ● **AdminDzisBrzozowa** (Damian po przełączeniu na Brzozową, 390×960: bez „Pilne”, padoku i hal; „Podano śniadanie ✓ 06:35 · Paweł”, pominięta Kometa; „Ogarnięte 3 z 6”; flagi Komety i Lorda „obowiązują od razu”; „Zadania: brak”, „Obsługa nie widzi zadań w tej stajni”); bez pilnych flag; przyciski obsługi wyłączone (jak ListaDniaBezAkcji); pusta stajnia (karta „Pierwsze kroki” z linkami do panelu); offline; subskrypcja po terminie (baner „uwaga”).
 
 **AdminZadania** · apka admina · 390×960 · P1 · erd pkt 13; szcz. 3.3 tasks, 4.2, A-14
 - Treść: Damian; H1 „Zadania”, „+ Dodaj zadanie”; „Do wzięcia”: „Poidło w boksie 5 do wymiany · Hala nowa · boks 5 · dodał Damian wczoraj 18:20”, „Odwołaj”; „W toku”: „Wymienić żarówkę w korytarzu · Hala główna · Piotr od 07:00”; „Zrobione dziś”: „Przywieźć słomę z magazynu · Ola 06:30”; „Obsługa bierze zadania w apce. Tablet ich nie pokazuje.”; pasek admina.
@@ -356,7 +378,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 - Stany: koń z flagą o skutku `no_riding` (ostrzeżenie „uwaga” przy jeździe); pusty dzień; `rides_enabled = false` albo odznaczone `rides` (start na Flagach).
 
 **WsparcieITStart** · apka Wsparcia IT · 390×960 · P1 · dec. 13, 19 · erd pkt 2, 14; szcz. 2.12, 4.2, A-21, §5 pkt 11, 30, 50
-- Treść: konto `it_support` „Kuba”, „Stajnia Pod Lipami ▾”; H1 „Wsparcie IT” i opis roli dosłownie; „Tablety”: „eKoniuszy nie prowadzi listy tabletów. Stan tabletu sprawdzisz na miejscu: przytrzymaj 5 s „ONLINE · aktualne na …” w stopce → Diagnostyka.”; „Hale i boksy”: same numery (Hala główna 1–8, Hala nowa 1–6); „Aktualizacje tabletów”: [WERSJA], rollout, okno [OD–DO] (`app_releases`, `maintenance_from`/`to`); „Wyświetlacze”: `wyswietlacz-korytarz` · aktywne (blokuje admin); „Instrukcje”: przygotowanie tabletu, zmiana Wi-Fi, instalacja telewizora; „Logi i błędy” [LINK]; pasek Start | Profil.
+- Treść: konto `it_support` „Kuba”, „Stajnia Pod Lipami ▾”; H1 „Wsparcie IT” i opis roli dosłownie; „Tablety”: „eKoniuszy nie prowadzi listy tabletów. Stan tabletu sprawdzisz na miejscu: przytrzymaj 5 s „ONLINE · aktualne na …” w stopce → Diagnostyka.”; „Hale i boksy”: same numery (Hala główna 1–8, Hala nowa 1–6); „Aktualizacje tabletów”: [WERSJA], rollout, okno [OD–DO] (`app_releases`, `maintenance_from`/`to`); „Wyświetlacze”: „Telewizor korytarz” · aktywne (blokuje admin); „Instrukcje”: przygotowanie tabletu, zmiana Wi-Fi, instalacja telewizora; „Logi i błędy” [LINK]; pasek Start | Profil.
 - Stany: odznaczone `device_diagnostics` („W tej stajni nie masz dostępu do diagnostyki”).
 
 **PanelDiagnostyka** · wariant WsparcieITStart w panelu · 1440×900 fill · P1 · jak WsparcieITStart
@@ -393,7 +415,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 „Rejestracja” tabletu to provisioning (`tools/provision-tablet`), logowanie i lokalny wybór stajni i boksu.
 
 **TabletLogowanie** · tablet e-ink · 702×936 · P1 · dec. 12 · erd pkt 2; szcz. 2.4, 4.2, T-07, T-23, §5 pkt 5, 31; dev §5 pkt 5
-- Treść: „eKoniuszy” · „tablet przy boksie”; H1 42 px „ZALOGUJ TABLET”; 22 px „Zaloguj się kontem obsługi albo admina stajni. Tablica nie pokaże, kto jest zalogowany.”; „NUMER TELEFONU” +48 (64 px, ramka 2 px #000), klawiatura 3×4; „WYŚLIJ KOD” (czarne pole, biały pogrubiony tekst); stopka „ONLINE · 07:15”, PL | UA; bez kłódki, „Zmień boks” i flag.
+- Treść: „eKoniuszy” · „tablet przy boksie”; H1 42 px „ZALOGUJ TABLET”; 22 px „Zaloguj się kontem obsługi albo admina stajni. Tablica nie pokaże, kto jest zalogowany.”; przełącznik „TELEFON | E-MAIL” (wybrany: czarne pole, biały pogrubiony tekst); „NUMER TELEFONU” +48 (64 px, ramka 2 px #000), klawiatura 3×4 (przy E-MAIL klawiatura QWERTY); „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”; „WYŚLIJ KOD” (czarne pole, biały pogrubiony tekst); stopka „ONLINE · 07:15”, PL | UA; bez kłódki, „Zmień boks” i flag.
 - Stany: ● **TabletLogowanieKod** („WPISZ KOD Z SMS”, „Wysłaliśmy kod na +48 607 *** 218”, 6 pól, „ZALOGUJ”, „WYŚLIJ PONOWNIE ZA 0:42” z ramką przerywaną, „ZMIEŃ NUMER”; zły kod: pole `t-warn`, ramka 4 px, „ZŁY KOD”); ● **TabletWylogowany** (H1 „TABLET WYLOGOWANY”, „Po zalogowaniu wróci: Hala główna · boks 7”, przyczyna: wylogowano tutaj, ze wszystkich urządzeń albo sesja wygasła; bez starych flag); ● **TabletBrakUprawnien** („TO KONTO NIE OBSŁUGUJE TABLETU · Zaloguj się kontem obsługi albo admina” dla Klienta, Instruktora i Wyświetlacza; stan „TO KONTO NIE MA JUŻ DOSTĘPU DO TEJ STAJNI · zaloguj się innym kontem” po dezaktywacji); brak sieci (stopka `t-warn` „BRAK POŁĄCZENIA · połącz Wi-Fi w ustawieniach”).
 
 **TabletWyborStajni** · tablet · 702×936 · P1 · dec. 15 · dev 3.5; szcz. A-17, A-18
@@ -413,8 +435,8 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 - Stany: po OGARNIĘTE (wpis „07:16 Ogarnięte” bez autora, A-05); po przypisaniu Luny („BOKS 6 · LUNA”, A-04).
 - Stany TabletBoks (fragmenty): drugi PADOK tego dnia na innym tablecie hali (`already_done`, „Padok już wyprowadzony 10:00”, A-13); akcja wyłączona w międzyczasie (`409 option_disabled`, „Stajnia wyłączyła tę akcję”, A-19, propozycja); nowa zakładka hali w „Zmień boks” po „Dodaj halę” (A-08, A-11); boks przeniesiony do innej hali z nową halą w nagłówku (A-11).
 
-**TabletUstawienia** · tablet, ukryte ustawienia · 702×936 · P1 · dec. 12, 13, 14 · erd pkt 2; dev 3.5; szcz. 2.12, K-01, T-23, A-17, A-18, §5 pkt 30, 31, 40
-- Treść: Ola, Hala nowa · boks 5; „USTAWIENIA TABLETU”, „ZAMKNIJ” (64 px); wiersze 80 px z czarną linią: KONTO „Zalogowano: Ola · Obsługa” → „WYLOGUJ”; STAJNIA „Stajnia Pod Lipami” → „ZMIEŃ” (tylko przy kilku stajniach); BOKS „Hala nowa · boks 5 · Bursztyn” → „ZMIEŃ BOKS”; SIEĆ „Stajnia-PodLipami · 5 GHz · sygnał dobry” → „ZMIEŃ SIEĆ”; DIAGNOSTYKA → „OTWÓRZ”; EKRAN: profil palety „Kaleido 3 (automatycznie)” i „PLANSZA TESTOWA” (propozycja); stopka: wersja [WERSJA], „Ustawienia zamkną się po 2 min bez dotyku” (propozycja). Wejście: przytrzymanie 5 s samego tekstu „ONLINE · aktualne na …” w stopce tablicy (nie przycisków PL i UA), bez etykiety; opis w notatce kanwy.
+**TabletUstawienia** · tablet, ukryte ustawienia · 702×936 · P1 · dec. 12, 13, 14, 28 · erd pkt 2; dev 3.5; szcz. 2.12, K-01, T-23, A-17, A-18, §5 pkt 30, 31, 40
+- Treść: Ola, Hala nowa · boks 5; „USTAWIENIA TABLETU”, „ZAMKNIJ” (64 px); wiersze 80 px z czarną linią: KONTO „Zalogowano: Ola · Obsługa” → „WYLOGUJ”; STAJNIA „Stajnia Pod Lipami” → „ZMIEŃ” (tylko przy kilku stajniach); BOKS „Hala nowa · boks 5 · Bursztyn” → „ZMIEŃ BOKS”; JĘZYK TABLICY „Polski” → „PL | UA” („Tylko na tym tablecie.”; zapamiętany jak boks, przełącznik PL | UA w stopce tablicy zostaje); SIEĆ „Stajnia-PodLipami · 5 GHz · sygnał dobry” → „ZMIEŃ SIEĆ”; DIAGNOSTYKA → „OTWÓRZ”; EKRAN: profil palety „Kaleido 3 (automatycznie)” i „PLANSZA TESTOWA” (propozycja); stopka: wersja [WERSJA], „Ustawienia zamkną się po 2 min bez dotyku” (propozycja). Wejście: przytrzymanie 5 s samego tekstu „ONLINE · aktualne na …” w stopce tablicy (nie przycisków PL i UA), bez etykiety; opis w notatce kanwy.
 - Stany: dialog „WYLOGOWAĆ? Tablica zniknie do ponownego logowania. Boks 5 zostanie zapamiętany.”; bez zalogowanego konta (tylko SIEĆ i DIAGNOSTYKA); konto Wsparcia IT („TRYB WSPARCIA IT”, same ustawienia, bez tablicy); zablokowany ekran (wejście nie działa).
 
 **TabletDiagnostyka** · tablet, ukryte ustawienia · 702×936 · P1 · erd pkt 2; szcz. 2.12, T-10, T-11, T-13, T-16, N-01, N-04, §5 pkt 11
@@ -444,19 +466,19 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd.).
 
 Pierwszy start prowadzi od razu do WyswietlaczCentralny z wszystkimi halami; osobnego ekranu wyboru widoku nie ma (szcz. 3.5.4, W-18, erd pkt 4).
 
-**PanelLudzieWyswietlacze** · panel, Ludzie → Wyświetlacze · 1440×900 fill · P1 · dec. 10, 11 · erd pkt 4, 14; szcz. 2.4, 3.3 access, identity, 4.2, §5 pkt 3–4
-- Treść: Damian, zakładka „Wyświetlacze (1)”; tabela: `wyswietlacz-korytarz` · Aktywne (ikona OK) · „kod na e-mail w•••@[DOMENA]” · „Zablokuj”, „Usuń konto”; „Wyświetlacz to konto tylko do odczytu, bez danych osobowych. Jedno konto obsłuży kilka telewizorów, a osobne pozwala zablokować telewizor pojedynczo.”; „+ Dodaj wyświetlacz”; karta „Jak podłączyć telewizor”: (1) Raspberry Pi z obrazem eKoniuszy do HDMI; (2) telewizor otwiera [PANEL]/wyswietlacz; (3) zaloguj kontem z klawiatury; (4) telewizor pokazuje wszystkie hale, a żeby pokazywał jedną, kliknij przy niej „Pełny ekran” (mysz albo pilot) i telewizor to zapamięta. „Panel nie wie, który telewizor co pokazuje.”
-- Stany: ● **PanelDodajWyswietlacz** (dialog: „Osobne konto dla tego telewizora (zalecane)” albo „Użyj konta wyswietlacz-korytarz”; „Nazwa konta” = `wyswietlacz-hala-nowa`; „E-mail do kodów logowania” z „Na telewizorze nie pokazujemy tego adresu.”; „Utwórz konto”; po zapisie „Konto utworzone” i instrukcja); konto zablokowane („Zablokowane od 07:20 · Odblokuj”) z dialogiem „Telewizory na tym koncie pokażą „Wyświetlacz zablokowany”.”; „Usuń konto?” z ostrzeżeniem „Telewizory na tym koncie przestaną pokazywać dane.” (propozycja).
+**PanelLudzieWyswietlacze** · wariant PanelLudzie z filtrem roli „Wyświetlacz” · 1440×900 fill · P1 · dec. 10, 11 · erd pkt 4, 14; szcz. 2.4, 3.3 access, identity, 4.2, §5 pkt 3–4
+- Treść: Damian, „Ludzie · Stajnia Pod Lipami” z wybranym filtrem „Wyświetlacz” (bez osobnej zakładki i sekcji kont technicznych); wiersz „Telewizor korytarz” · Wyświetlacz · t•••@stajnielipowe.pl · Aktywne · „Zablokuj”; „Telewizor loguje się zwykłym kontem z rolą Wyświetlacz. Jedno konto obsłuży kilka telewizorów, a osobne pozwala zablokować telewizor pojedynczo.”; „Zaproś osobę” → PanelZaprosOsobe z rolą Wyświetlacz; karta „Jak podłączyć telewizor”: (1) Raspberry Pi z obrazem eKoniuszy do HDMI; (2) telewizor otwiera [PANEL]/wyswietlacz; (3) zaloguj się telefonem albo e-mailem konta wyświetlacza i kodem, jak wszędzie; (4) telewizor pokazuje wszystkie hale, a żeby pokazywał jedną, kliknij przy niej „Pełny ekran” (mysz albo pilot) i telewizor to zapamięta. „Panel nie wie, który telewizor co pokazuje.”
+- Stany: konto zablokowane („Zablokowane od 07:20 · Odblokuj”) z dialogiem „Telewizory na tym koncie pokażą „Wyświetlacz zablokowany”.”; zaproszenie czeka (zakładka Zaproszenia, e-mail); Brzozowa: „Stajnia nie ma wyświetlacza” z „Zaproś osobę”. Formularza „Dodaj wyświetlacz” nie ma (dec. 11).
 
-**WyswietlaczLogowanie** · TV, kiosk [PANEL]/wyswietlacz · 1600×900 fill · P1 · dec. 10 · erd pkt 4; szcz. 1.3, 4.2, W-18, W-25, W-29, §5 pkt 3, 4, 15
-- Treść: tło bg, bez pól w akcencie; „eKoniuszy · wyświetlacz”, zegar 07:15, „wtorek, 13 października”; karta: H1 „Zaloguj ten telewizor”, „Konto wyświetlacza zakłada admin w panelu: Ludzie → Wyświetlacze.”; „Konto” = `wyswietlacz-korytarz` z fokusem 3 px (klawiatura, pilot CEC), „Wyślij kod”; „Kod przyjdzie na adres konta podany przez admina.”; bez danych stajni, flag, e-maili i nazwisk.
-- Stany: ● **WyswietlaczKod** (6 dużych pól, „Kod wysłaliśmy na adres e-mail konta wyświetlacza” bez adresu, „Zły kod. Wpisz ponownie.”, „Zaloguj”, „Wyślij nowy kod”, „Zmień konto”); ● **WyswietlaczWylogowany** (ten układ z paskiem „uwaga” „Wyświetlacz wylogowany o 06:40 · dane są ukryte do ponownego logowania”; sesja wygasła albo global sign-out, szcz. 4.2 Sesje); nieznane konto; brak sieci.
+**WyswietlaczLogowanie** · TV, kiosk [PANEL]/wyswietlacz · 1600×900 fill · P1 · dec. 7, 10 · erd pkt 4, 6; szcz. 1.3, 4.2, W-18, W-25, W-29, §5 pkt 3, 4, 15
+- Treść: logowanie jak wszędzie (2.3), w konwencji TV: tło bg, bez pól w akcencie; „eKoniuszy · wyświetlacz”, zegar 07:15, „wtorek, 13 października”; karta: H1 „Zaloguj ten telewizor”, „Zaloguj się kontem z rolą Wyświetlacz. Zaprasza je admin w panelu: Ludzie → Zaproś osobę.”; przełącznik „Telefon | E-mail” (wybrany E-mail) z fokusem 3 px (klawiatura, pilot CEC), „Wyślemy kod SMS-em albo e-mailem. Konto nie ma hasła.”, „Wyślij kod”; bez danych stajni i flag.
+- Stany: ● **WyswietlaczKod** (6 dużych pól, „Wysłaliśmy kod na t•••@stajnielipowe.pl”, „Zły kod. Wpisz ponownie.”, „Zaloguj”, „Wyślij nowy kod”, „Zmień e-mail”); ● **WyswietlaczWylogowany** (ten układ z paskiem „uwaga” „Wyświetlacz wylogowany o 06:40 · dane są ukryte do ponownego logowania”; sesja wygasła albo global sign-out, szcz. 4.2 Sesje); konto bez roli Wyświetlacz („To konto nie ma dostępu do wyświetlacza”, propozycja); brak sieci.
 
 **WyswietlaczStart** · TV · 1600×900 fill · P1 · szcz. W-01, W-17
 - Treść: zimny start bez sieci i bez zapisanego stanu: znak, zegar z RTC, „Łączenie z serwerem…”, bez danych; po minucie „Brak połączenia. Sprawdź sieć telewizora.” (propozycja).
 
 **WyswietlaczZablokowany** · TV · 1600×900 fill · P1 · erd pkt 4, 10; szcz. 3.3 board, 4.2, §5 pkt 20
-- Treść: znak, „Stajnia Pod Lipami”, zegar; kłódka, „WYŚWIETLACZ ZABLOKOWANY”, „Konto wyswietlacz-korytarz zablokował admin stajni. Dane są ukryte.”, „Odblokowanie: panel web → Ludzie → Wyświetlacze.”; bez flag i kafli; neutralne tło, status ikoną i słowem.
+- Treść: znak, „Stajnia Pod Lipami”, zegar; kłódka, „WYŚWIETLACZ ZABLOKOWANY”, „Konto tego wyświetlacza zablokował admin stajni. Dane są ukryte.”, „Odblokowanie: panel web → Ludzie.”; bez flag i kafli; neutralne tło, status ikoną i słowem.
 - Stany: stajnia zawieszona („System nieaktywny w tej stajni”).
 
 **WyswietlaczOffline** · wariant WyswietlaczCentralny · 1600×900 fill · P1 · szcz. W-20, W-21, W-22, §5 pkt 20
@@ -506,6 +528,19 @@ Pierwszy start prowadzi od razu do WyswietlaczCentralny z wszystkimi halami; oso
 - Treść: nagłówek „offline · dane z 07:05 · 2 zapisy czekają”; „Biorę” nieaktywne z „tylko online”.
 - Stany: 409 „Zadanie wziął już Piotr” (A-14).
 
+### I. Strona www
+
+Publiczna strona przed logowaniem: prezentacja produktu i pseudo-blog (prośba użytkownika z 13.10). Panelowa konwencja (Figtree, paleta, 1440 rosnące w dół), bez menu panelu i danych stajni. Treść stron to propozycja.
+
+**StronaGlowna** · www · 1440×900 fill, rośnie w dół · P1 · dev 2
+- Treść: nagłówek ze znakiem „eKoniuszy” i „Zaloguj się” (→ PanelLogowanie); prezentacja: dla kogo (stajnie, obsługa, klienci), co robi (flagi z potwierdzeniem, szybkie akcje obsługi, tablet przy boksie, telewizor w korytarzu, panel stajni), jak zacząć (konto firmy z NIP-em, stajnia, zaproszenia); sekcja bloga z kilkoma wpisami (→ StronaWpis); stopka: [WWW]/app, Regulamin, Polityka prywatności.
+
+**StronaGlownaTelefon** · www w telefonie · 390×844 i dłuższe · P1
+- Treść: ta sama strona w jednej kolumnie, te same linki.
+
+**StronaWpis** · www · 1440×900 fill, rośnie w dół · P1
+- Treść: wpis bloga (tytuł, data, autor, treść ze zdjęciem), „← Blog” → StronaGlowna, pod wpisem zachęta do założenia konta (→ PanelLogowanie).
+
 ### H. P3 (po PoC albo po decyzji)
 
 - **Powiadomienia** (apka i panel, 390×844): SMS i e-maile wysłane do admina (eskalacja Belli, wygasające zaproszenie), tylko przy dec. 22 b; erd `notifications`.
@@ -523,19 +558,20 @@ Jedyny spis linków. **L1** wykonujemy po paczkach P1, **L2** po P2, **L3** po P
 
 **Nowe plansze.** Domyślnie: „← Wróć”, „Anuluj”, X i zapis wracają do ekranu wejścia; pasek i menu według MapaNawigacjiRol; „Wyloguj” → LogowanieNumer (apka) albo PanelLogowanie (panel); tablice tabletu mają linki jak TabletBoks (kłódka, „Zmień boks”, stopka → TabletUstawienia). Poza tym:
 - **A:** LogowanieNumer „Wyślij kod” → Logowanie; BrakDostepu „Sprawdź ponownie” → ZaproszeniePrzyjmij; WiadomosciSms link → ZaproszenieStrona → „Panel” → PanelLogowanie; ZaproszeniePrzyjmij „Przyjmij” → MainLuna, ListaDnia, InstruktorJazdy albo WsparcieITStart (według roli); ZaproszenieNoweStajnia „Przyjmij” → MainBrzozowa (Ola: ListaDniaBrzozowa), „Później” → Main; MainLuna kafelki → SzybkaFlaga, „Karta” → KartaKonia (tymczasowo), Flagi → StatusFlagi (tymczasowo); Profil stajnia → PrzelacznikStajni, „Zmień numer” bez linku; ProfilAdmin → PanelPulpit, PanelUstawieniaStajni, PanelPlatnosci, „Konie” → PanelBoksy (tymczasowo); PrzelacznikStajni → Main, MainBrzozowa (Ola: ListaDnia, ListaDniaBrzozowa).
-- **B:** PanelLogowanie → PanelLogowanieKod → PanelPulpit (Admin), PanelWitaj (brak członkostwa, zaproszenie, inna rola) albo PanelDiagnostyka (Wsparcie IT); PanelWitaj „Załóż stajnię” → PanelZalozStajnie → PanelPulpitStart; PanelPulpitStart „Dodaj konia” → PanelDodajKonia, „Zaproś osobę” → PanelZaprosOsobe, „Sprawdź” → PanelUstawieniaBrzozowa (stan docelowy po zmianach Pawła, nie z dnia założenia), wyświetlacz → PanelLudzieWyswietlacze; PanelDodajKonia i PanelPrzeniesKonia → PanelBoksy; PanelLudzie „Zaproś osobę” → PanelZaprosOsobe, zakładki Członkowie ⇄ Wyświetlacze → PanelLudzie ⇄ PanelLudzieWyswietlacze; PanelPulpit Konie → PanelBoksy (tymczasowo), „Zobacz flagę” → PanelBoksy (tymczasowo, alert Belli), konto bez linku.
+- **B:** PanelLogowanie → PanelLogowanieKod → PanelPulpit (Admin), PanelWitaj (bez konta firmy i członkostwa, zaproszenie, inna rola) albo PanelDiagnostyka (Wsparcie IT); PanelWitaj „Załóż konto firmy” → PanelRejestracjaFirmy → PanelZalozStajnie → PanelZalozPowiadomienia („← Wstecz” → PanelZalozStajnie) → PanelPulpitStart; PanelPulpitStart „Dodaj konia” → PanelDodajKonia, „Zaproś osobę” → PanelZaprosOsobe, „Sprawdź” → PanelUstawieniaBrzozowa (stan docelowy po zmianach Damiana, nie z dnia założenia), wyświetlacz → PanelLudzieWyswietlacze; PanelDodajKonia i PanelPrzeniesKonia → PanelBoksy; PanelLudzie i PanelLudzieWyswietlacze „Zaproś osobę” → PanelZaprosOsobe, filtr roli wszyscy ⇄ „Wyświetlacz” → PanelLudzie ⇄ PanelLudzieWyswietlacze; PanelPulpit Konie → PanelBoksy (tymczasowo), „Zobacz flagę” → PanelBoksy (tymczasowo, alert Belli), konto bez linku.
 - **C:** MapaNawigacjiRol: nazwy ✓ i ● to linki do plików, nazwy ○ bez linku do L2 i L3; AdminDzis „+ Dodaj zadanie” → AdminZadaniaNowe, Ludzie → Zaproszenie (tymczasowo), „Zaznacz boksy” → ListaDniaOgarniete, Bella i „Przypisz boks” → BoksyAdmin (tymczasowo; szczegółu flagi dla admina w apce nie ma); InstruktorJazdy Flagi → ta sama makieta; WsparcieITStart instrukcje → TabletUstawienia, TabletDiagnostyka, WyswietlaczLogowanie.
 - **D:** SzybkaFlagaGodziny „Zapisz godziny” → SzybkaFlaga; SzybkaFlagaObsluga wysłanie → StatusFlagi (tymczasowo); SzybkaFlagaBrzozowa → MainBrzozowa; StatusFlagiOdwolaj → StatusFlagi; KlientFlagi wiersz → StatusFlagi, „Nowa flaga” → SzybkaFlaga.
 - **E:** TabletLogowanie „WYŚLIJ KOD” → TabletLogowanieKod, „ZALOGUJ” → TabletBoks (zapamiętany boks), TabletWyborStajni (kilka stajni) albo TabletPierwszyBoks; TabletWyborStajni → TabletPierwszyBoks; TabletPierwszyBoks i TabletBoksNiedostepny: Hala nowa · 5 → TabletBoksWoda, Hala nowa · 6 → TabletBoksWolny, pozostałe → TabletBoks (tymczasowo; tablice są tylko dla Hala główna · 7 i Hala nowa · 5 i 6); TabletUstawienia „WYLOGUJ” → TabletWylogowany, stajnia → TabletWyborStajni, „ZMIEŃ BOKS” → TabletZmianaBoksu, „ZMIEŃ SIEĆ” bez linku, „OTWÓRZ” → TabletDiagnostyka, „ZAMKNIJ” → TabletBoksWoda.
 - **F:** PanelLudzieWyswietlacze instrukcja → WyswietlaczLogowanie; WyswietlaczLogowanie i WyswietlaczWylogowany → WyswietlaczKod → WyswietlaczCentralny; pozostałe plansze TV pasywne.
+- **I:** StronaGlowna i StronaGlownaTelefon: wpisy → StronaWpis, „Zaloguj się” → PanelLogowanie; StronaWpis „← Blog” → StronaGlowna, zachęta → PanelLogowanie.
 - **G:** BoksSzczegolyWoda „Karta konia” → KartaKonia (tymczasowo), „Przenieś konia” bez linku; EdycjaPlanuKonia → StajennyKonie; KartaKoniaObsluga „Edytuj plan” → EdycjaPlanuKonia, „Flaga” → SzybkaFlagaObsluga; PanelKonie „Przenieś” → PanelPrzeniesKonia, „Karta” i „Flaga” bez linku (brak planszy panelu); KartaKoniaKometa i StajennyKonieBrzozowa → MainBrzozowa i ListaDniaBrzozowa.
 
 **L1: podmiany w istniejących plikach po P1**
 - **Wszystkie paski apki:** „Profil” → Profil (u admina ProfilAdmin).
 - **Dzwonek** (dec. 22 a): usunąć w apce (BoksyAdmin, Main, MainBrzozowa, MojBoks, StatusFlagi, Zaproszenie) i w panelu (PanelBoksy, PanelDodajHale, PanelPlatnosci, PanelUstawieniaStajni, PanelUstawieniaBrzozowa).
-- **Logowanie:** „Zmień numer” → LogowanieNumer; „Zaloguj się” → start według MapaNawigacjiRol (w makiecie Main). Tylko przy dec. 7 a: usunąć link TOTP, a „numerem lub e-mailem” zmienić na „numerem”.
-- **Admin w apce (BoksyAdmin, Zaproszenie):** pasek Dziś | Boksy | Zadania | Ludzie | Profil (dec. 17); nazwa stajni bez ▾ (dec. 21); w Zaproszenie tylko przy dec. 7 a usunąć przełącznik „E-mail”; BoksyAdmin „Szczegóły” wolnego Hala główna · boks 3 → BoksSzczegoly (tymczasowo, makieta boksu 6).
-- **Przełącznik stajni w apce** (Main, ListaDnia, MainBrzozowa, ListaDniaBrzozowa) → PrzelacznikStajni. Panelu nie ruszamy do dec. 21.
+- **Logowanie:** „Zmień numer” → LogowanieNumer; „Zaloguj się” → start według MapaNawigacjiRol (w makiecie Main). „Numerem lub e-mailem” zostaje (dec. 7); link TOTP do decyzji o TOTP.
+- **Admin w apce (BoksyAdmin, Zaproszenie):** pasek Dziś | Boksy | Zadania | Ludzie | Profil (dec. 17); nazwa stajni z ▾ → PrzelacznikStajni (Damian ma 2 stajnie, dec. 21); przełącznik „Kanał: SMS | E-mail” w Zaproszenie zostaje (dec. 7); BoksyAdmin „Szczegóły” wolnego Hala główna · boks 3 → BoksSzczegoly (tymczasowo, makieta boksu 6).
+- **Przełącznik stajni w apce** (Main, ListaDnia, MainBrzozowa, ListaDniaBrzozowa) → PrzelacznikStajni. W panelu „▾” zostaje (dec. 21).
 - **Obsługa:** ListaDnia „Zaznacz boksy” → ListaDniaOgarniete i nowa linia „Poidło ręczne · Hala nowa · boks 5 · woda 06:55” → BoksSzczegolyWoda (dec. 26; BoksyAdmin nie ma wiersza tego boksu); StajennyKonie „Plan” → EdycjaPlanuKonia, „Flaga” i kafelki → SzybkaFlagaObsluga.
 - **Klient:** SzybkaFlaga „Od … zmień” i „Do … zmień” → SzybkaFlagaGodziny; StatusFlagi „Odwołaj flagę” → StatusFlagiOdwolaj, „Zadzwoń do stajni” → `tel:` (dec. 25).
 - **Brzozowa:** MainBrzozowa kafelki → SzybkaFlagaBrzozowa; „Karta”, Flagi i Historia w MainBrzozowa, Konie i „Zaznacz boksy” w ListaDniaBrzozowa, Pulpit, Boksy, Konie, Ludzie, Płatności i ustawienie boksu w PanelUstawieniaBrzozowa oraz kłódka i „Zmień boks” w TabletBoksBrzozowa: bez linku.
@@ -547,7 +583,7 @@ Jedyny spis linków. **L1** wykonujemy po paczkach P1, **L2** po P2, **L3** po P
 - Klient: Flagi (pasek i pigułka w KartaKonia, także MainLuna) → KlientFlagi; Historia → MojBoksWyborKonia; MainBrzozowa „Karta” → KartaKoniaKometa.
 - Obsługa: StajennyKonie „Szczegóły” → KartaKoniaObsluga; ListaDniaBrzozowa Konie → StajennyKonieBrzozowa; BoksSzczegolyWoda „Karta konia” → KartaKoniaObsluga.
 - Admin w apce: Ludzie → LudzieAdmin; „Przenieś”, „Przypisz konia”, „Przypisz boks” (BoksyAdmin, BoksSzczegoly, BoksSzczegolyWoda, AdminDzis) → PrzeniesKonia; „Szczegóły” zajętych boksów → KartaKoniaObsluga (tymczasowo; szczegółów zajętych boksów poza Hala nowa · 5 nie rysujemy); Zaproszenie „Wyślij zaproszenie” i „Wyślij ponownie” → ZaproszenieObsluga.
-- Panel: Konie → PanelKonie (też ProfilAdmin, PanelPulpit); „D Damian (admin) ▾” → PanelMenuKonta; „Edytuj halę” i „Dodaj boks” → PanelEdytujHale; nowe zakładki ustawień → PanelUstawieniaOgolne, PanelSlowniki; PanelUstawieniaBrzozowa Pulpit → PanelPulpitBrzozowa.
+- Panel: Konie → PanelKonie (też ProfilAdmin, PanelPulpit); „D Damian (admin) ▾” → PanelMenuKonta, tam „Załóż stajnię” → PanelZalozStajnie; „Edytuj halę” i „Dodaj boks” → PanelEdytujHale; nowe zakładki ustawień → PanelUstawieniaOgolne, PanelSlowniki; PanelUstawieniaBrzozowa Pulpit → PanelPulpitBrzozowa.
 - Konto i tablet: Profil „Zmień numer” → ProfilZmianaNumeru; TabletUstawienia „ZMIEŃ SIEĆ” → TabletWifi.
 - Wyświetlacz (pliki z generatora): „Pełny ekran” Hali głównej i „Hala główna” w przełączniku → WyswietlaczHalaGlowna.
 
@@ -557,47 +593,48 @@ Jedyny spis linków. **L1** wykonujemy po paczkach P1, **L2** po P2, **L3** po P
 
 ## 4. Kolejność prac i liczby
 
-**Makiety (pliki): 62 P1, 25 P2, 14 P3, razem 101.** P1 obejmuje 12 plansz stanów z ● i 4 plansze zbiorcze stanów.
+**Makiety (pliki): 66 P1, 25 P2, 14 P3, razem 105.** P1 obejmuje 11 plansz stanów z ● i 4 plansze zbiorcze stanów. Zmiana 13.10: +PanelRejestracjaFirmy, PanelZalozPowiadomienia, StronaGlowna, StronaGlownaTelefon, StronaWpis; −PanelDodajWyswietlacz (dec. 11).
 
 | Paczka | Zawartość | Liczba | Po co |
 |---|---|---|---|
-| 0 | MapaNawigacjiRol; zatwierdzenie dec. 1, 7, 10, 12, 17, 18 | 1 P1 | decyzje, od których zależy, czy plansza powstaje |
+| 0 | MapaNawigacjiRol; zatwierdzenie dec. 12, 17, 18 (pozostałe rozstrzygnięte 13.10) | 1 P1 | decyzje, od których zależy, czy plansza powstaje |
 | 1 | P1 z grupy A | 11 | etap 1: logowanie i zaproszenie tworzące członkostwo |
-| 2 | P1 z grupy B | 10 | etapy 1–2: stajnia pilotażowa powstaje bez nas |
+| 2 | P1 z grupy B | 12 | etapy 1–2: konto firmy i stajnia pilotażowa powstają bez nas |
 | 3 | P1 z grupy C (bez mapy) | 7 | start każdej roli, A-02, A-14, A-21 |
 | 4 | P1 z grupy D | 4 | etap 3 (A-01, A-12, A-18, A-20), odwołanie z etapu 4 |
 | 5 | P1 z grupy E | 14 | etap 4, T-07, T-23…T-26, A-15 |
-| 6 | P1 z grupy F | 8 | etap 5, W-01, W-17, W-18, W-29 |
+| 6 | P1 z grupy F | 7 | etap 5, W-01, W-17, W-18, W-29 |
 | 7 | P1 z grupy G | 3 | etap 6 (A-13, A-16, A-17), dane stajni pilotażowej |
+| www | P1 z grupy I | 3 | strona przed logowaniem: prezentacja i blog (w pierwszej fali) |
 | 1–7 | StanyApka, StanyPanel, StanyTablet, StanyWyswietlacz | 4 | każda paczka dokłada swoje fragmenty |
 | L1 | podmiany z 3.H | — | makiety przestają prowadzić do zaślepek |
 | 8 | P2 ze wszystkich grup i fragmenty ich stanów | 25 | domyka nawigację i stany przed pilotażem |
 | L2 | podmiany z 3.H | — | cele P2 zamiast zastępczych |
-| 9 | grupa H | 14 | po PoC albo po dec. 7, 20, 22 |
+| 9 | grupa H | 14 | po PoC albo po dec. 7 (TOTP), 20, 22 |
 | L3 | podmiany z 3.H | — | cele P3 |
 
 P1 rysujemy według rekomendacji z sekcji 5; plansza zależna od decyzji ma w notatce „(propozycja, dec. N)”. Pozostałe decyzje i zmiany w dokumentach uzgadniamy równolegle z rysowaniem; zmiana decyzji to poprawka planszy przed L1.
 
 ## 5. Decyzje do podjęcia
 
-Format: opcje, **Rek.** (rekomendacja) i **Dok.** (co zmienić w dokumentach; uzgadniamy równolegle z makietami).
+Format: opcje, **Rek.** (rekomendacja) i **Dok.** (co zmienić w dokumentach; uzgadniamy równolegle z makietami). Decyzje rozstrzygnięte przez użytkownika 13.10.2026 (sekcja L arkusza) mają zamiast opcji **Rozstrzygnięte 13.10.2026**. Otwarte przed pierwszą falą zostają dec. 12, 17 i 18.
 
 **Rejestracja, zaproszenia, logowanie**
 
-1. **Kto zakłada stajnię?** (a) samoobsługa: konto przez SMS OTP, potem PanelZalozStajnie; (b) zespół eKoniuszy przez `tools/opctl` i zaproszenie pierwszego admina (zaproszenie nie ma roli Admin, operator nie ma UI); (c) oba. **Rek.:** (a), (b) w notatce kanwy; tablety i TV i tak instaluje osoba wdrażająca. **Dok.:** ERD zna tylko drogę przez zaproszenie, a `POST /stables` (szcz. 3.3) nie ma wołającego.
-2. **Kreator czy jedna strona?** (a) jedna strona z pytaniem o potwierdzenia; (b) kreator 3–5 kroków (analiza §9); (c) do tego krok „Plan i faktura”. **Rek.:** (a) bez płatności: subskrypcję zakłada billing po `stable.created`, okres próbny po decyzji o billingu (dev §5 pkt 25).
-3. **Działalność w interfejsie.** (a) tylko w danych; (b) pole przy rejestracji i grupowanie w menu konta, a „Dodaj stajnię do działalności” może admin dowolnej jej stajni i zostaje adminem nowej; (c) rola na poziomie działalności. **Rek.:** (b) bez nowych tabel; „Nowa działalność” w P1, dodanie do istniejącej w P2. **Dok.:** erd pkt 15 nie ma właściciela ani uprawnień `businesses`; skutek dla seedu: dec. 29.
+1. **Kto zakłada stajnię?** **Rozstrzygnięte 13.10.2026:** samoobsługa, wyłącznie B2B: pierwsze logowanie (telefon albo e-mail i kod), PanelWitaj, konto firmy z NIP-em (PanelRejestracjaFirmy), potem PanelZalozStajnie. **Dok.:** erd pkt 15; `POST /stables` (szcz. 3.3) woła admin konta.
+2. **Kreator czy jedna strona?** **Rozstrzygnięte 13.10.2026:** dwa kroki: „Stajnia” (PanelZalozStajnie: bez pytania o potwierdzenia flag, boksy z konfiguracją każdego boksu) i „Powiadomienia” (PanelZalozPowiadomienia: zdarzenia, odbiorcy Admin i Obsługa, kanał SMS albo e-mail); zapis na końcu kroku 2, potem PanelPulpitStart. Bez kroku płatności: subskrypcję zakłada billing po `stable.created` (dev §5 pkt 25). **Dok.:** erd pkt 11, 17 (`notification_rules`).
+3. **Działalność = konto firmy.** **Rozstrzygnięte 13.10.2026:** konto firmy (`businesses`) z NIP-em, 1 konto = 1 NIP (drugi raz: „Ten NIP ma już konto w eKoniuszy”); NIP podaje się raz, przy rejestracji (PanelRejestracjaFirmy); „Załóż stajnię” nie pyta o działalność ani NIP; stajnie konta widzi admin konta (dec. 35). **Dok.:** erd pkt 14, 15; NIP do faktur z konta firmy (erd pkt 10).
 4. **Przyjęcie zaproszenia.** (a) automatycznie (brzmienie erd pkt 6); (b) ekran „Przyjmij”; (c) „Przyjmij” i „Odrzuć”. **Rek.:** (b): przyjęcie nadaje rolę i dostęp do konia, a nieprzyjęte samo wygasa. **Dok.:** ujednolicić erd pkt 6 („dopasowuje”) z A-06 i szcz. 4.2 („akceptuje”).
 5. **Zaproszenie dla osoby już zalogowanej.** (a) widać je po ponownym logowaniu; (b) `GET /me/memberships` zwraca też oczekujące zaproszenia, apka pokazuje arkusz na starcie i przy odświeżeniu. **Rek.:** (b). **Dok.:** szcz. 3.3 access.
 6. **Imię zaproszonej osoby** (makiety: „Marek Nowak · zaproszenie czeka”). (a) opcjonalne `invitations.invitee_name` („Imię (widzi tylko admin)”), po przyjęciu nadpisane przez `users.display_name`; (b) tylko zamaskowany numer. **Rek.:** (a), imię jako podpowiedź w ZaproszeniePrzyjmij. **Dok.:** kolumna w `invitations`.
-7. **E-mail i TOTP** (dev §5 pkt 1–2; szcz. §5 pkt 1–2). (a) tylko SMS w apce i panelu; (b) SMS i e-mail OTP; (c) SMS i TOTP dla admina panelu. **Rek.:** (a) na PoC; e-mail OTP tylko dla wyświetlaczy (dec. 10); recenzenci sklepów: konto demo w osobnym kliencie. **Dok.:** przy (a) nagłówek erd.md („OTP przez SMS i TOTP z RFC 6238”), `invitations.channel = email` i „TOTP (jeśli zostaje)” w szcz. 4.2; logowania i weryfikacji e-mailem dziś nikt nie opisał.
+7. **E-mail i TOTP** (dev §5 pkt 1–2; szcz. §5 pkt 1–2). **Rozstrzygnięte 13.10.2026 (e-mail):** logowanie w apce, panelu, na tablecie i TV telefonem albo e-mailem, kod SMS-em albo e-mailem (Cognito `SMS_OTP` i `EMAIL_OTP`, e-maile przez SES), konta bez hasła; zaproszenia SMS-em albo e-mailem („Kanał: SMS | E-mail” jak w Zaproszenie); wzorzec ekranu w 2.3. **Otwarte:** TOTP dla admina panelu; nowe plansze go nie pokazują, LogowanieTotp zostaje w P3. **Dok.:** erd pkt 6, szcz. 4.2.
 8. **Język SMS zaproszenia** (szcz. §5 pkt 24). (a) zawsze PL; (b) PL i UA w jednym SMS; (c) pole „Język wiadomości” przekazywane do `notifications`, bez kolumny w `invitations`. **Rek.:** (c), domyślnie PL; SMS bez tokenu: link do pobrania, stajnia, rola, termin. Podpowiedź UA przy +380 tylko, gdy szcz. §5 pkt 24 dopuści numery spoza Polski (szcz. 2.5 zakłada blokadę krajów).
-9. **Zgody i imię przy pierwszym logowaniu.** (a) checkbox regulaminu i polityki z datą (pole w `users`); (b) link do polityki. **Rek.:** (b) na PoC, checkbox po ocenie prawnej. **Dok.:** SMS OTP nie daje imienia: w erd pkt 6 dopisać, że `display_name` uzupełnia formularz (PanelWitaj, ZaproszeniePrzyjmij).
+9. **Zgody i imię przy pierwszym logowaniu.** (a) checkbox regulaminu i polityki z datą (pole w `users`); (b) link do polityki. **Rek.:** (b) na PoC, checkbox po ocenie prawnej. **Dok.:** kod (SMS albo e-mail) nie daje imienia: w erd pkt 6 dopisać, że `display_name` uzupełnia formularz (PanelWitaj, ZaproszeniePrzyjmij).
 
 **Urządzenia**
 
-10. **Logowanie telewizora** (dev i szcz. §5 pkt 3). (a) e-mail OTP na adres techniczny od admina; (b) SMS na osobną kartę SIM. **Rek.:** (a) (e-mail OTP w puli: [niepotwierdzone]); TV pokazuje tylko nazwę konta; loguje osoba wdrażająca, po utracie sesji admin albo Wsparcie IT. Parowania kodem nie rozważamy, bo ERD je usunął („Zmiany”). **Dok.:** kanał i adres kodu przy zakazie danych osobowych.
-11. **Konta wyświetlaczy.** Miejsce: (a) Ludzie → Wyświetlacze; (b) Ustawienia stajni (brzmienie erd pkt 4). Liczba: jedno konto albo osobne na każdy TV. **Rek.:** (a), bo `display` to członek stajni i blokada idzie przez członkostwo; z Ustawień tylko link; domyślnie osobne konto; akcje „Zablokuj / Odblokuj” i „Usuń konto” (propozycja). Zdalne wylogowanie TV (admin global sign-out) dopiero po zmianie ERD, bo erd pkt 2 wyklucza zdalne komendy. **Dok.:** erd pkt 4 „w ustawieniach” → „Ludzie” (szcz. 3.5.3).
+10. **Logowanie telewizora** (dev i szcz. §5 pkt 3). **Rozstrzygnięte 13.10.2026:** telewizor to zwykłe konto z rolą Wyświetlacz; loguje się telefonem albo e-mailem i kodem, tak jak wszędzie (demo: „Telewizor korytarz”, e-mail i kod z e-maila). Bez kont technicznych, nazw kont i adresu technicznego. **Dok.:** erd pkt 4.
+11. **Konta wyświetlaczy.** **Rozstrzygnięte 13.10.2026:** konto zaprasza admin przez „Zaproś osobę” z rolą Wyświetlacz; w Ludzie to członek z tą rolą (filtr roli, PanelLudzieWyswietlacze); bez sekcji kont technicznych i formularza „Dodaj wyświetlacz” (PanelDodajWyswietlacz znika). Blokada jak przy każdym członkostwie; jedno konto na kilka telewizorów albo osobne na każdy. Zdalne wylogowanie TV dopiero po zmianie ERD (erd pkt 2 wyklucza zdalne komendy). **Dok.:** erd pkt 4, szcz. 3.5.3.
 12. **Czyim kontem loguje się tablet** (dev §5 pkt 5; szcz. §5 pkt 5, 31, 50). (a) osobiste konto Admina albo Obsługi; (b) wspólne konto obsługi na stajnię albo halę; (c) dowolna rola. **Rek.:** (a) („zawsze zalogowany konkretny użytkownik”); Wsparcie IT tylko ustawienia i diagnostyka; Klient, Instruktor i Wyświetlacz: TabletBrakUprawnien; (b) wraca, jeśli pilotaż pokaże kłopot z odchodzącymi osobami. Zgubiony tablet (notatka R5): tablica nie pokazuje konta, więc admin robi „Wyloguj ze wszystkich urządzeń” na kontach obsługi, które logowały tablety; skradziony czyta tablicę najwyżej przez czas życia access tokenu (szcz. 4.2). **Dok.:** które role logują tablet; skutki global sign-out i dezaktywacji dla tabletów.
 13. **Wejście w ukryte ustawienia.** (a) przytrzymanie 5 s tekstu „ONLINE · aktualne na …” (bez PL i UA); (b) nagłówka; (c) ukrytego rogu. **Rek.:** (a): rzadko dotykane, bez kolizji z kłódką (3 s) i „Zmień boks”, bez wskazówki, nie działa przy blokadzie. **Dok.:** element i czas w erd pkt 2.
 14. **Kto zmienia Wi-Fi** (dev §5 pkt 15; szcz. §5 pkt 30). (a) każdy w ustawieniach; (b) tylko konto Admina albo Wsparcia IT. **Rek.:** (a) na PoC, ocena po pilotażu i T-30; (b) wylogowuje Olę przy każdej zmianie sieci.
@@ -606,12 +643,12 @@ Format: opcje, **Rek.** (rekomendacja) i **Dok.** (co zmienić w dokumentach; uz
 
 **Nawigacja i role**
 
-17. **Pasek i start admina w apce** (dziś Boksy, Ludzie, Płatności, Ustawienia; dwie ostatnie otwierają plansze 1440 px). (a) Dziś | Boksy | Zadania | Ludzie | Profil, Płatności i Ustawienia jako linki do panelu w ProfilAdmin; (b) obecny pasek z „Dziś”; (c) cztery pozycje i „Więcej”. **Rek.:** (a): Ustawienia są w panelu (erd pkt 16), Paweł sam obsługuje, Profil jest ostatni u każdej roli. **Dok.:** start i pasek każdej roli, routing po zalogowaniu i mapowanie na `stable_role_features` (MapaNawigacjiRol) do szcz. 3.5.1.
+17. **Pasek i start admina w apce** (dziś Boksy, Ludzie, Płatności, Ustawienia; dwie ostatnie otwierają plansze 1440 px). (a) Dziś | Boksy | Zadania | Ludzie | Profil, Płatności i Ustawienia jako linki do panelu w ProfilAdmin; (b) obecny pasek z „Dziś”; (c) cztery pozycje i „Więcej”. **Rek.:** (a): Ustawienia są w panelu (erd pkt 16), Profil jest ostatni u każdej roli. **Dok.:** start i pasek każdej roli, routing po zalogowaniu i mapowanie na `stable_role_features` (MapaNawigacjiRol) do szcz. 3.5.1.
 18. **Panel dla ról innych niż Admin** (erd pkt 3: obsługa „z apki i panelu web”). (a) na PoC tylko Admin i Wsparcie IT, pozostali widzą PanelWitaj z odesłaniem do apki; (b) menu filtrowane rolą (kilkanaście plansz). **Rek.:** (a); do decyzji PanelLogowanie ma tekst neutralny. **Dok.:** w erd pkt 3 dopisać, że panel obsługi to dalszy etap.
 19. **Wsparcie IT bez rejestru urządzeń.** (a) ekran informacyjny w apce i panelu (hale i boksy bez koni, wydania APK, okno instalacji, podgląd kont TV, instrukcje, logi), na tablecie ustawienia i diagnostyka; (b) tylko tablet; (c) „ostatnio widziane tablety” z logów (zmiana erd pkt 2). **Rek.:** (a); admin nie zobaczy martwego tabletu, zostaje eskalacja (A-02). **Dok.:** pkt 14 daje „diagnostykę”, pkt 2 usuwa telemetrię; dopisać, co rola widzi, czy zarządza `display` i czy loguje tablety.
 20. **Jazdy i instruktor.** Jazdy tworzy (a) admin i instruktor; (b) tylko admin; (c) także klient. **Rek.:** na PoC jazdy z seedu i podgląd: InstruktorJazdy z flagami tylko do odczytu (propozycja), klient widzi jazdy swojego konia w „Dziś” karty konia (A-17, A-21); DodajJazde w (a) po decyzji. **Dok.:** kto tworzy jazdy i `arenas`; `rides_enabled` a widoczność `rides`; czy instruktor widzi imiona jeźdźców i ustawia flagi.
-21. **Przełącznik stajni.** Apka: (a) ostatnio używana stajnia, przy pierwszym logowaniu arkusz, przy jednej stajni sama nazwa (szcz. 3.5.1); (b) zawsze wybór i ▾. Panel: (a) ▾ jak w szcz. 3.5.3 (decyzja użytkownika; PanelUstawieniaStajni ↔ PanelUstawieniaBrzozowa zostaje skrótem demo, choć Damian nie jest członkiem Brzozowej); (b) reguła apki także w panelu. **Rek.:** apka (a), z poprawką nagłówków BoksyAdmin i Zaproszenie; panel (a), dopóki użytkownik nie zdecyduje inaczej. **Dok.:** panel (b) zmienia makiety panelu, szcz. 3.5.3 i test panelu w szcz. 4.1.
-22. **Dzwonek** (11 makiet; `notifications` to tylko SMS i e-mail). (a) usunąć; (b) lista liczona z istniejących danych; (c) skrzynka z nową tabelą. **Rek.:** (a) na PoC: eskalację admin dostaje SMS-em i widzi w „Pilne”; Powiadomienia (P3) tylko przy (b).
+21. **Przełącznik stajni.** **Rozstrzygnięte 13.10.2026:** „▾” w apce i panelu tylko przy kilku stajniach: admin konta ma go, gdy firma ma kilka stajni (Damian), inni przy kilku członkostwach (Ola); przy jednej stajni sama nazwa (Paweł, Piotr). Apka otwiera ostatnio używaną stajnię, przy pierwszym logowaniu arkusz (szcz. 3.5.1). PanelUstawieniaStajni ↔ PanelUstawieniaBrzozowa to już prawdziwe przejście, bo Damian ma obie stajnie. **Dok.:** szcz. 3.5.1, 3.5.3.
+22. **Dzwonek** (11 makiet; `notifications` to tylko SMS i e-mail). (a) usunąć; (b) lista liczona z istniejących danych; (c) skrzynka z nową tabelą. **Rek.:** (a) na PoC: eskalację admin dostaje SMS-em albo e-mailem (reguły powiadomień, dec. 2) i widzi w „Pilne”; Powiadomienia (P3) tylko przy (b).
 23. **Potwierdzanie flag przez admina** (`flag_acknowledgements.method`: `tablet | app`). (a) w apce, w panelu podgląd; (b) `web` i „Potwierdzam” w panelu; (c) tylko obsługa i tablet. **Rek.:** (a).
 24. **Klient po końcu ostatniego dostępu do konia.** (a) członkostwo zostaje (MainBezKonia), admin może je dezaktywować; (b) automatyczna dezaktywacja (BrakDostepu). **Rek.:** (a): kolejny koń nie wymaga nowego członkostwa. **Dok.:** członkostwo po ostatnim `valid_to` albo `revoked_at`.
 
@@ -620,13 +657,14 @@ Format: opcje, **Rek.** (rekomendacja) i **Dok.** (co zmienić w dokumentach; uz
 25. **Numer dla „Zadzwoń do stajni”** (`stables` nie ma telefonu). (a) `stables.phone`; (b) numer pierwszego aktywnego admina. **Rek.:** (b) na PoC.
 26. **„Woda” w apce** (A-16). (a) ListaDnia; (b) szczegóły boksu; (c) karta konia. **Rek.:** (b) BoksSzczegolyWoda z wejściem z nowej linii w ListaDnia (zmiana zaakceptowanej makiety, za zgodą).
 27. **Obsługa: plany i kontakt do klienta.** (a) „Edytuj plan” i „Zadzwoń”; (b) plan do odczytu, bez kontaktu. **Rek.:** (a): obsługa robi to samo co klient (erd pkt 3), a telefon przydaje się przy fladze w imieniu klienta.
-28. **Wartości domyślne nowej stajni** (szcz. §5 pkt 27, 49; dev §5 pkt 13, 27). (a) jak Pod Lipami: „Hala główna”, posiłki 06:30, 12:00, 18:00, okna szablonów z seedu, macierz jak Pod Lipami; (b) macierz „wszystko dla wszystkich”. **Rek.:** (a) z edycją pór i nazwy hali w PanelZalozStajnie; `owner_edits_feeding` włączone jak „wszystko włączone” z erd pkt 16, w Pod Lipami tak samo, bo seed tego nie podaje (propozycja). **Dok.:** wartości `stable_settings` spoza przełączników erd pkt 16; stan subskrypcji przed pierwszą płatnością.
-29. **Nowe dane demo** (propozycja): Paweł +48 601 *** 377; Ola +48 607 *** 218; Marek Nowak zamaskowany; Bartek, nowa Obsługa (+48 512 *** 908); Marta (Instruktor) i Kuba (Wsparcie IT) w obu stajniach; `wyswietlacz-hala-nowa`; „Gospodarstwo Brzozowa”; „Stajnia Olszynka” (tylko wariant dodania); zakładanie Brzozowej w retrospekcji czw 01.10.2026, kod 05-500; Tomasz L. bez dostępu do Groma (tylko MainBezKonia); plan Bursztyna: owies 1 kg rano i wieczorem, siano bez ograniczeń. Osoby z różnymi rolami w dwóch stajniach (szcz. 4.2) dane demo nie mają. **Skutek sceny zakładania:** seed (dev 3.2, szcz. 3.2) trzyma obie stajnie w jednej działalności i stoi na tym test izolacji z szcz. 3.3 stable i 4.2 („wspólna działalność nie daje dostępu między stajniami”). (a) scena Pawła: Brzozowa w nowej działalności, test izolacji na fixture (np. Olszynka w Gospodarstwie Brzozowa z innym adminem); (b) seed bez zmian, stajnię zakłada nowa osoba (Stajnia Olszynka, 13.10). **Rek.:** (a), bo scena łączy się z makietami Brzozowej; do akceptacji razem z poprawką seedu i testu.
+28. **Wartości domyślne nowej stajni** (szcz. §5 pkt 27, 49; dev §5 pkt 13, 27). **Rozstrzygnięte 13.10.2026:** nowa stajnia ma wszystko włączone, także potwierdzenia flag (zmiana w Ustawieniach stajni); „Hala główna” i posiłki 06:30, 12:00, 18:00 z edycją w PanelZalozStajnie, okna szablonów i macierz widoczności jak Pod Lipami, `owner_edits_feeding` włączone (propozycja). Język tablicy ustawia każdy tablet osobno (TabletUstawienia; przełącznik PL | UA w stopce zostaje); języków stajni nie ma (`stable_locales` znika), tłumaczenia nazw zostają jako opcjonalne etykiety. **Dok.:** erd pkt 2, 16; stan subskrypcji przed pierwszą płatnością.
+29. **Nowe dane demo.** **Rozstrzygnięte 13.10.2026** (sekcja M arkusza, opis w 2.2): konto firmy „Stajnie Lipowe sp. z o.o.” (NIP 123-456-32-18, fikcyjny) z obiema stajniami; Damian to admin konta, rejestruje konto pn 07.09 i dodaje Brzozową czw 01.10 bez NIP-u; Paweł to Obsługa tylko w Brzozowej (+48 601 *** 377), zaproszony SMS-em 01.10; Ola Obsługa w obu, Piotr tylko Pod Lipami; Marta i Kuba w obu (Kuba zaproszony e-mailem); „Telewizor korytarz” (e-mail, Wyświetlacz, Pod Lipami). Znikają „Gospodarstwo Brzozowa”, „Stajnia Olszynka” i `wyswietlacz-hala-nowa`. Zostają (propozycja): Bartek, nowa Obsługa (+48 512 *** 908), Marek Nowak zamaskowany, Tomasz L. bez dostępu do Groma (tylko MainBezKonia), plan Bursztyna (owies 1 kg rano i wieczorem, siano bez ograniczeń). Osób z różnymi rolami w dwóch stajniach (szcz. 4.2) dane demo nie mają. Seed nadal trzyma obie stajnie w jednym koncie firmy, więc problem sceny zakładania znika; test izolacji (szcz. 3.3 stable, 4.2): Piotr (tylko Pod Lipami) nie widzi Brzozowej, a admin innego konta firmy nie widzi żadnej z nich (fixture, propozycja). **Dok.:** seed (dev 3.2, szcz. 3.2) i test izolacji.
 30. **Podmiana linków.** (a) paczkami L1, L2, L3 według 3.H; (b) przy każdej planszy; (c) wcale. **Rek.:** (a) za zgodą; *BezAkcji po ukończeniu; linki w plikach TV zmieniamy w generatorze.
 31. **Plansze TV** (rozstrzygnięte, bez decyzji): nowe plansze TV rysujemy według konwencji istniejących plików; WyswietlaczCentralny i WyswietlaczHala zmieniamy tylko w generatorze.
 32. **Źródło flagi z decyzji stajni.** `horse_flags.source` ma `app` („właściciel w apce”) i `on_behalf_*`, a obsługa i admin ustawiają też flagi bez prośby klienta (seed: „Leki rano” Lorda od Pawła). (a) nowa wartość, np. `stable`; (b) `app` z `author_role = staff | admin` i opisem `app` „wpisana w apce”. **Rek.:** (b); do decyzji SzybkaFlagaObsluga pokazuje tylko `on_behalf_*`.
-33. **Rola Admin, kolejny koń, przekazanie roli.** Zaproszenie nie ma roli Admin, zmiana roli nie ma opisu UI, zaproszenie ma jeden `horse_id`. (a) w PanelLudzie „Zmień rolę” (także na Admin) i „Nadaj dostęp do konia” członkowi, z `valid_to`; (b) tylko zaproszenia (rola Admin, osobne zaproszenie na konia). **Rek.:** (a); przekazanie roli jedynego admina to nadanie Admin drugiej osobie, potem zmiana własnej roli albo usunięcie konta (notatka R1). **Dok.:** zarządzanie członkami w erd pkt 3 i 14; czy rola inna niż `client` może mieć `horse_access`.
+33. **Rola Admin, kolejny koń, przekazanie roli.** Zaproszenie nie ma roli Admin, zmiana roli nie ma opisu UI, zaproszenie ma jeden `horse_id`. (a) w PanelLudzie „Zmień rolę” (także na Admin) i „Nadaj dostęp do konia” członkowi, z `valid_to`; (b) tylko zaproszenia (rola Admin, osobne zaproszenie na konia). **Rek.:** (a); przekazanie roli jedynego admina to nadanie Admin drugiej osobie, potem zmiana własnej roli albo usunięcie konta (notatka R1). Po dec. 35 Admin to rola konta firmy: „Zmień rolę” obejmuje role stajni, a dodanie kolejnego admina konta jest poza PoC (erd pkt 14). **Dok.:** zarządzanie członkami w erd pkt 3 i 14; czy rola inna niż `client` może mieć `horse_access`.
 34. **Słowniki pasz, padoków, ujeżdżalni** (szcz. 3.5.3: „słowniki” bez makiet). (a) na PoC z seedu i `stable.created`, dopisywanie przez „+ Nowa pasza” i „+ Nowy padok” w EdycjaPlanuKonia, PanelSlowniki w P2; (b) od razu tylko PanelSlowniki. **Rek.:** (a); dopisują admin i obsługa (propozycja).
+35. **Admin to rola konta firmy** (nowa reguła, rozstrzygnięte 13.10.2026). Admin (właściciel albo zarządca) ma dostęp do wszystkich stajni konta firmy, także nowych, bez przypisywania. Pozostałe role (Obsługa, Instruktor, Wsparcie IT, Wyświetlacz, Klient) przypisuje się per stajnia, a jedna osoba może być przypisana do kilku stajni (Ola). Zaproszenie nie nadaje roli Admin. **Dok.:** erd pkt 14 (`business_admins`, propozycja), szcz. 3.3 access, 4.2.
 
 **Zmiany w dokumentach bez osobnej decyzji**
 - **Zdrowie:** kto wpisuje wizyty; czy dzierżawca widzi `owner_private` właściciela; wet i kowal są w notatce flagi i w `health_events`, bez jednego źródła na tablicy i TV.
