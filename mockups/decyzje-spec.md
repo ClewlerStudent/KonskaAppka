@@ -416,9 +416,9 @@ Pełny opis: `docs/mikroserwisy.md` (W6–W9 i „decyzja 13.10”), `docs/devel
 Pełny opis: `docs/mikroserwisy.md` (W7, W10, 1.3, 3.1, 5.2 „Kody”, 5.10), `docs/development-szczegoly.md` 2.4 i 3.1.13. Cytaty to decyzje użytkownika (twarde); skutki niżej to ustalenia architekta (propozycja), jeśli nie wynikają wprost z cytatu. [S]: fakt o ZITADEL o średniej pewności, do sprawdzenia w spike'u.
 1. **W7 (zmienione): „Drobna sugestia. To auth service nada msg do serwisów komunikacji. Nie chcę się wiązać z chmurą aż tak”** → kody (weryfikacja e-maila albo telefonu po rejestracji, MFA przy każdym logowaniu, reset hasła, potwierdzenie zmiany kontaktu) dostawca tożsamości zwraca do `auth` (`returnCode`), a `auth` sam wrzuca gotową wiadomość do kolejki `sms` albo `email`. `sms` i `email` wysyłają ją jak każdą inną: bez tabel, bez logowania treści. Kody nie idą przez `notifications`. Znikają wyzwalacz Lambda (`code-sender`), custom email i SMS sender, klucz KMS kodów i wyjątek „Lambda w produkcji”.
 2. **W10: „Raczej nie chciałbym trzymać haseł w aplikacji. Cognito/entra wydają się świetne do takich zastosowań... jakieś alternatywy?”, „Nie, może być na klastrze i trzeba dbać o backupy, ale chuj brzmi dobrze”, „Nie cloud. Self hosta.”** → dostawca tożsamości to ZITADEL self-hosted na naszym klastrze Kubernetes zamiast Cognito. To komponent infrastruktury (jak PostgreSQL), nie nasz mikroserwis: serwisów zostaje 11.
-   - Hasła trzyma tylko ZITADEL, w osobnej bazie PostgreSQL (osobna instancja albo co najmniej osobna baza i rola, bez dostępu naszych serwisów; własny PITR). Nasz kod i nasza baza ich nie mają; `auth` przekazuje hasło w żądaniu do ZITADEL i nigdzie go nie zapisuje ani nie loguje.
+   - Hasła trzyma tylko ZITADEL, w osobnej bazie PostgreSQL bez dostępu naszych serwisów (propozycja: osobna instancja z własnym PITR; wariant zapasowy: osobna baza i rola, wtedy PITR wspólny z `app`). Nasz kod i nasza baza ich nie mają; `auth` przekazuje hasło w żądaniu do ZITADEL i nigdzie go nie zapisuje ani nie loguje.
    - Masterkey ZITADEL w sejfie sekretów z osobną kopią: bez niego backup bazy jest bezużyteczny.
-   - Wdrożenie, aktualizacje (śledzenie advisories), backupy i test odtworzenia: Dawid (platforma).
+   - Wdrożenie, aktualizacje (śledzenie komunikatów bezpieczeństwa ZITADEL), backupy i test odtworzenia: Dawid (platforma).
    - API ZITADEL tylko w klastrze i tylko dla `auth` (NetworkPolicy); konsola administracyjna tylko dla zespołu EQUENOR, niewystawiona publicznie.
 3. **W2 i W6 bez zmian:** aplikacje rozmawiają tylko z `auth`, nigdy z ZITADEL; `auth` jedyny wydaje JWT EQUENOR, a serwisy sprawdzają podpis. Odświeżanie tokenu nie dotyka ZITADEL, więc awaria ZITADEL blokuje tylko nowe logowania, rejestracje i resety hasła; trwające sesje działają.
 4. **W8 i W9 bez zmian co do zasady** (hasło i zawsze kod e-mailem albo SMS-em, dla wszystkich kont; rejestracja z weryfikacją kodem; reset hasła kodem), przez API ZITADEL:
@@ -431,8 +431,14 @@ Pełny opis: `docs/mikroserwisy.md` (W7, W10, 1.3, 3.1, 5.2 „Kody”, 5.10), `
 6. **Model danych:** `users.cognito_sub` → `users.idp_user_id` (id konta w ZITADEL, nadawane przez `auth`); `identity_pool` (`customer | team`) zostaje i oznacza organizację ZITADEL. Dwie organizacje w jednej instancji zastępują dwie pule (propozycja [S]). Bez nowych tabel.
 7. **„Zauważ też, że nie każdy endpoint będzie prywatny. Ale to szczegół”** → trzy rodzaje tras:
    - zewnętrzne (z naszym tokenem; dotąd „publiczne”);
-   - otwarte (bez tokenu): rejestracja i jej potwierdzenie, ponowny kod, logowanie i krok MFA, reset hasła, odświeżenie refresh tokenem, webhooki płatności z podpisem dostawcy, `/livez` i `/readyz`; w przyszłości np. dane publiczne;
-   - wewnętrzne (tylko w klastrze).
+   - otwarte (bez tokenu): rejestracja i jej potwierdzenie, ponowny kod, logowanie i krok MFA, reset hasła, odświeżenie refresh tokenem, wylogowanie (tylko czyści ciasteczko), webhooki płatności z podpisem dostawcy, `/livez` i `/readyz`; na `[OPS]` te same trasy pod `/auth/v1/ops/*`; w przyszłości np. dane publiczne;
+   - wewnętrzne (tylko w klastrze): `/internal` i JWKS na porcie `jwks`.
 
    Domyślnie każda trasa wymaga tokenu. Trasa otwarta ma to jawnie w deskryptorze w `packages/contracts`. Test w CI wypisuje listę otwartych tras i nie przepuści nowej bez zmiany listy. Otwarte trasy mają limity żądań.
-8. **Bez zmian:** SES i wysyłka SMS przez AWS w serwisach `sms` i `email`; lista makiet logowania (`mockups/STAN.md` pkt 7). Do sprawdzenia: licencja AGPL-3.0 (niezmieniony ZITADEL jako osobna usługa nie obejmuje naszego kodu [S], do potwierdzenia u prawnika) i kody 6-cyfrowe jak w makietach (domyślnie kod MFA ma 8 cyfr; generatory kodów ZITADEL [S]).
+8. **Bez zmian:** SES i wysyłka SMS przez AWS w serwisach `sms` i `email`; lista plansz logowania (`mockups/STAN.md` pkt 7; dochodzą tylko stany). Do sprawdzenia: licencja AGPL-3.0 (niezmieniony ZITADEL jako osobna usługa nie obejmuje naszego kodu [S], do potwierdzenia u prawnika) i długość kodów (propozycja: kod MFA 6 cyfr jak w makietach, kody weryfikacji i resetu 8 cyfr, bo ich prób ZITADEL nie liczy; generatory kodów ZITADEL [S]).
+9. **Po recenzji (propozycja architekta, `docs/mikroserwisy.md` 3.1, 3.8, 5.2, 5.10):**
+   - ruch `auth` → ZITADEL przez TLS z CA klastra, bez Ingressu; poza `auth` do API ZITADEL tylko Job konfiguracji, Prometheus i konsola przez port-forward albo VPN;
+   - admini konsoli ZITADEL (to nie konta EQUENOR) w osobnej organizacji z TOTP albo passkey, bo ZITADEL sam nic nie wysyła; ekran logowania ZITADEL tylko dla konsoli;
+   - zweryfikowany kontakt ma jedno konto; rejestracja na kontakt z kontem wygląda jak sukces, a na kontakt idzie „Masz już konto”;
+   - reset i zmiana hasła podbijają `users.token_version` (pozostałe urządzenia logują się ponownie);
+   - bazy ZITADEL i `app` odtwarzamy niezależnie, do najpóźniejszego punktu.

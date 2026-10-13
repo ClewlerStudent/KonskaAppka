@@ -2,8 +2,11 @@
 flowchart TB
     APPS["<b>Aplikacje</b><br/>apka mobilna · panel web i TV · tablet przy boksie · panel zespołu EQUENOR · opctl"]
 
-    ZIT["<b>ZITADEL (self-hosted)</b><br/>hasła, sprawdzanie kodów<br/>(tylko przez auth)"]
-    ZDB[("PostgreSQL ZITADEL")]
+    subgraph IDP["Dostawca tożsamości (infrastruktura, W10)"]
+        direction TB
+        ZIT["<b>ZITADEL (self-hosted)</b><br/>hasła, sprawdzanie kodów<br/>(tylko przez auth)"]
+        ZDB[("PostgreSQL ZITADEL")]
+    end
     AUTH["<b>auth</b><br/>jedyny serwis autoryzacyjny<br/>logowanie, wydaje tokeny JWT"]
     KMS["AWS KMS<br/>klucz podpisu"]
 
@@ -61,3 +64,4 @@ flowchart TB
     class ZIT,ZDB,KMS,DB,BUS,CRON ext
     style DOM fill:#f7fbff,stroke:#2f6fa7
     style NOTE fill:#fffbf2,stroke:#b7791f
+    style IDP fill:#fafafa,stroke:#888
