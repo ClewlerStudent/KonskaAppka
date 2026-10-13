@@ -46,7 +46,7 @@ Pozycje z 1.0 wliczają się w ilości z 1.1–1.4; nie kupujemy ich drugi raz.
 | Telewizor albo monitor z HDMI | 1 | Ekran wyświetlacza centralnego. | Auto-off po 4 h bez interakcji wyłączyć, jeśli się da (1.3). Jeśli to OLED, nie zostawiać statycznego obrazu na noc (wypalenie). Telewizora nie podłączać do internetu. |
 | Domowe Wi-Fi | — | Sieć dla tabletu i Pi. | Bez portalu logowania. Pasma 2,4 i 5 GHz na Air6 C: [niepotwierdzone] (T-13). Osobny SSID i drugi AP do testów awarii sieci dopiero na stanowisku (1.2). |
 | Własny telefon | 1 | Logowanie SMS-em (OTP z Cognito) w apce i na tablecie, SMS-y eskalacji. | Numer trzeba zweryfikować w SMS sandbox AWS (limit 10 numerów, 1.4). |
-| Własna skrzynka e-mail (i druga do konta telewizora) | 1–2 | Logowanie e-mailem (kod z Cognito przez SES) w apce, panelu i na TV, zaproszenia e-mailem. | Adresy trzeba zweryfikować w sandboxie SES (2.6). |
+| Własna skrzynka e-mail (i kolejne do kont technicznych telewizora i tabletów) | 1–3 | Logowanie e-mailem (kod z Cognito przez SES) w apce, panelu, na TV i na tablecie, zaproszenia e-mailem. | Adresy trzeba zweryfikować w sandboxie SES (2.6). |
 | Klawiatura i mysz USB | 1 + 1 | Konfiguracja Pi: logowanie kontem z rolą Wyświetlacz (e-mail i kod z e-maila), wybór hali, „Pełny ekran”, „Wszystkie hale”. | Bezprzewodowa klawiatura z 1.3 dopiero na stanowisko. |
 | **Dokupić tylko, jeśli coś nie zadziała** | | | |
 | Samsung Galaxy Tab Active5 (SM-X300, Wi-Fi) | 0 (warunkowo 1) | Wzorzec Device Owner i plan B. Odróżnia błąd naszego DPC od blokady w firmware Boox. | Dokupić, gdy T-01 albo T-02 nie przejdą na Air6 C (1.1). |
@@ -410,7 +410,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
 - [ ] TOTP to w Cognito MFA typu software token. Logowanie bez hasła i MFA wykluczają się dla tego samego użytkownika ([MFA](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa.html)). Decyzja przed etapem 1 (sekcja 5).
 - [ ] Atrybutów logowania nie da się zmienić po utworzeniu puli ([atrybuty](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html)), więc pule dev i test muszą dać się odtworzyć z kodu.
 - [ ] Sesje i blokada konta:
-  - global sign-out unieważnia wszystkie refresh tokeny konta ([unieważnianie tokenów](https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html)). Tablety mają własne konto techniczne, więc wylogowanie osoby ich nie dotyka; global sign-out konta tabletów wylogowuje wszystkie tablety stajni (zgubiony tablet) [erd];
+  - global sign-out unieważnia wszystkie refresh tokeny konta ([unieważnianie tokenów](https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html)). Tablety mają własne konto techniczne, więc wylogowanie osoby ich nie dotyka; global sign-out konta tabletów wylogowuje wszystkie tablety stajni [erd]. Zgubiony tablet: admin blokuje konto techniczne tabletów (wylogowanie ze wszystkich urządzeń), a pozostałe tablety loguje ponownie kodem (propozycja, sekcja 5 pkt 5);
   - access token sprawdzany lokalnie działa aż do wygaśnięcia;
   - `AdminDisableUser` unieważnia access tokeny tylko dla wywołań do Cognito ([API](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminDisableUser.html)), dlatego blokadę sprawdzamy też w `stable_members`.
 - [ ] Tylko dla pul dev i test, na decyzję Dawida: wyzwalacz custom SMS sender (Lambda + KMS, [dokumentacja](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-custom-sms-sender.html), [przykład AWS](https://github.com/aws-samples/amazon-cognito-user-pool-development-and-testing-with-sms-redirected-to-email)), który przekierowuje kody do skrzynki testowej. W produkcji nigdy, bo to logika poza mikroserwisami.
@@ -874,7 +874,7 @@ Zasady wspólne:
   - **Ludzie** (przypisania per stajnia; Stajnia Brzozowa niżej):
     - Damian: admin konta firmy (właściciel), dostęp do obu stajni bez przypisywania; telefon i e-mail (w interfejsie „+48 602 *** 145” i „d•••@stajnielipowe.pl”, propozycja);
     - Ola: obsługa przypisana do obu stajni (w interfejsie „+48 607 *** 218”); Piotr: obsługa tylko w Pod Lipami;
-    - Marta (Instruktor): przypisana do obu stajni (propozycja); Kuba (Wsparcie IT) to zespół EQUENOR, bez członkostwa w stajniach (dostęp operatora, propozycja);
+    - Marta (Instruktor): przypisana do obu stajni (propozycja); Kuba (Wsparcie IT) to zespół EQUENOR, poza seedem stajni: bez członkostwa, zaproszenia i wiersza w Ludziach; w seedzie dev najwyżej konto operatora do testów diagnostyki (propozycja);
     - klienci (rola `client`, dostęp przez `horse_access`): Anna (Kasztan i Bella), Karolina W. (Iskra), Tomasz L. (Grom), Ewa K. (Sonata);
     - Marek Nowak: oczekujące zaproszenie SMS jako klient do Luny (`invitations.horse_id`, bez boksu);
     - wygasłe zaproszenie dla obsługi;
@@ -911,7 +911,7 @@ Zasady wspólne:
   - **Wariant bez przycisków obsługi** (makiety BezAkcji i zrzuty A-19; np. flaga seedu albo fixture, propozycja): Stajnia Pod Lipami z danymi jak wyżej, ale z `tidy_enabled = meal_served_enabled = paddock_out_enabled = false`, bez wierszy `box_care_events.kind = tidy` i bez `building_routines`. Zostają flagi, plan karmienia, zadania i „Woda” 06:55 przy Hala nowa · boks 5.
   - **Druga stajnia: Stajnia Brzozowa** (to samo konto firmy, mała, prowadzona na co dzień przez Pawła, który sam obsługuje konie). Służy do pokazania innych ustawień, dostępu per stajnia (obsługa widzi tylko przypisane stajnie; te same numery boksów 1–6 co w Hali nowej, więc zapisy idą po `stable_id` i `boxes.id`) i interfejsu bez podziału na hale.
     - Adres ul. Brzozowa 5, 05-500 Piaseczno. Jedna hala „Hala główna”, której nazwy nie pokazujemy, bo jest jedna (nagłówek tabletu „BOKS 1 · KOMETA”, w apce „boks 1”). Boksy 1–6 z poidłem automatycznym: 1 Kometa, 2 Dąb, 3 Iga, 4 Lord, 5 wolny, 6 Nuta.
-    - Ludzie: Damian, admin konta firmy, ma tu dostęp bez przypisania; Paweł, obsługa tylko w tej stajni (w interfejsie „+48 601 *** 377”; zaprosił go Damian 01.10 SMS-em), nie jest adminem; Ola, obsługa także w Pod Lipami (drugie przypisanie `staff`), przychodzi rano do pomocy; Anna, klientka także w Pod Lipami (`horse_access` do Komety). Przełącznik stajni mają Damian, Ola, Anna i Marta (każdy z dwiema stajniami); Paweł i Piotr widzą samą nazwę stajni. Marta z Pod Lipami także tutaj (propozycja). Wyświetlacza nie ma; tablety na koncie technicznym „Tablety Brzozowa” (rola `tablet`, propozycja). Klienci pozostałych koni poza makietami (propozycja: bez kont).
+    - Ludzie: Damian, admin konta firmy, ma tu dostęp bez przypisania; Paweł, obsługa tylko w tej stajni (w interfejsie „+48 601 *** 377”; zaprosił go Damian 01.10 SMS-em), nie jest adminem; Ola, obsługa także w Pod Lipami (drugie przypisanie `staff`), przychodzi rano do pomocy; Anna, klientka także w Pod Lipami (`horse_access` do Komety). Przełącznik stajni mają Damian, Ola, Anna i Marta (każdy z dwiema stajniami); Paweł i Piotr widzą samą nazwę stajni. Marta z Pod Lipami także tutaj (propozycja). Wyświetlacza nie ma; tablety na koncie technicznym „Tablety Brzozowa” (rola `tablet`, e-mail np. boksy.brzozowa@stajnielipowe.pl, w interfejsie zamaskowany, propozycja); konto ma tylko tę stajnię, więc jego tablety widzą w „Zmień boks” tylko boksy 1–6 Brzozowej. Klienci pozostałych koni poza makietami (propozycja: bez kont).
     - Ustawienia (Damian zmienił je po założeniu, bo nowa stajnia ma wszystko włączone) [erd]:
       - `flags_require_ack = false` (potwierdzenia wyłączone);
       - Derka: nie (szablon `derka` nieaktywny); moczenie: nie (`soak_enabled = false`);
@@ -946,11 +946,11 @@ Zasady wspólne:
 - [ ] Konta techniczne (telewizor z rolą `display`, tablety z rolą `tablet`) to zwykłe konta w `users` i Cognito, zaproszone przez `access`; bez osobnej tabeli.
 
 **access** (`stable_members`, `horse_access`, `invitations`)
-- [ ] `GET /me/memberships`: stajnie, role i dostępy. Admin konta firmy dostaje wszystkie stajnie firmy, także nową od razu po jej założeniu, bez przypisywania. Pozostałe role przypisuje się per stajnia, a osoba może być przypisana do kilku stajni z różnymi rolami albo tą samą rolą (w seedzie Ola jako obsługa, Marta i Anna jako klientka w obu stajniach; Paweł tylko w Brzozowej, Piotr tylko w Pod Lipami); apka przełącza między nimi stajnię bez ponownego logowania. Konto techniczne ma członkostwo w jednej stajni; przypisanie go do drugiej `access` odrzuca (propozycja).
+- [ ] `GET /me/memberships`: stajnie, role i dostępy. Admin konta firmy dostaje wszystkie stajnie firmy, także nową od razu po jej założeniu, bez przypisywania. Pozostałe role przypisuje się per stajnia, a osoba może być przypisana do kilku stajni z różnymi rolami albo tą samą rolą (w seedzie Ola jako obsługa, Marta jako instruktorka i Anna jako klientka w obu stajniach; Paweł tylko w Brzozowej, Piotr tylko w Pod Lipami); apka przełącza między nimi stajnię bez ponownego logowania. Konto techniczne ma członkostwo w jednej stajni; przypisanie go do drugiej `access` odrzuca (propozycja).
 - [ ] Zarządzanie członkami: zmiana roli w stajni (`staff | instructor | client`; konta techniczne `display | tablet` bez zmiany roli, propozycja), `active`; rola Admin dotyczy całego konta firmy (`business_admins`), a dodawanie kolejnych adminów konta jest poza PoC (propozycja z erd.md); przypisanie osoby do kolejnej stajni firmy i jego odebranie (np. Ola do Brzozowej; propozycja: w Ludziach, bez nowego zaproszenia). W Ludziach konta techniczne („Telewizor korytarz · Wyświetlacz”, „Tablety Pod Lipami · Tablet”) są w filtrze „Konta techniczne”.
 - [ ] Zaproszenia.
   - Kanał: telefon (SMS) albo e-mail (`invitations.channel`), wybór „Kanał: SMS | E-mail” jak na makiecie Zaproszenie.
-  - Role do wyboru: Klient (z wyborem konia), Obsługa, Instruktor (z opisem jednym zdaniem) [erd]; w panelu („Zaproś osobę”) także osobna grupa „Konto techniczne”: Wyświetlacz i Tablet przy boksie. Wsparcia IT na liście nie ma. Osobnego „Dodaj wyświetlacz” i endpointu kont wyświetlaczy nie ma.
+  - Role do wyboru: Klient (z wyborem konia), Obsługa, Instruktor [erd]; w panelu („Zaproś osobę”) także osobna grupa „Konto techniczne”: Wyświetlacz i Tablet przy boksie. Wsparcia IT na liście nie ma. Osobnego „Dodaj wyświetlacz” i endpointu kont wyświetlaczy nie ma.
   - Zaproszenie klienta wskazuje konia (`horse_id`, wymagane dla klienta), bez boksu i bez osobnej roli dostępu [erd].
   - Wymagane `expires_at`, domyślnie 7 dni.
   - „Wyślij ponownie” tworzy nowe zaproszenie.
@@ -1190,6 +1190,7 @@ Zasady wspólne:
   - pozostałe zapisy (potwierdzenia, „Ogarnięte”, „Woda”, akcje hali, „Cofnij” i „Zrobione”) przez lokalną kolejkę.
 - [ ] Ekrany z makiet:
   - Logowanie (przełącznik „Telefon | E-mail”);
+  - bez stajni: ZaproszeniePrzyjmij, gdy czeka zaproszenie (dopasowuje się samo po zalogowaniu), albo BrakDostepu: „Brak dostępu do stajni”, „Zaloguj się innym kontem”, „Wyloguj”; bez próśb do admina, bez pokazywania numeru i telefonu stajni;
   - Moje konie (Main), także MainBrzozowa (klientka Anna po przełączeniu na Stajnię Brzozową);
   - SzybkaFlaga, StatusFlagi, KartaKonia;
   - MojBoks;
@@ -1210,7 +1211,7 @@ Zasady wspólne:
   - StajennyZadania (zakładka „Zadania”, tylko przy widoczności `tasks` dla obsługi): „Do wzięcia” z „Biorę”, „Moje” z „Zrobione”, „Zrobione dziś”; „+ Dodaj zadanie” widzi tylko admin;
   - StajennyKonie: kafelki szybkiej flagi włączonych w stajni (z Derką tylko tam, gdzie stajnia oferuje derki), godziny przy flagach;
   - BoksyAdmin i BoksSzczegoly: „Ogarnięte dziś 07:10” zamiast osobnych czynności, flagi z godzinami, klient przy koniu (Marek Nowak przy Lunie, „zaproszenie czeka”), przyciski „Ogarnięte” i „Przypisz konia”; przy poidle ręcznym (Hala nowa · boks 5) znacznik „Poidło ręczne · woda 06:55” i przycisk „Woda”, przy automatycznym bez znacznika wody; w BoksSzczegoly admin ma przełącznik „Automatyczne poidło: tak/nie” (wolny boks 6 w Hali nowej: „tak”); BoksyAdminBezAkcji bez linii „Ogarnięte …”, reszta bez zmian;
-  - Zaproszenie: role Klient (z wyborem konia), Obsługa, Instruktor (z opisem jednym zdaniem); kanał „SMS | E-mail”.
+  - Zaproszenie: role Klient (z wyborem konia), Obsługa, Instruktor; bez Wsparcia IT; kanał „SMS | E-mail”.
 - [ ] Ekrany bez makiet: profil (wyloguj wszędzie, usuń konto, język), dodawanie zadania przez admina, jazdy instruktora.
 - [ ] Przy kilku halach zawsze „Hala nowa · boks 4”; przy jednej hali bez podziału. Nawigacja do boksu zawsze po `id`.
 - [ ] Kolory i znak słowny „EQUENOR” z `packages/theme` (tokeny LCD z `docs/paleta.md`): akcent tylko na elementach klikalnych; status zawsze jako ikona, słowo i pole, nigdy sam kolor; flaga krytyczna jako jasny tint z lewym paskiem 4 px.
@@ -1360,7 +1361,7 @@ Zasady wspólne:
   - **PanelRejestracjaFirmy** (nowy, po PanelWitaj, tylko przy pierwszej rejestracji): nazwa firmy, NIP, siedziba i e-mail do faktur (NIP podaje się tylko tutaj), bez dopisków o NIP-ie; „Ten NIP ma już konto w EQUENOR” tylko jako błąd;
   - PanelZalozStajnie, krok 1 „Stajnia”: bez NIP, działalności, języków tabletów i pytania o potwierdzenia flag; hala i boksy z ustawieniami („Ustaw dla wszystkich”);
   - **PanelZalozPowiadomienia** (nowy), krok 2 „Powiadomienia”: zdarzenia, odbiorcy (Admin, Obsługa stajni), kanał SMS / e-mail; „Załóż stajnię” → PanelPulpitStart;
-  - PanelPulpitStart → PanelZaprosOsobe: kanał SMS albo e-mail; role osób Klient, Obsługa, Instruktor i osobna grupa „Konto techniczne”: Wyświetlacz, Tablet przy boksie;
+  - PanelPulpitStart → PanelZaprosOsobe: kanał SMS albo e-mail; role osób Klient, Obsługa, Instruktor i osobna grupa „Konto techniczne”: Wyświetlacz, Tablet przy boksie; bez Wsparcia IT;
   - druga stajnia (Brzozowa, 01.10) tą samą ścieżką od PanelZalozStajnie, bez rejestracji firmy i bez NIP;
   - w Ludziach konta techniczne („Telewizor korytarz · konto techniczne · Wyświetlacz”, „Tablety Pod Lipami · konto techniczne · Tablet”) to zwykłe wiersze w filtrze „Konta techniczne”, bez osobnej sekcji i instrukcji.
 - [ ] PanelPlatnosci.
@@ -1421,7 +1422,7 @@ Zasady wspólne:
   16. Overlay FS wyłączony.
 
 #### 3.5.5 Strona www (przed logowaniem)
-- [ ] Publiczna strona produktu: sama prezentacja, bez CMS (sekcja 5, „Rozstrzygnięte”). Makiety: StronaGlowna (1440), StronaGlownaTelefon (390).
+- [ ] Publiczna strona produktu: sama prezentacja, bez bloga i CMS (sekcja 5, „Rozstrzygnięte”). Makiety: StronaGlowna (1440), StronaGlownaTelefon (390).
 - [ ] Treść: hero (nazwa, hasło, jedno zdanie, CTA), cztery ekrany (apka, tablet, telewizor, panel) z obrazem i jednym zdaniem, przykład flag z godzinami, kontakt i CTA, stopka; link „Zaloguj się” do panelu. Bez drobnych zalet, ogólników i treści instruktażowych. Bez danych stajni, bez logowania i bez API aplikacji.
 - [ ] Kolory i znak „EQUENOR” (z hasłem pod spodem w nagłówku i stopce) z `docs/paleta.md` (tokeny LCD, przez `packages/theme`, propozycja); układ od 390 do 1440 px.
 - [ ] Statyczna strona (sekcja 5 pkt 51). Propozycja: statyczny generator w monorepo (`apps/www`), build w CI, hosting statyczny na domenie głównej (2.10). Hosting wybiera Dawid.
@@ -1462,7 +1463,7 @@ Zasady wspólne:
   - `care` zaraz po etapie 2;
   - `health`, `rides` i `tasks` niezależnie od siebie;
   - adaptery `billing` w dowolnym momencie;
-  - strona www (3.5.5) niezależnie od reszty, po decyzji z sekcji 5 pkt 51.
+  - statyczna strona www (3.5.5, sekcja 5 pkt 51) niezależnie od reszty.
 
 ## 4. Testy
 
@@ -1586,7 +1587,7 @@ Zasady wspólne:
     - wariant „pusta hala”;
     - usunięcia hali z boksami interfejs nie proponuje, a API je odrzuca; wyłączenie hali działa;
     - po dodaniu drugiej hali stajnia z jedną halą zaczyna pokazywać halę przy numerze w panelu.
-  - Konto firmy i zakładanie stajni: logowanie e-mailem, PanelRejestracjaFirmy (NIP zajęty: komunikat „Ten NIP ma już konto w EQUENOR”), PanelZalozStajnie bez NIP, języków i potwierdzeń, boksy 1–6 z „Ustaw dla wszystkich” i jednym boksem z poidłem ręcznym, PanelZalozPowiadomienia, „Załóż stajnię” → PanelPulpitStart; druga stajnia bez rejestracji firmy; zaproszenie z kanałem SMS albo e-mail i rolą Wyświetlacz.
+  - Konto firmy i zakładanie stajni: logowanie e-mailem, PanelRejestracjaFirmy (NIP zajęty: komunikat „Ten NIP ma już konto w EQUENOR”), PanelZalozStajnie bez NIP, języków i potwierdzeń, boksy 1–6 z „Ustaw dla wszystkich” i jednym boksem z poidłem ręcznym, PanelZalozPowiadomienia, „Załóż stajnię” → PanelPulpitStart; druga stajnia bez rejestracji firmy; PanelWitaj bez „Czekasz na zaproszenie?”; zaproszenie z kanałem SMS albo e-mail, z rolą osoby (Klient, Obsługa, Instruktor) albo kontem technicznym (Wyświetlacz, Tablet przy boksie), bez Wsparcia IT na liście; w Ludziach konta techniczne w filtrze „Konta techniczne”.
   - Ustawienia stajni (PanelUstawieniaStajni, PanelUstawieniaBrzozowa): stan przełączników i macierzy obu stajni z seedu; „Zapisz” z `If-Match`, konflikt 412 pokazuje komunikat; wyłączenie Derki i włączenie z powrotem; zakładki nie widzi nikt poza adminem; przełącznik stajni w nagłówku przechodzi między stajniami.
   - Płatności na fałszywym adapterze: podwójny webhook daje jedną płatność, brak płatności daje `suspended`.
   - widok wyświetlacza w panelu (konto `display`):
@@ -1605,8 +1606,8 @@ Zasady wspólne:
   - Testy zrzutów (propozycja, 3.5.2): ekrany z fixture'ów renderowane w profilu Kaleido 3 i Gallery 3 i przeliczone na skalę szarości. Statusy (papier, OK, uwaga, krytyczna) muszą się różnić jasnością i grubością obrysu także bez koloru; na polach koloru tylko czarny albo biały pogrubiony tekst.
   - „Zmień boks” na emulatorze ze sztucznym zegarem: zakładki hal (otwarta zakładka hali bieżącego boksu), przełączenie od razu po stuknięciu, powrót do poprzedniego boksu po 30 s bez wyboru, wybór (`boxes.id`) zachowany po zabiciu procesu; przy jednej hali lista bez zakładek.
   - Blokada ekranu na emulatorze ze sztucznym zegarem: seria stuknięć i przeciągnięć po zablokowanym ekranie nie wysyła żadnego zapisu; odblokowanie dopiero po 3 s przytrzymania kłódki; pop-up nowej flagi (stajnia z potwierdzeniami) pojawia się mimo blokady, a POTWIERDZAM działa po odblokowaniu; po 10 min blokada schodzi sama (propozycja).
-  - Logowanie i język na emulatorze: „TELEFON | E-MAIL” z kodem z SMS-a i z e-maila; język tablicy zmieniony w ukrytych ustawieniach albo przełącznikiem PL | UA w stopce zostaje po zabiciu procesu i po ponownym logowaniu, a drugi tablet (emulator) ma swój język.
-  - Konfiguracja stajni na emulatorze: tablet zalogowany kontem „Tablety Brzozowa”, boks 1 (TabletBoksBrzozowa): nagłówek bez hali, baner bez plakietki „POTWIERDZONA” i bez pop-upu, „SZYBKIE AKCJE” tylko „OGARNIĘTE” i „ŚNIADANIE”, karmienie bez „NAMOCZYĆ”; zrzut porównany z makietą (propozycja).
+  - Logowanie i język na emulatorze: kontem technicznym tabletów przez „TELEFON | E-MAIL” z kodem z SMS-a i z e-maila, po kodzie od razu lista boksów (bez wyboru stajni); konto osoby albo Wyświetlacz dostaje TabletBrakUprawnien; język tablicy zmieniony w ukrytych ustawieniach albo przełącznikiem PL | UA w stopce zostaje po zabiciu procesu i po ponownym logowaniu, a drugi tablet (emulator) ma swój język.
+  - Konfiguracja stajni na emulatorze: tablet zalogowany kontem „Tablety Brzozowa”, boks 1 (TabletBoksBrzozowa); „Zmień boks” ma tylko boksy 1–6 Brzozowej, bez zakładek i bez stajni; nagłówek bez hali, baner bez plakietki „POTWIERDZONA” i bez pop-upu, „SZYBKIE AKCJE” tylko „OGARNIĘTE” i „ŚNIADANIE”, karmienie bez „NAMOCZYĆ”; zrzut porównany z makietą (propozycja).
   - Scenariusze UI na sztukach deweloperskich z ADB (Maestro albo UI Automator).
   - Na sztukach produkcyjnych (ADB wyłączone) obserwacja kamerą i w logach, a stuknięcia ręczne.
 - [ ] **Prawdziwe SMS w przebiegu nocnym:** modem z kartą SIM odczytuje kod OTP i eskalację.
@@ -1633,7 +1634,7 @@ Zasady wspólne:
   - Opcje wyłączone w ustawieniach stajni: zapis daje `409 option_disabled` (propozycja) dla każdej roli, także admina i tabletu; potwierdzenie flagi bez `requires_ack` daje `409 ack_not_required` (propozycja).
   - Kombinacje ról: ta sama osoba jako client dwóch koni w różnych halach (Anna: Kasztan i Bella); ta sama osoba w dwóch stajniach o różnych ustawieniach (Ola: staff w obu, Anna: client w obu, Damian: admin konta), gdzie uprawnienia, widoczność i konfiguracja liczą się osobno dla każdej stajni; staff w jednej stajni i client w drugiej.
 - [ ] **Wyświetlacz bez danych osobowych.** Dane-kanarki (unikalne telefony, e-maile, nazwiska) w seedzie. Skan każdej odpowiedzi dla `display` oraz HTML i JS widoku wyświetlacza w panelu nie może znaleźć kanarka ani wzorca E.164 czy e-maila.
-- [ ] **Tablica tabletu nie pokazuje, kto jest zalogowany.** Tablet zalogowany kontem z danymi-kanarkami: na żadnym ekranie poza ukrytymi ustawieniami nie ma imienia, telefonu ani e-maila zalogowanej osoby. Akcje z tabletu zapisują się bez autora: `source = tablet` (przy potwierdzeniu flagi `method = tablet`), `user_id = NULL`, `audit_log.actor_type = tablet` [erd].
+- [ ] **Tablica tabletu nie pokazuje, kto jest zalogowany.** Tablet zalogowany kontem z danymi-kanarkami: na żadnym ekranie poza ukrytymi ustawieniami nie ma nazwy, telefonu ani e-maila zalogowanego konta. Akcje z tabletu zapisują się bez autora: `source = tablet` (przy potwierdzeniu flagi `method = tablet`), `user_id = NULL`, `audit_log.actor_type = tablet` [erd].
 - [ ] **Presigned URL.**
   - `files` niedostępny z zewnątrz (ingress, NetworkPolicy).
   - Właściciel sprawdza uprawnienia przed wydaniem linku, np. `owner_private` nie trafia do obsługi.
@@ -1646,6 +1647,8 @@ Zasady wspólne:
   - Numer przydzielony przez operatora nowej osobie nie przejmuje dostępów poprzedniego właściciela.
 - [ ] **Sesje.**
   - Po global sign-out zmierzyć czas do utraty dostępu na telefonie i w panelu (konto osoby), na tablecie (konto tabletów) i na wyświetlaczu (konto telewizora).
+  - Wylogowanie osoby ze wszystkich urządzeń (np. Oli) nie wylogowuje żadnego tabletu ani telewizora.
+  - Zgubiony tablet: admin blokuje konto techniczne tabletów w Ludziach („Zablokuj”: global sign-out i blokada w `stable_members`). Zmierzyć czas, po którym każdy tablet stajni pokazuje ekran logowania bez starych flag; po odblokowaniu pozostałe tablety logują się ponownie kodem i wracają do swoich boksów i języka, a zgubiony bez nowego kodu nie wraca (propozycja).
   - Skradziony tablet czyta tablicę najwyżej przez czas życia access tokenu.
   - Blokada konta telewizora (rola Wyświetlacz) przez admina: zmierzyć czas do zniknięcia danych; sprawdzane także w członkostwie.
   - Wygaśnięcie refresh tokenu (pula testowa ze skróconą ważnością) daje czytelny ekran logowania, bez zamrożonych danych.
@@ -1812,11 +1815,11 @@ Zasady wspólne:
 
 **E. Logowanie**
 - [ ] **T-23 Sesja na tablecie.**
-  - Logowanie przełącznikiem „TELEFON | E-MAIL”: kod z SMS-a i kod z e-maila.
+  - Logowanie kontem technicznym tabletów („Tablety Pod Lipami”, b•••@stajnielipowe.pl) przełącznikiem „TELEFON | E-MAIL”: kod z SMS-a i kod z e-maila; po kodzie od razu TabletPierwszyBoks, bez wyboru stajni.
   - Język tablicy ustawiony na tym tablecie zostaje po restarcie, rozładowaniu i ponownym logowaniu.
   - Odnawianie sesji przez cały test ciągły.
-  - Wylogowanie osoby ze wszystkich urządzeń nie wylogowuje tabletu; global sign-out konta tabletów: tablet pokazuje ekran logowania i pamięta boks.
-  - Po ponownym zalogowaniu tablet wraca do tego samego boksu (to samo `id`); konto osoby dostaje TabletBrakUprawnien.
+  - Wylogowanie osoby ze wszystkich urządzeń nie wylogowuje tabletu; blokada konta tabletów (zgubiony tablet, global sign-out): tablet pokazuje ekran logowania bez starych flag i pamięta boks.
+  - Po ponownym zalogowaniu tablet wraca do tego samego boksu (to samo `id`); konto osoby albo Wyświetlacz dostaje TabletBrakUprawnien.
   - Tablica nie pokazuje, kto jest zalogowany; logowanie i wylogowanie tylko w ukrytych ustawieniach (długie przytrzymanie).
   - Tokeny w Keystore (sprzętowym czy programowym).
 
@@ -1977,7 +1980,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
    - [ ] Anna (klientka: Kasztan i Bella) widzi w MojBoks boks Kasztana, Hala główna · boks 7. „Ostatnio” ma tylko zdarzenia z przycisków obsługi: Ogarnięte dziś 07:10, Podano śniadanie 06:40 z „pominięty: flaga” i Wyprowadzono na padok wczoraj 10:05 · Piotr. „Historia” ma tylko flagi z potwierdzeniami i zdarzenia z przycisków, także wczorajsze: Podano kolację 18:02 · Piotr i Wyprowadzono na padok 10:05 · Piotr. Wpisy z apki mają osobę, wpisy z tabletu nie mają.
    - [ ] Historia zaczyna się od dnia, w którym Kasztan trafił do boksu 7. Wolnego boksu 3 Anna nie widzi (404), a szybkie akcje obsługi i zadania dają 403. Po `valid_to` albo `revoked_at` dostęp do konia i jego boksu znika.
    - [ ] Marek Nowak akceptuje zaproszenie jako Klient do Luny (`invitations.horse_id`) przed terminem i widzi Lunę; po terminie zaproszenia nie da się zaakceptować.
-   - [ ] W Zaproszeniu admin wybiera z ról Klient (z wyborem konia), Obsługa i Instruktor z opisem jednym zdaniem; test słownika odrzuca każdą inną nazwę roli, także Wsparcie IT (propozycja).
+   - [ ] W Zaproszeniu admin wybiera rolę osoby: Klient (z wyborem konia), Obsługa albo Instruktor, a w panelu także konto techniczne (Wyświetlacz, Tablet przy boksie); test słownika odrzuca każdą inną nazwę roli, także Wsparcie IT (propozycja).
 7. **A-07 Obsługa.**
    - [ ] Ola ustawia flagi dla Iskry (Hala główna · boks 1), Groma (Hala nowa · boks 1) i Luny, z godzinami, oraz zmienia plan karmienia (pozycja z „namoczyć” i ile). Klient widzi flagę, a tablet pokazuje pop-up: tablet Hala główna · boks 1 tylko dla Iskry, tablet Hala nowa · boks 1 tylko dla Groma. Flaga Luny bez boksu nie trafia na żaden tablet.
    - [ ] Klient bez dostępu do konia dostaje odmowę.
@@ -2033,11 +2036,11 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 17. **A-17 Dwie stajnie: przełączenie stajni u Anny i u Oli.**
     - [ ] Anna (klientka w obu stajniach) o 07:15 w Stajni Pod Lipami widzi Kasztana i Bellę: kafelki z „Derką”, flagi ze statusem („potwierdzona 06:02”, Bella „niepotwierdzona”), plan karmienia z „namoczyć” i jazdy. Przełącza nagłówek na „Stajnia Brzozowa ▾” (MainBrzozowa): Kometa (boks 1, bez hali), „Bez śniadania 06:00–09:00 · dentysta o 8:30” bez statusu, z „obowiązuje od razu”, oraz „Ogarnięte dziś 07:00 · śniadanie pominięte: flaga”. Kafelki: Bez śniadania, Bez kolacji, Nie na padok, Wet, Leki, Inna flaga, bez „Derki”. Karta Komety nie ma planu karmienia ani jazd. Powrót do Pod Lipami przywraca poprzedni widok, bez ponownego logowania.
     - [ ] Ola (obsługa w obu stajniach) w Pod Lipami ma ListaDnia jak w A-13: „Szybkie akcje” per hala z padokiem, „Wymaga potwierdzenia” z Bellą, skrót zadań i zakładka „Zadania”. Po przełączeniu na Stajnię Brzozową (ListaDniaBrzozowa): „Podano śniadanie” ✓ 06:35 · Paweł z pominiętą Kometą i „Ogarnięte 3 z 6” (boksy 1, 2, 4), bez padoku; bez sekcji „Wymaga potwierdzenia”; „Flagi dziś” (Kometa, Lord) bez statusu; bez namaczania; bez zakładki „Zadania”; bez hali przy numerze.
-    - [ ] Tablet boksu 1 Stajni Brzozowej (TabletBoksBrzozowa; tablet na koncie „Tablety Brzozowa”, boks 1): nagłówek „BOKS 1 · KOMETA” bez hali, baner „BEZ ŚNIADANIA · 06:00–09:00 · dentysta o 8:30” bez plakietki „POTWIERDZONA”, „SZYBKIE AKCJE” tylko „OGARNIĘTE” (dziś 07:00) i „ŚNIADANIE” (podane 06:35), bez „PADOK”, karmienie bez „NAMOCZYĆ”. Tablet Hala główna · boks 7 w Pod Lipami w tym samym czasie ma trzy przyciski i „NAMOCZYĆ”.
+    - [ ] Tablet boksu 1 Stajni Brzozowej (TabletBoksBrzozowa) jest zalogowany kontem „Tablety Brzozowa” i nie zmienia stajni: „Zmień boks” ma tylko boksy 1–6 Brzozowej, a tablety Pod Lipami nie widzą Komety. Nagłówek „BOKS 1 · KOMETA” bez hali, baner „BEZ ŚNIADANIA · 06:00–09:00 · dentysta o 8:30” bez plakietki „POTWIERDZONA”, „SZYBKIE AKCJE” tylko „OGARNIĘTE” (dziś 07:00) i „ŚNIADANIE” (podane 06:35), bez „PADOK”, karmienie bez „NAMOCZYĆ”. Tablet Hala główna · boks 7 w Pod Lipami w tym samym czasie ma trzy przyciski i „NAMOCZYĆ”.
     - [ ] Dane się nie mieszają: w Stajni Brzozowej Anna nie widzi Kasztana ani Belli, a Ola nie widzi koni Pod Lipami. Flaga ustawiona przez Olę w Stajni Brzozowej ma `requires_ack = false`, a w Pod Lipami `true`. Zapis z kolejki apki trafia do stajni, w której powstał, także gdy Ola w międzyczasie przełączy stajnię.
 18. **A-18 Flaga bez potwierdzeń (Stajnia Brzozowa · boks 1, Kometa).**
     - [ ] O 05:50 Anna wybiera kafelek „Bez śniadania”, zmienia podpowiedziane godziny na 06:00–09:00 i dopisuje „dentysta o 8:30”. Zapis ma `requires_ack = false` i puste `ack_deadline_at`, `warn_at` i `notify_at`.
-    - [ ] Tablet boksu 1 przy najbliższym odpytaniu (przed 06:00) pokazuje flagę bez pop-upu, bez POTWIERDZAM i bez plakietki jako „Później: Bez śniadania od 06:00”, a od 06:00 w banerze „BEZ ŚNIADANIA · 06:00–09:00 · dentysta o 8:30” z „obowiązuje od razu”. W tabeli karmienia poranny owies i siano są „WSTRZYMANE”.
+    - [ ] Tablet boksu 1 (konto „Tablety Brzozowa”) przy najbliższym odpytaniu (przed 06:00) pokazuje flagę bez pop-upu, bez POTWIERDZAM i bez plakietki jako „Później: Bez śniadania od 06:00”, a od 06:00 w banerze „BEZ ŚNIADANIA · 06:00–09:00 · dentysta o 8:30” z „obowiązuje od razu”. W tabeli karmienia poranny owies i siano są „WSTRZYMANE”.
     - [ ] U Anny flaga nie ma statusu oczekiwania. U Oli i Pawła nie ma sekcji „Wymaga potwierdzenia”. Nikt nie dostaje eskalacji (zero wierszy `flag_escalations`, zero powiadomień), także po czasie, po którym flaga w Pod Lipami byłaby „niepotwierdzona”. Potwierdzenie wysłane wprost przez API daje `409 ack_not_required` (propozycja).
     - [ ] O 06:35 Paweł stuka w apce „Podano śniadanie”: jeden wpis dla całej stajni, Kometa pominięta („bez Komety: flaga”), choć nikt flagi nie potwierdzał. Tablet boksu 1 pokazuje „ŚNIADANIE · podane 06:35 · potem obiad 12:00”, a o 07:15 „OSTATNIE AKCJE” to dokładnie 5 wpisów: 07:00 Ogarnięte; 06:35 Podano śniadanie (bez Komety: flaga) · Paweł; 05:50 nowa flaga „Bez śniadania” · Anna; wczoraj 18:00 Podano kolację · Paweł; wczoraj 16:30 Ogarnięte · Paweł.
     - [ ] „Leki rano” Lorda (Paweł, 06:00–09:00) też obowiązuje od razu, bez statusu. O 09:00 obie flagi kończą się same.
@@ -2089,6 +2092,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 25. **A-25 Konto techniczne tabletów i język tablicy.**
     - [ ] Damian w „Zaproś osobę” wybiera „Konto techniczne: Tablet przy boksie” i kanał e-mail: boksy@stajnielipowe.pl, nazwa „Tablety Pod Lipami” (propozycja). W Ludziach „Tablety Pod Lipami · konto techniczne · Tablet” jest w filtrze „Konta techniczne”.
     - [ ] Tablet Hala nowa · boks 5 loguje się tym kontem przez „TELEFON | E-MAIL”: e-mail i kod z e-maila. Po kodzie od razu TabletPierwszyBoks z zakładkami hal, bez wyboru stajni; w ukrytych ustawieniach KONTO „Tablety Pod Lipami · konto techniczne”; tablica nie pokazuje konta. Konto Oli na tablecie dostaje TabletBrakUprawnien, a wylogowanie Oli ze wszystkich urządzeń nie dotyka tabletów.
+    - [ ] Zgubiony tablet (propozycja): Damian w Ludziach blokuje „Tablety Pod Lipami”. Przy najbliższym odpytaniu wszystkie tablety stajni pokazują ekran logowania, bez starych flag. Po odblokowaniu pozostałe tablety logują się ponownie kodem i wracają do swoich boksów i języka; zapisy z zablokowanego konta dają 403.
     - [ ] W ukrytych ustawieniach tego tabletu ktoś wybiera język UA: tablica jest po ukraińsku (pory posiłków z etykiet `*_labels`, gdy są), a tablet Hala główna · boks 7 dalej po polsku. Język zostaje po restarcie i ponownym logowaniu; serwer o nim nie wie, a stajnia nie ma ustawienia języków.
 
 ### 4.5 Stanowisko testowe i kryteria gotowości do wdrożenia
@@ -2161,6 +2165,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 - [ ] **Przećwiczone runbooki:**
   - wymiana tabletu i jego provisioning;
   - odzyskanie zablokowanego tabletu;
+  - zgubiony tablet: blokada konta technicznego tabletów w Ludziach, odblokowanie i ponowne logowanie pozostałych tabletów kodem (propozycja);
   - zmiana Wi-Fi w stajni;
   - ponowne logowanie tabletu i telewizora (telefonem albo e-mailem i kodem);
   - cofnięcie wydania APK;
@@ -2173,9 +2178,10 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 
 **Rozstrzygnięte 13.10.2026** (decyzje właściciela produktu; mają pierwszeństwo przed wcześniejszymi propozycjami)
 - **Logowanie i e-mail.** Oprócz telefonów obsługujemy e-maile: logowanie w apce, panelu, na tablecie i TV numerem telefonu albo e-mailem, kod SMS-em albo e-mailem (`SMS_OTP`, `EMAIL_OTP`, e-maile przez SES), konta bez hasła; zaproszenia SMS-em albo e-mailem (2.4, 2.6, 3.5). TOTP bez zmian, dalej otwarte (pkt 1).
-- **Tylko B2B.** Konto to konto firmy z NIP; jedno konto, jeden NIP. NIP podaje się raz, przy rejestracji (PanelRejestracjaFirmy); „Załóż stajnię” nie pyta o NIP ani o działalność (3.3 `stable`).
-- **Admin konta firmy.** Admin ma dostęp do wszystkich stajni firmy, także nowych, bez przypisywania. Pozostałe role przypisuje się per stajnia; jedna osoba może mieć kilka stajni (3.1.9, 3.3 `access`).
-- **Telewizor.** Konto techniczne z rolą Wyświetlacz, telefon albo e-mail i kod, zaproszenie przez „Zaproś osobę”; bez osobnego formularza (pkt 3). Telewizor otwiera zwykłą stronę logowania panelu, bez osobnego adresu; strona nie rozpoznaje urządzenia, a po zalogowaniu panel pokazuje widok tablicy według roli. Wybór widoku dalej pamięta przeglądarka (3.5.4).
+- **Tylko B2B.** Konto to konto firmy z NIP; jedno konto, jeden NIP. NIP podaje się raz, przy rejestracji (PanelRejestracjaFirmy), jako zwykłe pole formularza, bez objaśnień; „Ten NIP ma już konto w EQUENOR” tylko jako błąd. „Załóż stajnię” nie pyta o NIP ani o działalność (3.3 `stable`).
+- **Admin konta firmy.** Admin ma dostęp do wszystkich stajni firmy, także nowych, bez przypisywania. Pozostałe role przypisuje się per stajnia; jedna osoba może mieć kilka stajni (3.1.9, 3.3 `access`). Zaproszenie dopasowuje się samo po zalogowaniu: PanelWitaj bez „Czekasz na zaproszenie?”, BrakDostepu bez próśb do admina i bez numeru (3.5.1, 3.5.3).
+- **Telewizor.** Konto techniczne z rolą Wyświetlacz, telefon albo e-mail i kod, zaproszenie przez „Zaproś osobę” → „Konto techniczne: Wyświetlacz”; bez osobnego formularza (pkt 3). Telewizor otwiera zwykłą stronę logowania panelu, bez osobnego adresu; strona nie rozpoznaje urządzenia, a po zalogowaniu panel pokazuje widok tablicy według roli. W Ludziach zwykły wiersz w filtrze „Konta techniczne”, bez instrukcji podłączania. Wybór widoku dalej pamięta przeglądarka (3.5.4).
+- **Interfejs bez objaśnień.** Zostają etykiety, wartości, przyciski i komunikaty stanu; zdania objaśniające i dopiski znikają (3.5).
 - **Język tablicy per tablet.** Bez języków na poziomie stajni (bez `stable_locales`); tłumaczenia nazw zostają jako opcjonalne etykiety (3.5.2).
 - **Tablet na koncie technicznym.** Tablet loguje się kontem technicznym z rolą Tablet (jedno na stajnię, propozycja), nie kontem osoby. Konto ma jedną stajnię, więc po zalogowaniu od razu wybór boksu, bez wyboru stajni (3.5.2, pkt 5).
 - **Wsparcie IT poza stajnią.** Zespół EQUENOR, nie rola stajni: znika z zaproszeń, macierzy widoczności, listy członków i apki; zostaje dostęp do ukrytych ustawień i diagnostyki tabletu oraz diagnostyki w panelu (operator, pkt 8, propozycja). Czy rola w ogóle zostaje: do potwierdzenia.
@@ -2188,7 +2194,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 2. **Logowanie recenzentów Apple i Google.** Rozstrzygnięte (propozycja): recenzent nie odbierze SMS, więc loguje się na konto demo e-mailem i kodem z e-maila, tak samo jak inni użytkownicy, bez osobnego klienta i bez custom SMS sendera. Dostęp do skrzynki konta demo podajemy w notatce do recenzji. Czy Apple i Google akceptują kod z e-maila z udostępnionej skrzynki: [niepotwierdzone]; zapasem jest tryb demo uzgodniony z Apple.
 3. **Konto `display`.** Rozstrzygnięte: telewizor loguje się kontem technicznym z rolą Wyświetlacz, telefonem albo e-mailem i kodem, tak samo jak wszędzie (w seedzie e-mailem). Konto zaprasza admin przez „Zaproś osobę”. Telewizor przy instalacji loguje osoba wdrażająca, a po wygaśnięciu sesji admin albo zespół EQUENOR (propozycja). Otwarte zostaje tylko zalecenie: jedno konto na kilka telewizorów czy osobne na każdy (erd.md dopuszcza oba).
 4. **Czasy życia tokenów i rotacja dla klientów tabletu i web.** Decydują, jak szybko global sign-out i blokada konta zadziałają i jak często trzeba ponownie logować sprzęt na miejscu. Czas życia refresh tokenu ustawia się w Cognito per klient aplikacji, a strona nie rozpoznaje telewizora, więc TV ma czas sesji panelu. Do wyboru: (a) długa sesja panelu dla wszystkich, także przeglądarek adminów; (b) zwykła sesja panelu i ponowne logowanie TV co N dni.
-5. **Global sign-out a tablety.** Rozstrzygnięte 13.10.2026: tablety logują się kontem technicznym tabletów (rola `tablet`, jedno na stajnię, propozycja), nie kontem osoby, więc wylogowanie osoby ich nie dotyka. Zgubiony tablet: admin wylogowuje konto tabletów ze wszystkich urządzeń i loguje pozostałe tablety ponownie (propozycja); skradziony czyta tablicę najwyżej przez czas życia access tokenu.
+5. **Global sign-out a tablety.** Rozstrzygnięte 13.10.2026: tablety logują się kontem technicznym tabletów (rola `tablet`, jedno na stajnię, propozycja), nie kontem osoby, więc wylogowanie osoby ich nie dotyka. Zgubiony tablet: admin blokuje konto techniczne tabletów w Ludziach (global sign-out i blokada w `stable_members`), odblokowuje je i loguje pozostałe tablety ponownie kodem (propozycja); skradziony czyta tablicę najwyżej przez czas życia access tokenu.
 
 **Infrastruktura (Dawid)**
 
