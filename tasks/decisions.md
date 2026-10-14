@@ -23,6 +23,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-008](backend/BE-008-messaging.md), [SH-001](shared/SH-001-docs-decyzje.md), [SH-002](shared/SH-002-local-env-2.md), [SH-003](shared/SH-003-ci.md), [BE-015](backend/BE-015-auth-code-queues.md), [BE-016](backend/BE-016-svc-sms.md), [BE-017](backend/BE-017-svc-email.md), [BE-035](backend/BE-035-cron-escalation.md), [BE-036](backend/BE-036-svc-notifications.md), [BE-046](backend/BE-046-horse-left.md), [BE-058](backend/BE-058-observability-k6.md), [BE-060](backend/BE-060-platform-manifests.md)
 - **Odwołania:** docs/mikroserwisy.md 1.4, 5.2 „Kody”, 5.8; docs/development-szczegoly.md 3.1.8.
+- **Trello:** https://trello.com/c/U0fdFkC5
 - **Rozstrzygnięcie:** —
 
 ## DEC-02 · Położenie kodu apki mobilnej i tabletu
@@ -38,6 +39,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [MOB-001](mobile/MOB-001-mob-skeleton.md), [SH-001](shared/SH-001-docs-decyzje.md), [SH-003](shared/SH-003-ci.md), [SH-004](shared/SH-004-gen-api-theme.md), [TAB-001](tablet/TAB-001-tab-skeleton.md)
 - **Odwołania:** README.md „Kod”; docs/development-szczegoly.md 3.1.1, 3.1.12.
+- **Trello:** https://trello.com/c/GmlDQpAh
 - **Rozstrzygnięcie:** —
 
 ## DEC-03 · Macierz widoczności w tokenie
@@ -52,6 +54,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-006](backend/BE-006-tenancy-authz.md), [BE-013](backend/BE-013-auth-db-repos.md), [BE-024](backend/BE-024-auth-horse-access-matrix.md), [BE-030](backend/BE-030-stables-settings.md), [WEB-014](web/WEB-014-web-stable-settings.md), [BE-034](backend/BE-034-ops-flags.md), [BE-038](backend/BE-038-board-client.md), [BE-041](backend/BE-041-board-tablet.md), [BE-042](backend/BE-042-board-display.md), [BE-047](backend/BE-047-schedule-health.md), [BE-048](backend/BE-048-schedule-rides.md), [BE-050](backend/BE-050-ops-tasks.md), [BE-057](backend/BE-057-isolation-matrix.md)
 - **Odwołania:** docs/mikroserwisy.md 3.2, 10.2 pkt 1.
+- **Trello:** https://trello.com/c/NcKiL6Ab
 - **Rozstrzygnięcie:** —
 
 ## DEC-04 · businesses w auth czy w stables
@@ -66,6 +69,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-001](backend/BE-001-db-migrator.md), [BE-021](backend/BE-021-auth-businesses.md), [WEB-003](web/WEB-003-web-business-signup.md)
 - **Odwołania:** docs/mikroserwisy.md 5.2, 10.2 pkt 2.
+- **Trello:** https://trello.com/c/GPtwtsxz
 - **Rozstrzygnięcie:** —
 
 ## DEC-05 · Klucz podpisu jako sekret: rotacja i signing_keys
@@ -81,6 +85,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-001](backend/BE-001-db-migrator.md), [BE-003](backend/BE-003-db-grants.md), [BE-004](backend/BE-004-db-domain-tables.md), [SH-001](shared/SH-001-docs-decyzje.md), [BE-013](backend/BE-013-auth-db-repos.md), [BE-026](backend/BE-026-auth-platform-admin.md), [BE-056](backend/BE-056-opctl.md), [SH-006](shared/SH-006-runbooks.md)
 - **Odwołania:** docs/mikroserwisy.md 3.5, 10.2 pkt 5; docs/erd.md pkt 6.
+- **Trello:** https://trello.com/c/re3hvzKx
 - **Rozstrzygnięcie:** —
 
 ## DEC-06 · Okna refresh tokenu i DPoP
@@ -96,6 +101,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-013](backend/BE-013-auth-db-repos.md), [MOB-002](mobile/MOB-002-mob-session.md), [TAB-009](tablet/TAB-009-tab-session.md)
 - **Odwołania:** docs/mikroserwisy.md 3.4, 3.7, 10.2 pkt 3 i 8.
+- **Trello:** https://trello.com/c/QNV65pPn
 - **Rozstrzygnięcie:** —
 
 ## DEC-07 · Domeny panelu, API i [OPS]
@@ -110,6 +116,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-026](backend/BE-026-auth-platform-admin.md), [WEB-001](web/WEB-001-web-session.md), [WEB-026](web/WEB-026-web-ops.md)
 - **Odwołania:** docs/mikroserwisy.md 3.7, 10.2 pkt 6.
+- **Trello:** https://trello.com/c/8bSVC7uY
 - **Rozstrzygnięcie:** —
 
 ## DEC-08 · ZITADEL: uwierzytelnienie auth i wartości polityk
@@ -125,6 +132,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-012](backend/BE-012-zitadel-adapter.md), [BE-018](backend/BE-018-auth-password-reset.md), [BE-020](backend/BE-020-auth-profile-changes.md), [WEB-002](web/WEB-002-web-reset-password.md), [BE-056](backend/BE-056-opctl.md)
 - **Odwołania:** docs/mikroserwisy.md 5.2, 5.10, 10.2 pkt 17; `docker-compose.yml` (usługa `zitadel`).
+- **Trello:** https://trello.com/c/I7gAd3vT
 - **Rozstrzygnięcie:** —
 
 ## DEC-09 · Warstwa bazy i migracje na PoC
@@ -139,6 +147,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-001](backend/BE-001-db-migrator.md), [BE-002](backend/BE-002-db-gate.md)
 - **Odwołania:** docs/development-szczegoly.md 3.1.3, 3.1.4.
+- **Trello:** https://trello.com/c/r5xZ04gr
 - **Rozstrzygnięcie:** —
 
 ## DEC-10 · Panel zespołu [OPS], opctl i Wsparcie IT
@@ -154,6 +163,7 @@ Zasady dla agentów:
 - **Blokuje:** BE-056
 - **Zadania:** [BE-001](backend/BE-001-db-migrator.md), [BE-003](backend/BE-003-db-grants.md), [BE-004](backend/BE-004-db-domain-tables.md), [BE-011](backend/BE-011-seed.md), [BE-012](backend/BE-012-zitadel-adapter.md), [SH-001](shared/SH-001-docs-decyzje.md), [BE-013](backend/BE-013-auth-db-repos.md), [BE-022](backend/BE-022-auth-invitations.md), [BE-026](backend/BE-026-auth-platform-admin.md), [BE-040](backend/BE-040-platform-apk.md), [BE-055](backend/BE-055-audit-retention.md), [BE-056](backend/BE-056-opctl.md), [BE-057](backend/BE-057-isolation-matrix.md), [SH-006](shared/SH-006-runbooks.md), [WEB-026](web/WEB-026-web-ops.md)
 - **Odwołania:** docs/mikroserwisy.md 4.1–4.6, 10.2 pkt 4 i 9.
+- **Trello:** https://trello.com/c/o5I34QWV
 - **Rozstrzygnięcie:** —
 
 ## DEC-11 · Dostawcy SMS i e-maila
@@ -169,6 +179,7 @@ Zasady dla agentów:
 - **Blokuje:** BE-059
 - **Zadania:** [SH-001](shared/SH-001-docs-decyzje.md), [BE-016](backend/BE-016-svc-sms.md), [BE-017](backend/BE-017-svc-email.md), [BE-059](backend/BE-059-real-senders.md)
 - **Odwołania:** docs/development-szczegoly.md 2.5, 2.6, 5 pkt 24.
+- **Trello:** https://trello.com/c/RlHJIlMJ
 - **Rozstrzygnięcie:** —
 
 ## DEC-12 · Zakres billingu na PoC
@@ -184,6 +195,7 @@ Zasady dla agentów:
 - **Blokuje:** BE-052
 - **Zadania:** [BE-052](backend/BE-052-svc-billing.md), [BE-053](backend/BE-053-cron-billing.md), [BE-065](backend/BE-065-subscription-suspends-stable.md), [WEB-024](web/WEB-024-web-billing.md), [WEB-030](web/WEB-030-web-e2e-billing.md)
 - **Odwołania:** docs/erd.md „Otwarte kwestie” pkt 3; docs/development-szczegoly.md 5 pkt 28, 47.
+- **Trello:** https://trello.com/c/I7qtb51W
 - **Rozstrzygnięcie:** —
 
 ## DEC-13 · Tablet offline i interwał odpytywania
@@ -198,6 +210,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [TAB-003](tablet/TAB-003-tab-kiosk-2.md), [TAB-007](tablet/TAB-007-tab-gate-b.md), [BE-041](backend/BE-041-board-tablet.md), [TAB-012](tablet/TAB-012-tab-polling.md), [TAB-013](tablet/TAB-013-tab-write-queue.md), [BE-058](backend/BE-058-observability-k6.md), [SH-005](shared/SH-005-acceptance.md)
 - **Odwołania:** docs/development-szczegoly.md 5 pkt 19, 33; docs/makiety-plan.md 5 pkt 16.
+- **Trello:** https://trello.com/c/dDQTNw9Z
 - **Rozstrzygnięcie:** —
 
 ## DEC-14 · Plan dnia na TV
@@ -212,6 +225,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-064](backend/BE-064-board-contracts.md), [BE-042](backend/BE-042-board-display.md), [WEB-016](web/WEB-016-tv-central.md), [WEB-017](web/WEB-017-tv-hall.md), [BE-045](backend/BE-045-board-day.md)
 - **Odwołania:** docs/mikroserwisy.md 5.4, 10.2 pkt 7.
+- **Trello:** https://trello.com/c/fqziwvhp
 - **Rozstrzygnięcie:** —
 
 ## DEC-15 · Nawigacja apki i panelu dla ról
@@ -225,6 +239,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-063](backend/BE-063-me-contract-memory.md), [BE-019](backend/BE-019-auth-me.md), [BE-023](backend/BE-023-auth-members.md), [MOB-005](mobile/MOB-005-mob-start-nav.md), [MOB-006](mobile/MOB-006-mob-profile.md), [WEB-001](web/WEB-001-web-session.md), [WEB-004](web/WEB-004-web-admin-layout.md), [BE-062](backend/BE-062-me-stable-contact-horses.md), [MOB-009](mobile/MOB-009-mob-boxes-admin.md), [MOB-011](mobile/MOB-011-mob-people.md), [MOB-013](mobile/MOB-013-mob-quick-flag.md), [MOB-020](mobile/MOB-020-mob-admin-today.md)
 - **Odwołania:** docs/makiety-plan.md 5 pkt 17, 18, 25; docs/mikroserwisy.md 10.2 pkt 21, 22.
+- **Trello:** https://trello.com/c/Sx0r2d0d
 - **Rozstrzygnięcie:** —
 
 ## DEC-16 · Dzwonek i powiadomienia push w apce
@@ -239,6 +254,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [MOB-005](mobile/MOB-005-mob-start-nav.md), [BE-036](backend/BE-036-svc-notifications.md), [MOB-020](mobile/MOB-020-mob-admin-today.md)
 - **Odwołania:** docs/makiety-plan.md 5 pkt 22; docs/mikroserwisy.md 10.2 pkt 22.
+- **Trello:** https://trello.com/c/K0MoGVKJ
 - **Rozstrzygnięcie:** —
 
 ## DEC-17 · Jazdy: kto tworzy
@@ -253,6 +269,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-048](backend/BE-048-schedule-rides.md), [MOB-022](mobile/MOB-022-mob-rides-health.md), [WEB-029](web/WEB-029-web-arenas.md)
 - **Odwołania:** docs/makiety-plan.md 5 pkt 20; docs/mikroserwisy.md 10.2 pkt 11.
+- **Trello:** https://trello.com/c/HiPY63Zv
 - **Rozstrzygnięcie:** —
 
 ## DEC-18 · Czasy „Cofnij” i blokady, ukryte ustawienia, Wi-Fi
@@ -266,6 +283,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [TAB-003](tablet/TAB-003-tab-kiosk-2.md), [TAB-006](tablet/TAB-006-tab-provision.md), [MOB-008](mobile/MOB-008-mob-write-queue.md), [TAB-015](tablet/TAB-015-tab-screen-lock.md), [TAB-016](tablet/TAB-016-tab-hidden-settings.md), [BE-044](backend/BE-044-ops-quick-actions.md), [BE-045](backend/BE-045-board-day.md), [MOB-016](mobile/MOB-016-mob-day-list.md), [MOB-020](mobile/MOB-020-mob-admin-today.md), [TAB-018](tablet/TAB-018-tab-quick-actions.md), [WEB-021](web/WEB-021-web-tv-routine.md), [SH-005](shared/SH-005-acceptance.md)
 - **Odwołania:** docs/development-szczegoly.md 5 pkt 17, 30; docs/makiety-plan.md 5 pkt 13, 14.
+- **Trello:** https://trello.com/c/6vviERsu
 - **Rozstrzygnięcie:** —
 
 ## DEC-19 · Kod MFA dla recenzentów sklepów
@@ -279,6 +297,7 @@ Zasady dla agentów:
 - **Blokuje:** MOB-025
 - **Zadania:** [MOB-025](mobile/MOB-025-mob-store.md)
 - **Odwołania:** docs/mikroserwisy.md 10.2 pkt 25.
+- **Trello:** https://trello.com/c/MvAdfE93
 - **Rozstrzygnięcie:** —
 
 ## DEC-20 · Domyślne wartości nowej stajni i reguły health_due/payment_overdue
@@ -293,6 +312,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-007](backend/BE-007-rules.md), [BE-011](backend/BE-011-seed.md), [BE-014](backend/BE-014-i18n-messages.md), [BE-025](backend/BE-025-auth-internal.md), [BE-028](backend/BE-028-ops-defaults.md), [BE-029](backend/BE-029-stables-create.md), [BE-030](backend/BE-030-stables-settings.md), [WEB-009](web/WEB-009-web-create-stable.md), [BE-036](backend/BE-036-svc-notifications.md), [MOB-019](mobile/MOB-019-mob-plan-edit.md), [WEB-022](web/WEB-022-web-general-settings.md), [BE-049](backend/BE-049-cron-health-due.md), [BE-053](backend/BE-053-cron-billing.md)
 - **Odwołania:** docs/mikroserwisy.md 10.2 pkt 15, 20; docs/development-szczegoly.md 5 pkt 27, 49.
+- **Trello:** https://trello.com/c/hnrEYWJa
 - **Rozstrzygnięcie:** —
 
 ## DEC-21 · Wyłączony szablon przy trwającej fladze
@@ -306,6 +326,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-028](backend/BE-028-ops-defaults.md), [WEB-014](web/WEB-014-web-stable-settings.md), [BE-034](backend/BE-034-ops-flags.md), [MOB-013](mobile/MOB-013-mob-quick-flag.md), [WEB-015](web/WEB-015-web-flags.md), [SH-005](shared/SH-005-acceptance.md)
 - **Odwołania:** docs/development-szczegoly.md 5 pkt 48.
+- **Trello:** https://trello.com/c/8cpnnvzx
 - **Rozstrzygnięcie:** —
 
 ## DEC-22 · Identyfikatory aplikacji
@@ -319,6 +340,7 @@ Zasady dla agentów:
 - **Blokuje:** MOB-025, TAB-022
 - **Zadania:** [MOB-001](mobile/MOB-001-mob-skeleton.md), [TAB-001](tablet/TAB-001-tab-skeleton.md), [WEB-008](web/WEB-008-www-legal.md), [MOB-025](mobile/MOB-025-mob-store.md), [TAB-022](tablet/TAB-022-tab-release.md)
 - **Odwołania:** docs/development-szczegoly.md 5 pkt 29.
+- **Trello:** https://trello.com/c/33N1hSRm
 - **Rozstrzygnięcie:** —
 
 ## DEC-23 · Klient bez ważnego konia
@@ -332,6 +354,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-063](backend/BE-063-me-contract-memory.md), [BE-013](backend/BE-013-auth-db-repos.md), [MOB-005](mobile/MOB-005-mob-start-nav.md), [MOB-026](mobile/MOB-026-mob-upgrade-no-horse.md), [BE-038](backend/BE-038-board-client.md), [SH-005](shared/SH-005-acceptance.md)
 - **Odwołania:** docs/mikroserwisy.md 3.2, 10.2 pkt 10; docs/makiety-plan.md 5 pkt 24.
+- **Trello:** https://trello.com/c/1goCJyaW
 - **Rozstrzygnięcie:** —
 
 ## DEC-24 · Okresy retencji
@@ -345,6 +368,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-051](backend/BE-051-files-full.md), [BE-055](backend/BE-055-audit-retention.md), [WEB-027](web/WEB-027-web-history.md)
 - **Odwołania:** docs/development-szczegoly.md 5 pkt 26.
+- **Trello:** https://trello.com/c/9qrMPkI2
 - **Rozstrzygnięcie:** —
 
 ## DEC-25 · Diagnostyka tabletu
@@ -358,6 +382,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [WEB-019](web/WEB-019-display-kiosk.md), [TAB-020](tablet/TAB-020-tab-diagnostics.md)
 - **Odwołania:** docs/mikroserwisy.md 10.2 pkt 16; docs/development-szczegoly.md 5 pkt 11.
+- **Trello:** https://trello.com/c/vZQnl7Io
 - **Rozstrzygnięcie:** —
 
 ## DEC-26 · Autor akcji z tabletu w audycie
@@ -373,6 +398,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-005](backend/BE-005-uow-audit.md), [BE-034](backend/BE-034-ops-flags.md), [BE-044](backend/BE-044-ops-quick-actions.md)
 - **Odwołania:** docs/development-szczegoly.md 5 pkt 21; docs/erd.md (`source`, audyt).
+- **Trello:** https://trello.com/c/aMV9CdMu
 - **Rozstrzygnięcie:** —
 
 ## DEC-27 · Drobne wartości i zachowania z zadań (zbiorczo)
@@ -400,6 +426,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-018](backend/BE-018-auth-password-reset.md), [BE-021](backend/BE-021-auth-businesses.md), [MOB-004](mobile/MOB-004-mob-signup-reset.md), [MOB-005](mobile/MOB-005-mob-start-nav.md), [WEB-002](web/WEB-002-web-reset-password.md), [WEB-006](web/WEB-006-web-invite.md), [BE-029](backend/BE-029-stables-create.md), [MOB-007](mobile/MOB-007-mob-features-polling.md), [MOB-008](mobile/MOB-008-mob-write-queue.md), [WEB-010](web/WEB-010-web-pulpit-start.md), [WEB-013](web/WEB-013-web-horses.md), [BE-035](backend/BE-035-cron-escalation.md), [TAB-009](tablet/TAB-009-tab-session.md), [BE-048](backend/BE-048-schedule-rides.md), [BE-049](backend/BE-049-cron-health-due.md), [BE-050](backend/BE-050-ops-tasks.md), [WEB-023](web/WEB-023-web-tasks.md), [BE-053](backend/BE-053-cron-billing.md), [WEB-030](web/WEB-030-web-e2e-billing.md)
 - **Odwołania:** uwagi w plikach zadań wymienionych przy punktach.
+- **Trello:** https://trello.com/c/J64D5pO6
 - **Rozstrzygnięcie:** —
 
 ## DEC-28 · Ręczne zawieszenie stajni przez admina globalnego
@@ -415,6 +442,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-054](backend/BE-054-stable-suspended.md), [MOB-023](mobile/MOB-023-mob-suspended.md), [WEB-025](web/WEB-025-web-suspended.md)
 - **Odwołania:** docs/mikroserwisy.md 3.8, 10.2 pkt 14.
+- **Trello:** https://trello.com/c/63ChawwD
 - **Rozstrzygnięcie:** —
 
 ## DEC-29 · Koń bez boksu na wyświetlaczu
@@ -429,6 +457,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-064](backend/BE-064-board-contracts.md), [BE-042](backend/BE-042-board-display.md), [WEB-016](web/WEB-016-tv-central.md)
 - **Odwołania:** docs/development-szczegoly.md 5 pkt 16; docs/makiety-plan.md F.
+- **Trello:** https://trello.com/c/tbZiT7eF
 - **Rozstrzygnięcie:** —
 
 ## DEC-30 · Tablet po bramce B: model, firmware, profil palety, czarno-białe
@@ -444,6 +473,7 @@ Zasady dla agentów:
 - **Blokuje:** TAB-022
 - **Zadania:** [SH-004](shared/SH-004-gen-api-theme.md), [TAB-005](tablet/TAB-005-tab-epd.md), [TAB-007](tablet/TAB-007-tab-gate-b.md), [TAB-008](tablet/TAB-008-tab-eink-ui.md), [TAB-022](tablet/TAB-022-tab-release.md)
 - **Odwołania:** docs/development-szczegoly.md 3.6 „Etap 0 tor B”, 4.3.1, 5 pkt 38–41; docs/paleta.md „Tablet e-ink”.
+- **Trello:** https://trello.com/c/9M3dEmZf
 - **Rozstrzygnięcie:** — (tu link do wypełnionego `tablet/gate/RAPORT.md`)
 
 ## DEC-31 · Wejścia zespołu EQUENOR do stajni: powiadomienie i autor w historii
@@ -459,6 +489,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [BE-038](backend/BE-038-board-client.md), [BE-041](backend/BE-041-board-tablet.md), [WEB-021](web/WEB-021-web-tv-routine.md), [BE-055](backend/BE-055-audit-retention.md), [WEB-026](web/WEB-026-web-ops.md), [WEB-027](web/WEB-027-web-history.md)
 - **Odwołania:** docs/mikroserwisy.md 4.4, 10.2 pkt 4.
+- **Trello:** https://trello.com/c/gHbUE2ny
 - **Rozstrzygnięcie:** —
 
 ## DEC-32 · Dane bez ekranu na PoC: wizyty, jazdy, załączniki, zdjęcia koni
@@ -473,6 +504,7 @@ Zasady dla agentów:
 - **Blokuje:** brak
 - **Zadania:** [WEB-013](web/WEB-013-web-horses.md), [BE-047](backend/BE-047-schedule-health.md), [BE-048](backend/BE-048-schedule-rides.md), [BE-051](backend/BE-051-files-full.md), [MOB-022](mobile/MOB-022-mob-rides-health.md)
 - **Odwołania:** docs/makiety-plan.md H (ZdrowieWpis, DodajJazde), 5 pkt 20; docs/mikroserwisy.md 5.3, 5.6.
+- **Trello:** https://trello.com/c/5ZkclE8I
 - **Rozstrzygnięcie:** —
 
 ## Odłożone, obowiązuje wariant z docs

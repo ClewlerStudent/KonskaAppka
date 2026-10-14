@@ -10,7 +10,7 @@ decisions: [DEC-15]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/EKXKxodh
 ---
 # MOB-006 · Profil i ProfilAdmin
 

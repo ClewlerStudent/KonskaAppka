@@ -10,7 +10,7 @@ decisions: [DEC-30]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/TpajJ2vh
 ---
 # TAB-008 · Komponenty e-ink i testy zrzutów w obu profilach palety
 

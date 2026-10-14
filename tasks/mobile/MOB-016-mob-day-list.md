@@ -10,7 +10,7 @@ decisions: [DEC-18]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/GKSVw6qT
 ---
 # MOB-016 · ListaDnia obsługi
 

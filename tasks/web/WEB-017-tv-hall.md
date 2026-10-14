@@ -9,7 +9,7 @@ depends_on: [WEB-016]
 decisions: [DEC-14]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/ai1qmBFv
 ---
 # WEB-017 · WyswietlaczHala i wybór widoku
 

@@ -9,7 +9,7 @@ depends_on: [BE-012, BE-013, BE-015]
 decisions: [DEC-08]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/p9iyLBZR
 ---
 # BE-020 · auth: kontakt, hasło, kanał kodu, usunięcie konta
 

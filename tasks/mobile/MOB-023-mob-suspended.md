@@ -10,7 +10,7 @@ decisions: [DEC-28]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/IpDkPBv6
 ---
 # MOB-023 · Stajnia zawieszona w apce
 

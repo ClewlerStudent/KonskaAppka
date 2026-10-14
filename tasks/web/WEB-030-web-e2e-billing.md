@@ -9,7 +9,7 @@ depends_on: [WEB-024, WEB-028, BE-065]
 decisions: [DEC-12, DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/30h2Heew
 ---
 # WEB-030 · E2E pełnego stosu: płatności i zawieszenie przez billing
 

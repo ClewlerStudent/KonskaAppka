@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator, device]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/YtpwG2kO
 ---
 # TAB-019 · Testy tabletu na emulatorze i skrypty dla sztuk z ADB
 

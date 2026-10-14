@@ -9,7 +9,7 @@ depends_on: [BE-030, BE-032, BE-064, BE-003]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/E6w0YSs2
 ---
 # BE-033 · board: szkielet serwisu i widoki admina (boksy, konie, pierwsze kroki)
 

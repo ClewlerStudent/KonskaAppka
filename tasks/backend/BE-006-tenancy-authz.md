@@ -9,7 +9,7 @@ depends_on: [BE-004, BE-005]
 decisions: [DEC-03]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/UiRhX14w
 ---
 # BE-006 · lib/tenancy, lib/authz i polityka w deskryptorze trasy
 

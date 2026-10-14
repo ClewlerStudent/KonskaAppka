@@ -10,7 +10,7 @@ decisions: [DEC-23]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/lGpn8IPG
 ---
 # MOB-026 · „Zaktualizuj aplikację” i klient bez ważnego konia
 

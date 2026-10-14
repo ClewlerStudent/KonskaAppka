@@ -10,7 +10,7 @@ decisions: [DEC-20]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/X4IsfyBq
 ---
 # MOB-019 · EdycjaPlanuKonia (plan karmienia i padoku)
 

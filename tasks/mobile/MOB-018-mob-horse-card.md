@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/dfSnps9m
 ---
 # MOB-018 · KartaKonia (plan karmienia, Dziś, historia) dla klienta, obsługi i admina
 

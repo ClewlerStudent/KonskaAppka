@@ -10,7 +10,7 @@ decisions: [DEC-21, DEC-15]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/oWE3OeAX
 ---
 # MOB-013 · SzybkaFlaga (nowa flaga klienta z podpowiedzianymi godzinami)
 

@@ -9,7 +9,7 @@ depends_on: [BE-009, BE-039, BE-047]
 decisions: [DEC-24, DEC-32]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/5E7gHuGZ
 ---
 # BE-051 · files: twarde reguły, bezpieczne linki i cron files-gc
 

@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/gwbJpmtJ
 ---
 # TAB-014 · TabletPopup: nowa flaga do potwierdzenia i POTWIERDZAM
 

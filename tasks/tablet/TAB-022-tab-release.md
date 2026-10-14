@@ -10,7 +10,7 @@ decisions: [DEC-22, DEC-30]
 needs: [device, owner]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/Quj1z2bq
 ---
 # TAB-022 · Pierwsze wydanie produkcyjne APK tabletu
 

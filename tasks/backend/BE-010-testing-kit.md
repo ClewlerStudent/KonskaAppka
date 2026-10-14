@@ -9,7 +9,7 @@ depends_on: [BE-001, BE-004, BE-063, BE-064]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/0wbf51Ka
 ---
 # BE-010 · lib/testing, stałe danych demo i dev:token
 

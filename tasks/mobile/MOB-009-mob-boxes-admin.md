@@ -10,7 +10,7 @@ decisions: [DEC-15]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/dnpHXEDI
 ---
 # MOB-009 · BoksyAdmin i BoksSzczegoly w apce admina
 

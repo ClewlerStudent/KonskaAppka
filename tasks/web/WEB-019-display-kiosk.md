@@ -10,7 +10,7 @@ decisions: [DEC-25]
 needs: [device]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/vUZSTpms
 ---
 # WEB-019 · tools/display-kiosk (Raspberry Pi)
 

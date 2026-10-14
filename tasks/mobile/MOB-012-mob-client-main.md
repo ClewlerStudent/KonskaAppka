@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/CvSC6Xva
 ---
 # MOB-012 · Klient: Moje konie (Main, MainLuna, MainBrzozowa) i karta konia z flagami
 

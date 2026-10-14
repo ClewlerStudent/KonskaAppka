@@ -9,7 +9,7 @@ depends_on: [BE-006, SH-002]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/vVQre77z
 ---
 # BE-039 · Serwis files: minimum
 

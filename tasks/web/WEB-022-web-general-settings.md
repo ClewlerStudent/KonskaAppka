@@ -9,7 +9,7 @@ depends_on: [BE-030, BE-043, WEB-014, WEB-009]
 decisions: [DEC-20]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/9B9yifRq
 ---
 # WEB-022 · Ustawienia ogólne i słowniki
 

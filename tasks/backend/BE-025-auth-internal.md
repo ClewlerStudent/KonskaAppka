@@ -9,7 +9,7 @@ depends_on: [BE-021, BE-023]
 decisions: [DEC-20]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/YgBC9CJZ
 ---
 # BE-025 · auth: trasy /internal (odbiorcy powiadomień, wyjazd konia)
 

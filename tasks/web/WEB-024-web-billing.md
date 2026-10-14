@@ -9,7 +9,7 @@ depends_on: [BE-052, WEB-004, WEB-020]
 decisions: [DEC-12]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/oC8B9NnO
 ---
 # WEB-024 · PanelPlatnosci
 

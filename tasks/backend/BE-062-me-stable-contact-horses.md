@@ -9,7 +9,7 @@ depends_on: [BE-019, BE-032, BE-003]
 decisions: [DEC-15]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/Ei8QmwEX
 ---
 # BE-062 · auth: GET /me z telefonem stajni i końmi klienta
 

@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/NOzMiR6X
 ---
 # TAB-002 · Moduł kiosku cz. 1: Device Owner, Lock Task, HOME, autostart
 

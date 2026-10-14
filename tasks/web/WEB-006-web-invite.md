@@ -9,7 +9,7 @@ depends_on: [BE-022, WEB-004, WEB-005]
 decisions: [DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/TjAPacvD
 ---
 # WEB-006 · PanelZaprosOsobe i lista zaproszeń
 

@@ -10,7 +10,7 @@ decisions: [DEC-13, DEC-30]
 needs: [emulator, device, owner]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/bAoQobvo
 ---
 # TAB-007 · Bramka sprzętowa B: prototyp tablicy, skrypty pomiarowe i raport
 

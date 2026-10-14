@@ -9,7 +9,7 @@ depends_on: [BE-028, BE-032, BE-030]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/okQBMgF0
 ---
 # BE-043 · operations: karmienie, padoki, słowniki
 

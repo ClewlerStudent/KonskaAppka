@@ -9,7 +9,7 @@ depends_on: [BE-009, BE-036, BE-047]
 decisions: [DEC-20, DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/3C9aOIdo
 ---
 # BE-049 · Cron health-due-reminders
 

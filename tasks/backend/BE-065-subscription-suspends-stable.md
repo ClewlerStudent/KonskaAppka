@@ -9,7 +9,7 @@ depends_on: [BE-053, BE-054]
 decisions: [DEC-12]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/nvlXSyKq
 ---
 # BE-065 · stables: zawieszenie stajni ze zdarzenia subskrypcji
 

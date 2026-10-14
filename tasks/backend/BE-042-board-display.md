@@ -9,7 +9,7 @@ depends_on: [BE-041]
 decisions: [DEC-14, DEC-03, DEC-29]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/qthOegVz
 ---
 # BE-042 · board: widok wyświetlacza
 

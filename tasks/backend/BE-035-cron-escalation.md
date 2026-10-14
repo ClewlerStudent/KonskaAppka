@@ -9,7 +9,7 @@ depends_on: [BE-009, BE-034]
 decisions: [DEC-01, DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/zpexMLIn
 ---
 # BE-035 · Cron escalation-scheduler
 

@@ -9,7 +9,7 @@ depends_on: [BE-001]
 decisions: [DEC-01]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/KODHl0TQ
 ---
 # SH-002 · Środowisko lokalne cz. 2: broker, S3, Mailpit, fake-sms, proxy z LAN, setup
 

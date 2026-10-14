@@ -9,7 +9,7 @@ depends_on: [BE-011, BE-018, BE-019, BE-020, BE-021, BE-022, BE-024, BE-025, BE-
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/xPQgSgjz
 ---
 # BE-027 · Testy bezpieczeństwa auth i macierz izolacji etapu 1
 

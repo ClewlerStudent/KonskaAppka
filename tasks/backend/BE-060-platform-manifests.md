@@ -9,7 +9,7 @@ depends_on: [BE-003, BE-008, BE-025, BE-009]
 decisions: [DEC-01]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/KId0zA9n
 ---
 # BE-060 · Manifesty dla platformy
 

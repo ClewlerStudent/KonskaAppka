@@ -10,7 +10,7 @@ decisions: [DEC-02, DEC-22]
 needs: [emulator, macos]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/5c5bYSZ3
 ---
 # MOB-001 · Szkielet apki mobilnej (Expo, katalog mobile/)
 

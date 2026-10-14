@@ -10,7 +10,7 @@ decisions: [DEC-15]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/MagkgEeU
 ---
 # MOB-011 · LudzieAdmin w apce
 

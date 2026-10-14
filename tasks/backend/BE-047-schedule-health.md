@@ -9,7 +9,7 @@ depends_on: [BE-006, BE-039, BE-032]
 decisions: [DEC-03, DEC-32]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/4efEP7jt
 ---
 # BE-047 · schedule: zdrowie i załączniki
 

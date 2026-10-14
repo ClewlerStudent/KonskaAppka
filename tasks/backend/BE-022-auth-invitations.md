@@ -9,7 +9,7 @@ depends_on: [BE-006, BE-008, BE-013, BE-019]
 decisions: [DEC-10]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/jxzWV7mn
 ---
 # BE-022 · auth: zaproszenia i dopasowanie po zalogowaniu
 

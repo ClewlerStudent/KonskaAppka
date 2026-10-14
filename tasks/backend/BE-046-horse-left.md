@@ -9,7 +9,7 @@ depends_on: [BE-009, BE-032, BE-034, BE-043]
 decisions: [DEC-01]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/cPM7ruBH
 ---
 # BE-046 · horse.left: konsumenci i horse-left-reconciler
 

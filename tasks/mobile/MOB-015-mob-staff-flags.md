@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/nrq2f93W
 ---
 # MOB-015 · Obsługa: konie, flaga w imieniu klienta i potwierdzanie flag
 

@@ -9,7 +9,7 @@ depends_on: [BE-005, BE-009, BE-040]
 decisions: [DEC-24, DEC-10, DEC-31]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/a3l08Tvm
 ---
 # BE-055 · Audyt w platform i retention-pruner
 

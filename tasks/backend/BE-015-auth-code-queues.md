@@ -9,7 +9,7 @@ depends_on: [BE-008, BE-014]
 decisions: [DEC-01]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/zQEAMPD6
 ---
 # BE-015 · auth: kody przez kolejki sms i email
 

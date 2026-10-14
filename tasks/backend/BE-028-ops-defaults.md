@@ -9,7 +9,7 @@ depends_on: [BE-006, BE-007, BE-008]
 decisions: [DEC-20, DEC-21]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/N2Ya9inM
 ---
 # BE-028 · operations: szkielet serwisu, domyślne dane stajni, szablony flag, pory posiłków
 

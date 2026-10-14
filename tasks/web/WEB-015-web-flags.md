@@ -9,7 +9,7 @@ depends_on: [BE-034, BE-036, BE-038, WEB-006, WEB-011, WEB-013, WEB-014]
 decisions: [DEC-21]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/h4vSZRBd
 ---
 # WEB-015 · Flagi w panelu
 

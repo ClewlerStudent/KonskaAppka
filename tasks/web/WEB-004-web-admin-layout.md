@@ -9,7 +9,7 @@ depends_on: [WEB-001, WEB-003, BE-019]
 decisions: [DEC-15]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/MbyLg3D4
 ---
 # WEB-004 · Panel admina: układ i komponenty
 

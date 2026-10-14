@@ -9,7 +9,7 @@ depends_on: [WEB-012, WEB-013, WEB-018, WEB-021, WEB-022, WEB-023, WEB-025, SH-0
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/GNyBHUJr
 ---
 # WEB-028 · E2E panelu i TV w trzech przeglądarkach
 

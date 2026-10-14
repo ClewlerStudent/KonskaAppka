@@ -9,7 +9,7 @@ depends_on: [BE-044, BE-045, WEB-011, WEB-016, WEB-015, WEB-017, WEB-018]
 decisions: [DEC-31, DEC-18]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/UsuYoINq
 ---
 # WEB-021 · Rutyna obsługi w panelu i na TV
 

@@ -10,7 +10,7 @@ decisions: [DEC-13, DEC-18]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/J91TKWaA
 ---
 # TAB-003 · Moduł kiosku cz. 2: blokada OTA, Wi-Fi przez DPC, limit ładowania, watchdog
 

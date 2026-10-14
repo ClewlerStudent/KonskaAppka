@@ -10,7 +10,7 @@ decisions: [DEC-13, DEC-18, DEC-21, DEC-23]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/7cH0meH7
 ---
 # SH-005 · Scenariusze akceptacyjne A-01…A-25 w jednym harnessie
 

@@ -10,7 +10,7 @@ decisions: [DEC-30]
 needs: [emulator, device]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/5H8pSZAO
 ---
 # TAB-005 · epdRefresh: odświeżanie e-ink w czterech implementacjach
 

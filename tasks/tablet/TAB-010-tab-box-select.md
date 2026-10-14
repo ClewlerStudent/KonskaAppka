@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/5qLrbkC0
 ---
 # TAB-010 · Wybór boksu: TabletPierwszyBoks, TabletZmianaBoksu, TabletBoksNiedostepny
 

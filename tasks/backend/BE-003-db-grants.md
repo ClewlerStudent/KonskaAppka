@@ -9,7 +9,7 @@ depends_on: [BE-001]
 decisions: [DEC-05, DEC-10]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/RbOzuS8o
 ---
 # BE-003 · owners.ts, role bazy i granty
 

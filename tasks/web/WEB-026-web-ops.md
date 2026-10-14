@@ -9,7 +9,7 @@ depends_on: [BE-026, BE-036, WEB-004, WEB-002]
 decisions: [DEC-10, DEC-07, DEC-31]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/xbF47WTs
 ---
 # WEB-026 · PanelOps (admin globalny)
 

@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/QHrRH6gq
 ---
 # MOB-021 · Zadania (StajennyZadania, AdminZadania, AdminZadaniaNowe)
 

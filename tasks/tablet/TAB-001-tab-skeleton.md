@@ -10,7 +10,7 @@ decisions: [DEC-02, DEC-22]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/hkIIOZyp
 ---
 # TAB-001 · Szkielet apki tabletu (Expo, katalog tablet/)
 

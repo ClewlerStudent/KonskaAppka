@@ -9,7 +9,7 @@ depends_on: [BE-028, BE-030, BE-032]
 decisions: [DEC-21, DEC-03, DEC-26]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/rYE1MvEJ
 ---
 # BE-034 · operations: flagi i potwierdzenia
 

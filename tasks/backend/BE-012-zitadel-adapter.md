@@ -9,7 +9,7 @@ depends_on: []
 decisions: [DEC-08, DEC-10]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/qCsfPr9c
 ---
 # BE-012 · Adapter ZITADEL i konfiguracja jako kod
 

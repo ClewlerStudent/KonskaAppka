@@ -10,7 +10,7 @@ decisions: [DEC-19, DEC-22]
 needs: [macos, device, owner]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/xYaRgZfo
 ---
 # MOB-025 · Publikacja apki (TestFlight, testy wewnętrzne Google Play, konto demo dla recenzentów)
 

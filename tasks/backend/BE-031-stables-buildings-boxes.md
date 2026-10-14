@@ -9,7 +9,7 @@ depends_on: [BE-029]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/Y4PGQaPf
 ---
 # BE-031 · stables: hale i boksy
 

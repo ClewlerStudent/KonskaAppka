@@ -10,7 +10,7 @@ decisions: [DEC-27]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/stK7YtPy
 ---
 # MOB-004 · Rejestracja z potwierdzeniem kodem i reset hasła w apce
 

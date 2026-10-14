@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/HabZKg5S
 ---
 # MOB-014 · StatusFlagi, zmiana i odwołanie flagi, KlientFlagi
 

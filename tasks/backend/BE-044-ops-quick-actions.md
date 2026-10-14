@@ -9,7 +9,7 @@ depends_on: [BE-030, BE-043, BE-034]
 decisions: [DEC-18, DEC-26]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/py4kv5rd
 ---
 # BE-044 · operations: szybkie akcje
 

@@ -9,7 +9,7 @@ depends_on: [BE-009, BE-022]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/6xElIWtU
 ---
 # BE-037 · Cron invitation-expiry-notifier
 

@@ -9,7 +9,7 @@ depends_on: [BE-042, WEB-001, WEB-004]
 decisions: [DEC-14, DEC-29]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/2svfgPbk
 ---
 # WEB-016 · Wyświetlacz: WyswietlaczCentralny
 

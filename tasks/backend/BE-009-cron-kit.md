@@ -9,7 +9,7 @@ depends_on: [BE-003, BE-008]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/oe3dmWzi
 ---
 # BE-009 · Szablon crona (src/jobs)
 

@@ -9,7 +9,7 @@ depends_on: [BE-005, SH-002]
 decisions: [DEC-01]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/X7stXH1Q
 ---
 # BE-008 · lib/messaging: zdarzenia i kolejki
 

@@ -9,7 +9,7 @@ depends_on: []
 decisions: [DEC-01, DEC-02, DEC-05, DEC-10, DEC-11]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/GhBN5bLP
 ---
 # SH-001 · Docs zgodne z decyzjami i kodem
 

@@ -9,7 +9,7 @@ depends_on: [BE-039, BE-030]
 decisions: [DEC-10]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/f2Lkv0rl
 ---
 # BE-040 · platform: wydania APK
 

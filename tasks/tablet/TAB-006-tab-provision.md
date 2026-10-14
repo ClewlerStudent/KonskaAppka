@@ -10,7 +10,7 @@ decisions: [DEC-18]
 needs: [emulator, device]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/zfHBOBQ4
 ---
 # TAB-006 · tools/provision-tablet (provisioning przez ADB)
 

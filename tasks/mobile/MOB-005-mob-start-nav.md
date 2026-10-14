@@ -10,7 +10,7 @@ decisions: [DEC-15, DEC-16, DEC-23, DEC-27]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/coMLLRaG
 ---
 # MOB-005 · Start po zalogowaniu, nawigacja ról i przełącznik stajni
 

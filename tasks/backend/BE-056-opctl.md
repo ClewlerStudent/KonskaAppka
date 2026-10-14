@@ -9,7 +9,7 @@ depends_on: [BE-026, BE-009, BE-040, BE-052]
 decisions: [DEC-10, DEC-05, DEC-08]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/iXtl5rTs
 ---
 # BE-056 · CLI opctl
 

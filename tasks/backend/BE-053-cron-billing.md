@@ -9,7 +9,7 @@ depends_on: [BE-009, BE-052, BE-036]
 decisions: [DEC-12, DEC-20, DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/FjZ9IXTa
 ---
 # BE-053 · Crony billingu
 

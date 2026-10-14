@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/lOKfD4HD
 ---
 # TAB-017 · Aktualizacje APK w aplikacji tabletu (bez dotykania urządzenia)
 

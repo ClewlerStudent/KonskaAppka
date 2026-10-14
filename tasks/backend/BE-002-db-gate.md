@@ -9,7 +9,7 @@ depends_on: [BE-001]
 decisions: [DEC-09]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/huCqQDyQ
 ---
 # BE-002 · Bramka zakazanych obiektów w bazie
 

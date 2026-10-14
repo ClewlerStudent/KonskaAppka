@@ -9,7 +9,7 @@ depends_on: [BE-031, BE-033, BE-022, BE-024, WEB-004]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/OK7FfKP2
 ---
 # WEB-011 · PanelBoksy
 

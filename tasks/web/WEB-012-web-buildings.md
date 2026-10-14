@@ -9,7 +9,7 @@ depends_on: [WEB-011, WEB-009]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/CbcJ2GrO
 ---
 # WEB-012 · PanelDodajHale i edycja hali/boksu
 

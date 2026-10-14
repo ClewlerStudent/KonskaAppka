@@ -9,7 +9,7 @@ depends_on: [BE-020, WEB-004, BE-019]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/SZlIoo9l
 ---
 # WEB-007 · Panel: profil konta
 

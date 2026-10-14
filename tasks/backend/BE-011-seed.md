@@ -9,7 +9,7 @@ depends_on: [BE-004, BE-005, BE-010, BE-063]
 decisions: [DEC-10, DEC-20]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/9i5SqcMc
 ---
 # BE-011 · Seed z makiet: szkielet, konta, firmy i stajnie
 

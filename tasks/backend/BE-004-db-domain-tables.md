@@ -9,7 +9,7 @@ depends_on: [BE-001]
 decisions: [DEC-10, DEC-05]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/Yrv48wxL
 ---
 # BE-004 · Migracje tabel ze stable_id (domenowe i auth)
 

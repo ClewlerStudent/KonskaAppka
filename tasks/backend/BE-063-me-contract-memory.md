@@ -9,7 +9,7 @@ depends_on: []
 decisions: [DEC-15, DEC-23]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/RNXp8zeh
 ---
 # BE-063 · auth: kontrakt GET /me v1 i dane demo w pamięci
 

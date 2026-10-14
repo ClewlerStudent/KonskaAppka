@@ -9,7 +9,7 @@ depends_on: [BE-006, BE-008, BE-013]
 decisions: [DEC-10, DEC-07, DEC-05]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/EsHyg1Jz
 ---
 # BE-026 · Admin globalny: plt, logowanie /ops/* i trasy /platform w auth
 

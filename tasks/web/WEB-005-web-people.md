@@ -9,7 +9,7 @@ depends_on: [BE-023, BE-024, WEB-004]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/EJ4Wuubo
 ---
 # WEB-005 · PanelLudzie i konta techniczne
 

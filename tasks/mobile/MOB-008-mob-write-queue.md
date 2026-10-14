@@ -9,7 +9,7 @@ depends_on: [MOB-007]
 decisions: [DEC-18, DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/sxmI3H8R
 ---
 # MOB-008 · Kolejka zapisów offline w apce
 

@@ -9,7 +9,7 @@ depends_on: [BE-063, SH-004]
 decisions: [DEC-07, DEC-15]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/rWJSBxbB
 ---
 # WEB-001 · Panel: klient API i sesja według ról
 

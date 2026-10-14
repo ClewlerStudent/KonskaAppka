@@ -9,7 +9,7 @@ depends_on: [BE-006, BE-008, BE-013]
 decisions: [DEC-15]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/HYARTb6f
 ---
 # BE-023 · auth: członkowie stajni i konta techniczne
 

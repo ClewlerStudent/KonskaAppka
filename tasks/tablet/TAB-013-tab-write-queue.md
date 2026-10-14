@@ -10,7 +10,7 @@ decisions: [DEC-13]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/xbbROVxr
 ---
 # TAB-013 · Kolejka zapisów tabletu w SQLite
 

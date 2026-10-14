@@ -9,7 +9,7 @@ depends_on: [BE-008]
 decisions: [DEC-11, DEC-01]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/VoodsTyC
 ---
 # BE-016 · Serwis sms
 

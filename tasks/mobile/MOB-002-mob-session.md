@@ -10,7 +10,7 @@ decisions: [DEC-06]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/YgAoaHqL
 ---
 # MOB-002 · Sesja apki i klient API (tokeny, ciche odświeżanie, GET /me)
 

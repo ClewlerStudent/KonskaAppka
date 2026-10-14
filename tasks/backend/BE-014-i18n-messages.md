@@ -9,7 +9,7 @@ depends_on: []
 decisions: [DEC-20]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/2Z1Ae0e0
 ---
 # BE-014 · lib/i18n: szablony wiadomości SMS i e-mail
 

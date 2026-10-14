@@ -10,7 +10,7 @@ decisions: [DEC-06, DEC-27]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/kjlwKpVA
 ---
 # TAB-009 · Logowanie i sesja tabletu (konto techniczne, hasło i kod MFA)
 

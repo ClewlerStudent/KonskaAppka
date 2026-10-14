@@ -9,7 +9,7 @@ depends_on: [BE-021, WEB-001]
 decisions: [DEC-04]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/nbPMDF6f
 ---
 # WEB-003 · PanelRejestracjaFirmy
 

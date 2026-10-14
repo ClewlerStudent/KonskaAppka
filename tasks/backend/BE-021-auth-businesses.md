@@ -9,7 +9,7 @@ depends_on: [BE-005, BE-013]
 decisions: [DEC-04, DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/nWMwX0aP
 ---
 # BE-021 · auth: konto firmy z NIP
 

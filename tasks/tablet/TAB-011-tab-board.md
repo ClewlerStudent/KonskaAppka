@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/hJwD1Re1
 ---
 # TAB-011 · TabletBoks: tablica boksu (flagi, karmienie, ostatnie akcje)
 

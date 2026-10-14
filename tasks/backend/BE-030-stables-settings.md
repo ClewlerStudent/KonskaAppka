@@ -9,7 +9,7 @@ depends_on: [BE-029]
 decisions: [DEC-20, DEC-03]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/mJfzcO9K
 ---
 # BE-030 · stables: ustawienia stajni, features, reguły powiadomień
 

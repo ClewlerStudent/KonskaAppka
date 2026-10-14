@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/AKBrKBM8
 ---
 # TAB-004 · Cicha instalacja APK jako Device Owner
 

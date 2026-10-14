@@ -9,7 +9,7 @@ depends_on: [BE-054, WEB-018, WEB-020]
 decisions: [DEC-28]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/JQgAUnoN
 ---
 # WEB-025 · Stajnia zawieszona w panelu i na TV
 

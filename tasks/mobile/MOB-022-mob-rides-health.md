@@ -10,7 +10,7 @@ decisions: [DEC-17, DEC-32]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/00NHBta8
 ---
 # MOB-022 · InstruktorJazdy, jazdy i wizyty w karcie konia
 

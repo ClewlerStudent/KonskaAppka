@@ -9,7 +9,7 @@ depends_on: [WEB-016, WEB-017]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/0l4Ct7xf
 ---
 # WEB-018 · Wyświetlacz: odporność i stany
 

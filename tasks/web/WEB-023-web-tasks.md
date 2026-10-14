@@ -9,7 +9,7 @@ depends_on: [BE-050, WEB-004, WEB-016, WEB-020]
 decisions: [DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/X5tGUIn7
 ---
 # WEB-023 · Zadania w panelu i na TV
 

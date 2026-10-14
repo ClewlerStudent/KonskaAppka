@@ -10,7 +10,7 @@ decisions: [DEC-11]
 needs: [owner]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/g24uWSXh
 ---
 # BE-059 · Prawdziwe adaptery SMS i e-mail
 

@@ -9,7 +9,7 @@ depends_on: [BE-033, BE-034]
 decisions: [DEC-23, DEC-03, DEC-31]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/vRIAKVQf
 ---
 # BE-038 · board: widok klienta i karta konia (flagi)
 

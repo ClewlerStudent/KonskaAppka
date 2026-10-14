@@ -9,7 +9,7 @@ depends_on: [BE-048, WEB-022]
 decisions: [DEC-17]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/ciWC9Phe
 ---
 # WEB-029 · Słowniki: zakładka Ujeżdżalnie
 

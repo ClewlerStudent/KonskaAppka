@@ -9,7 +9,7 @@ depends_on: [BE-023]
 decisions: [DEC-03]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/YNPyOPpQ
 ---
 # BE-024 · auth: dostęp do koni i macierz widoczności
 

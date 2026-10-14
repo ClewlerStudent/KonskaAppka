@@ -9,7 +9,7 @@ depends_on: [BE-045, WEB-015, WEB-010]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/XRHQKWty
 ---
 # WEB-020 · PanelPulpit
 

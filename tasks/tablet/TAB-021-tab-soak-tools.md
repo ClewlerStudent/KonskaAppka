@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/yEyji1cq
 ---
 # TAB-021 · Narzędzia do testów ciągłych tabletu (T-11, T-14, T-17)
 

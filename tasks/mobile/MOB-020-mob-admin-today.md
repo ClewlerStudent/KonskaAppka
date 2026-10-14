@@ -10,7 +10,7 @@ decisions: [DEC-15, DEC-16, DEC-18]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/bFJGw0qp
 ---
 # MOB-020 · AdminDzis, BoksSzczegoly z historią i „Woda”, rutyna w BoksyAdmin
 

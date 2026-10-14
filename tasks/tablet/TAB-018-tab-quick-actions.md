@@ -10,7 +10,7 @@ decisions: [DEC-18]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/XrG41HDQ
 ---
 # TAB-018 · SZYBKIE AKCJE na tablecie: BOKS GOTOWY, posiłek, PADOK, WODA, Cofnij
 

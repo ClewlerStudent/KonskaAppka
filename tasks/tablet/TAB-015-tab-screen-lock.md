@@ -10,7 +10,7 @@ decisions: [DEC-18]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/qMry2GLg
 ---
 # TAB-015 · Blokada ekranu na czas mycia (TabletEkranZablokowany)
 

@@ -10,7 +10,7 @@ decisions: [DEC-18]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/vJ0Q2npt
 ---
 # TAB-016 · Ukryte ustawienia tabletu (konto, boks, język, sieć, diagnostyka, ekran)
 

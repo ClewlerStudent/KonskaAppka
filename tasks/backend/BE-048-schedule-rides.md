@@ -9,7 +9,7 @@ depends_on: [BE-046, BE-047]
 decisions: [DEC-17, DEC-03, DEC-27, DEC-32]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/aRw25C7T
 ---
 # BE-048 · schedule: ujeżdżalnie i jazdy
 

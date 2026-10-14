@@ -9,7 +9,7 @@ depends_on: [SH-004]
 decisions: [DEC-02, DEC-01]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/pi2KF7Rb
 ---
 # SH-003 · CI dla wszystkich pakietów (kroki niezależne od systemu CI)
 

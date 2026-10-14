@@ -9,7 +9,7 @@ depends_on: [BE-006]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/Zfl0i9i5
 ---
 # BE-061 · kit: bramka minimalnej wersji klienta (X-Client-Version)
 

@@ -9,7 +9,7 @@ depends_on: [BE-029, BE-030, WEB-004]
 decisions: [DEC-20]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/TU7t047x
 ---
 # WEB-009 · PanelZalozStajnie i PanelZalozPowiadomienia
 

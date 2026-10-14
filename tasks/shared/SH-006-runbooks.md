@@ -10,7 +10,7 @@ decisions: [DEC-05, DEC-10]
 needs: [owner]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/QLaOgrhJ
 ---
 # SH-006 · Runbooki i kryteria gotowości pilotażu
 

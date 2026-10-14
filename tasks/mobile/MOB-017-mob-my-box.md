@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/pCYWO6Sy
 ---
 # MOB-017 · Klient: MojBoks (Ostatnio i Historia) i skrót z przycisków na Main
 

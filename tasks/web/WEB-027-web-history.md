@@ -9,7 +9,7 @@ depends_on: [BE-055, WEB-011, WEB-012, WEB-013, WEB-014]
 decisions: [DEC-24, DEC-31]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/D9u9qNew
 ---
 # WEB-027 · Historia zmian obiektu
 

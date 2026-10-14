@@ -9,7 +9,7 @@ depends_on: [BE-001, BE-004, BE-005, BE-007, BE-010, BE-011]
 decisions: [DEC-03, DEC-05, DEC-06, DEC-10, DEC-23]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/hZjjvuTf
 ---
 # BE-013 · auth: users i uprawnienia z bazy, claimy z tabel
 

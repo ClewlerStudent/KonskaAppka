@@ -9,7 +9,7 @@ depends_on: []
 decisions: [DEC-20]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/2BiL3Pto
 ---
 # BE-007 · lib/rules: czas, flagi, konfiguracja stajni
 

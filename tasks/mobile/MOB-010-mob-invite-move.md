@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/cWEi6L9X
 ---
 # MOB-010 · Admin w apce: zaproszenie osoby i przeniesienie konia
 

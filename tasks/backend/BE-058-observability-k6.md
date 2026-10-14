@@ -9,7 +9,7 @@ depends_on: [BE-045, BE-009]
 decisions: [DEC-13, DEC-01]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/kfUZFht8
 ---
 # BE-058 · Obserwowalność i test obciążenia
 

@@ -10,7 +10,7 @@ decisions: [DEC-13]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/SEbBxpHt
 ---
 # TAB-012 · Odpytywanie tablicy i stany ekranu (offline, nieaktualne, zawieszona, aktualizacja)
 

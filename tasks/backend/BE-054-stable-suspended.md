@@ -9,7 +9,7 @@ depends_on: [BE-045]
 decisions: [DEC-28]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/QenyK2Eu
 ---
 # BE-054 · Zawieszenie stajni: stan suspended w board
 

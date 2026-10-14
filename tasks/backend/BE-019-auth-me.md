@@ -9,7 +9,7 @@ depends_on: [BE-006, BE-013, BE-063]
 decisions: [DEC-15]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/CO354Ovu
 ---
 # BE-019 · auth: GET /me, profil podstawowy i widok startowy
 

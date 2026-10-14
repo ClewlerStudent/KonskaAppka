@@ -9,7 +9,7 @@ depends_on: []
 decisions: [DEC-09, DEC-04, DEC-05, DEC-10]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/izyxyvjn
 ---
 # BE-001 · lib/db: Drizzle, migrator, tabele globalne auth i audit
 

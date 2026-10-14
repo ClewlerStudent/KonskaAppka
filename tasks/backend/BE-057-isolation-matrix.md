@@ -9,7 +9,7 @@ depends_on: [BE-045, BE-048, BE-050, BE-002, BE-027]
 decisions: [DEC-03, DEC-10]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/611kkZvz
 ---
 # BE-057 · Pełna macierz izolacji i meta-testy
 

@@ -10,7 +10,7 @@ decisions: [DEC-27]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/MolcUVO6
 ---
 # MOB-007 · Konfiguracja wybranej stajni, odpytywanie z ETag i etykiety boksów
 

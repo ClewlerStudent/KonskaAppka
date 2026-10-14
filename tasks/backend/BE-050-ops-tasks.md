@@ -9,7 +9,7 @@ depends_on: [BE-023, BE-028, BE-046]
 decisions: [DEC-03, DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/wh5VTWkj
 ---
 # BE-050 · operations: zadania
 

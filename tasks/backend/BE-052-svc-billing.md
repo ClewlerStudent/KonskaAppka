@@ -9,7 +9,7 @@ depends_on: [BE-008, BE-029, BE-039]
 decisions: [DEC-12]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/B1f306mQ
 ---
 # BE-052 · Serwis billing na fałszywych adapterach
 

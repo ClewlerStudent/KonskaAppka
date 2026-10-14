@@ -9,7 +9,7 @@ depends_on: []
 decisions: [DEC-02, DEC-30]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/WmDqGprx
 ---
 # SH-004 · Generowanie typów API i tokenów palety dla frontend, mobile i tablet
 

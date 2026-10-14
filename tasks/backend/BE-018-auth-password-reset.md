@@ -9,7 +9,7 @@ depends_on: [BE-012, BE-013]
 decisions: [DEC-08, DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/kQ4ZKU00
 ---
 # BE-018 · auth: reset hasła
 

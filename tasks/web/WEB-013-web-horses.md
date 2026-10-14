@@ -9,7 +9,7 @@ depends_on: [BE-024, BE-032, WEB-011, WEB-006]
 decisions: [DEC-27, DEC-32]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/ivRWu2mQ
 ---
 # WEB-013 · Konie w panelu
 

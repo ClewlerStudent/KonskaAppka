@@ -9,7 +9,7 @@ depends_on: [BE-033, BE-034, BE-038]
 decisions: [DEC-13, DEC-03, DEC-31]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/JU2jvh5G
 ---
 # BE-041 · board: tablica tabletu
 

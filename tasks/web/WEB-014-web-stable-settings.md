@@ -9,7 +9,7 @@ depends_on: [BE-024, BE-028, BE-030, WEB-004]
 decisions: [DEC-03, DEC-21]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/ycHHu5dX
 ---
 # WEB-014 · Ustawienia stajni
 

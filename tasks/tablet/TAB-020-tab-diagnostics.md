@@ -10,7 +10,7 @@ decisions: [DEC-25]
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/xkxkIEQY
 ---
 # TAB-020 · Diagnostyka tabletu z buforem offline (TabletDiagnostyka)
 

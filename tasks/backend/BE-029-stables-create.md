@@ -9,7 +9,7 @@ depends_on: [BE-021, BE-028]
 decisions: [DEC-20, DEC-27]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/Rn8Z1NCN
 ---
 # BE-029 · stables: szkielet serwisu i zakładanie stajni
 

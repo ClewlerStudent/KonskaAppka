@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/S55kic7u
 ---
 # MOB-003 · Logowanie hasłem i krok MFA w apce
 

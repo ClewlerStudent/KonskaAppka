@@ -9,7 +9,7 @@ depends_on: [BE-041, BE-043, BE-044, BE-038, BE-042]
 decisions: [DEC-14, DEC-18]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/B3sH5wWA
 ---
 # BE-045 · board: lista dnia, historia, widoki admina z rutyną
 

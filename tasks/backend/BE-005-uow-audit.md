@@ -9,7 +9,7 @@ depends_on: [BE-001]
 decisions: [DEC-26]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/1zLeaKV8
 ---
 # BE-005 · unitOfWork i lib/audit
 

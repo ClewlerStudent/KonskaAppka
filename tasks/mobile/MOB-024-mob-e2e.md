@@ -10,7 +10,7 @@ decisions: []
 needs: [emulator, macos]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/L4UC43wc
 ---
 # MOB-024 · E2E apki na pełnym stosie (Maestro na Androidzie, Detox na iOS)
 

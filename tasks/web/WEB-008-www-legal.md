@@ -9,7 +9,7 @@ depends_on: []
 decisions: [DEC-22]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/g1D1Qw33
 ---
 # WEB-008 · Strona www: dokumenty i strony sklepowe
 

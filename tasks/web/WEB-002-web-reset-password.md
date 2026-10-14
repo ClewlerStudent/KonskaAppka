@@ -9,7 +9,7 @@ depends_on: [BE-018, WEB-001]
 decisions: [DEC-27, DEC-08]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/T3RdVIOd
 ---
 # WEB-002 · PanelResetHasla
 

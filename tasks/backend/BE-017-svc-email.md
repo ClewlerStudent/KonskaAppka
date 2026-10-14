@@ -9,7 +9,7 @@ depends_on: [BE-008, BE-016]
 decisions: [DEC-11, DEC-01]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/Uo7c2v0M
 ---
 # BE-017 · Serwis email
 

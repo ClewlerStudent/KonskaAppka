@@ -9,7 +9,7 @@ depends_on: [SH-004, BE-063]
 decisions: [DEC-14, DEC-29]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/ahcei8jn
 ---
 # BE-064 · board: kontrakty widoków tabletu, wyświetlacza i klienta z przykładami
 

@@ -9,7 +9,7 @@ depends_on: [BE-014, BE-025, BE-029, BE-003]
 decisions: [DEC-16, DEC-20, DEC-01]
 owner:
 branch:
-trello:
+trello: https://trello.com/c/Cgd6Ufq7
 ---
 # BE-036 · Serwis notifications (router)
 

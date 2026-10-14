@@ -9,7 +9,7 @@ depends_on: [BE-025, BE-031]
 decisions: []
 owner:
 branch:
-trello:
+trello: https://trello.com/c/6AxiEzoh
 ---
 # BE-032 · stables: konie (przypisanie, przeniesienie, zamiana, wyjazd)
 
