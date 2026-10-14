@@ -24,8 +24,8 @@ Powstaje serwis `operations` (codzienna obsługa stajni). Na start umie założy
 - Dane demo: Pod Lipami (wszystkie szablony aktywne), Brzozowa (`derka` nieaktywna), pory obu stajni 06:30, 12:00, 18:00.
 
 ## Zakres
-- [ ] Serwis: `backend/src/services/operations/{main,app,env,deps}.ts`, skrypty `dev:operations`, `serve:operations`, `start:operations`; env: `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `MESSAGING*`, `PORT`, `DEFAULTS_PORT` (wewnętrzny); `/readyz`: JWKS i migracje. Kontrakty `backend/src/contracts/operations.ts` → `openapi/operations.json`. Port dev (propozycja): 4030, wewnętrzny 4031; README „Porty”.
-- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `operations` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:operations']`, env jak w `backend/.env.example`, profil `infra`), trasa `/operations/*` w `tools/local/Caddyfile` już jest (SH-002).
+- [ ] Serwis: `backend/src/services/operations/{main,app,env,deps}.ts`, skrypty `dev:operations`, `serve:operations`, `start:operations`; env: `DATABASE_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URL`, `MESSAGING*`, `PORT`, `DEFAULTS_PORT` (wewnętrzny); `/readyz`: JWKS i migracje. Kontrakty `backend/src/contracts/operations.ts` → `openapi/operations.json`. Port dev (propozycja): 4030, wewnętrzny 4031; `backend/README.md` „Porty”.
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w `backend/README.md` „Porty”); usługa `operations` w `backend/docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:operations']`, env jak w `backend/.env.example`, profil `infra`), trasa `/operations/*` w `backend/tools/local/Caddyfile` już jest (SH-002).
 - [ ] Domena `services/operations/domain/defaults.ts`: `ensureStableDefaults(tx, stableId, mealSlots?)` → szablony z `lib/rules` z etykietami PL/UA/EN, pory z kreatora albo domyślne (z etykietami), słowniki domyślne (propozycja: pasze „Siano”, „Owies”; bez padoków), wszystko `ON CONFLICT DO NOTHING`, audyt `actor_type = system`.
 - [ ] `POST /operations/v1/internal/stables/{stableId}/defaults` (`kind: 'internal'`, `port: 'defaults'`, `callers: ['stables']`, body `{ mealSlots?: [{ code, label, localTime, daysMask, labels? }] }`, 204). Konsument `stable.created` (zapas) woła tę samą funkcję z porami z koperty.
 - [ ] `GET /operations/v1/stables/{stableId}/flag-templates?locale=` (role z `flags`; nieaktywne tylko dla admina), `PATCH …/flag-templates/{templateId}` (`{ active }`, admin, `If-Match`, audyt; trwające flagi bez zmian).
@@ -45,7 +45,7 @@ Powstaje serwis `operations` (codzienna obsługa stajni). Na start umie założy
 - `backend/src/services/operations/*.test.ts` na harnessie (`lib/testing`): idempotencja `defaults`, konsument zdarzenia (adapter w pamięci), uprawnienia, `If-Match`. `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` (z `openapi:check`; `npm run openapi`) i `npm run build` zielone; README (uruchomienie `operations`, porty); status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` (z `openapi:check`; `npm run openapi`) i `npm run build` zielone; `backend/README.md` (uruchomienie `operations`, porty); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Serwis nie importuje innych serwisów (ESLint); wspólne rzeczy w `kit`, `lib`, `contracts`.

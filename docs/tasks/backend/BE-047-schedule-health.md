@@ -25,7 +25,7 @@ Obsługa i admin wpisują wizyty i zdarzenia zdrowotne konia (weterynarz, kowal,
 
 ## Zakres
 - [ ] Serwis `backend/src/services/schedule/` (`main.ts`, `app.ts`, `env.ts`), skrypty `start:schedule`, `dev:schedule`; kontrakt `backend/src/contracts/schedule.ts` w `backend/src/contracts/index.ts`.
-- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `schedule` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:schedule']`, env jak w `backend/.env.example`, profil `infra`), trasa `/schedule/*` w `tools/local/Caddyfile` już jest (SH-002).
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w `backend/README.md` „Porty”); usługa `schedule` w `backend/docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:schedule']`, env jak w `backend/.env.example`, profil `infra`), trasa `/schedule/*` w `backend/tools/local/Caddyfile` już jest (SH-002).
 - [ ] Trasy (`/schedule/v1/stables/{stableId}`):
   - `GET …/horses/{horseId}/health-events` (klient: swój koń, obsługa, admin; funkcja `health`): wpisy niewyłączone, bez `owner_private` dla obsługi;
   - `POST …/horses/{horseId}/health-events` (obsługa, admin): `{id, type: vet | farrier | dentist | deworming | vaccination, occurredOn?, scheduledAt?, nextDueAt?, description?, visibility: stable | owner_private}`;

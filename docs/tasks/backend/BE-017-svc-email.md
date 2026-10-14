@@ -24,7 +24,7 @@ Niezależny serwis `email` wysyła e-maile z kolejek: najpierw kody od `auth` (k
 
 ## Zakres
 - [ ] `backend/src/services/email/main.ts`, `env.ts`, `app.ts`; skrypty `dev:email`, `start:email`. Env: `APP_ENV`, `MESSAGING*`, `EMAIL_SENDER=console|smtp`, `SMTP_URL` (lokalnie Mailpit z SH-002), `EMAIL_FROM` (np. `EQUENOR <no-reply@…>`); `console` zabroniony w prod.
-- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `email` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:email']`, env jak w `backend/.env.example`, profil `infra`), trasa `/email/*` w `tools/local/Caddyfile` już jest (SH-002).
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w `backend/README.md` „Porty”); usługa `email` w `backend/docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:email']`, env jak w `backend/.env.example`, profil `infra`), trasa `/email/*` w `backend/tools/local/Caddyfile` już jest (SH-002).
 - [ ] Adapter `EmailSender` (`send({ to, subject, body }) → { providerMessageId } | { error: 'permanent' | 'transient' }`): `console`, `smtp` (np. `nodemailer`, treść tekstowa; HTML później).
 - [ ] Pętla jak w `sms`: najpierw `email.codes`, potem `email.notifications`; dla powiadomień `email.result` (`notificationId`, `status`, `providerMessageId`); klasyfikacja błędów SMTP (5xx stały, 4xx i sieć przejściowe).
 - [ ] Walidacja adresu (format, długość); adres zastępczy `*@phone.invalid` (konta rejestrowane telefonem, BE-012) to błąd stały bez wysyłki.
@@ -44,7 +44,7 @@ Niezależny serwis `email` wysyła e-maile z kolejek: najpierw kody od `auth` (k
 - `backend/src/services/email/email.test.ts` (adapter wiadomości w pamięci, `EmailSender` testowy), opcjonalnie test z Mailpit przy ustawionym `SMTP_TEST_URL`. `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` i `npm run build` zielone; README (uruchomienie, Mailpit); status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` i `npm run build` zielone; `backend/README.md` (uruchomienie, Mailpit); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Docs mówią „SES”: według DEC-11 to adapter wymienny, kod bez SDK chmury.

@@ -25,29 +25,29 @@ Jednym poleceniem sprawdzamy, czy produkt robi to, co pokazują makiety: 25 scen
 - **Dane demo:** seed obu stajni i fixture drugiej firmy (Olszynka) do A-23.
 
 ## Zakres
-- [ ] `tools/acceptance/scenarios.json`: dla każdego A-xx lista kroków-asercji (ID `A-01.3` itd., opis z 4.4) z przypisaniem do suity: `backend` (API i baza), `web`, `mobile`, `tablet` albo `manual` (np. „bez kolorowego śladu na kolorowym e-inku”, T-21); każdy krok automatyczny ma wskazanie testu (nazwa z tagiem `[A-01.3]` w tytule testu).
+- [ ] `backend/tools/acceptance/scenarios.json`: dla każdego A-xx lista kroków-asercji (ID `A-01.3` itd., opis z 4.4) z przypisaniem do suity: `backend` (API i baza), `web`, `mobile`, `tablet` albo `manual` (np. „bez kolorowego śladu na kolorowym e-inku”, T-21); każdy krok automatyczny ma wskazanie testu (nazwa z tagiem `[A-01.3]` w tytule testu).
 - [ ] Suita `backend` dla kroków bez UI: `backend/test/acceptance/A-xx.test.ts` (Vitest przeciw działającemu stosowi z SH-002, HTTP przez proxy `localhost:8000`, tokeny z `dev:token` albo logowanie z kodem z fake-sms/Mailpit, sprawdzenia w bazie `psql` po stałych UUID; zegar przez `npm run clock` i restart usług; crony uruchamiane `npm run cron <nazwa> -- --now …`); skrypt `npm run test:acceptance` w `backend/` (osobna konfiguracja Vitest, poza `npm test`). Obejmuje m.in. A-02 (eskalacje: jeden wiersz `flag_escalations` na poziom, jedno powiadomienie także przy dwóch przebiegach crona), A-09 (noc 25.10.2026), A-12 (okna flag: 400 `validation_failed` bez `valid_to`, 422 `invalid_window` przy końcu przed początkiem), A-14 (409 przy równoległym „Biorę”), A-18 (`ack_not_required`, zero eskalacji), A-20, A-21 (403 na trasach ukrytych funkcji), A-22 (`tax_id_taken`), A-23 (404 między firmami), A-24 i A-25 (blokada kont technicznych, `access_revoked` w ≤ 5 min przez skrócony test z odświeżeniem tokenu).
-- [ ] `tools/acceptance/run.mjs` (Node bez zależności): przygotowuje stos (`setup --fixed-date`), uruchamia po kolei suity (`backend` → `web` (`npm --prefix frontend run e2e:full`) → `mobile` (`npm --prefix mobile run e2e:android`) → `tablet` (`npm --prefix tablet run e2e:emulator`)), z opcją `--only A-10` i `--suite web`; zbiera wyniki (JUnit XML i raporty z WEB-028, MOB-024, TAB-019), mapuje po tagach `[A-xx.y]` na kroki z `scenarios.json`.
-- [ ] Raport `tools/acceptance/REPORT.md` (generowany, w repo ostatni przebieg z gałęzi głównej): tabela A-xx → kroki → wynik (`auto: zielony/czerwony`, `brak testu`, `manual: do stanowiska`), podsumowanie: ile kroków automatycznych, ile ręcznych, lista braków z ID zadania, które ma je pokryć.
-- [ ] Lista kontrolna stanowiska `tools/acceptance/STANOWISKO.md`: kroki `manual` z każdym A-xx (np. A-01 „pełne odświeżenie bez kolorowego śladu”, A-15 mycie mokrą ścierką), z miejscem na datę, osobę i wynik.
-- [ ] Wpięcie do nocnego CI (`ci/nightly.sh` z SH-003): `node tools/acceptance/run.mjs --ci`.
+- [ ] `backend/tools/acceptance/run.mjs` (Node bez zależności, uruchamiany w `backend/` z repo `frontend`, `mobile` i `tablet` obok): przygotowuje stos (`setup --fixed-date`), uruchamia po kolei suity (`backend` → `web` (`npm --prefix ../frontend run e2e:full`) → `mobile` (`npm --prefix ../mobile run e2e:android`) → `tablet` (`npm --prefix ../tablet run e2e:emulator`)), z opcją `--only A-10` i `--suite web`; zbiera wyniki (JUnit XML i raporty z WEB-028, MOB-024, TAB-019), mapuje po tagach `[A-xx.y]` na kroki z `scenarios.json`.
+- [ ] Raport `backend/tools/acceptance/REPORT.md` (generowany, w repo ostatni przebieg z gałęzi głównej): tabela A-xx → kroki → wynik (`auto: zielony/czerwony`, `brak testu`, `manual: do stanowiska`), podsumowanie: ile kroków automatycznych, ile ręcznych, lista braków z ID zadania, które ma je pokryć.
+- [ ] Lista kontrolna stanowiska `backend/tools/acceptance/STANOWISKO.md`: kroki `manual` z każdym A-xx (np. A-01 „pełne odświeżenie bez kolorowego śladu”, A-15 mycie mokrą ścierką), z miejscem na datę, osobę i wynik.
+- [ ] Wpięcie do nocnego CI (`backend/ci/nightly.sh` z SH-003, z checkoutem `frontend`, `mobile` i `tablet` obok): `node tools/acceptance/run.mjs --ci` w `backend/`.
 
 ## Poza zakresem
 - Pisanie testów UI od nowa: suity powstają w WEB-028, MOB-024, TAB-019; tu tylko dopisanie brakujących tagów `[A-xx.y]` i testów `backend` dla kroków bez UI.
 - Wykonanie testów na stanowisku i w stajni pilotażowej (zespół, 4.5).
 
 ## Kryteria akceptacji
-- [ ] [ręcznie] `node tools/acceptance/run.mjs` na Linuksie z Dockerem i KVM przechodzi przez wszystkie suity i generuje raport; każdy krok z 4.4 ma w `scenarios.json` przypisanie (auto albo manual), żaden nie jest „brak testu” bez wskazanego zadania.
+- [ ] [ręcznie] `node tools/acceptance/run.mjs` w `backend/` na Linuksie z Dockerem i KVM przechodzi przez wszystkie suity i generuje raport; każdy krok z 4.4 ma w `scenarios.json` przypisanie (auto albo manual), żaden nie jest „brak testu” bez wskazanego zadania.
 - [ ] Scenariusze, które są warunkami gotowości etapów (A-01, A-02, A-12, A-18, A-20 dla etapu 3; A-13, A-16, A-17, A-19 dla etapu 6; A-14, A-21 dla etapu 7; A-22, A-23 dla etapu 1/2) mają wszystkie kroki automatyczne zielone.
 - [ ] [ręcznie] `--only A-10` uruchamia tylko kroki A-10 we wszystkich suitach (backend i tablet na dwóch emulatorach albo ze skryptem `poll-box.sh`).
 - [ ] Celowe złamanie reguły (np. pominięcie Kasztana przy „Podano śniadanie”) daje czerwony krok A-01.x w raporcie.
 
 ## Testy
-- Samo zadanie jest testem; `node --test tools/acceptance` dla parsera wyników i mapowania tagów.
-- Uruchomienie: `node tools/acceptance/run.mjs [--only A-xx] [--suite backend|web|mobile|tablet]`.
+- Samo zadanie jest testem; `node --test tools/acceptance` w `backend/` dla parsera wyników i mapowania tagów.
+- Uruchomienie w `backend/`: `node tools/acceptance/run.mjs [--only A-xx] [--suite backend|web|mobile|tablet]`.
 
 ## Definicja gotowości
-- Raport z pełnego przebiegu w repo, lista stanowiska gotowa, nocny przebieg wpięty; README.md (sekcja „Sprawdzenia”) odsyła do `tools/acceptance/`; status w tym pliku i w `tasks/QUEUE.md`.
+- Raport z pełnego przebiegu w repo, lista stanowiska gotowa, nocny przebieg wpięty; `backend/README.md` (sekcja „Sprawdzenia”) odsyła do `backend/tools/acceptance/`; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Asercje zawsze po stałych UUID boksów z seedu, nigdy po numerze.

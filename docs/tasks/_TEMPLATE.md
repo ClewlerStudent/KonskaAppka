@@ -35,7 +35,7 @@ Jedno, dwa zdania: co działa po zadaniu i dla kogo (rola, aplikacja). Bez szcze
 ## Kontekst
 - **Stan kodu:** co już jest i gdzie (ścieżki plików, funkcje, trasy, tabele); z których zadań to pochodzi (np. „`unitOfWork` z BE-005”).
 - **Dokumenty:** konkretne punkty, np. docs/mikroserwisy.md 5.5 (tabela tras), docs/erd.md (tabele), docs/development-szczegoly.md 3.3 i scenariusze A-xx/T-xx.
-- **Makiety:** pliki `mockups/project/<Plansza>.dc.html` i kluczowe teksty z nich (dokładne brzmienie przycisków i komunikatów).
+- **Makiety:** pliki `docs/mockups/project/<Plansza>.dc.html` i kluczowe teksty z nich (dokładne brzmienie przycisków i komunikatów).
 - **Decyzje:** DEC-xx z wybraną albo rekomendowaną opcją i jej skutkiem dla tego zadania.
 - **Dane demo:** osoby, stajnie, konie i godziny z seedu, na których sprawdza się kryteria (seed: wt 13.10.2026 07:15).
 

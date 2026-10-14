@@ -361,7 +361,7 @@ Czasy oczekiwania pochodzą z dokumentacji albo ze źródeł pośrednich. Gdzie 
   - Publiczna strona www przed logowaniem (prezentacja produktu, 3.5.5) spełnia wymóg publicznej strony; polityka prywatności i strona usuwania konta mogą być jej podstronami (propozycja).
   - Czas: godziny.
 - [ ] **Wnioski w AWS, które czekają w kolejce:** wyjście z SMS sandbox, podniesienie miesięcznego limitu SMS, dostęp produkcyjny do SES. Pierwsza odpowiedź przychodzi do 24 h, decyzja bywa później ([SMS sandbox](https://docs.aws.amazon.com/sns/latest/dg/sns-sms-sandbox-moving-to-production.html), [SES FAQ](https://repost.aws/knowledge-center/ses-production-access-request-faq)).
-- [ ] **Identyfikatory od nazwy produktu przed założeniem rekordów w sklepach.** Nazwa jest ustalona: EQUENOR (decyzja 13.10.2026; wcześniej robocza nazwa eKoniuszy). Repozytorium nadal nazywa się KonskaAppka, ale ta nazwa nie musi trafiać do identyfikatorów.
+- [ ] **Identyfikatory od nazwy produktu przed założeniem rekordów w sklepach.** Nazwa jest ustalona: EQUENOR (decyzja 13.10.2026; wcześniej robocza nazwa eKoniuszy). Repozytoria są w grupie GitLab `equinor-group` (wcześniej jedno repo KonskaAppka); żadna z tych nazw nie musi trafiać do identyfikatorów.
   - Z nazwy EQUENOR wywodzimy scope pakietów, bundle ID, `applicationId` (apka mobilna i APK tabletu) oraz nazwy w App Store i Google Play.
   - Bundle ID i `applicationId` są nieodwracalne, więc ich dokładną postać zapisujemy przed założeniem rekordów (sekcja 5).
 
@@ -2308,7 +2308,7 @@ A-01…A-16 dzieją się w Stajni Pod Lipami, która ma włączone potwierdzenia
 26. Okresy retencji: audyt, `notifications`, pliki `deleted`, `payment_provider_events`.
 27. Domyślne sloty posiłków i szablony flag dla nowej stajni (erd.md wymienia kody szablonów, w tym `derka`, ale nie ich domyślne okna godzin poza przykładami z makiet) oraz domyślna nazwa pierwszej hali, którą kod zakłada razem ze stajnią (adres bierze ze stajni [erd]). Kto dostaje `health.due` i `payment.overdue`: słownik `notification_rules.event` nie ma `health_due` ani `payment_overdue` (luka otwarta, mikroserwisy.md 10.2 pkt 20).
 28. Parametry billingu potrzebne w kodzie: definicja metryki w `billing-usage-snapshot` (stan na koniec okresu czy maksimum w okresie) oraz to, czy `InvoiceSystem` w v1 ma prawdziwą integrację (KSeF 2.0). Zależy od otwartej kwestii pkt 47; do jej rozstrzygnięcia billing zostaje na fałszywych adapterach.
-29. **Identyfikatory od nazwy EQUENOR.** Nazwa produktu jest ustalona (repozytorium nadal nazywa się KonskaAppka). Otwarta jest dokładna postać scope pakietów, bundle ID, `applicationId` i nazw w sklepach. Bundle ID i `applicationId` są nieodwracalne, więc muszą zapaść przed założeniem rekordów.
+29. **Identyfikatory od nazwy EQUENOR.** Nazwa produktu jest ustalona (repozytoria są w grupie GitLab `equinor-group`, wcześniej KonskaAppka). Otwarta jest dokładna postać scope pakietów, bundle ID, `applicationId` i nazw w sklepach. Bundle ID i `applicationId` są nieodwracalne, więc muszą zapaść przed założeniem rekordów.
 30. Kto może zmienić sieć Wi-Fi na tabletach przez ukryte ustawienia (np. Wsparcie IT z zespołu EQUENOR), jak się przy tym uwierzytelnia i kto zna hasło.
 31. **Założenia tabletu do potwierdzenia** [erd, pkt 2]:
     - na tablecie jest zalogowane jedno konto naraz (pilnuje apka);

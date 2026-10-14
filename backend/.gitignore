@@ -1,5 +1,21 @@
+# Sekrety: klucz podpisu, dev.env i masterkey ZITADEL dev są w .local/ (npm run dev:setup),
+# produkcyjny klucz dostarcza env albo plik.
+.local/
+/.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.p8
+*.p12
+
+# Skrzynki kodów dev (.local/inbox.jsonl).
+inbox.jsonl
+outbox.jsonl
+
+# Zależności, build, wyniki testów.
 node_modules/
 dist/
-.local/
 coverage/
 *.log
+.DS_Store

@@ -17,7 +17,7 @@ trello: https://trello.com/c/izyxyvjn
 Backend dostaje warstwę bazy: Drizzle ze schematami `app` i `audit`, własny migrator bez sekwencji, harness testów na PostgreSQL i pierwsze tabele (globalne tabele `auth` i audyt). Na tym budują wszystkie serwisy z bazą i crony.
 
 ## Kontekst
-- Stan kodu: bazy jeszcze nie ma. `auth` trzyma użytkowników w pamięci (`backend/src/services/auth/users/memory-users.ts`, `access/memory-access.ts`). `docker-compose.yml` w profilu `infra` stawia PostgreSQL 17 (`localhost:5433`, baza i użytkownik `equenor`, hasło `equenor-dev`). Backend to jeden pakiet npm (`backend/package.json`), bez pnpm i `packages/*`: odpowiednik `packages/db` z docs to `backend/src/lib/db`.
+- Stan kodu: bazy jeszcze nie ma. `auth` trzyma użytkowników w pamięci (`backend/src/services/auth/users/memory-users.ts`, `access/memory-access.ts`). `backend/docker-compose.yml` w profilu `infra` stawia PostgreSQL 17 (`localhost:5433`, baza i użytkownik `equenor`, hasło `equenor-dev`). Backend to jeden pakiet npm (`backend/package.json`), bez pnpm i `packages/*`: odpowiednik `packages/db` z docs to `backend/src/lib/db`.
 - Dokumenty: `docs/erd.md` „Zasady wspólne” (UUIDv7 z kodu, `timestamptz`, statusy `text`, `version` + `updated_at`, zakazy: `DEFAULT`, `CHECK`, enumy, `jsonb`, tablice, sekwencje, triggery, RLS, akcje FK) i diagram ERD (kolumny tabel); `docs/development-szczegoly.md` 3.1.4 (konwencje, unikalności, przepływ migracji, expand/contract, `/readyz` przy brakującej migracji) i 3.1.3 „Stan migracji” (własna tabela stanu w `app`, kluczem nazwa pliku i hash, `pg_advisory_lock`); `docs/mikroserwisy.md` 11.1 (zmiany w modelu).
 - Decyzje: DEC-09 (wariant B: Drizzle, migrator, lint schematu i test katalogu od razu; sql-gate i squawk w BE-002), DEC-05 (wariant B: bez tabeli `signing_keys`, klucz z sekretu), DEC-10 (konta zespołu = wiersz `platform_roles`, bez `users.identity_pool`), DEC-04 (wariant A: `businesses` i `business_admins` w `auth`).
 - Dane demo: na razie brak (seed: BE-011).
@@ -48,10 +48,10 @@ Backend dostaje warstwę bazy: Drizzle ze schematami `app` i `audit`, własny mi
 - Vitest integracyjne na harnessie: migrator (idempotencja, równoległość, zmieniony hash), `checkMigrations`, wstawienie i odczyt wiersza każdej tabeli. Komenda: `cd backend && npm test` (z Dockerem albo `TEST_DATABASE_URL=postgres://equenor:equenor-dev@localhost:5433/equenor`).
 
 ## Definicja gotowości
-- `cd backend && npm run check` i `npm run build` zielone; README (sekcje „Kod” i „Uruchomienie lokalne (dev)”: `DATABASE_URL`, `npm run migrate`, profil `infra`, konwencja `*.concurrent.sql`) zaktualizowane; status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` i `npm run build` zielone; `backend/README.md` (sekcje „Kod” i „Uruchomienie lokalne (dev)”: `DATABASE_URL`, `npm run migrate`, profil `infra`, konwencja `*.concurrent.sql`) zaktualizowane; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
-- Zwykły npm; żadnego pnpm, Turborepo ani `packages/*`, mimo że docs/development*.md je opisują (README: struktura 3.1.1 nieaktualna).
+- Zwykły npm; żadnego pnpm, Turborepo ani `packages/*`, mimo że docs/development*.md je opisują (`backend/README.md`: struktura 3.1.1 nieaktualna).
 - Domyślna tabela migracji Drizzle (`drizzle.__drizzle_migrations` z `SERIAL`) jest zakazana: nie używaj `drizzle-orm/migrator`.
 - Wartości `version`, `created_at`, `updated_at` i UUIDv7 (`uuid` v7, już w zależnościach) nadaje kod, nigdy baza.
 - `users.phone_e164` i `users.email` to kopie z ZITADEL; tylko `auth` będzie miał do nich `SELECT` (granty: BE-003).

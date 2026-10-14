@@ -26,7 +26,7 @@ Dwie jedyne synchroniczne trasy wewnętrzne `auth`: `notifications` pyta, do kog
 - [ ] Kontrakt `getRecipients` (`kind: 'internal'`, `port: 'recipients'`, `callers: ['notifications']`): parametry `stableId?`, `businessId?`, `roles` (lista: `admin`, `staff`, `client`, `instructor`), `channel` (`sms | email`), `horseId?`, `feature?`; odpowiedź `[{ userId, displayName, locale, role, address }]`.
 - [ ] Logika: `admin` = admini firmy, do której należy stajnia (albo `businessId`); `staff`/`instructor` = aktywni członkowie stajni z tą rolą; `client` z `horseId` = osoby z ważnym dostępem do konia; `feature` usuwa role, które nie widzą funkcji (macierz stajni albo domyślna; admin zawsze widzi); pomija konta usunięte, techniczne i bez adresu dla kanału (`phone_e164` dla `sms`, `email` dla `email`).
 - [ ] Kontrakt `horseLeft` (`POST /auth/v1/internal/horses/{horseId}/left`, `port: 'horses'`, `callers: ['stables']`): czyta `horses.status`; przy `left` zamyka wszystkie otwarte `horse_access` konia (`revoked_at = teraz`, `version + 1`, audyt `actor_type = system`) i odpowiada 204; ponowienie niczego nie zmienia (204); koń nie `left` → 409 `horse_not_left`; brak konia → 404.
-- [ ] Env `RECIPIENTS_PORT`, `HORSES_PORT` w `services/auth/env.ts` (różne od `PORT` i `JWKS_PORT`), `docker-compose.yml`: porty tylko w sieci compose (`expose`), README „Porty”.
+- [ ] Env `RECIPIENTS_PORT`, `HORSES_PORT` w `services/auth/env.ts` (różne od `PORT` i `JWKS_PORT`), `backend/docker-compose.yml`: porty tylko w sieci compose (`expose`), `backend/README.md` „Porty”.
 - [ ] Meta-test: każdy port wewnętrzny serwisu ma jeden zestaw `callers`, a port zewnętrzny zwraca 404 na ścieżki `/internal/` (dopisać do testów kit albo kontraktów).
 
 ## Poza zakresem
@@ -42,7 +42,7 @@ Dwie jedyne synchroniczne trasy wewnętrzne `auth`: `notifications` pyta, do kog
 - `backend/src/services/auth/internal.test.ts` (`service.internal.recipients.inject`, `service.internal.horses.inject`) na harnessie z seedem albo fabrykami. `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; README (porty); status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; `backend/README.md` (porty); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - To adresowanie, nie autoryzacja: odbiorców liczy `auth`, bo tylko on czyta tabele uprawnień i kontakty (W2).

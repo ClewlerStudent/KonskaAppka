@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig, devices } from '@playwright/test';
 
 // E2E: backend auth (FAKE IdP, skrzynka dev w pliku), panel i www na portach E2E.
-// Wymaga `npm ci` w backend/ i frontend/. Przeglądarki: PLAYWRIGHT_BROWSERS_PATH (bez playwright install).
+// Wymaga repo backend sklonowanego obok (../backend) i `npm ci` w nim i tutaj.
+// Przeglądarki: PLAYWRIGHT_BROWSERS_PATH (bez playwright install).
 // Testy biorą adresy, hasło kont demo i ścieżkę skrzynki z env E2E_* (nie importują tego pliku).
 const ports = { auth: 4110, jwks: 4111, web: 5273, www: 5274, webBuild: 5275 };
 const e2eUrls = {

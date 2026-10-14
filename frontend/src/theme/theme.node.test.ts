@@ -39,7 +39,8 @@ describe('theme.css', () => {
 const paletteUrl = new URL('../../../docs/paleta.md', import.meta.url);
 const hasPalette = existsSync(paletteUrl);
 
-// Frontend może być osobnym repo: wtedy docs/paleta.md nie ma i test jest pomijany.
+// Paleta jest w repo docs: test czyta paleta.md z repo docs sklonowanego obok (workspace,
+// ../docs od korzenia frontendu), a bez niego jest pomijany.
 describe.skipIf(!hasPalette)('docs/paleta.md', () => {
   const palette = hasPalette ? readFileSync(paletteUrl, 'utf8') : '';
 

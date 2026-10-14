@@ -1,0 +1,20 @@
+# Repo docs: dokumentacja, makiety, kolejka zadań. Bez sekretów w repo.
+
+# Sekrety (na wszelki wypadek: tu nie powinno ich być).
+.env
+.env.*
+.local/
+*.pem
+*.key
+*.p8
+*.p12
+
+# Narzędzia makiet: zrzuty i HTML z render*.cjs (mockups/tools/shots/), cache Pythona z gen/.
+mockups/tools/shots/
+__pycache__/
+*.pyc
+
+# Zależności i śmieci.
+node_modules/
+*.log
+.DS_Store

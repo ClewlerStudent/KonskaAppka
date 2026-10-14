@@ -45,7 +45,7 @@ Wspólny szablon dla 9 cronów: jeden przebieg to jeden proces z limitem czasu i
 - `backend/src/kit/cron.test.ts` (fałszywy zegar, adapter wiadomości w pamięci, harness bazy z grantami), test reguły ESLint. `cd backend && npm test && npm run lint`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` i `npm run build` zielone; README: jak uruchomić cron lokalnie; status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` i `npm run build` zielone; `backend/README.md`: jak uruchomić cron lokalnie; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Docs piszą `services/<właściciel>/jobs/<cron>` i `pnpm cron`: u nas `backend/src/jobs/<cron>` i `npm run cron`.

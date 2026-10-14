@@ -579,13 +579,14 @@ export function renderQueue(tasks, decisions) {
   return out.join('\n');
 }
 
-/** Kotwica nagłówka w stylu GitHuba (małe litery, bez interpunkcji, spacje → myślniki). */
+/** Kotwica nagłówka jak w GitLabie (małe litery, bez interpunkcji, spacje → myślniki, bez powtórzonych myślników). */
 export function slugAnchor(heading) {
   return heading
     .trim()
     .toLowerCase()
     .replace(/[^\p{L}\p{N}\s_-]/gu, '')
-    .replace(/\s/g, '-');
+    .replace(/\s/g, '-')
+    .replace(/-{2,}/g, '-');
 }
 
 /** Przepisuje linie „- **Zadania:** …” w sekcjach decyzji na podstawie nagłówków zadań. */

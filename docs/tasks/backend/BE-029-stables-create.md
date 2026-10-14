@@ -25,7 +25,7 @@ Admin konta firmy zakłada stajnię w dwóch krokach (stajnia z pierwszą halą 
 
 ## Zakres
 - [ ] Serwis `backend/src/services/stables/{main,app,env,deps}.ts`, skrypty `dev:stables`, `serve:stables`, `start:stables`; env jak `operations` plus `OPERATIONS_DEFAULTS_URL`; kontrakty `contracts/stables.ts` → `openapi/stables.json`; port dev (propozycja) 4020.
-- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `stables` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:stables']`, env jak w `backend/.env.example`, profil `infra`), trasa `/stables/*` w `tools/local/Caddyfile` już jest (SH-002).
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w `backend/README.md` „Porty”); usługa `stables` w `backend/docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:stables']`, env jak w `backend/.env.example`, profil `infra`), trasa `/stables/*` w `backend/tools/local/Caddyfile` już jest (SH-002).
 - [ ] `backend/src/lib/internal-client/`: klient HTTP tras `/internal` (limit czasu, do 3 prób z backoffem, tylko dla wywołań idempotentnych, TLS z CA z env w klastrze); użyją go też BE-032 i BE-036.
 - [ ] `GET /stables/v1/stables?businessId=` (admin firmy albo `plt`): stajnie firmy z `status`.
 - [ ] `POST /stables/v1/stables`: body `{ id (UUIDv7 od klienta, propozycja idempotencji), businessId, name, timezone, building: { name, addressLine1, addressLine2?, postalCode, city, countryCode }, boxes: [{ label, autoWaterer? }], mealSlots: [{ code?, label, localTime, daysMask, labels? }], notificationRules: [{ event, recipientRole, channel, enabled }] }`. Jedna transakcja: `stables` (`active`), `stable_settings` z `lib/rules`, hala, boksy (`auto_waterer` domyślnie `true`), `notification_rules` dla każdej obsługiwanej kombinacji (zdarzenia płatności tylko dla `admin`), audyt. Po COMMIT `defaults` w `operations` (3 próby), potem `stable.created` (`stableId`, `businessId`, `mealSlots`). Odpowiedź 201 `{ stable, setupPending: [] | ['operations'] }`; powtórka z tym samym `id` i treścią → 200 z tym samym wynikiem, z inną treścią → 409 `id_conflict`.
@@ -47,7 +47,7 @@ Admin konta firmy zakłada stajnię w dwóch krokach (stajnia z pierwszą halą 
 - `backend/src/services/stables/create.test.ts` na harnessie (fałszywy `operations` przez `lib/internal-client` z serwerem testowym, adapter wiadomości w pamięci): sukces, awaria i ponowienie, idempotencja, uprawnienia, transakcyjność. `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; README (uruchomienie `stables`, porty); status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; `backend/README.md` (uruchomienie `stables`, porty); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Stan „Dokończ zakładanie stajni” po zamknięciu karty pokaże `board …/setup-checklist` (BE-033) na podstawie braku szablonów w `operations`; `stables` nie zapisuje `setupPending`.

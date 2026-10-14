@@ -30,7 +30,7 @@ Gdy zmiana API wymaga nowej apki albo nowego APK tabletu, Dawid ustawia minimaln
 - [ ] Wywołanie w `prepare()` dla tras z tokenem, po weryfikacji tokenu, przed polityką trasy: aplikacja z `client_id`, nagłówek `X-Client-Version`; poniżej minimum → `403 client_upgrade_required` z `minVersion`.
 - [ ] Wyjątki deklarowane w deskryptorze: `defineRoute({ …, clientVersionGate: false, clientVersionGateReason: '…' })`. Wyłączone od razu: odświeżenie tokenu i wylogowanie w `auth` (stary tablet musi mieć ważny token, żeby pobrać APK); `GET /platform/v1/tablet/latest` i pobranie APK (jeśli BE-040 jest już `done`, dopisz flagę przy jego trasach; w przeciwnym razie zrobi to BE-040). Trasy otwarte (bez tokenu) i `/internal` nie podlegają bramce.
 - [ ] Meta-test w `backend/src/contracts/contracts.test.ts`: lista tras z `clientVersionGate: false` zgadza się z listą w teście (jak `open-routes.txt`), każda ma powód.
-- [ ] README (sekcja „Kod”): jak ustawić `CLIENT_MIN_VERSIONS` i które trasy są spod bramki wyjęte.
+- [ ] `backend/README.md` (sekcja „Kod”): jak ustawić `CLIENT_MIN_VERSIONS` i które trasy są spod bramki wyjęte.
 
 ## Poza zakresem
 - Ekrany po stronie klientów (MOB-026, TAB-012, TAB-017); wymuszenie aktualizacji tabletu przez `min_required_version_code` wydania (BE-040, TAB-017) to osobny mechanizm i zostaje.
@@ -46,7 +46,7 @@ Gdy zmiana API wymaga nowej apki albo nowego APK tabletu, Dawid ustawia minimaln
 - Vitest: `client-version.test.ts` (porównania semver i liczb, brak nagłówka, śmieci w nagłówku), `service.test.ts` (trasa testowa z tokenem `mobile`, `tablet`, `web`; wyjątek `clientVersionGate: false`), meta-test listy wyjątków. `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` i `npm run build` zielone, `npm run openapi` bez różnic po commicie; README opisuje `CLIENT_MIN_VERSIONS`; status w tym pliku i w `tasks/QUEUE.md` (`node tasks/queue.mjs set BE-061 review`).
+- `cd backend && npm run check` i `npm run build` zielone, `npm run openapi` bez różnic po commicie; `backend/README.md` opisuje `CLIENT_MIN_VERSIONS`; status w tym pliku i w `tasks/QUEUE.md` (`node tasks/queue.mjs set BE-061 review`).
 
 ## Uwagi dla wykonawcy
 - Bramka nie może zablokować drogi aktualizacji: tablet poniżej minimum musi dalej odświeżać token i pytać o nowe APK. Dopisz test, który to sprawdza.

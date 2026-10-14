@@ -19,7 +19,7 @@ Panel umie rozmawiać z każdym serwisem (nie tylko z `auth`) jednym mechanizmem
 ## Kontekst
 - **Stan kodu:** `frontend/src/api/client.ts` (openapi-fetch tylko dla `auth`), `frontend/src/api/auth-api.ts` (`settle`, `problemCode`, `ApiResult`), `frontend/web/src/session/session.ts` (access token w pamięci, `authorized`, jedno odświeżenie naraz), `frontend/web/src/session/home.ts` (`homePath` zawsze `/welcome`), `frontend/web/src/router.tsx` (TanStack Router, strażnicy `guestOnly`/`signedInOnly`), `frontend/web/src/services.tsx`, `frontend/web/src/screens/WelcomeScreen.tsx`, testy `web/src/test/fake-api.ts`, `web/src/test/render-app.tsx`, `e2e/helpers/mock-auth.ts`. Proxy dev tylko `/auth` w `vite.web.config.ts`. CORS w `backend/src/kit/service.ts` (`allowedHeaders`, `exposedHeaders`).
 - **Dokumenty:** docs/mikroserwisy.md 3.7 (tabela „Co robi aplikacja”: `token_expired` → odświeżenie i powtórzenie, `session_revoked` → logowanie, `access_revoked` → ekran blokady i ponowienie co 5 min, `Equenor-Token-Refresh: required` → natychmiastowe odświeżenie), 3.4 (okna sesji panelu i TV), 8 (kody odmowy), 9.4 (TV: `GET /me` daje widok tablicy). docs/development-szczegoly.md 3.5.3. BE-063: `MeResponse` z `stables[]` (`id`, `name`, `businessId`, `role`, `features`, `status`), `businesses` (lista UUID, bez zmian), `businessAccounts[]` (`id`, `name`), `platformRole`, `accountKind`, `startView` (`welcome`, `admin_today`, `staff_day`, `client_home`, `instructor`, `display`, `tablet`), `matchedInvitations[]`; lokalny `auth` z FAKE IdP zwraca je dla kont demo w pamięci. Ten sam kontrakt na bazie: BE-019.
-- **Makiety:** mockups/project/PanelWitaj.dc.html, MapaNawigacjiRol.dc.html; makiety-plan.md B „PanelWitaj” (stan dla innej roli: „Panel jest dla admina konta firmy” i linki do apki).
+- **Makiety:** docs/mockups/project/PanelWitaj.dc.html, MapaNawigacjiRol.dc.html; makiety-plan.md B „PanelWitaj” (stan dla innej roli: „Panel jest dla admina konta firmy” i linki do apki).
 - **Decyzje:** DEC-07 A (panel `panel.<domena>`, API `api.<domena>`, ciasteczko `__Secure-eq_rt` bez BFF). DEC-15 A (panel tylko admin i wyświetlacz; inni PanelWitaj z linkiem do apki).
 - **Dane demo:** Damian (admin, 2 stajnie), Ola (obsługa), Marta (instruktor), „Telewizor korytarz” (display), nowa osoba po rejestracji (welcome); stałe UUID w `backend/src/lib/demo/ids.ts` (BE-063). Konto „Tablety Pod Lipami” w panelu dostaje `403 wrong_client`.
 
@@ -52,7 +52,7 @@ Panel umie rozmawiać z każdym serwisem (nie tylko z `auth`) jednym mechanizmem
 - `cd frontend && npm run check && npm run e2e`; `cd backend && npm run check` (zmiana CORS).
 
 ## Definicja gotowości
-- `npm run check` i `npm run build` zielone we `frontend/` i `backend/`; E2E zielone; README (proxy dev, nowe env) zaktualizowane; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` i `npm run build` zielone we `frontend/` i `backend/`; E2E zielone; `frontend/README.md` (proxy dev, nowe env) zaktualizowane; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Access token tylko w pamięci, nigdy w Web Storage; `localStorage` tylko na wygody (ostatnia stajnia), zawsze w try/catch.

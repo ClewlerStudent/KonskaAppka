@@ -214,35 +214,35 @@ Brak.
 
 | DEC | Temat | Status | Blokuje start | Zadań, których dotyczy |
 |---|---|---|---|--:|
-| DEC-01 | [Kolejki zdarzeń i kodów: SNS/SQS czy self-hosted](decisions.md#dec-01--kolejki-zdarzeń-i-kodów-snssqs-czy-self-hosted) | otwarta |  | 12 |
-| DEC-02 | [Położenie kodu apki mobilnej i tabletu](decisions.md#dec-02--położenie-kodu-apki-mobilnej-i-tabletu) | otwarta |  | 5 |
-| DEC-03 | [Macierz widoczności w tokenie](decisions.md#dec-03--macierz-widoczności-w-tokenie) | otwarta |  | 13 |
-| DEC-04 | [businesses w auth czy w stables](decisions.md#dec-04--businesses-w-auth-czy-w-stables) | otwarta |  | 3 |
-| DEC-05 | [Klucz podpisu jako sekret: rotacja i signing_keys](decisions.md#dec-05--klucz-podpisu-jako-sekret-rotacja-i-signing_keys) | otwarta |  | 8 |
-| DEC-06 | [Okna refresh tokenu i DPoP](decisions.md#dec-06--okna-refresh-tokenu-i-dpop) | otwarta |  | 3 |
-| DEC-07 | [Domeny panelu, API i [OPS]](decisions.md#dec-07--domeny-panelu-api-i-ops) | otwarta |  | 3 |
-| DEC-08 | [ZITADEL: uwierzytelnienie auth i wartości polityk](decisions.md#dec-08--zitadel-uwierzytelnienie-auth-i-wartości-polityk) | otwarta |  | 5 |
-| DEC-09 | [Warstwa bazy i migracje na PoC](decisions.md#dec-09--warstwa-bazy-i-migracje-na-poc) | otwarta |  | 2 |
-| DEC-10 | [Panel zespołu [OPS], opctl i Wsparcie IT](decisions.md#dec-10--panel-zespołu-ops-opctl-i-wsparcie-it) | otwarta | BE-056 | 15 |
-| DEC-11 | [Dostawcy SMS i e-maila](decisions.md#dec-11--dostawcy-sms-i-e-maila) | otwarta | BE-059 | 4 |
-| DEC-12 | [Zakres billingu na PoC](decisions.md#dec-12--zakres-billingu-na-poc) | otwarta | BE-052 | 5 |
-| DEC-13 | [Tablet offline i interwał odpytywania](decisions.md#dec-13--tablet-offline-i-interwał-odpytywania) | otwarta |  | 7 |
-| DEC-14 | [Plan dnia na TV](decisions.md#dec-14--plan-dnia-na-tv) | otwarta |  | 5 |
-| DEC-15 | [Nawigacja apki i panelu dla ról](decisions.md#dec-15--nawigacja-apki-i-panelu-dla-ról) | otwarta |  | 12 |
-| DEC-16 | [Dzwonek i powiadomienia push w apce](decisions.md#dec-16--dzwonek-i-powiadomienia-push-w-apce) | otwarta |  | 3 |
-| DEC-17 | [Jazdy: kto tworzy](decisions.md#dec-17--jazdy-kto-tworzy) | otwarta |  | 3 |
-| DEC-18 | [Czasy „Cofnij” i blokady, ukryte ustawienia, Wi-Fi](decisions.md#dec-18--czasy-cofnij-i-blokady-ukryte-ustawienia-wi-fi) | otwarta |  | 12 |
-| DEC-19 | [Kod MFA dla recenzentów sklepów](decisions.md#dec-19--kod-mfa-dla-recenzentów-sklepów) | otwarta | MOB-025 | 1 |
-| DEC-20 | [Domyślne wartości nowej stajni i reguły health_due/payment_overdue](decisions.md#dec-20--domyślne-wartości-nowej-stajni-i-reguły-health_duepayment_overdue) | otwarta |  | 13 |
-| DEC-21 | [Wyłączony szablon przy trwającej fladze](decisions.md#dec-21--wyłączony-szablon-przy-trwającej-fladze) | otwarta |  | 6 |
-| DEC-22 | [Identyfikatory aplikacji](decisions.md#dec-22--identyfikatory-aplikacji) | otwarta | MOB-025, TAB-022 | 5 |
-| DEC-23 | [Klient bez ważnego konia](decisions.md#dec-23--klient-bez-ważnego-konia) | otwarta |  | 6 |
-| DEC-24 | [Okresy retencji](decisions.md#dec-24--okresy-retencji) | otwarta |  | 3 |
-| DEC-25 | [Diagnostyka tabletu](decisions.md#dec-25--diagnostyka-tabletu) | otwarta |  | 2 |
-| DEC-26 | [Autor akcji z tabletu w audycie](decisions.md#dec-26--autor-akcji-z-tabletu-w-audycie) | otwarta |  | 3 |
-| DEC-27 | [Drobne wartości i zachowania z zadań (zbiorczo)](decisions.md#dec-27--drobne-wartości-i-zachowania-z-zadań-zbiorczo) | otwarta |  | 19 |
-| DEC-28 | [Ręczne zawieszenie stajni przez admina globalnego](decisions.md#dec-28--ręczne-zawieszenie-stajni-przez-admina-globalnego) | otwarta |  | 3 |
-| DEC-29 | [Koń bez boksu na wyświetlaczu](decisions.md#dec-29--koń-bez-boksu-na-wyświetlaczu) | otwarta |  | 3 |
-| DEC-30 | [Tablet po bramce B: model, firmware, profil palety, czarno-białe](decisions.md#dec-30--tablet-po-bramce-b-model-firmware-profil-palety-czarno-białe) | otwarta | TAB-022 | 5 |
-| DEC-31 | [Wejścia zespołu EQUENOR do stajni: powiadomienie i autor w historii](decisions.md#dec-31--wejścia-zespołu-equenor-do-stajni-powiadomienie-i-autor-w-historii) | otwarta |  | 6 |
-| DEC-32 | [Dane bez ekranu na PoC: wizyty, jazdy, załączniki, zdjęcia koni](decisions.md#dec-32--dane-bez-ekranu-na-poc-wizyty-jazdy-załączniki-zdjęcia-koni) | otwarta |  | 5 |
+| DEC-01 | [Kolejki zdarzeń i kodów: SNS/SQS czy self-hosted](decisions.md#dec-01-kolejki-zdarzeń-i-kodów-snssqs-czy-self-hosted) | otwarta |  | 12 |
+| DEC-02 | [Położenie kodu apki mobilnej i tabletu](decisions.md#dec-02-położenie-kodu-apki-mobilnej-i-tabletu) | otwarta |  | 5 |
+| DEC-03 | [Macierz widoczności w tokenie](decisions.md#dec-03-macierz-widoczności-w-tokenie) | otwarta |  | 13 |
+| DEC-04 | [businesses w auth czy w stables](decisions.md#dec-04-businesses-w-auth-czy-w-stables) | otwarta |  | 3 |
+| DEC-05 | [Klucz podpisu jako sekret: rotacja i signing_keys](decisions.md#dec-05-klucz-podpisu-jako-sekret-rotacja-i-signing_keys) | otwarta |  | 8 |
+| DEC-06 | [Okna refresh tokenu i DPoP](decisions.md#dec-06-okna-refresh-tokenu-i-dpop) | otwarta |  | 3 |
+| DEC-07 | [Domeny panelu, API i [OPS]](decisions.md#dec-07-domeny-panelu-api-i-ops) | otwarta |  | 3 |
+| DEC-08 | [ZITADEL: uwierzytelnienie auth i wartości polityk](decisions.md#dec-08-zitadel-uwierzytelnienie-auth-i-wartości-polityk) | otwarta |  | 5 |
+| DEC-09 | [Warstwa bazy i migracje na PoC](decisions.md#dec-09-warstwa-bazy-i-migracje-na-poc) | otwarta |  | 2 |
+| DEC-10 | [Panel zespołu [OPS], opctl i Wsparcie IT](decisions.md#dec-10-panel-zespołu-ops-opctl-i-wsparcie-it) | otwarta | BE-056 | 15 |
+| DEC-11 | [Dostawcy SMS i e-maila](decisions.md#dec-11-dostawcy-sms-i-e-maila) | otwarta | BE-059 | 4 |
+| DEC-12 | [Zakres billingu na PoC](decisions.md#dec-12-zakres-billingu-na-poc) | otwarta | BE-052 | 5 |
+| DEC-13 | [Tablet offline i interwał odpytywania](decisions.md#dec-13-tablet-offline-i-interwał-odpytywania) | otwarta |  | 7 |
+| DEC-14 | [Plan dnia na TV](decisions.md#dec-14-plan-dnia-na-tv) | otwarta |  | 5 |
+| DEC-15 | [Nawigacja apki i panelu dla ról](decisions.md#dec-15-nawigacja-apki-i-panelu-dla-ról) | otwarta |  | 12 |
+| DEC-16 | [Dzwonek i powiadomienia push w apce](decisions.md#dec-16-dzwonek-i-powiadomienia-push-w-apce) | otwarta |  | 3 |
+| DEC-17 | [Jazdy: kto tworzy](decisions.md#dec-17-jazdy-kto-tworzy) | otwarta |  | 3 |
+| DEC-18 | [Czasy „Cofnij” i blokady, ukryte ustawienia, Wi-Fi](decisions.md#dec-18-czasy-cofnij-i-blokady-ukryte-ustawienia-wi-fi) | otwarta |  | 12 |
+| DEC-19 | [Kod MFA dla recenzentów sklepów](decisions.md#dec-19-kod-mfa-dla-recenzentów-sklepów) | otwarta | MOB-025 | 1 |
+| DEC-20 | [Domyślne wartości nowej stajni i reguły health_due/payment_overdue](decisions.md#dec-20-domyślne-wartości-nowej-stajni-i-reguły-health_duepayment_overdue) | otwarta |  | 13 |
+| DEC-21 | [Wyłączony szablon przy trwającej fladze](decisions.md#dec-21-wyłączony-szablon-przy-trwającej-fladze) | otwarta |  | 6 |
+| DEC-22 | [Identyfikatory aplikacji](decisions.md#dec-22-identyfikatory-aplikacji) | otwarta | MOB-025, TAB-022 | 5 |
+| DEC-23 | [Klient bez ważnego konia](decisions.md#dec-23-klient-bez-ważnego-konia) | otwarta |  | 6 |
+| DEC-24 | [Okresy retencji](decisions.md#dec-24-okresy-retencji) | otwarta |  | 3 |
+| DEC-25 | [Diagnostyka tabletu](decisions.md#dec-25-diagnostyka-tabletu) | otwarta |  | 2 |
+| DEC-26 | [Autor akcji z tabletu w audycie](decisions.md#dec-26-autor-akcji-z-tabletu-w-audycie) | otwarta |  | 3 |
+| DEC-27 | [Drobne wartości i zachowania z zadań (zbiorczo)](decisions.md#dec-27-drobne-wartości-i-zachowania-z-zadań-zbiorczo) | otwarta |  | 19 |
+| DEC-28 | [Ręczne zawieszenie stajni przez admina globalnego](decisions.md#dec-28-ręczne-zawieszenie-stajni-przez-admina-globalnego) | otwarta |  | 3 |
+| DEC-29 | [Koń bez boksu na wyświetlaczu](decisions.md#dec-29-koń-bez-boksu-na-wyświetlaczu) | otwarta |  | 3 |
+| DEC-30 | [Tablet po bramce B: model, firmware, profil palety, czarno-białe](decisions.md#dec-30-tablet-po-bramce-b-model-firmware-profil-palety-czarno-białe) | otwarta | TAB-022 | 5 |
+| DEC-31 | [Wejścia zespołu EQUENOR do stajni: powiadomienie i autor w historii](decisions.md#dec-31-wejścia-zespołu-equenor-do-stajni-powiadomienie-i-autor-w-historii) | otwarta |  | 6 |
+| DEC-32 | [Dane bez ekranu na PoC: wizyty, jazdy, załączniki, zdjęcia koni](decisions.md#dec-32-dane-bez-ekranu-na-poc-wizyty-jazdy-załączniki-zdjęcia-koni) | otwarta |  | 5 |

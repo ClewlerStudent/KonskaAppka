@@ -19,7 +19,7 @@ Osoba po pierwszym logowaniu zakłada konto firmy (B2B, NIP podawany raz) i od r
 ## Kontekst
 - Stan kodu: tabele `businesses` (`tax_id` UK) i `business_admins` (BE-001), `unitOfWork` z audytem (BE-005), claim `biz` z `business_admins` (BE-013). Panel ma zaślepkę `/business/new` (WEB-003). Brak tras.
 - Dokumenty: `docs/mikroserwisy.md` 5.2 „Konto firmy” (`GET /business-registry/{taxId}` jako podpowiedź, nie weryfikacja; `POST /businesses` z `409 tax_id_taken` i `Equenor-Token-Refresh: required`; `GET`, `PATCH /businesses/{b}`, NIP-u nie da się zmienić; konto techniczne 403), 9.2 pkt 4–5 (przepływ Damiana); `docs/development-szczegoly.md` 3.3 auth „Konto firmy” (normalizacja do 10 cyfr, suma kontrolna, 409 także równolegle, nic nie zapisuje), 3.3 stables „Testy” (NIP z kreskami i bez to ten sam, zła suma 422); `docs/erd.md` pkt 15.
-- Makiety: `mockups/project/PanelRejestracjaFirmy.dc.html` (NIP *, „Pobierz dane z rejestru”, „Nazwa i adres pobrane z rejestru”, Nazwa firmy *, Ulica i numer *, Kod pocztowy *, Miejscowość *, E-mail do faktur *, „Załóż konto firmy”), komunikat „Ten NIP ma już konto w EQUENOR”.
+- Makiety: `docs/mockups/project/PanelRejestracjaFirmy.dc.html` (NIP *, „Pobierz dane z rejestru”, „Nazwa i adres pobrane z rejestru”, Nazwa firmy *, Ulica i numer *, Kod pocztowy *, Miejscowość *, E-mail do faktur *, „Załóż konto firmy”), komunikat „Ten NIP ma już konto w EQUENOR”.
 - Scenariusz: A-22 (Stajnie Lipowe sp. z o.o., NIP 123-456-32-18, ul. Lipowa 12, 05-520 Konstancin-Jeziorna; druga osoba z „1234563218” dostaje 409, nic się nie zapisuje).
 - Decyzje: DEC-04 wariant A (`businesses` i `business_admins` w `auth`, jedna transakcja).
 

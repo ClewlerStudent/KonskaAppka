@@ -45,7 +45,7 @@ Zespół EQUENOR (w demo Kuba) loguje się na osobnym hoście `[OPS]` hasłem, k
 - `backend/src/services/auth/ops.test.ts` i `platform.test.ts` na harnessie (FAKE IdP, fałszywy zegar): testy z mikroserwisy.md 4.5 i development-szczegoly.md 4.2 „Jeden serwis autoryzacyjny”. `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; `open-routes.txt` zaktualizowany; README (env `OPS_ORIGINS`, logowanie zespołu w dev); status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; `open-routes.txt` zaktualizowany; `backend/README.md` (env `OPS_ORIGINS`, logowanie zespołu w dev); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Bez osobnej organizacji ZITADEL i bez `identity_pool` (DEC-10), mimo opisu w mikroserwisy.md 4.1.

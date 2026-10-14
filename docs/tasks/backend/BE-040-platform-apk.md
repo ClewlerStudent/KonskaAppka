@@ -25,7 +25,7 @@ Tablety aktualizują się same, bez dotykania urządzeń: zespół EQUENOR wgryw
 
 ## Zakres
 - [ ] Serwis `backend/src/services/platform/` (`main.ts`, `app.ts`, `env.ts`), skrypty `start:platform`, `dev:platform`; kontrakt `backend/src/contracts/platform.ts`.
-- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `platform` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:platform']`, env jak w `backend/.env.example`, profil `infra`), trasa `/platform/*` w `tools/local/Caddyfile` już jest (SH-002).
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w `backend/README.md` „Porty”); usługa `platform` w `backend/docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:platform']`, env jak w `backend/.env.example`, profil `infra`), trasa `/platform/*` w `backend/tools/local/Caddyfile` już jest (SH-002).
 - [ ] Trasy platformowe (`plt = admin`; `GET` także `support`; audyt każdego zapisu):
   - `GET /platform/v1/platform/releases`;
   - `POST /platform/v1/platform/releases`: `{versionCode, versionName, sha256, signingCertSha256, minSdk, minRequiredVersionCode, sizeBytes}` → `draft`, plik przez `files` (`ownerService = platform`, `stableId = null`), w odpowiedzi link do wgrania;
@@ -33,7 +33,7 @@ Tablety aktualizują się same, bez dotykania urządzeń: zespół EQUENOR wgryw
   - `POST /platform/v1/platform/releases/{id}/rollout`: `{percent, stableIds?}` → `rolling`, `rollout_percent`, `app_release_targets` (brak celów = wszystkie stajnie);
   - `POST …/{id}/complete` (100%) i `POST …/{id}/halt` (`halted`, wydanie przestaje być proponowane).
 - [ ] `GET /platform/v1/tablet/latest?versionCode=&installId=` (`clients: ['tablet']`, rola `tablet`; `ops` i inne aplikacje: `403 client_not_allowed`): stajnia z `m[0].s`; wybiera najwyższy `version_code` w stanie `rolling` albo `complete`, skierowany do stajni, w którym `installId` wpada w procent (`hash(installId + releaseId) mod 100 < rollout_percent`); odpowiedź: `available`, `versionCode`, `versionName`, `sha256`, `signingCertSha256`, `sizeBytes`, `downloadUrl` (presigned GET z `files`, obsługa `Range`), `mandatory` (`versionCode` tabletu < `min_required_version_code`), okno instalacji ze strefą stajni.
-- [ ] Trasy wydań poza bramką minimalnej wersji klienta: `clientVersionGate: false` z powodem w deskryptorze (mechanizm z BE-061; jeśli BE-061 nie jest jeszcze `done`, zostaw w kodzie komentarz `TODO(BE-061)` przy trasach i dopisz to w PR).
+- [ ] Trasy wydań poza bramką minimalnej wersji klienta: `clientVersionGate: false` z powodem w deskryptorze (mechanizm z BE-061; jeśli BE-061 nie jest jeszcze `done`, zostaw w kodzie komentarz `TODO(BE-061)` przy trasach i dopisz to w MR).
 - [ ] Cofnięcie wersji to wydanie z wyższym `versionCode`; `halted` nie jest proponowane nikomu.
 
 ## Poza zakresem

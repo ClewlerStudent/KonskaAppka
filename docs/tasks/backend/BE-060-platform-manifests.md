@@ -31,7 +31,7 @@ Dawid, który sam robi infrastrukturę, dostaje z repozytorium komplet wygenerow
   - `env.json`: zmienne każdego serwisu i crona (nazwa, wymagana, sekret, opis) z schematów zod;
   - `workloads.json`: serwisy (polecenie `npm run start:<serwis>`, porty, sondy, minimalna liczba replik: 2, `auth` 3) i crony z rejestru `backend/src/jobs/index.ts` (BE-009: polecenie `npm run start:cron:<nazwa>`, harmonogram, `timeZone`, `concurrencyPolicy: Forbid`).
 - [ ] Meta-testy: ruch przychodzący na każdy port `/internal` = `callers` jego tras; żaden cron nie ma ruchu do portów serwisów; `sms` i `email` nie mają zmiennych bazy; każdy serwis z trasami zewnętrznymi ma dostęp do portu `jwks` `auth`; każda kolejka ma konsumenta i producenta z katalogu.
-- [ ] README: sekcja „Manifesty dla platformy” (co jest w każdym pliku, jak je odświeżyć, że wdrożenie i NetworkPolicy robi Dawid).
+- [ ] `backend/README.md`: sekcja „Manifesty dla platformy” (co jest w każdym pliku, jak je odświeżyć, że wdrożenie i NetworkPolicy robi Dawid).
 
 ## Poza zakresem
 - pisanie manifestów Kubernetes i Helm, zakładanie ról w bazie, kolejek i sekretów, CI na klastrze (infrastruktura: Dawid); test NetworkPolicy na klastrze.

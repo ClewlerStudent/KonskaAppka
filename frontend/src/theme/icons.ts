@@ -1,5 +1,5 @@
 /**
- * Ikony z makiet (mockups/project/*.dc.html): viewBox 0 0 24 24, obrys `currentColor`,
+ * Ikony z makiet (docs/mockups/project/*.dc.html): viewBox 0 0 24 24, obrys `currentColor`,
  * bez wypełnienia, zaokrąglone końce. Komponent ikony rysuje te kształty jako <path>,
  * <rect> i <circle>; statyczne strony www mają te same kształty wpisane w HTML.
  */

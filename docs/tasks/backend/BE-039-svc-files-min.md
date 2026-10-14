@@ -17,7 +17,7 @@ trello: https://trello.com/c/vVQre77z
 Jedyny serwis z dostępem do magazynu plików zgodnego z S3. Daje innym serwisom krótkie linki do wgrania i pobrania plików (APK tabletu, załączniki zdrowia, zdjęcia koni, PDF faktur, surowe body webhooków) i trzyma ich metadane. Minimum na etap 4: tyle, ile potrzebują wydania APK (BE-040).
 
 ## Kontekst
-- **Stan kodu:** serwisu nie ma. Kit ma porty wewnętrzne (`internalPorts` w `backend/src/kit/service.ts`, trasy `kind: 'internal'` z `internal.port` i `internal.callers` w `backend/src/kit/route.ts`). Polityka tras platformowych i log odczytów `plt`: BE-006. Tabela `files`: BE-004. Lokalny magazyn MinIO w trybie path-style z `S3_PUBLIC_ENDPOINT` dla LAN: SH-002 (`docker-compose.yml`).
+- **Stan kodu:** serwisu nie ma. Kit ma porty wewnętrzne (`internalPorts` w `backend/src/kit/service.ts`, trasy `kind: 'internal'` z `internal.port` i `internal.callers` w `backend/src/kit/route.ts`). Polityka tras platformowych i log odczytów `plt`: BE-006. Tabela `files`: BE-004. Lokalny magazyn MinIO w trybie path-style z `S3_PUBLIC_ENDPOINT` dla LAN: SH-002 (`backend/docker-compose.yml`).
 - **Dokumenty:** docs/mikroserwisy.md 5.9 (`files`: `/internal` `create`, `attach`, `download-url`, `delete`; `owner_service`; `GET /files/v1/platform/files`), 7.2 (kto woła `files`), 10.1 pkt 6 (ryzyko braku tożsamości wołającego); docs/development-szczegoly.md 3.3 `files`, 3.1.10 (klucze z prefiksem `stable_id/`), 4.2 „Presigned URL”; docs/erd.md tabela `files`, pkt 7.
 - **Makiety:** brak (serwis bez UI).
 - **Decyzje:** brak; magazyn zgodny z S3 bez wiązania z AWS (MinIO lokalnie, dostawca na klastrze według Dawida).
@@ -25,7 +25,7 @@ Jedyny serwis z dostępem do magazynu plików zgodnego z S3. Daje innym serwisom
 
 ## Zakres
 - [ ] Serwis `backend/src/services/files/` (`main.ts`, `app.ts`, `env.ts`), skrypty `start:files`, `dev:files`; kontrakt `backend/src/contracts/files.ts` w `backend/src/contracts/index.ts`.
-- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”).
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w `backend/README.md` „Porty”).
 - [ ] Adapter magazynu (`@aws-sdk/client-s3` i `@aws-sdk/s3-request-presigner`, dokładne wersje w `package.json`): env `S3_ENDPOINT`, `S3_PUBLIC_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_FORCE_PATH_STYLE`, poświadczenia z pliku (`S3_ACCESS_KEY_FILE`, `S3_SECRET_KEY_FILE`); linki podpisywane adresem publicznym.
 - [ ] Trasy wewnętrzne na porcie `files` (`callers: ['operations', 'schedule', 'billing', 'stables', 'platform']`):
   - `POST /files/v1/internal/files`: `{ownerService, ownerId, stableId | null, originalName, contentType, sizeBytes, sha256}` → wiersz `pending` z kluczem `{stableId}/{ownerService}/{fileId}` (APK: `releases/{fileId}`), presigned PUT z wymuszonym `Content-Type` i `Content-Length`, ważny 15 min;
@@ -49,7 +49,7 @@ Jedyny serwis z dostępem do magazynu plików zgodnego z S3. Daje innym serwisom
 - [ ] Klucz pliku stajni zaczyna się od `stable_id/`, a APK od `releases/` (`stable_id = NULL`).
 
 ## Testy
-- Integracyjne: Testcontainers PostgreSQL i MinIO (ten sam obraz co w `docker-compose.yml`), `app.inject` na instancji wewnętrznej (`service.internal.files.inject`) i zewnętrznej.
+- Integracyjne: Testcontainers PostgreSQL i MinIO (ten sam obraz co w `backend/docker-compose.yml`), `app.inject` na instancji wewnętrznej (`service.internal.files.inject`) i zewnętrznej.
 - Uruchomienie: `cd backend && npm run check`.
 
 ## Definicja gotowości

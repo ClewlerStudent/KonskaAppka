@@ -30,7 +30,7 @@ Statyczna strona www ma strony, których wymagają Apple i Google oraz link z SM
 - [ ] `regulamin.html` i `polityka-prywatnosci.html`: szkielet sekcji pod treść od właściciela (polityka: administrator, jakie dane, cel, odbiorcy, okres przechowywania, prawa, kontakt; regulamin: strony, usługa, konto, płatności, odpowiedzialność, kontakt) ze znacznikiem `[TREŚĆ OD WŁAŚCICIELA]` w każdej sekcji; bez wymyślonych zapisów prawnych.
 - [ ] Stopka wszystkich stron: dodać „Wsparcie” obok „Regulamin” i „Polityka prywatności”.
 - [ ] Build: nowe wejścia w `vite.www.config.ts`; env `VITE_APP_STORE_URL`, `VITE_PLAY_STORE_URL` w `frontend/.env` (puste albo `#`), znaczniki `__EQ_APP_STORE_URL__`, `__EQ_PLAY_STORE_URL__` w `Dockerfile` i `sub_filter` w `nginx/default.conf.template` (env `APP_STORE_URL`, `PLAY_STORE_URL`); README frontendu (lista env).
-- [ ] `nginx`: `/app` serwuje `app.html` (już działa przez `try_files $uri $uri.html`), test na obrazie w README.
+- [ ] `nginx`: `/app` serwuje `app.html` (już działa przez `try_files $uri $uri.html`), test na obrazie w `frontend/README.md`.
 
 ## Poza zakresem
 - Treść prawna (dostarcza Dawid); usuwanie konta przez formularz na www (wymagałoby API i JS); panel `/account` (WEB-007); strona główna (zrobiona).
@@ -47,7 +47,7 @@ Statyczna strona www ma strony, których wymagają Apple i Google oraz link z SM
 - `cd frontend && npm run check && npm run build && npm run e2e`.
 
 ## Definicja gotowości
-- `npm run check`, `npm run build`, `npm run e2e` we `frontend/` zielone; README (env obrazu) zaktualizowane; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check`, `npm run build`, `npm run e2e` we `frontend/` zielone; `frontend/README.md` (env obrazu) zaktualizowane; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Kolory tylko ze zmiennych z `src/theme` (test `no-color-literals` skanuje też HTML i CSS www).

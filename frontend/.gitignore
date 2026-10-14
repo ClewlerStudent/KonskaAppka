@@ -1,10 +1,23 @@
+# Sekrety: .env jest w repo celowo (adresy dev bez sekretów); nadpisania lokalne poza gitem.
+.env.local
+.env.*.local
+.local/
+*.pem
+*.key
+*.p8
+*.p12
+
+# Skrzynki kodów dev (E2E: e2e/.tmp/inbox.jsonl).
+e2e/.tmp/
+inbox.jsonl
+outbox.jsonl
+
+# Zależności, build, wyniki testów.
 node_modules/
 dist/
 coverage/
 test-results/
 playwright-report/
 blob-report/
-e2e/.tmp/
-.env.local
-.env.*.local
 *.log
+.DS_Store

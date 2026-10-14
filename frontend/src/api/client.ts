@@ -2,7 +2,7 @@ import createClient from 'openapi-fetch';
 import type { paths } from './auth';
 
 // Typy tras z backend/openapi/auth.json (npm run gen:api); plik auth.d.ts jest commitowany,
-// żeby frontend dało się zbudować bez katalogu backend/.
+// żeby frontend dało się zbudować bez repo backend obok.
 export type AuthPaths = paths;
 export type { components as AuthComponents } from './auth';
 

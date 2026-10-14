@@ -28,7 +28,7 @@ trello: https://trello.com/c/hZjjvuTf
 - [ ] Limity: najwyżej 20 członkostw, 100 koni w `h` na stajnię (nadmiar pominięty, log `alert`); test budżetu 4 KB (klient z 60 końmi, konto w 20 stajniach).
 - [ ] Konto techniczne: zawsze dokładnie jedno `m`, nigdy `biz` ani `plt`. Konto zespołu (jest wiersz `platform_roles`): `isClientAllowed` odrzuca `mobile`, `web`, `tablet` (`403 wrong_client`).
 - [ ] `routes/session.ts`: kolejność z 3.7: klucz i `exp`; konto istnieje i nieusunięte (`401 session_revoked`); konto techniczne z aktywnym członkostwem (inaczej `403 access_revoked`, kod do `ERRORS`); `token_version = tv` (`401 session_revoked`); zgodność z aplikacją (`403 wrong_client`); claimy od nowa (`auth_time` z `sst`). Ta sama kontrola `access_revoked` przy logowaniu.
-- [ ] Drugi klucz (DEC-05): `signer.ts` przyjmuje klucz główny i opcjonalny `SIGNING_KEY_NEXT_FILE`; JWKS publikuje oba, podpisuje główny; `verifyRefreshToken` przyjmuje oba. Env w `env.ts`, opis rotacji w README (dodać NEXT → po dobie zamienić miejscami → po 30 dniach usunąć stary; awaryjnie: usunąć stary od razu).
+- [ ] Drugi klucz (DEC-05): `signer.ts` przyjmuje klucz główny i opcjonalny `SIGNING_KEY_NEXT_FILE`; JWKS publikuje oba, podpisuje główny; `verifyRefreshToken` przyjmuje oba. Env w `env.ts`, opis rotacji w `backend/README.md` (dodać NEXT → po dobie zamienić miejscami → po 30 dniach usunąć stary; awaryjnie: usunąć stary od razu).
 - [ ] `main.ts` i `env.ts`: `DATABASE_URL`, `AUTH_STORE=postgres|memory` (`memory` tylko poza prod, żeby E2E frontendu działały bez bazy do czasu SH-003); `/readyz` z `checkMigrations`.
 - [ ] `scripts/dev-token.ts` (BE-010): przy dostępnej bazie claimy liczone przez `pg-access`, nie ze wzorca.
 
@@ -47,7 +47,7 @@ trello: https://trello.com/c/hZjjvuTf
 - Integracyjne na harnessie (`lib/testing`): repozytoria, claimy względem wzorca, kolejność sprawdzeń przy odświeżeniu, granica dzierżawy (fałszywy zegar), limity i budżet, dwa klucze. Istniejące `app.test.ts` przechodzą na obu magazynach. `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; README (env `auth`, rotacja klucza); E2E frontendu (`cd frontend && npm run e2e`) dalej zielone; status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; `backend/README.md` (env `auth`, rotacja klucza); E2E frontendu (`cd frontend && npm run e2e`) dalej zielone; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Bez KMS i bez tabeli `signing_keys` (DEC-05), mimo opisu w mikroserwisy.md 3.5.

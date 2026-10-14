@@ -20,7 +20,7 @@ trello: https://trello.com/c/kQ4ZKU00
 - Stan kodu: trasy otwarte `auth` w `backend/src/contracts/auth.ts` (wzór: `signUp`, `confirmSignUp` z limitami po IP i loginie), lista tras otwartych `backend/open-routes.txt` (test w `contracts.test.ts`), równy czas odpowiedzi `atLeast` (`backend/src/kit/timing.ts`, `config.credentialCheckMinMs`), wzór trasy `routes/sign-up.ts`, kanał kodu `otpTarget()` w `identity/identity-provider.ts`. Metody dostawcy `requestPasswordReset`, `setPassword`, `unlockUser` w interfejsie i w FAKE IdP: BE-012. `users.token_version`: BE-013. Panel ma zaślepkę `/forgot-password` (WEB-002).
 - Dokumenty: `docs/mikroserwisy.md` 3.1 (wiersz „Reset hasła”: `PasswordReset` z `returnCode`, `SetPassword` z `verificationCode`, `token_version + 1`; reset nie zdradza konta), 3.8 (reset podbija `token_version`), 5.2 „Kody” (`UnlockUser`, bo sam reset nie odblokowuje [S]; limity po IP i loginie), 10.1 pkt 12 (świadome ryzyko: reset tym samym kanałem), 10.2 pkt 24; `docs/development-szczegoly.md` 4.2 (reset nie zdradza konta, odblokowuje).
 - Decyzje: DEC-08 (kod resetu 8 cyfr, 15 min; hasło min. 10 znaków).
-- Dane demo: Ola (SMS), Marta (e-mail); konto zablokowane po 5 złych kodach MFA (README „Znane ograniczenia”).
+- Dane demo: Ola (SMS), Marta (e-mail); konto zablokowane po 5 złych kodach MFA (`backend/README.md` „Znane ograniczenia”).
 
 ## Zakres
 - [ ] Kontrakty w `contracts/auth.ts`: `POST /auth/v1/password/forgot` (`{ login, clientId }`, 202 bez treści) i `POST /auth/v1/password/reset` (`{ login, code: Code8Schema, newPassword }`, 204); `kind: 'open'`, `reason`, limity `ip` i `login` (wzór: `signUp`); błędy `validation_failed`, `invalid_code`, `weak_password`, `origin_not_allowed`, `rate_limited`. Dopisać obie trasy do `backend/open-routes.txt`; `npm run openapi`.
@@ -43,7 +43,7 @@ trello: https://trello.com/c/kQ4ZKU00
 - Rozszerzenie `backend/src/services/auth/app.test.ts` (FAKE IdP): powyższe scenariusze, równy czas (fałszywy `sleep`), limity; test kontraktowy na ZITADEL (BE-012) warunkowo. `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; `cd frontend && npm run gen:api` po zmianie `openapi/auth.json`; README (usunąć „reset hasła jeszcze nie działa”); status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; `cd frontend && npm run gen:api` po zmianie `openapi/auth.json`; `backend/README.md` (usunąć „reset hasła jeszcze nie działa”); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Odpowiedź `forgot` celowo bez kanału i zamaskowanego adresu: kod idzie kanałem MFA, który może różnić się od wpisanego loginu, a podanie go zdradzałoby konto. Ekrany pokazują ogólny tekst (uzgodnij z WEB-002 i MOB-004).

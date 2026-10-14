@@ -3,23 +3,23 @@
 Pytania, które musi rozstrzygnąć Dawid. Zadania w kolejce odwołują się do nich polem `decisions` w nagłówku.
 
 Zasady dla agentów:
-- **Status `otwarta`:** pracujesz według **rekomendacji** i wiersza „Do czasu decyzji”. Kod, który zależy od wyboru, trzymasz za interfejsem albo w konfiguracji, żeby zmiana decyzji nie wymagała przepisywania. W PR wypisujesz, co zrobiłeś „na rekomendacji”.
+- **Status `otwarta`:** pracujesz według **rekomendacji** i wiersza „Do czasu decyzji”. Kod, który zależy od wyboru, trzymasz za interfejsem albo w konfiguracji, żeby zmiana decyzji nie wymagała przepisywania. W MR wypisujesz, co zrobiłeś „na rekomendacji”.
 - **Pole „Blokuje”:** zadania, których nie zaczynasz przed rozstrzygnięciem (`next` ich nie pokazuje, `claim` odmawia bez `--force`).
 - **Rozstrzygnięcie:** wpisuje je właściciel albo agent na jego wyraźne polecenie: status `rozstrzygnięta`, data, wybrana opcja i ewentualne zmiany w zadaniach. Potem `node tasks/queue.mjs index`.
 - Nowa decyzja: kolejny numer, ten sam układ punktów. Linia „Zadania” jest generowana przez `node tasks/queue.mjs index` z nagłówków zadań, nie edytuj jej ręcznie.
-- Decyzje użytkownika z 13–14.10 (zwykły npm, jeden obraz backendu, ZITADEL, klucz jako sekret, `platform_roles`, infrastruktura po stronie Dawida) są już przyjęte i nie mają tu numerów. Spis: [README.md](README.md#decyzje-już-podjęte).
+- Decyzje użytkownika z 13–14.10 (zwykły npm, jeden obraz backendu, ZITADEL, klucz jako sekret, `platform_roles`, infrastruktura po stronie Dawida, kod na GitLabie w osobnych repo grupy `equinor-group`) są już przyjęte i nie mają tu numerów. Spis: [README.md](README.md#decyzje-już-podjęte).
 
 ## DEC-01 · Kolejki zdarzeń i kodów: SNS/SQS czy self-hosted
 - **Status:** otwarta
 - **Pytanie:** Na czym działają zdarzenia (publish/subscribe), kolejki FIFO `sms` i `email` z DLQ oraz kolejki kodów z retencją do 5 min?
-- **Kontekst:** docs opisują AWS SNS + SQS (lokalnie LocalStack). Decyzja „nie wiązać się z chmurą” i tani PoC na własnym klastrze przemawiają za brokerem self-hosted. Od wyboru zależą adapter `lib/messaging`, manifest kolejek dla Dawida i usługa w `docker-compose.yml`.
+- **Kontekst:** docs opisują AWS SNS + SQS (lokalnie LocalStack). Decyzja „nie wiązać się z chmurą” i tani PoC na własnym klastrze przemawiają za brokerem self-hosted. Od wyboru zależą adapter `lib/messaging`, manifest kolejek dla Dawida i usługa w `backend/docker-compose.yml`.
 - **Opcje:**
   - A: AWS SNS + SQS (lokalnie LocalStack), jak w docs.
   - B: RabbitMQ na klastrze (quorum queues, DLX, TTL kolejki kodów, single active consumer dla FIFO).
   - C: NATS JetStream na klastrze.
   - D: kolejka w PostgreSQL.
 - **Rekomendacja:** B za interfejsem `lib/messaging` z adapterem w pamięci do testów.
-- **Do czasu decyzji:** zadania ruszają na adapterze w pamięci (BE-008); adapter brokera powstaje jako wymienny moduł, a `docker-compose.yml` dostaje RabbitMQ w profilu `infra`. Żadnych typów ani nazw specyficznych dla brokera poza adapterem.
+- **Do czasu decyzji:** zadania ruszają na adapterze w pamięci (BE-008); adapter brokera powstaje jako wymienny moduł, a `backend/docker-compose.yml` dostaje RabbitMQ w profilu `infra`. Żadnych typów ani nazw specyficznych dla brokera poza adapterem.
 - **Blokuje:** brak
 - **Zadania:** [BE-008](backend/BE-008-messaging.md), [SH-001](shared/SH-001-docs-decyzje.md), [SH-002](shared/SH-002-local-env-2.md), [SH-003](shared/SH-003-ci.md), [BE-015](backend/BE-015-auth-code-queues.md), [BE-016](backend/BE-016-svc-sms.md), [BE-017](backend/BE-017-svc-email.md), [BE-035](backend/BE-035-cron-escalation.md), [BE-036](backend/BE-036-svc-notifications.md), [BE-046](backend/BE-046-horse-left.md), [BE-058](backend/BE-058-observability-k6.md), [BE-060](backend/BE-060-platform-manifests.md)
 - **Odwołania:** docs/mikroserwisy.md 1.4, 5.2 „Kody”, 5.8; docs/development-szczegoly.md 3.1.8.
@@ -28,17 +28,17 @@ Zasady dla agentów:
 
 ## DEC-02 · Położenie kodu apki mobilnej i tabletu
 - **Status:** otwarta
-- **Pytanie:** Gdzie leżą apka mobilna i apka tabletu i jak dostają typy API oraz tokeny palety bez importów z `backend/` i `frontend/`?
-- **Kontekst:** README ustala dwa niezależne pakiety npm (`backend/`, `frontend/`) bez workspaces. Apka i tablet to Expo/React Native; tablet ma moduł kiosku w Kotlinie (Device Owner).
+- **Pytanie:** W którym repo grupy `equinor-group` leżą apka mobilna i apka tabletu i jak dostają typy API oraz tokeny palety bez importów z `backend` i `frontend`?
+- **Kontekst:** kod jest w osobnych repo GitLab (`backend`, `frontend`, `docs`), każde to zwykły pakiet npm bez workspaces, klonowane obok siebie w jednym workspace (tasks/README.md „Repozytoria i ścieżki”). Apka i tablet to Expo/React Native; tablet ma moduł kiosku w Kotlinie (Device Owner) i `tablet/tools/provision-tablet`. Obie apki mają natywne buildy (Android, iOS) i własne wydania (sklepy, APK).
 - **Opcje:**
-  - A: katalogi `mobile/` i `tablet/` w tym repo, osobne pakiety npm jak `frontend/`.
-  - B: osobne repozytoria.
-  - C: jeden pakiet Expo z dwoma wariantami.
-- **Rekomendacja:** A; typy z `backend/openapi/*.json` przez openapi-typescript (`gen:api`), tokeny przez `gen:theme` z tabel docs/paleta.md, z testem zgodności w CI.
-- **Do czasu decyzji:** MOB-001 i TAB-001 zakładają `mobile/` i `tablet/` w tym repo; nic nie importuje z innych pakietów, więc przeniesienie do osobnego repo to zmiana ścieżek w `gen:api` i `gen:theme`.
+  - A: osobne repo `mobile` i `tablet` w `equinor-group`, każde jako osobny pakiet npm jak `frontend`.
+  - B: jedno repo `apps` z dwoma pakietami `mobile/` i `tablet/` (bez workspaces).
+  - C: katalogi `mobile/` i `tablet/` w repo `frontend`.
+- **Rekomendacja:** A, zgodnie z zasadą „jedno repo, jeden pakiet npm”: osobne CI (emulator, macOS) i wydania bez wpływu na panel; typy z `../backend/openapi/*.json` przez openapi-typescript (`gen:api`), tokeny przez `gen:theme` z tabel `../docs/paleta.md`, z testem zgodności w CI.
+- **Do czasu decyzji:** MOB-001 i TAB-001 zakładają repo `mobile` i `tablet` (w workspace `mobile/` i `tablet/` obok `backend/`, `frontend/` i `docs/`); nic nie importuje z innych pakietów, więc przeniesienie do innego repo (B, C) to zmiana ścieżek w `gen:api` i `gen:theme`.
 - **Blokuje:** brak
 - **Zadania:** [MOB-001](mobile/MOB-001-mob-skeleton.md), [SH-001](shared/SH-001-docs-decyzje.md), [SH-003](shared/SH-003-ci.md), [SH-004](shared/SH-004-gen-api-theme.md), [TAB-001](tablet/TAB-001-tab-skeleton.md)
-- **Odwołania:** README.md „Kod”; docs/development-szczegoly.md 3.1.1, 3.1.12.
+- **Odwołania:** docs/README.md „Repozytoria”; tasks/README.md „Repozytoria i ścieżki”; docs/development-szczegoly.md 3.1.1, 3.1.12.
 - **Trello:** https://trello.com/c/GmlDQpAh
 - **Rozstrzygnięcie:** —
 
@@ -122,7 +122,7 @@ Zasady dla agentów:
 ## DEC-08 · ZITADEL: uwierzytelnienie auth i wartości polityk
 - **Status:** otwarta
 - **Pytanie:** Jak `auth` uwierzytelnia się w ZITADEL i jakie wartości polityk przyjmujemy?
-- **Kontekst:** dziś `docker-compose.yml` używa PAT. Ustawienia polityk ZITADEL da się zmienić w działającej instalacji, więc wartości mogą ruszyć z propozycjami. Przed produkcją: licencja AGPL-3.0 ZITADEL u prawnika.
+- **Kontekst:** dziś `backend/docker-compose.yml` używa PAT. Ustawienia polityk ZITADEL da się zmienić w działającej instalacji, więc wartości mogą ruszyć z propozycjami. Przed produkcją: licencja AGPL-3.0 ZITADEL u prawnika.
 - **Opcje:**
   - A: klucz prywatny konta serwisowego (private key JWT) wszędzie.
   - B: PAT (jak dziś w compose).
@@ -131,7 +131,7 @@ Zasady dla agentów:
 - **Do czasu decyzji:** BE-012 obsługuje oba sposoby uwierzytelnienia (PAT z pliku, klucz JSON konta serwisowego); wartości polityk w skrypcie `zitadel:configure`, nie w kodzie.
 - **Blokuje:** brak
 - **Zadania:** [BE-012](backend/BE-012-zitadel-adapter.md), [BE-018](backend/BE-018-auth-password-reset.md), [BE-020](backend/BE-020-auth-profile-changes.md), [WEB-002](web/WEB-002-web-reset-password.md), [BE-056](backend/BE-056-opctl.md)
-- **Odwołania:** docs/mikroserwisy.md 5.2, 5.10, 10.2 pkt 17; `docker-compose.yml` (usługa `zitadel`).
+- **Odwołania:** docs/mikroserwisy.md 5.2, 5.10, 10.2 pkt 17; `backend/docker-compose.yml` (usługa `zitadel`).
 - **Trello:** https://trello.com/c/I7gAd3vT
 - **Rozstrzygnięcie:** —
 

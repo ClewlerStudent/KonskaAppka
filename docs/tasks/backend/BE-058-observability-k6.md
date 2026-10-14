@@ -46,7 +46,7 @@ Przed pilotażem wiemy, jak system zachowuje się pod obciążeniem tabletów i 
 - Obciążenie: `docker run --rm -v $PWD/backend/load:/scripts grafana/k6:<wersja> run /scripts/steady.js` na środowisku z seedem syntetycznym.
 
 ## Definicja gotowości
-- `npm run check` i `npm run build` w `backend/` zielone; README opisuje uruchomienie k6 i zmienne OTEL.
+- `npm run check` i `npm run build` w `backend/` zielone; `backend/README.md` opisuje uruchomienie k6 i zmienne OTEL.
 - Status w tym pliku i w `tasks/QUEUE.md` zaktualizowany.
 
 ## Uwagi dla wykonawcy

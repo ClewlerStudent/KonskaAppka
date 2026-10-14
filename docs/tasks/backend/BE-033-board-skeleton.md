@@ -25,7 +25,7 @@ Powstaje serwis `board`: tylko odczyt, składa ekrany z tabel innych serwisów p
 
 ## Zakres
 - [ ] Serwis `backend/src/services/board/{main,app,env,deps}.ts`, skrypty `dev:board`, `serve:board`, `start:board`; kontrakty widoków admina (`boxes-overview`, `horses-overview`, `setup-checklist`) dopisane do `contracts/board.ts` z BE-064 (tam są już trasy tabletu, wyświetlacza i klienta z przykładami) → `openapi/board.json`; port dev (propozycja) 4040; połączenie rolą tylko do odczytu.
-- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `board` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:board']`, env jak w `backend/.env.example`, profil `infra`), trasa `/board/*` w `tools/local/Caddyfile` już jest (SH-002).
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w `backend/README.md` „Porty”); usługa `board` w `backend/docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:board']`, env jak w `backend/.env.example`, profil `infra`), trasa `/board/*` w `backend/tools/local/Caddyfile` już jest (SH-002).
 - [ ] Wspólny mechanizm odpowiedzi: treść → `ETag` (skrót SHA-256 kanonicznego JSON), `If-None-Match` → 304, nagłówek `Date` z zegara serwisu (czas nie w treści), `Cache-Control: no-cache`.
 - [ ] `GET /board/v1/stables/{stableId}/boxes-overview` (admin): `buildingCount`, liczniki, hale (`id`, `name`, adres, `boxRange`, liczby), boksy (DTO boksu z BE-031 + `horse: { id, name } | null`), konie bez boksu; sortowanie hal po `sort_order`, boksów naturalnie (2 przed 10). Pola na flagi i „Boks gotowy” jako opcjonalne (wypełnią BE-038 i BE-045).
 - [ ] `GET …/horses-overview` (obsługa i admin; obsługa tylko w stajni z `m`): konie aktywne z boksem i halą, konie bez boksu na końcu; bez danych klientów (te panel i apka biorą z `auth …/horse-clients`).
@@ -45,7 +45,7 @@ Powstaje serwis `board`: tylko odczyt, składa ekrany z tabel innych serwisów p
 - `backend/src/services/board/*.test.ts` na harnessie z seedem: treść widoków (migawki), ETag i 304, sortowanie naturalne, uprawnienia; test, że serwis łączy się rolą bez zapisu (po BE-003). `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; README (uruchomienie `board`, porty); status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` (z `openapi:check`) i `npm run build` zielone; `backend/README.md` (uruchomienie `board`, porty); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - `board` nie woła `auth` ani innych serwisów i nie ma tabel; stan liczy z bazy przy każdym zapytaniu (bez cache tablic).

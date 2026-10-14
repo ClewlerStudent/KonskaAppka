@@ -44,7 +44,7 @@ Jedno źródło prawdy o tym, kto pisze do której tabeli i kto ją czyta (`owne
 - `backend/src/lib/db/grants.test.ts` (harness, `SET ROLE`), test aktualności `db/grants.sql`, test reguły lintu na fixture. `cd backend && npm test && npm run lint`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` i `npm run build` zielone; README: jak nałożyć granty lokalnie; status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` i `npm run build` zielone; `backend/README.md`: jak nałożyć granty lokalnie; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Jeśli BE-004 jest już scalone, obejmij wszystkie tabele; jeśli nie, BE-004 dopisze wpisy, a test „każda tabela ma wpis” to wymusi.

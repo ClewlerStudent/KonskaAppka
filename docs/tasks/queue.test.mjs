@@ -18,6 +18,7 @@ import {
   manualCriteria,
   nearestTasks,
   parseDecisions,
+  slugAnchor,
   parseFrontMatter,
   readyTasks,
   setFrontMatterFields,
@@ -95,6 +96,11 @@ test('parseFrontMatter: skalary, cudzysłowy, listy i puste wartości', () => {
     owner: null,
     quote: "it's",
   });
+});
+
+test('slugAnchor: kotwice jak w GitLabie', () => {
+  assert.equal(slugAnchor('DEC-02 · Położenie kodu apki mobilnej i tabletu'), 'dec-02-położenie-kodu-apki-mobilnej-i-tabletu');
+  assert.equal(slugAnchor('DEC-01 · Kolejki: SNS/SQS czy self-hosted'), 'dec-01-kolejki-snssqs-czy-self-hosted');
 });
 
 test('parseFrontMatter: błędy formatu', () => {

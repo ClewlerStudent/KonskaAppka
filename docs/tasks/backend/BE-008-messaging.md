@@ -17,7 +17,7 @@ trello: https://trello.com/c/X7stXH1Q
 Wspólna warstwa komunikacji asynchronicznej: zdarzenia domenowe (publish/subscribe z kolejką na konsumenta i DLQ), kolejki FIFO `sms` i `email` dla powiadomień i osobne kolejki kodów (krótka retencja, bez DLQ). Serwisy i crony używają jednego API, a broker da się wymienić (DEC-01).
 
 ## Kontekst
-- Stan kodu: BE-005 daje `unitOfWork` z buforem zdarzeń i interfejsem `EventPublisher` (`publishAfterCommit`, `publishBeforeCommit`). `auth` wysyła kody przez `CodeSender` (`backend/src/services/auth/codes/code-sender.ts`, dziś skrzynka dev). SH-002 dodaje broker do `docker-compose.yml`.
+- Stan kodu: BE-005 daje `unitOfWork` z buforem zdarzeń i interfejsem `EventPublisher` (`publishAfterCommit`, `publishBeforeCommit`). `auth` wysyła kody przez `CodeSender` (`backend/src/services/auth/codes/code-sender.ts`, dziś skrzynka dev). SH-002 dodaje broker do `backend/docker-compose.yml`.
 - Dokumenty: `docs/development-szczegoly.md` 3.1.8 (publikacja po COMMIT z ponowieniami i metryką, konsument z DLQ, long polling, idempotencja bez tabeli `inbox`, nieznany typ do DLQ, narzędzie DLQ), 3.1.5 „Zdarzenia” (koperta, katalog z wersjami, konsument wersji N czyta N-1, manifest); `docs/mikroserwisy.md` 7.3 (katalog: `invitation.created/accepted/expired`, `user.deleted`, `member.removed`, `business_admin.changed`, `stable.created`, `horse.left`, `subscription.status_changed`, `flag.created`, `flag.escalated`, `health.due`, `invoice.issued`, `payment.failed`, `payment.overdue`, `sms.result`, `email.result`), 5.8 (FIFO: grupa = `notifications.id`, deduplikacja = `id` + `attempts`), 5.2 „Kody” (kolejki kodów: retencja ≤ 5 min, bez DLQ, grupa i deduplikacja z UUID od `auth`), 1.4 i 1.5.
 - Decyzje: DEC-01 rekomendacja B: RabbitMQ za interfejsem `lib/messaging`, adapter w pamięci do testów; zadania ruszają na adapterze w pamięci. Jeśli Dawid wybierze inaczej, zmienia się tylko adapter.
 - Dane demo: nie dotyczy.
@@ -48,7 +48,7 @@ Wspólna warstwa komunikacji asynchronicznej: zdarzenia domenowe (publish/subscr
 - Wspólny zestaw testów kontraktowych uruchamiany na adapterze w pamięci zawsze, a na brokerze, gdy ustawiony `MESSAGING_TEST_URL` (Testcontainers w CI, SH-003). `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` i `npm run build` zielone; README: jak uruchomić z brokerem z compose, zmienne `MESSAGING*`; status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` i `npm run build` zielone; `backend/README.md`: jak uruchomić z brokerem z compose, zmienne `MESSAGING*`; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Docs mówią „SNS + SQS” i LocalStack; to opis z czasów przed DEC-01. Nazwy w kodzie: neutralne (`topic`, `queue`), bez AWS.

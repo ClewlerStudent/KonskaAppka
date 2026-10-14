@@ -18,7 +18,7 @@ trello: https://trello.com/c/QLaOgrhJ
 Przed wejściem do stajni pilotażowej zespół ma krótkie, sprawdzone instrukcje na typowe awarie i operacje (zgubiony tablet, awaria ZITADEL, pełna DLQ, rotacja klucza, cofnięcie wydania APK) oraz jedną listę kryteriów gotowości uzgodnioną z Dawidem. Instrukcje opisują stan kodu, a nie plany.
 
 ## Kontekst
-- **Stan kodu (na etapie 9):** skrypty i narzędzia z wcześniejszych zadań: `backend` `npm run events -- dlq list|show|redrive` (BE-008), `npm run cron <nazwa>` (BE-009), `opctl` (BE-056: login, `cron run`, wydania APK, role we dwie osoby), trasy `/platform/*` (BE-026, BE-040, BE-055), „Wyloguj wszystkie tablety” i blokada kont technicznych w panelu (BE-023, WEB-005), klucz podpisu z `SIGNING_KEY_FILE` i `SIGNING_KEY_NEXT_FILE` (DEC-05 B, BE-013), `tools/provision-tablet` (TAB-006), diagnostyka i eksport z tabletu (TAB-020), `tools/display-kiosk` (WEB-019), obserwowalność i linia bazowa k6 (BE-058), manifesty dla platformy (BE-060), raport scenariuszy (SH-005).
+- **Stan kodu (na etapie 9):** skrypty i narzędzia z wcześniejszych zadań: `backend` `npm run events -- dlq list|show|redrive` (BE-008), `npm run cron <nazwa>` (BE-009), `opctl` (BE-056: login, `cron run`, wydania APK, role we dwie osoby), trasy `/platform/*` (BE-026, BE-040, BE-055), „Wyloguj wszystkie tablety” i blokada kont technicznych w panelu (BE-023, WEB-005), klucz podpisu z `SIGNING_KEY_FILE` i `SIGNING_KEY_NEXT_FILE` (DEC-05 B, BE-013), `tablet/tools/provision-tablet` (TAB-006), diagnostyka i eksport z tabletu (TAB-020), `frontend/tools/display-kiosk` (WEB-019), obserwowalność i linia bazowa k6 (BE-058), manifesty dla platformy (BE-060), raport scenariuszy (SH-005).
 - **Dokumenty:** `docs/development-szczegoly.md` 4.5 „Kryteria gotowości do wdrożenia” (CI zielone, test obciążenia z linią bazową, A-01…A-25 automatycznie i na stanowisku, kryteria tabletu, wyświetlacza, kodów SMS i e-mail, eskalacja przy martwym tablecie, zmiana czasu, przećwiczone runbooki: wymiana i provisioning tabletu, odzyskanie zablokowanego, zgubiony tablet, rotacja awaryjna klucza, zmiana Wi-Fi, ponowne logowanie tabletu i TV, awaria ZITADEL albo kolejki kodów, odtworzenie ZITADEL z backupu, cofnięcie wydania APK, redrive z DLQ, odtworzenie bazy; alerty: niepusta DLQ, nieudany cron, opóźniona eskalacja, 5xx w `board`; zatwierdzona para model + firmware i profil `t-*`), `docs/mikroserwisy.md` 3.5 (rotacja awaryjna: wszyscy logują się ponownie), 3.7, 3.8 (odebranie dostępu do 5 min; zgubiony tablet), 4.1–4.5 (admin globalny, step-up, role we dwie osoby), 5.10 (ZITADEL: backup, masterkey, test odtworzenia, aktualizacje), 10.1 (ryzyka).
 - **Decyzje:** DEC-05 B (rotacja przez dwa klucze z sekretów), DEC-10 A (`[OPS]`, `opctl`, role we dwie osoby). Infrastruktura (klaster, bazy, backupy, monitoring) jest po stronie Dawida: runbooki infrastrukturalne piszemy jako „co robi aplikacja i co sprawdzić”, a kroki platformy zostawiamy Dawidowi z odnośnikiem.
 - **Dane demo:** środowisko testowe z seedem (ćwiczenie runbooków bez danych produkcyjnych).
@@ -37,11 +37,11 @@ Przed wejściem do stajni pilotażowej zespół ma krótkie, sprawdzone instrukc
   - `dlq-redrive.md` (`npm run events -- dlq …`, kiedy wolno ponowić, idempotencja);
   - `cron-reczny-przebieg.md` (`npm run cron` z BE-009, bezpieczeństwo powtórzenia, blokada advisory; `opctl cron run` dopiero po BE-056 i DEC-10);
   - `admin-globalny-wejscie.md` (`[OPS]`, powód wejścia, step-up, role we dwie osoby);
-  - `wyswietlacz-pi-odtworzenie.md` (obraz z `tools/display-kiosk`, zapamiętany widok);
+  - `wyswietlacz-pi-odtworzenie.md` (obraz z `frontend/tools/display-kiosk`, zapamiętany widok);
   - `baza-odtworzenie.md` (po stronie Dawida; po stronie aplikacji: migracje, `/readyz`, sprawdzenie spójności z ZITADEL).
 - [ ] `docs/gotowosc-pilotazu.md`: lista kryteriów z 4.5 jako tabela (kryterium, jak sprawdzić: komenda, raport albo test T-/A-, właściciel, status, data), z linkami do raportów: CI, k6 (BE-058), SH-005, bramka i stanowisko tabletu (TAB-007, TAB-021), runbooki z datą przećwiczenia; sekcja „Do uzgodnienia z Dawidem” (alerty i ich progi, RPO/RTO baz, kto ma dyżur).
 - [ ] Ćwiczenie na środowisku testowym co najmniej trzech runbooków (zgubiony tablet, redrive z DLQ, rotacja awaryjna klucza) z zapisem wyniku i poprawkami w treści.
-- [ ] Link do `docs/runbooki/` i `docs/gotowosc-pilotazu.md` w README.md.
+- [ ] Link do `docs/runbooki/` i `docs/gotowosc-pilotazu.md` w `docs/README.md`.
 
 ## Poza zakresem
 - Konfiguracja alertów, backupów i klastra (Dawid); same testy obciążenia i obserwowalność (BE-058).
@@ -57,7 +57,7 @@ Przed wejściem do stajni pilotażowej zespół ma krótkie, sprawdzone instrukc
 - Ćwiczenia runbooków na środowisku testowym; brak testów automatycznych.
 
 ## Definicja gotowości
-- Pliki w `docs/`, linki w README działają, ćwiczenia zapisane; status w tym pliku i w `tasks/QUEUE.md`.
+- Pliki w `docs/`, linki w `docs/README.md` działają, ćwiczenia zapisane; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Zależności obejmują zadania, które dają komendy i ekrany opisywane w runbookach (SH-005, BE-055, BE-060, TAB-006, TAB-020, TAB-021, WEB-019); BE-056 (`opctl`) nie jest zależnością, bo czeka na DEC-10: runbooki z `opctl` uzupełnia BE-056.

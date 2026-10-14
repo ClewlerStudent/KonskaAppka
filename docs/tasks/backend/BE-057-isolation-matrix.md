@@ -45,7 +45,7 @@ Przed stajnią pilotażową mamy dowód, że dane stajni i firm się nie mieszaj
 - Uruchomienie: `cd backend && npm run check`; osobno `npx vitest run src/contracts/isolation.test.ts` (dłuższy przebieg może iść w nocnym CI, SH-003).
 
 ## Definicja gotowości
-- `npm run check` w `backend/` zielone, czas przebiegu macierzy opisany w README (gdy długi: osobny skrypt `npm run test:isolation`).
+- `npm run check` w `backend/` zielone, czas przebiegu macierzy opisany w `backend/README.md` (gdy długi: osobny skrypt `npm run test:isolation`).
 - Status w tym pliku i w `tasks/QUEUE.md` zaktualizowany.
 
 ## Uwagi dla wykonawcy

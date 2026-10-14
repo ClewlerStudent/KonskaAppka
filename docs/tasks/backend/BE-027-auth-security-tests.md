@@ -37,7 +37,7 @@ Jeden zestaw testów, który potwierdza warunek gotowości etapu 1: tokeny i log
 ## Kryteria akceptacji
 - [ ] Wszystkie testy wyżej zielone na FAKE IdP; zestaw logowania uruchamia się także na ZITADEL, gdy ustawiony `ZITADEL_TEST_URL` (BE-012).
 - [ ] Dodanie trasy `auth` z `{stableId}` bez przypadku izolacji zatrzymuje `npm test`.
-- [ ] Warunek etapu 1 (3.6) spisany jako checklista w README albo w tym pliku z odnośnikami do testów i A-22.
+- [ ] Warunek etapu 1 (3.6) spisany jako checklista w `backend/README.md` albo w tym pliku z odnośnikami do testów i A-22.
 
 ## Testy
 - Zestaw w `backend/src/services/auth/security/` na harnessie bazy z seedem; `cd backend && npm test`; opcjonalnie `ZITADEL_TEST_URL=… npm test`.
@@ -48,4 +48,4 @@ Jeden zestaw testów, który potwierdza warunek gotowości etapu 1: tokeny i log
 ## Uwagi dla wykonawcy
 - Zmiana względem listy: zależności rozszerzone o BE-011 (seed do claimów i izolacji), BE-019, BE-020, BE-021 i BE-025, bo testy obejmują ich trasy.
 - Ponownego użycia refresh tokenu nie wykrywamy (W4): test dokumentuje, że skopiowany token działa do `exp` albo do podbicia `token_version`.
-- Błąd znaleziony przez test naprawiaj w zadaniu, z którego pochodzi trasa, albo tutaj z opisem w PR; nie wyłączaj testu.
+- Błąd znaleziony przez test naprawiaj w zadaniu, z którego pochodzi trasa, albo tutaj z opisem w MR; nie wyłączaj testu.

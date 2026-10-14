@@ -24,7 +24,7 @@ Jeden zestaw testów Playwright przechodzi przez panel i widok telewizora na pe�
 - **Dane demo:** pełny seed (Pod Lipami, Brzozowa, Olszynka do izolacji), konta demo z hasłem `DEV_DEMO_PASSWORD`, kody z dev-inbox albo Mailpit/fake-sms (`GET /messages?to=`).
 
 ## Zakres
-- [ ] `frontend/playwright.full.config.ts` i skrypt `npm run e2e:full`: `globalSetup` stawia stos (`docker compose --profile infra up -d` z SH-002, `npm --prefix ../backend run setup`, seed w trybie stałej daty), `webServer` dla serwisów `auth`, `stables`, `operations`, `board`, `notifications`, `files`, `platform`, `schedule` (`serve:<serwis>`) i panelu (`billing` dokłada WEB-030 przez zmienną `E2E_SERVICES`); projekty `chromium`, `firefox`, `webkit` (1440) oraz `tv-chromium` (1920×1080); `globalTeardown` z `reset`.
+- [ ] `frontend/playwright.full.config.ts` i skrypt `npm run e2e:full`: `globalSetup` stawia stos (`docker compose -f ../backend/docker-compose.yml --profile infra up -d` z SH-002, `npm --prefix ../backend run setup`, seed w trybie stałej daty), `webServer` dla serwisów `auth`, `stables`, `operations`, `board`, `notifications`, `files`, `platform`, `schedule` (`serve:<serwis>`) i panelu (`billing` dokłada WEB-030 przez zmienną `E2E_SERVICES`); projekty `chromium`, `firefox`, `webkit` (1440) oraz `tv-chromium` (1920×1080); `globalTeardown` z `reset`.
 - [ ] Helper kodów: odczyt kodu MFA i potwierdzenia z dev-inbox / Mailpit / fake-sms dla danego kontaktu.
 - [ ] Scenariusze (`e2e/full/*.spec.ts`), każdy niezależny (reset danych przez `npm run db:seed` albo transakcyjne fixture'y z SH-002):
   - konto firmy i stajnia: rejestracja e-mailem z potwierdzeniem, logowanie hasłem i kodem, PanelWitaj, PanelRejestracjaFirmy (zajęty NIP: „Ten NIP ma już konto w EQUENOR”), PanelZalozStajnie (boksy 1–6, „Ustaw dla wszystkich”, jeden boks z poidłem ręcznym), PanelZalozPowiadomienia → PanelPulpitStart; druga stajnia bez rejestracji firmy (A-22, A-23);
@@ -33,7 +33,7 @@ Jeden zestaw testów Playwright przechodzi przez panel i widok telewizora na pe�
   - ustawienia: stan obu stajni, wyłączenie i włączenie Derki, 412 z dwóch kart, macierz (A-19, A-21), wyłączenie potwierdzeń przy niepotwierdzonej Belli (A-20);
   - zawieszenie stajni: `npm run stable:status -- --stable <Pod Lipami> --status suspended` (BE-054) → baner „Stajnia zawieszona” i TV „System nieaktywny w tej stajni”; `--status active` przywraca tablicę (scenariusze płatności: WEB-030);
   - TV: logowanie kontem „Telewizor korytarz” (e-mail, hasło, kod), widok wszystkich hal (A-08), pełny ekran hali i `localStorage` po przeładowaniu, `context.setOffline` i pasek, nowa hala dodana w panelu widoczna w ≤ 10 s (`page.clock` albo realny czas z limitem), skan PII odpowiedzi i DOM (A-24).
-- [ ] Raport: lista scenariuszy A-xx pokrytych automatycznie (plik `frontend/e2e/full/COVERAGE.md` albo sekcja w README), do wykorzystania przez SH-005.
+- [ ] Raport: lista scenariuszy A-xx pokrytych automatycznie (plik `frontend/e2e/full/COVERAGE.md` albo sekcja w `frontend/README.md`), do wykorzystania przez SH-005.
 - [ ] README frontendu: wymagania (Docker, przeglądarki: `PLAYWRIGHT_BROWSERS_PATH` albo `npx playwright install chromium firefox webkit`), uruchomienie `npm run e2e:full`, czas trwania.
 
 ## Poza zakresem
@@ -50,7 +50,7 @@ Jeden zestaw testów Playwright przechodzi przez panel i widok telewizora na pe�
 - Szybkie E2E na atrapach (`npm run e2e`) zostają bez zmian i muszą dalej przechodzić.
 
 ## Definicja gotowości
-- `npm run check`, `npm run build`, `npm run e2e` i `npm run e2e:full` we `frontend/` zielone; README i lista pokrycia A-xx zaktualizowane; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check`, `npm run build`, `npm run e2e` i `npm run e2e:full` we `frontend/` zielone; `frontend/README.md` i lista pokrycia A-xx zaktualizowane; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Stała data seedu (13.10.2026 07:15) po stronie serwerów; w przeglądarce `page.clock` ustawiony na ten sam moment, inaczej etykiety „dziś” się rozjadą.

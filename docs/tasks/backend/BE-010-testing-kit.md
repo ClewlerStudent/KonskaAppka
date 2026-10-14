@@ -43,7 +43,7 @@ Wspólne narzędzia testów backendu: tokeny EQUENOR dla osób z danych demo i k
 - `backend/src/lib/testing/testing.test.ts`: tokeny każdej persony (weryfikacja, rozmiar < 4 KB), fabryki na harnessie. `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` i `npm run build` zielone; README (sekcja dev): `npm run dev:token`; status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` i `npm run build` zielone; `backend/README.md` (sekcja dev): `npm run dev:token`; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Zmiana względem pierwotnej listy: zależność od BE-004 (fabryki tabel ze `stable_id`), a stałe UUID danych demo są tutaj, bo używa ich też seed (BE-011).

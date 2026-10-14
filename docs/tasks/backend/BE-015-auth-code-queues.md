@@ -44,7 +44,7 @@ Kody (potwierdzenie konta, MFA, reset hasła, zmiana kontaktu, „Masz już kont
 - `backend/src/services/auth/codes/queue-sender.test.ts` (adapter wiadomości w pamięci), rozszerzenie `app.test.ts` o wariant `queue` i test kanarka, `env.test.ts`. `cd backend && npm test`.
 
 ## Definicja gotowości
-- `cd backend && npm run check` i `npm run build` zielone; README (gdzie lokalnie czytać kody przy `queue`); status w tym pliku i w `tasks/QUEUE.md`.
+- `cd backend && npm run check` i `npm run build` zielone; `backend/README.md` (gdzie lokalnie czytać kody przy `queue`); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - `notifications` nie widzi kodów (szybka ścieżka, bez historii): `auth` pisze prosto do kolejek kodów.

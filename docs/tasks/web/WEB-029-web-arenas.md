@@ -20,7 +20,7 @@ Admin widzi i dodaje ujeżdżalnie stajni w panelu, w tym samym ekranie „Słow
 - **Stan kodu:** ekran „Słowniki” z zakładkami „Pasze” i „Padoki” (`frontend/web/src/features/settings/DictionariesScreen.tsx`, WEB-022), wspólne `DataTable`, `useApi`, `newId()` (WEB-001), klient API z typów `schedule` po `npm run gen:api` (SH-004).
 - **Trasy (BE-048):** `GET /schedule/v1/stables/{stableId}/arenas` (role z funkcją `rides`; admin zawsze) i `POST …/arenas` (admin) z `{ id, name, capacity }`. Tabela `arenas` ma tylko `id`, `stable_id`, `name`, `capacity` (docs/erd.md), bez `version` i `active`, więc nie ma edycji ani wyłączania.
 - **Dokumenty:** docs/makiety-plan.md B „PanelSlowniki” (zakładki Pasze | Padoki | Ujeżdżalnie, „+ Dodaj”, wygląd jak PanelUstawieniaStajni), docs/development-szczegoly.md 3.3 `schedule` „Jazdy” (pojemność areny: kolizje 409).
-- **Makiety:** brak osobnej planszy; wygląd jak `mockups/project/PanelUstawieniaStajni.dc.html` i zakładki z WEB-022.
+- **Makiety:** brak osobnej planszy; wygląd jak `docs/mockups/project/PanelUstawieniaStajni.dc.html` i zakładki z WEB-022.
 - **Decyzje:** DEC-17 A (jazdy tworzą admin i instruktor; ujeżdżalnie zakłada admin).
 - **Dane demo:** Pod Lipami: „Kryta ujeżdżalnia” (pojemność z seedu BE-048); Brzozowa bez ujeżdżalni (`rides` wyłączone dla klienta i obsługi).
 

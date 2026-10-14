@@ -27,7 +27,7 @@ Gdy stajnia ma `stables.status = suspended`, tablety, telewizor, apka i panel do
 - [ ] `board`: jeden wspólny stan `suspended` w odpowiedziach tabletu (`…/boxes/{b}`), TV (`…/display`), klienta (`…/client-home`, `…/card`), listy dnia, `admin-today` i widoków admina: bez flag, karmienia i rutyny, z kodem komunikatu (tekst po stronie aplikacji), zgodnie z kontraktem i przykładami z BE-064; lista boksów (`…/boxes`) zostaje, żeby tablet mógł pokazać numer.
 - [ ] ETag zmienia się przy zmianie statusu; zawieszenie i odwieszenie widać przy najbliższym odpytaniu.
 - [ ] Skrypt dev `backend/scripts/stable-status.ts` i `npm run stable:status -- --stable <stableId> --status suspended|active` (zabroniony przy `APP_ENV=prod`): zmiana `stables.status` w `unitOfWork` z audytem `actor_type = system`, `action = stable.status_changed`; używają go testy, E2E (WEB-028, MOB-024, TAB-019) i scenariusze akceptacyjne (SH-005).
-- [ ] Zapis do `operations` w zawieszonej stajni: bez zmian na PoC (opis w README).
+- [ ] Zapis do `operations` w zawieszonej stajni: bez zmian na PoC (opis w `backend/README.md`).
 
 ## Poza zakresem
 - Konsument `subscription.status_changed` z `billing` (BE-065, po DEC-12); ręczne zawieszenie przez admina globalnego jako trasa `platform` (po DEC-28).
@@ -44,7 +44,7 @@ Gdy stajnia ma `stables.status = suspended`, tablety, telewizor, apka i panel do
 - Uruchomienie: `cd backend && npm run check`.
 
 ## Definicja gotowości
-- `npm run check` i `npm run build` w `backend/` zielone; README (skrypt `stable:status`); status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` i `npm run build` w `backend/` zielone; `backend/README.md` (skrypt `stable:status`); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Zmiana względem pierwotnej wersji: zadanie nie zależy od billingu (wcześniej BE-053 przez decyzję o billingu blokowało E2E apki i panelu oraz harness akceptacji); konsument zdarzenia subskrypcji przeniesiony do BE-065, stan w `board` liczony tylko ze `stables.status`.

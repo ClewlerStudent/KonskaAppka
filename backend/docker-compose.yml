@@ -1,8 +1,10 @@
-# EQUENOR: lokalne uruchomienie z obrazów (dev).
+# EQUENOR: lokalne uruchomienie z obrazów (dev). Komendy z korzenia repo backend.
 #
-# Przygotowanie (raz): npm --prefix backend ci && npm --prefix backend run dev:setup
-#   -> backend/.local/: klucz podpisu, dev.env z hasłem kont demo, masterkey ZITADEL.
+# Przygotowanie (raz): npm ci && npm run dev:setup
+#   -> .local/: klucz podpisu, dev.env z hasłem kont demo, masterkey ZITADEL.
 # Start:      docker compose up --build
+#   frontend budowany z repo frontend sklonowanego obok (../frontend) albo z FRONTEND_DIR;
+#   bez repo frontend: docker compose up --build auth
 #   www http://localhost:8080 · panel http://localhost:8081 · API auth http://localhost:4010
 #   kody logowania: docker compose exec auth tail -n 5 /tmp/inbox.jsonl
 # Infra:      docker compose --profile infra up --build
@@ -11,7 +13,7 @@
 #
 # Obrazy bazowe można podmienić (np. mirror przy limitach Docker Hub):
 #   NODE_IMAGE, NGINX_IMAGE, POSTGRES_IMAGE, ZITADEL_IMAGE.
-# Pliki w backend/.local/ mają tryb 600; kontenery czytają je jako EQ_UID:EQ_GID
+# Pliki w .local/ mają tryb 600; kontenery czytają je jako EQ_UID:EQ_GID
 # (domyślnie 1000:1000), więc ustaw EQ_UID=$(id -u) EQ_GID=$(id -g), jeśli masz inny uid.
 
 name: equenor
@@ -21,7 +23,7 @@ x-node-image: &node-image ${NODE_IMAGE:-node:22.22.3-alpine3.24}
 services:
   auth:
     build:
-      context: ./backend
+      context: .
       args:
         NODE_IMAGE: *node-image
     image: equenor-backend:dev
@@ -29,7 +31,7 @@ services:
     command: ['npm', 'run', 'start:auth']
     user: '${EQ_UID:-1000}:${EQ_GID:-1000}'
     env_file:
-      - path: ./backend/.local/dev.env # DEV_DEMO_PASSWORD; reszta nadpisana niżej
+      - path: ./.local/dev.env # DEV_DEMO_PASSWORD; reszta nadpisana niżej
         required: true
     environment:
       APP_ENV: dev
@@ -63,7 +65,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ${FRONTEND_DIR:-../frontend}
       args:
         NODE_IMAGE: *node-image
         NGINX_IMAGE: ${NGINX_IMAGE:-nginxinc/nginx-unprivileged:1.30.5-alpine3.24}
@@ -170,9 +172,9 @@ services:
 
 secrets:
   signing_key:
-    file: ./backend/.local/signing-key.pem
+    file: ./.local/signing-key.pem
   zitadel_masterkey:
-    file: ./backend/.local/zitadel-masterkey
+    file: ./.local/zitadel-masterkey
 
 volumes:
   db-data:

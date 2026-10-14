@@ -47,7 +47,7 @@ Apka mobilna, panel i tablet mogą od razu budować sesję i nawigację według 
 - `cd frontend && npm run check && npm run e2e` po aktualizacji typów.
 
 ## Definicja gotowości
-- `npm run check` i `npm run build` zielone w `backend/` i `frontend/`; `backend/openapi/auth.json` i `frontend/src/api/auth.d.ts` zaktualizowane; README „Konta demo” z nowymi kontami; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` i `npm run build` zielone w `backend/` i `frontend/`; `backend/openapi/auth.json` i `frontend/src/api/auth.d.ts` zaktualizowane; `backend/README.md` „Konta demo” z nowymi kontami; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Powstało z uwagi do kolejki: aplikacje czekały na pełne BE-019 (BE-001 → BE-004 → BE-010 → BE-013), choć logowanie działa w pamięci. Kontrakt jest docelowy; BE-019 tylko podmienia źródło danych na bazę i dodaje resztę profilu.
