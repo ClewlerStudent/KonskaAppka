@@ -325,12 +325,10 @@ Manifest zapisu cronów (z niego powstają granty); harmonogram, odczyt i publik
 
 ## ERD aplikacji (schemat `app`)
 
-![ERD aplikacji, schemat app](erd/app.png)
+Diagram ma 50 tabel i 66 relacji. GitLab rysuje go z kodu mermaid poniżej.
 
-Wersja do powiększania: [erd/app.svg](erd/app.svg). Diagram ma 50 tabel i 66 relacji.
-
-<details>
-<summary>Źródło mermaid</summary>
+<details open>
+<summary>Diagram (mermaid)</summary>
 
 ```mermaid
 erDiagram
@@ -968,10 +966,8 @@ erDiagram
 
 ## ERD audytu (schemat `audit`)
 
-![ERD audytu, schemat audit](erd/audit.png)
-
-<details>
-<summary>Źródło mermaid</summary>
+<details open>
+<summary>Diagram (mermaid)</summary>
 
 ```mermaid
 erDiagram

@@ -45,9 +45,9 @@ Wymagania W1–W10 oraz podział i nazwy serwisów (decyzja 13.10) są twarde. S
 
 ## Diagram
 
-![Mikroserwisy EQUENOR: auth jako jedyny serwis autoryzacyjny i jedyny rozmówca ZITADEL (self-hosted, osobna baza), tokeny bez sesji w bazie, kody z auth przez kolejki sms i email](mikroserwisy/uslugi.png)
+![Mikroserwisy EQUENOR: auth jako jedyny serwis autoryzacyjny i jedyny rozmówca ZITADEL (self-hosted, osobna baza), tokeny bez sesji w bazie, kody z auth przez kolejki sms i email](mikroserwisy/uslugi.svg)
 
-Wersja do powiększania: [mikroserwisy/uslugi.svg](mikroserwisy/uslugi.svg). Źródło: [mikroserwisy/uslugi.mmd](mikroserwisy/uslugi.mmd).
+Źródło: [mikroserwisy/uslugi.mmd](mikroserwisy/uslugi.mmd).
 
 Jak czytać:
 1. Aplikacja woła tylko `auth`: rejestracja, potwierdzenie konta, logowanie hasłem, krok MFA, reset hasła, odświeżanie. Wszystko poza odświeżaniem `auth` przekazuje do ZITADEL (organizacja klientów albo organizacja zespołu) w klastrze (W6, W10). ZITADEL ma własną bazę PostgreSQL, z którą łączy się tylko on.
