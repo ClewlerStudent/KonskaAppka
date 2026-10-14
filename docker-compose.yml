@@ -1,28 +1,56 @@
-# Lokalne uruchomienie z obrazów (dev). Nieprzetestowane w środowisku bez Dockera: README.md.
-# Start: DEV_DEMO_PASSWORD=… docker compose up --build
-# Panel http://localhost:8081, strona www http://localhost:8080, API auth http://localhost:4010.
-# Kody logowania: docker compose exec auth tail -n 5 /tmp/inbox.jsonl
+# EQUENOR: lokalne uruchomienie z obrazów (dev).
+#
+# Przygotowanie (raz): npm --prefix backend ci && npm --prefix backend run dev:setup
+#   -> backend/.local/: klucz podpisu, dev.env z hasłem kont demo, masterkey ZITADEL.
+# Start:      docker compose up --build
+#   www http://localhost:8080 · panel http://localhost:8081 · API auth http://localhost:4010
+#   kody logowania: docker compose exec auth tail -n 5 /tmp/inbox.jsonl
+# Infra:      docker compose --profile infra up --build
+#   + baza aplikacji (localhost:5433) i ZITADEL (konsola http://localhost:8082/ui/console).
+#   auth dalej działa na fałszywym IdP; przejście na ZITADEL po zrobieniu adaptera.
+#
+# Obrazy bazowe można podmienić (np. mirror przy limitach Docker Hub):
+#   NODE_IMAGE, NGINX_IMAGE, POSTGRES_IMAGE, ZITADEL_IMAGE.
+# Pliki w backend/.local/ mają tryb 600; kontenery czytają je jako EQ_UID:EQ_GID
+# (domyślnie 1000:1000), więc ustaw EQ_UID=$(id -u) EQ_GID=$(id -g), jeśli masz inny uid.
+
 name: equenor
+
+x-node-image: &node-image ${NODE_IMAGE:-node:22.22.3-alpine3.24}
 
 services:
   auth:
-    build: ./backend
+    build:
+      context: ./backend
+      args:
+        NODE_IMAGE: *node-image
+    image: equenor-backend:dev
+    # Ten sam obraz uruchamia każdy serwis inną komendą (start:<serwis>).
     command: ['npm', 'run', 'start:auth']
+    user: '${EQ_UID:-1000}:${EQ_GID:-1000}'
+    env_file:
+      - path: ./backend/.local/dev.env # DEV_DEMO_PASSWORD; reszta nadpisana niżej
+        required: true
     environment:
       APP_ENV: dev
       LOG_LEVEL: info
+      LOG_PRETTY: 'false'
       HOST: 0.0.0.0
       PORT: '8080'
       JWKS_PORT: '8081'
       AUTH_ISSUER: http://localhost:4010/auth/v1
       ALLOWED_ORIGINS: http://localhost:8081
-      SIGNING_KEY_EPHEMERAL: 'true'
+      SIGNING_KEY_FILE: /run/secrets/signing_key
       IDP: fake
       CODE_SENDER: dev-inbox
       DEV_INBOX_FILE: /tmp/inbox.jsonl
-      DEV_DEMO_PASSWORD: ${DEV_DEMO_PASSWORD:?Ustaw DEV_DEMO_PASSWORD (min. 10 znaków)}
+    secrets:
+      - signing_key
     ports:
       - '127.0.0.1:4010:8080'
+    # JWKS (8081) tylko w sieci compose, jak port wewnętrzny w klastrze.
+    expose:
+      - '8081'
     read_only: true
     tmpfs:
       - /tmp
@@ -31,22 +59,122 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+      start_period: 10s
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        NODE_IMAGE: *node-image
+        NGINX_IMAGE: ${NGINX_IMAGE:-nginxinc/nginx-unprivileged:1.30.5-alpine3.24}
+    image: equenor-frontend:dev
     environment:
       WWW_URL: http://localhost:8080
       PANEL_URL: http://localhost:8081
       API_BASE_URL: http://localhost:4010
-      CONTACT_EMAIL: kontakt@equenor.example
+      CONTACT_EMAIL: ${CONTACT_EMAIL:-kontakt@equenor.example}
     ports:
-      - '127.0.0.1:8080:8080'
-      - '127.0.0.1:8081:8081'
+      - '127.0.0.1:8080:8080' # www
+      - '127.0.0.1:8081:8081' # panel
+    read_only: true
+    volumes:
+      # nginx działa bez roota: pid i pliki tymczasowe w /tmp, konfiguracja z szablonu
+      # zapisywana przy starcie w /etc/nginx/conf.d.
+      - { type: tmpfs, target: /tmp, tmpfs: { mode: 01777 } }
+      - { type: tmpfs, target: /etc/nginx/conf.d, tmpfs: { mode: 01777 } }
     depends_on:
       auth:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8080/']
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8081/']
       interval: 10s
       timeout: 3s
       retries: 5
+
+  # --- profil infra: pod następne kroki (baza danych, adapter ZITADEL) ---
+
+  db:
+    profiles: [infra]
+    image: ${POSTGRES_IMAGE:-postgres:17.10-alpine}
+    environment:
+      POSTGRES_DB: equenor
+      POSTGRES_USER: equenor
+      POSTGRES_PASSWORD: equenor-dev # tylko lokalnie
+    ports:
+      - '127.0.0.1:5433:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U equenor -d equenor']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Osobna instancja PostgreSQL dla ZITADEL (hasła są tylko tam; docs/mikroserwisy.md 5.10).
+  zitadel-db:
+    profiles: [infra]
+    image: ${POSTGRES_IMAGE:-postgres:17.10-alpine}
+    environment:
+      POSTGRES_DB: zitadel
+      POSTGRES_USER: zitadel
+      POSTGRES_PASSWORD: zitadel-dev # tylko lokalnie
+    volumes:
+      - zitadel-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U zitadel -d zitadel']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ZITADEL bez osobnego ekranu logowania: logowanie robi auth przez API (W6).
+  # Konto serwisowe dla auth (rola IAM_LOGIN_CLIENT) i jego token powstają przy pierwszym
+  # starcie w wolumenie zitadel-bootstrap (login-client.pat).
+  # Adapter w auth musi wysyłać nagłówek Host: localhost:8082 (ZITADEL rozpoznaje instancję
+  # po domenie zewnętrznej), a woła http://zitadel:8080.
+  zitadel:
+    profiles: [infra]
+    image: ${ZITADEL_IMAGE:-ghcr.io/zitadel/zitadel:v4.19.4}
+    user: '0' # zapis tokenu do wolumenu bootstrap, jak w oficjalnym compose
+    command: start-from-init --masterkeyFile /run/secrets/zitadel_masterkey --tlsMode disabled
+    environment:
+      ZITADEL_PORT: '8080'
+      ZITADEL_EXTERNALDOMAIN: localhost
+      ZITADEL_EXTERNALPORT: '8082'
+      ZITADEL_EXTERNALSECURE: 'false'
+      ZITADEL_TLS_ENABLED: 'false'
+      ZITADEL_DATABASE_POSTGRES_DSN: postgresql://zitadel:zitadel-dev@zitadel-db:5432/zitadel?sslmode=disable
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_REQUIRED: 'false'
+      ZITADEL_FIRSTINSTANCE_ORG_NAME: EQUENOR
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: admin
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: Admin-dev-1234! # tylko lokalnie, konsola
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: 'false'
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_USERNAME: equenor-auth
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_NAME: EQUENOR auth (IAM_LOGIN_CLIENT)
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_PAT_EXPIRATIONDATE: '2099-01-01T00:00:00Z'
+      ZITADEL_FIRSTINSTANCE_LOGINCLIENTPATPATH: /zitadel/bootstrap/login-client.pat
+    secrets:
+      - zitadel_masterkey
+    ports:
+      - '127.0.0.1:8082:8080'
+    volumes:
+      - zitadel-bootstrap:/zitadel/bootstrap
+    depends_on:
+      zitadel-db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', '/app/zitadel', 'ready']
+      interval: 10s
+      timeout: 30s
+      retries: 12
+      start_period: 30s
+
+secrets:
+  signing_key:
+    file: ./backend/.local/signing-key.pem
+  zitadel_masterkey:
+    file: ./backend/.local/zitadel-masterkey
+
+volumes:
+  db-data:
+  zitadel-db-data:
+  zitadel-bootstrap:

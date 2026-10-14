@@ -124,15 +124,40 @@ docker run --rm -p 8080:8080 -p 8081:8081 \
   equenor-frontend
 ```
 
-**`docker-compose.yml` (dev):** auth z obrazu backendu (`npm run start:auth`, klucz efemeryczny, kody w `/tmp/inbox.jsonl` kontenera) i frontend. Start: `DEV_DEMO_PASSWORD=… docker compose up --build`, potem panel http://localhost:8081 i www http://localhost:8080. Kody: `docker compose exec auth tail -n 5 /tmp/inbox.jsonl`. PostgreSQL dojdzie razem z bazą danych.
+### docker compose (dev)
 
-Obrazy i compose są **nieprzetestowane w Dockerze**: środowisko, w którym powstały, nie ma demona Dockera. Sprawdzone bez Dockera:
+`docker-compose.yml` w korzeniu stawia lokalnie to, co dziś działa, z tych samych obrazów co produkcja:
 
-- `docker compose config`;
-- kroki obu Dockerfile na kontekstach odfiltrowanych według `.dockerignore` (`npm ci`, build, `npm ci --omit=dev`);
-- auth uruchomiony z takiego układu `npm run start:auth` z env z compose, w tym łagodne zamknięcie po SIGTERM;
-- szablon nginx wyrenderowany jak w obrazie (tylko zdefiniowane zmienne) w lokalnym nginx 1.24: nagłówki CSP i cache, podstawione adresy, fallback SPA (CSP z Trusted Types sprawdza też E2E na zbudowanym panelu);
-- pełne logowanie w Chromium jak w compose (www :8080 → panel :8081 → auth :4010 przez CORS, kod, PanelWitaj, przeładowanie, wylogowanie), bez naruszeń CSP.
+| Usługa | Co | Adres |
+|---|---|---|
+| `auth` | obraz backendu z komendą `npm run start:auth`, fałszywy IdP, kody do `/tmp/inbox.jsonl` w kontenerze | http://localhost:4010 (JWKS tylko w sieci compose: `auth:8081`) |
+| `frontend` | obraz frontendu: www i panel | www http://localhost:8080, panel http://localhost:8081 |
+| `db` (profil `infra`) | PostgreSQL 17 dla aplikacji, pod bazę z ERD | `localhost:5433`, baza i użytkownik `equenor`, hasło `equenor-dev` |
+| `zitadel-db`, `zitadel` (profil `infra`) | ZITADEL v4.19.4 z osobną bazą, bez własnego ekranu logowania; konto serwisowe dla `auth` (rola `IAM_LOGIN_CLIENT`) i jego token w wolumenie `zitadel-bootstrap` | konsola http://localhost:8082/ui/console (`admin` / `Admin-dev-1234!`) |
+
+```sh
+npm --prefix backend ci && npm --prefix backend run dev:setup   # raz: klucz podpisu, hasło demo, masterkey ZITADEL w backend/.local/
+docker compose up --build                                       # auth + frontend
+docker compose exec auth tail -n 5 /tmp/inbox.jsonl             # kody logowania
+docker compose --profile infra up --build                       # + baza aplikacji i ZITADEL
+docker compose --profile infra down -v                          # stop i usunięcie danych
+```
+
+- **Sekrety z plików, nie z env:** klucz podpisu (`backend/.local/signing-key.pem`) i masterkey ZITADEL (`backend/.local/zitadel-masterkey`) wchodzą jako `secrets` compose. Hasło kont demo bierze się z `backend/.local/dev.env`.
+- **Uprawnienia:** pliki w `backend/.local/` mają tryb 600, a `auth` czyta je jako `EQ_UID:EQ_GID` (domyślnie 1000:1000). Przy innym uid: `EQ_UID=$(id -u) EQ_GID=$(id -g) docker compose up`.
+- **Mirror obrazów:** przy limitach Docker Hub obrazy bazowe podmienia env: `NODE_IMAGE`, `NGINX_IMAGE`, `POSTGRES_IMAGE`, `ZITADEL_IMAGE` (np. `NODE_IMAGE=mirror.gcr.io/library/node:22.22.3-alpine3.24`).
+- **ZITADEL czeka na adapter:** `auth` w compose dalej używa fałszywego IdP. Adapter ma wołać `http://zitadel:8080` z nagłówkiem `Host: localhost:8082`, bo ZITADEL rozpoznaje instancję po domenie zewnętrznej.
+
+**Co sprawdziłem (14.10, Docker 29.8 w środowisku z ograniczonym dostępem do sieci):**
+- zbudowały się oba obrazy: backend 258 MB, frontend 92 MB;
+- `docker compose up` daje oba kontenery zdrowe, a JWKS jest osiągalny z innego kontenera na porcie wewnętrznym;
+- pełne logowanie w Chromium na stosie z compose przechodzi: link z www do panelu, telefon Oli i hasło, kod ze skrzynki w kontenerze, Witaj, przeładowanie (sesja z ciasteczka), wylogowanie, bez błędów konsoli;
+- profil `infra`: obie bazy PostgreSQL wstają zdrowe;
+- frontend chodzi z `read_only` (tmpfs dla `/tmp` i `/etc/nginx/conf.d`).
+
+**Czego nie sprawdziłem:**
+- Kontener ZITADEL: w tym środowisku polityka sieci blokuje ghcr.io. Konfigurację wziąłem z oficjalnego compose ZITADEL, a flagi `--masterkeyFile` i `--tlsMode` sprawdziłem w źródłach.
+- `apk add tini`: repozytorium Alpine też było zablokowane, więc test zrobiłem na obrazie bez `tini`, z `init: true`.
 
 ### Klucz podpisu tokenów
 

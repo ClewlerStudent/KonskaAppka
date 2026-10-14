@@ -1,11 +1,13 @@
 import { generateKeyPairSync, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 
-// Lokalne sekrety dev w backend/.local/ (poza gitem): klucz podpisu ES256 i dev.env.
+// Lokalne sekrety dev w backend/.local/ (poza gitem): klucz podpisu ES256, dev.env
+// i masterkey ZITADEL (profil infra w docker-compose.yml).
 // Istniejących plików nie nadpisuje. Produkcja dostaje klucz z SIGNING_KEY_FILE albo SIGNING_KEY_PEM.
 const dir = new URL('../.local/', import.meta.url);
 const keyFile = new URL('signing-key.pem', dir);
 const envFile = new URL('dev.env', dir);
+const masterkeyFile = new URL('zitadel-masterkey', dir);
 
 mkdirSync(dir, { recursive: true, mode: 0o700 });
 
@@ -44,6 +46,14 @@ if (existsSync(envFile)) {
   writeFileSync(envFile, env, { mode: 0o600 });
   console.log('Utworzono .local/dev.env');
   console.log(`Hasło kont demo (DEV_DEMO_PASSWORD): ${password}`);
+}
+
+if (existsSync(masterkeyFile)) {
+  console.log('.local/zitadel-masterkey już jest');
+} else {
+  // ZITADEL wymaga dokładnie 32 znaków; base64url z 24 bajtów daje 32.
+  writeFileSync(masterkeyFile, randomBytes(24).toString('base64url'), { mode: 0o600 });
+  console.log('Utworzono .local/zitadel-masterkey (32 znaki)');
 }
 
 console.log('Konta demo: README.md, sekcja „Konta demo”. Start: npm run dev:auth');
