@@ -101,8 +101,9 @@ Etapy (docs/development-szczegoly.md 3.6): 0 fundament (warstwy bazy, kit, środ
 ## 8. Trello
 
 - Pole `trello:` w nagłówku to link do karty (`https://trello.com/c/…`); `check` ostrzega przy innym formacie.
-- Karta odzwierciedla zadanie, nie odwrotnie: tytuł `<ID> · <tytuł>`, w opisie link do pliku zadania w repo i „Cel”; lista na tablicy odpowiada statusowi (`todo` Do zrobienia, `in_progress` W toku, `review` Przegląd, `done` Gotowe, `blocked` Zablokowane).
-- Kto zmienia status w repo (`claim`, `set`), ten przesuwa kartę, jeśli ma dostęp do Trello; jeśli nie ma, zostawia to właścicielowi. Karta bez pliku zadania nie jest zadaniem dla agenta: najpierw powstaje plik (punkt 7).
+- Tablica [EQUINOR](https://trello.com/b/GYtkn7bd/equinor). Listy według obszaru: Backend, Web portal, Aplikacja mobilna, Tablet, Wspólne (repo, docs, CI), Decyzje do podjęcia (DEC-xx). Karty stoją w kolejności etapów, jak w QUEUE.md. Listy dla ludzi, bez plików zadań: Zrobione, Makiety do poprawy, Sprzęt i zakupy, Konta i usługi, Infra (Dawid).
+- Karta odzwierciedla zadanie, nie odwrotnie: tytuł `<ID> · <tytuł>`, w opisie link do pliku zadania w repo, „Cel” i kryteria akceptacji. Decyzja ma link do karty w linii „Trello” w decisions.md.
+- Kto zmienia status w repo (`claim`, `set`), ten aktualizuje kartę, jeśli ma dostęp do Trello: `in_progress`, `review` i `blocked` jako komentarz (`W toku: <owner>, gałąź <branch>`, `Przegląd: <link do PR>`, `Zablokowane: <powód>`), `done` przez przeniesienie na listę Zrobione i oznaczenie karty jako wykonanej. Jeśli nie ma dostępu, zostawia to właścicielowi. Karta bez pliku zadania nie jest zadaniem dla agenta: najpierw powstaje plik (punkt 7).
 - Zmiany zrobione tylko na tablicy (np. nowy priorytet) przenosi do repo właściciel albo agent na jego polecenie.
 
 ## Decyzje już podjęte
