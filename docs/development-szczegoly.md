@@ -563,7 +563,7 @@ Zasady wspólne:
   - insert, update i delete tylko na tabelach tego serwisu, a w kodzie crona tylko na tabelach i kolumnach z jego manifestu, według `owners.ts`.
 
 #### 3.1.2 CI (tu tylko kroki; system CI i runnery wybiera Dawid)
-- [ ] Kroki przy każdym PR:
+- [ ] Kroki przy każdym MR:
   1. `pnpm install --frozen-lockfile`;
   2. lint, sprawdzenie formatu, typecheck;
   3. testy jednostkowe;
@@ -1516,7 +1516,7 @@ Wymaganie z 13.10: tylko jeden serwis jest autoryzacyjny (`auth`); reszta tylko 
 
 ## 4. Testy
 
-### 4.1 Testy automatyczne (CI przy każdym PR oraz przebieg nocny)
+### 4.1 Testy automatyczne (CI przy każdym MR oraz przebieg nocny)
 - [ ] **Jednostkowe (Vitest, fast-check).**
   - Reguły flag: obowiązkowe okno `valid_from`–`valid_to` i podpowiedź z `default_window`, `days_mask`, `suspend_meal` tylko dla posiłku w oknie, `cancel_paddock` skracający albo odwołujący padok tylko w oknie (Kasztan: padok B 10:00–14:30), lista pominiętych przy akcjach zbiorczych hali, etykiety „06:00–10:00”, „od 14:30”, „16:00–08:00” i „dziś, cały dzień”, wariant Derki, `replaces_flag_id`, `warn_at` i `notify_at` od początku okna.
   - Noce 25.10.2026 i 28.03.2027.

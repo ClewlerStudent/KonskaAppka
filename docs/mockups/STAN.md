@@ -2,7 +2,7 @@
 
 Makiety (design canvas) są w `mockups/project/` (`*.dc.html` + `canvas.json`). Opublikowana kanwa: https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX
 Decyzje użytkownika i dane kanoniczne: `mockups/decyzje-spec.md` (sekcje L, M i N są najnowsze i nadrzędne; sekcja O: mikroserwisy i autoryzacja; sekcja P, nadrzędna wobec O: 11 serwisów, sesje w JWT, crony, SMS i e-mail; sekcja Q, nadrzędna wobec O i P: logowanie hasłem i zawsze kodem, dostawca tożsamości tylko w `auth`, kody przez nasze `email` i `sms`, nazwy serwisów `stables`, `operations`, `schedule`; sekcja R, nadrzędna wobec O, P i Q: ZITADEL self-hosted zamiast Cognito, kody z `auth` do kolejek `sms` i `email`, trasy zewnętrzne, otwarte i wewnętrzne).
-Narzędzia: `mockups/tools/` (render przez puppeteer: `render.cjs`, `render-full.cjs`, `render_all.cjs`; generator wyświetlacza `gen/`; skrypty zmiany nazw `rename.py`, `gotowy.py`).
+Narzędzia: `mockups/tools/` (render przez puppeteer: `render.cjs`, `render-full.cjs`, `render_all.cjs`, robocze: wymagają katalogu z puppeteer i kopią `mockups/project` obok, nie uruchamiają się wprost z repo; generator wyświetlacza `gen/`; skrypty zmiany nazw `rename.py`, `gotowy.py`).
 
 ## Zrobione (13.10.2026)
 - Nazwa EQUENOR, hasło „Equestrian Management, Refined” pod znakiem.

@@ -3,7 +3,7 @@
 Panel web i strona www EQUENOR, SaaS do zarządzania stajnią. Repo w grupie [equinor-group](https://gitlab.com/groups/equinor-group), obok:
 
 - [backend](https://gitlab.com/equinor-group/backend): serwisy (na razie auth), kontrakty API (`openapi/*.json`), `docker-compose.yml` do dev;
-- [docs](https://gitlab.com/equinor-group/docs): dokumentacja, makiety (`mockups/`) i kolejka zadań dla agentów (`tasks/`, zadania panelu web i TV to obszar `web`).
+- [docs](https://gitlab.com/equinor-group/docs): dokumentacja, makiety (`mockups/`) i kolejka zadań dla agentów (`tasks/`, zadania panelu web, widoku TV i strony www to obszar `web`).
 
 ## Workspace
 
@@ -16,7 +16,7 @@ equenor/
   docs/       git clone https://gitlab.com/equinor-group/docs.git
 ```
 
-Ścieżki w zadaniach i komentarzach są pisane od korzenia workspace: `frontend/web/…`, `docs/paleta.md`, `docs/mockups/…`. Pliki z sąsiednich repo frontend czyta tylko w trzech miejscach: `npm run gen:api` (`../backend/openapi`), E2E (`../backend`, auth) i test palety (`../docs/paleta.md`). `npm ci`, `npm run check` i `npm run build` działają bez nich.
+W zadaniach ścieżki są od korzenia workspace (`frontend/web/…`, `docs/paleta.md`, `docs/mockups/…`). W komentarzach w kodzie pliki tego repo są od jego korzenia (`web/…`, `src/…`), a pliki innych repo od korzenia workspace (`docs/…`, `backend/…`). Pliki z sąsiednich repo frontend czyta tylko w trzech miejscach: `npm run gen:api` (`../backend/openapi`), E2E (`../backend`, auth) i test palety (`../docs/paleta.md`). `npm ci`, `npm run check` i `npm run build` działają bez nich.
 
 ## Kod
 
@@ -49,7 +49,7 @@ npm run dev:web           # panel: http://localhost:5173 (Vite przekazuje /auth 
 npm run dev:www           # strona www: http://localhost:5174 (przyciski prowadzą do panelu)
 ```
 
-Adresy dev są w `.env` (bez sekretów, w repo); nadpisania lokalne w `.env.local` (poza gitem). Inny adres auth dla proxy: `AUTH_PROXY_TARGET`.
+Adresy dev są w `.env` (bez sekretów, w repo); nadpisania lokalne w `.env.local` (poza gitem). Inny adres auth dla proxy: zmienna środowiskowa powłoki, np. `AUTH_PROXY_TARGET=http://localhost:4020 npm run dev:web` (`vite.web.config.ts` czyta `process.env`, `.env.local` jej nie ustawia).
 
 ## Logowanie w dev
 

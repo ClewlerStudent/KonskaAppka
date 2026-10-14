@@ -30,7 +30,7 @@ equenor/
   docs/       git clone https://gitlab.com/equinor-group/docs.git
 ```
 
-Ścieżki w docs i zadaniach liczymy od korzenia workspace: `backend/src/...`, `frontend/web/...`, `docs/mikroserwisy.md`, `docs/mockups/project/...`. Frontend czyta kontrakty z `../backend/openapi` (`npm run gen:api`), więc `backend/` musi leżeć obok. Wyjątek: kolejkę obsługujesz z korzenia tego repo, więc `tasks/...` to ścieżka w repo `docs` (z workspace `docs/tasks/`).
+Ścieżki w zadaniach i w komentarzach kodu liczymy od korzenia workspace: `backend/src/...`, `frontend/web/...`, `docs/mikroserwisy.md`, `docs/mockups/project/...`. W dokumentach tego repo `mockups/...` i `tasks/...` to też ścieżki w repo `docs`. Frontend czyta kontrakty z `../backend/openapi` (`npm run gen:api`), więc `backend/` musi leżeć obok. Wyjątek: kolejkę obsługujesz z korzenia tego repo, więc `tasks/...` to ścieżka w repo `docs` (z workspace `docs/tasks/`).
 
 ## Dokumentacja
 
@@ -54,7 +54,7 @@ Status zadań żyje w tym repo na `main`; kod powstaje na gałęzi zadania w rep
 node tasks/queue.mjs next --area backend   # zadania gotowe do wzięcia (backend | web | mobile | tablet | shared)
 node tasks/queue.mjs claim BE-001 <owner>  # przejęcie: status in_progress, gałąź claude/BE-001-<slug> (w repo kodu)
 node tasks/queue.mjs set BE-001 review     # todo | in_progress | review | done | blocked (--reason)
-node tasks/queue.mjs check                 # spójność kolejki (też w CI)
+node tasks/queue.mjs check                 # spójność kolejki; przed każdym pushem (CI dopiero po SH-003)
 ```
 
 ## Uruchomienie kodu

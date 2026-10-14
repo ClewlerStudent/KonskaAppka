@@ -3,7 +3,7 @@ import { CLIENT_HEADER } from '../contracts/common.js';
 import { ApiError } from './problem.js';
 
 /**
- * Trasy otwarte wołane z przeglądarki (login CSRF, mikroserwisy.md 3.7): żądanie z nagłówkiem
+ * Trasy otwarte wołane z przeglądarki (login CSRF, docs/mikroserwisy.md 3.7): żądanie z nagłówkiem
  * Origin musi mieć origin z listy i nagłówek X-Equenor-Client: web, który wymusza preflight CORS.
  * Żądania bez Origin (apka, tablet, CLI, testy) tych warunków nie mają.
  */

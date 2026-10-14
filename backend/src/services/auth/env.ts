@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { baseEnvSchema, envBoolean, envPort, forbidInProd, refineBaseEnv } from '../../kit/env.js';
 
 /**
- * Env serwisu auth (plan D.2). Adaptery dev (FAKE IdP, skrzynka dev, klucz efemeryczny)
+ * Env serwisu auth. Adaptery dev (FAKE IdP, skrzynka dev, klucz efemeryczny)
  * blokują start w prod: auth celowo nie wystartuje w prod, dopóki nie ma adapterów produkcyjnych.
  */
 export const authEnvSchema = baseEnvSchema

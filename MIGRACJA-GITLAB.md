@@ -20,6 +20,7 @@ Bez `--push` skrypt tylko składa repozytoria lokalnie, do obejrzenia.
 
 ## 2. Po pushu
 
+- W projekcie `docs`: Settings → Repository → Protected branches, `main`: „Allowed to push and merge” dla Developers + Maintainers, bez force push. Agenci commitują tam statusy kolejki bez MR. W `backend` i `frontend` `main` zostaje chroniony (tylko MR).
 - Karty na tablicy Trello EQUINOR linkują do plików zadań na GitHubie: podmiana na `https://gitlab.com/equinor-group/docs/-/blob/main/tasks/...` (Claude, przez Trello).
 - Pola `trello:` w zadaniach się nie zmieniają.
 - To repo na GitHubie można zarchiwizować.

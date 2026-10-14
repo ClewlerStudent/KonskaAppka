@@ -427,7 +427,7 @@ Grupa = paczka z sekcji 4 (P1 grupy A to paczka 1 itd., grupa I to paczka „www
 
 ### E. Tablet
 
-„Rejestracja” tabletu to provisioning (`tools/provision-tablet`), logowanie kontem technicznym tabletów (konto zakłada się raz w PanelRejestracja; hasło i kod MFA na skrzynkę konta) i lokalny wybór boksu; konto ma jedną stajnię, więc tablet nie wybiera stajni (dec. 12, 15).
+„Rejestracja” tabletu to provisioning (`tablet/tools/provision-tablet`), logowanie kontem technicznym tabletów (konto zakłada się raz w PanelRejestracja; hasło i kod MFA na skrzynkę konta) i lokalny wybór boksu; konto ma jedną stajnię, więc tablet nie wybiera stajni (dec. 12, 15).
 
 **TabletLogowanie** · tablet e-ink · 702×936 · P1 · dec. 12 · erd pkt 2; szcz. 2.4, 4.2, T-07, T-23, §5 pkt 5, 31; dev §5 pkt 5
 - Treść: „EQUENOR”, pod nim hasło „Equestrian Management, Refined” (≥ 16 px, waga 500); H1 42 px „ZALOGUJ TABLET”; przełącznik „TELEFON | E-MAIL” (wybrany E-MAIL: czarne pole, biały pogrubiony tekst); „ADRES E-MAIL” b•••@stajnielipowe.pl (konto techniczne „Tablety Pod Lipami”; 64 px, ramka 2 px #000), „HASŁO” (zamaskowane), klawiatura QWERTY z „WYCZYŚĆ” (przy TELEFON: „NUMER TELEFONU” +48 i klawiatura 3×4); „ZALOGUJ” (czarne pole, biały pogrubiony tekst), „NIE PAMIĘTAM HASŁA” (reset kodem jako stan na StanyTablet, propozycja); stopka „ONLINE · 07:15”, PL | UA; bez dopisków, kłódki, „Zmień boks” i flag.

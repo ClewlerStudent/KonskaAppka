@@ -15,7 +15,7 @@ Każde zadanie to jeden plik `tasks/<obszar>/<ID>-<slug>.md` z nagłówkiem (sta
 | web | `WEB` | [web/](web/) | repo `frontend` (panel admina, widok wyświetlacza TV, strona www), `frontend/tools/display-kiosk` |
 | mobile | `MOB` | [mobile/](mobile/) | repo `mobile` (Expo, DEC-02) |
 | tablet | `TAB` | [tablet/](tablet/) | repo `tablet` (Expo + moduł kiosku w Kotlinie, DEC-02), `tablet/tools/provision-tablet` |
-| shared | `SH` | [shared/](shared/) | repo `docs` (dokumentacja, kolejka), `backend/docker-compose.yml`, `ci/` w każdym repo kodu, testy akceptacyjne |
+| shared | `SH` | [shared/](shared/) | repo `docs` (dokumentacja, kolejka), `backend/docker-compose.yml`, `ci/` w każdym repo (także `docs`), testy akceptacyjne |
 
 ## Repozytoria i ścieżki
 
@@ -28,9 +28,9 @@ equenor/
   docs/       git clone https://gitlab.com/equinor-group/docs.git
 ```
 
-- Ścieżki w zadaniach i docs liczymy od korzenia workspace: `backend/src/...`, `frontend/web/...`, `docs/mikroserwisy.md`, `docs/mockups/project/...`. Ścieżki między repo (`../backend/openapi` we `frontend/`) działają tylko w tym układzie.
+- Ścieżki w zadaniach i w komentarzach kodu liczymy od korzenia workspace: `backend/src/...`, `frontend/web/...`, `docs/mikroserwisy.md`, `docs/mockups/project/...`. W dokumentach repo `docs` `mockups/...` i `tasks/...` to też ścieżki w tym repo. Ścieżki między repo (`../backend/openapi` we `frontend/`) działają tylko w tym układzie.
 - Wyjątek: kolejka. Komendy `node tasks/queue.mjs` uruchamiasz w korzeniu repo `docs` (z workspace: `cd docs`), więc `tasks/...` to ścieżka w tym repo (z workspace `docs/tasks/`).
-- Status zadania (przejęcie, przegląd, blokada, `done`) commitujesz w repo `docs` na `main`; kod powstaje na gałęzi zadania w repo kodu i wchodzi przez MR (punkty 2 i 5).
+- Status zadania (przejęcie, przegląd, blokada, `done`) commitujesz w repo `docs` na `main`; kod powstaje na gałęzi zadania w repo kodu i wchodzi przez MR (punkty 2 i 5). W `backend` i `frontend` `main` jest chroniony (tylko MR); w `docs` `main` przyjmuje push od Developerów, bez force push (ustawienie projektu na GitLabie).
 
 ## Komendy
 
@@ -62,8 +62,8 @@ node --test tasks/queue.test.mjs              # testy narzędzia
 ## 2. Przejęcie
 
 1. `node tasks/queue.mjs claim <ID> <owner>`: ustawia `status: in_progress`, `owner` i `branch` (nazwa gałęzi zadania w repo kodu, domyślnie `claude/<ID>-<slug>`; inna gałąź jako trzeci argument, jeśli tak ustalono z właścicielem). `owner` to identyfikator, po którym da się Cię znaleźć (np. nazwa sesji agenta).
-2. Od razu w repo `docs` commit samego `tasks/` na `main` (`kolejka: <ID> przejęte (<owner>)`, tylko status) i `git push`. Push odrzucony: `git pull --rebase`. Konflikt w czasie rebase: weź wersję zdalną katalogu (`git checkout --ours -- tasks/`; w rebase „ours” to gałąź zdalna, „theirs” Twój commit), ponów na niej swoje `claim`, potem `git add tasks && git rebase --continue` i `node tasks/queue.mjs check`; `QUEUE.md` i linie „Zadania” w `decisions.md` są generowane, więc `claim` (albo `index`) je odtwarza. Jeśli ktoś przejął zadanie przed Tobą, `git rebase --abort`, `git reset --hard @{u}` i weź inne.
-3. Dopiero potem gałąź zadania (`branch`) w repo kodu od jego aktualnego `main` (`git pull`) i praca. Zadanie, które dotyka kilku repo, ma w każdym gałąź o tej samej nazwie.
+2. Od razu w repo `docs` commit samego `tasks/` na `main` (`kolejka: <ID> przejęte (<owner>)`, tylko status) i `git push`. Push odrzucony: `git pull --rebase`. Konflikt w czasie rebase: weź wersję zdalną katalogu (`git checkout --ours -- tasks/`; w rebase „ours” to gałąź zdalna, „theirs” Twój commit), ponów na niej swoje `claim`, potem `git add tasks && GIT_EDITOR=true git rebase --continue` i `node tasks/queue.mjs check`; `QUEUE.md` i linie „Zadania” w `decisions.md` są generowane, więc `claim` (albo `index`) je odtwarza. Jeśli ktoś przejął zadanie przed Tobą, `git rebase --abort`, `git reset --hard @{u}` i weź inne.
+3. Dopiero potem gałąź zadania (`branch`) w repo kodu od jego aktualnego `main` (`git pull`) i praca. Zadanie, które dotyka kilku repo, ma w każdym gałąź o tej samej nazwie. Zmiany w repo `docs` poza statusem w `tasks/` (np. nowy dokument jak `docs/spike-zitadel.md`) też idą na gałęzi zadania i przez MR w `docs`; na `main` trafiają bezpośrednio tylko commity statusu.
 
 `claim` odmawia, gdy zadanie nie jest `todo`, ma niezakończone zależności albo czeka na decyzję. `--force` tylko na wyraźne polecenie właściciela.
 
@@ -82,7 +82,7 @@ node --test tasks/queue.test.mjs              # testy narzędzia
 ## 4. Definicja gotowości (wspólna dla wszystkich zadań)
 
 - Kryteria akceptacji w pliku zadania odhaczone (`- [x]`); to, czego nie zrobiono, opisane w „Uwagach dla wykonawcy” z powodem (i, jeśli trzeba, nowe zadanie).
-- W każdym dotkniętym pakiecie zielone `npm run check` i `npm run build` (w `backend/` `check` zawiera `openapi:check`; we `frontend/`, `mobile/` i `tablet/` także `npm run gen:check`, czyli aktualne typy API i paleta z SH-004); nowe zachowanie ma testy. W `mobile/` i `tablet/` `build` to `expo export` (pakiet JS, działa na Linuksie bez emulatora); natywny build to `npx expo prebuild` + `./gradlew assembleDebug` (mobile) albo `npm run apk` (tablet).
+- W każdym dotkniętym pakiecie zielone `npm run check` i `npm run build` (w `backend/` `check` zawiera `openapi:check`; we `frontend/`, `mobile/` i `tablet/` także `npm run gen:check`, czyli aktualne typy API i paleta, od SH-004; wcześniej we `frontend/` `npm run gen:api` i `git diff --exit-code src/api`); nowe zachowanie ma testy. W `mobile/` i `tablet/` `build` to `expo export` (pakiet JS, działa na Linuksie bez emulatora); natywny build to `npx expo prebuild` + `./gradlew assembleDebug` (mobile) albo `npm run apk` (tablet).
 - **Kryteria `[ręcznie]`** (oznaczenie zaraz po `- [ ]`) wymagają środowiska, którego agent zwykle nie ma: emulatora Androida z KVM, Maestro/Detox, macOS z symulatorem iOS, sprzętu (tablet, telefon, Raspberry Pi) albo kont i środowisk Dawida. Nagłówek `needs` podsumowuje, czego zadanie wymaga (`emulator`, `macos`, `device`, `owner`). Bez takiego środowiska: zrób część kodową i całą weryfikację automatyczną (Jest/RNTL, Vitest, `expo export`, `prebuild`, `assembleDebug`, `node --test`, `shellcheck`), ustaw `review` i w „Uwagach dla wykonawcy” wypisz niesprawdzone kryteria `[ręcznie]`. Nie odhaczaj ich bez dowodu.
 - **Fixture'y i zrzuty w testach aplikacji:** dane testowe to przykłady z kontraktu (`src/api/examples/`, kopiowane przez `gen:api` z `backend/openapi/examples/`, np. BE-064) albo fixture'y pisane ręcznie według docs/development-szczegoly.md 3.2 ze stałymi UUID skopiowanymi z `backend/src/lib/demo/ids.ts` (`frontend/web/src/test/fixtures/`, `mobile/src/test/fixtures/`, `tablet/src/test/fixtures/`); aplikacje nie czytają seedu. Zrzuty to wzorce `toHaveScreenshot` (albo `capture.sh` tabletu) tworzone w zadaniu; makieta `.dc.html` służy do ręcznego przeglądu w MR, nie do automatycznego porównania.
 - README albo docs zaktualizowane, gdy zmieniają się komendy, env, porty albo zachowanie widoczne dla innych zadań.

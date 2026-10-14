@@ -17,7 +17,7 @@ trello: https://trello.com/c/huCqQDyQ
 Zasady erd.md (bez `DEFAULT`, `CHECK`, enumów, `jsonb`, tablic, sekwencji, triggerów, funkcji, RLS i akcji FK) pilnuje automat, a nie przegląd kodu. Zła migracja zatrzymuje `npm run check` i CI.
 
 ## Kontekst
-- Stan kodu: po BE-001 schematy Drizzle leżą w `backend/src/lib/db/schema/*.ts`, migracje SQL w `backend/migrations/`, harness PostgreSQL w `backend/src/lib/db/testing.ts`. ESLint: `backend/eslint.config.js` (flat config, reguła `equenor/service-boundaries`).
+- Stan kodu: po BE-001 schematy Drizzle leżą w `backend/src/lib/db/schema/*.ts`, migracje SQL w `backend/migrations/`, harness PostgreSQL w `backend/src/lib/db/testing.test-support.ts`. ESLint: `backend/eslint.config.js` (flat config, reguła `equenor/service-boundaries`).
 - Dokumenty: `docs/development-szczegoly.md` 3.1.3 (trzy warstwy: lint schematu Drizzle, `sql-gate` na parserze PostgreSQL, test katalogu po migracjach; testy pozytywne; squawk) i 3.1.4 (unikalności, wielokolumnowe FK, brak unikalności `boxes.label`); `docs/erd.md` „Zasady wspólne”.
 - Decyzje: DEC-09 wariant B: lint schematu i test katalogu od razu; `sql-gate` i squawk muszą działać przed pierwszą migracją etapu 2 (BE-028, BE-029).
 - Dane demo: nie dotyczy.

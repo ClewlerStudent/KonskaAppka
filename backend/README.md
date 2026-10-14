@@ -39,7 +39,7 @@ Klucz podpisu i env dev są w `.local/`, poza gitem:
 ```sh
 npm ci
 npm run dev:setup         # raz: .local/signing-key.pem (ES256) i .local/dev.env; wypisuje hasło kont demo
-npm run dev:auth          # auth: http://localhost:4010 (trasy /auth/v1/…), JWKS: http://localhost:4011
+npm run dev:auth          # auth: http://localhost:4010 (trasy /auth/v1/…), JWKS: http://localhost:4011/auth/v1/.well-known/jwks.json
 ```
 
 Panel (http://localhost:5173, Vite przekazuje `/auth` do localhost:4010) i stronę www (http://localhost:5174) uruchamia się w osobnych terminalach z repo frontend: [README frontendu](https://gitlab.com/equinor-group/frontend/-/blob/main/README.md).
@@ -111,12 +111,12 @@ Obraz frontendu (nginx: www i panel) opisuje [README frontendu](https://gitlab.c
 
 `docker-compose.yml` w tym repo stawia lokalnie to, co dziś działa, z tych samych obrazów co produkcja. Komendy uruchamiasz w korzeniu repo backend. Obraz `frontend` buduje się z repo frontend sklonowanego obok (`../frontend`; inną ścieżkę podaje `FRONTEND_DIR`); bez niego uruchom sam auth: `docker compose up --build auth`.
 
-| Usługa                                   | Co                                                                                                                                                              | Adres                                                                  |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `auth`                                   | obraz backendu z komendą `npm run start:auth`, fałszywy IdP, kody do `/tmp/inbox.jsonl` w kontenerze                                                            | http://localhost:4010 (JWKS tylko w sieci compose: `auth:8081`)        |
-| `frontend`                               | obraz frontendu (z `../frontend`): www i panel                                                                                                                  | www http://localhost:8080, panel http://localhost:8081                 |
-| `db` (profil `infra`)                    | PostgreSQL 17 dla aplikacji, pod bazę z ERD                                                                                                                     | `localhost:5433`, baza i użytkownik `equenor`, hasło `equenor-dev`     |
-| `zitadel-db`, `zitadel` (profil `infra`) | ZITADEL v4.19.4 z osobną bazą, bez własnego ekranu logowania; konto serwisowe dla `auth` (rola `IAM_LOGIN_CLIENT`) i jego token w wolumenie `zitadel-bootstrap` | konsola http://localhost:8082/ui/console (`admin` / `Admin-dev-1234!`) |
+| Usługa                                   | Co                                                                                                                                                              | Adres                                                                                         |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `auth`                                   | obraz backendu z komendą `npm run start:auth`, fałszywy IdP, kody do `/tmp/inbox.jsonl` w kontenerze                                                            | http://localhost:4010 (JWKS tylko w sieci compose: `auth:8081/auth/v1/.well-known/jwks.json`) |
+| `frontend`                               | obraz frontendu (z `../frontend`): www i panel                                                                                                                  | www http://localhost:8080, panel http://localhost:8081                                        |
+| `db` (profil `infra`)                    | PostgreSQL 17 dla aplikacji, pod bazę z ERD                                                                                                                     | `localhost:5433`, baza i użytkownik `equenor`, hasło `equenor-dev`                            |
+| `zitadel-db`, `zitadel` (profil `infra`) | ZITADEL v4.19.4 z osobną bazą, bez własnego ekranu logowania; konto serwisowe dla `auth` (rola `IAM_LOGIN_CLIENT`) i jego token w wolumenie `zitadel-bootstrap` | konsola http://localhost:8082/ui/console (`admin` / `Admin-dev-1234!`)                        |
 
 ```sh
 npm ci && npm run dev:setup                           # raz: klucz podpisu, hasło demo, masterkey ZITADEL w .local/
