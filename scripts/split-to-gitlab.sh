@@ -46,8 +46,8 @@ make_repo() {
   git -C "$dir" init --quiet -b main
   git -C "$dir" add -A
   git -C "$dir" commit --quiet -m "EQUENOR $name: stan startowy (z KonskaAppka $rev)" \
-    -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" \
-    -m "Claude-Session: https://claude.ai/code/session_01T9ZxQWgubbAK5UkHpSX6x9"
+    -m "$(printf '%s\n%s' 'Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>' \
+      'Claude-Session: https://claude.ai/code/session_01T9ZxQWgubbAK5UkHpSX6x9')"
   echo "$name: $(git -C "$dir" ls-files | wc -l) plików"
 }
 
