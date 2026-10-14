@@ -15,6 +15,17 @@ przy każdym boksie z aktualnymi instrukcjami (karmienie, padok, weterynarz) i p
 - [Makiety (kanwas)](https://claude.ai/artifact/SjdCnhTF5eqXy2vRaSMUtX)
 - [Plan brakujących makiet: rejestracja, ekrany główne, urządzenia](docs/makiety-plan.md)
 
+## Kolejka zadań
+
+Prace są rozpisane na zadania dla agentów w [`tasks/`](tasks/README.md): backend (`BE`), panel web i TV (`WEB`), apka mobilna (`MOB`), tablet (`TAB`) i wspólne (`SH`). Każdy plik zadania ma kontekst, zakres, kryteria akceptacji i testy. Przegląd: [tasks/QUEUE.md](tasks/QUEUE.md), decyzje do podjęcia: [tasks/decisions.md](tasks/decisions.md), protokół (przejęcie, blokada, nowe zadanie, Trello): [tasks/README.md](tasks/README.md).
+
+```sh
+node tasks/queue.mjs next --area backend   # zadania gotowe do wzięcia (backend | web | mobile | tablet | shared)
+node tasks/queue.mjs claim BE-001 <owner>  # przejęcie: status in_progress, gałąź claude/BE-001-<slug>
+node tasks/queue.mjs set BE-001 review     # todo | in_progress | review | done | blocked (--reason)
+node tasks/queue.mjs check                 # spójność kolejki (też w CI)
+```
+
 ## Kod
 
 Dwa niezależne pakiety npm (bez pnpm, workspaces i Turborepo), każdy z własnym `package-lock.json` i Dockerfile:
