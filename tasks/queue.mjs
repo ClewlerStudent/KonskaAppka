@@ -3,14 +3,15 @@
 // Bez zależności: tylko node:fs i node:path (Node 22). Opis protokołu: tasks/README.md.
 //
 //   node tasks/queue.mjs check                       sprawdza pliki zadań, decyzje i aktualność QUEUE.md
-//   node tasks/queue.mjs next [--area A] [--all]     zadania gotowe do wzięcia (domyślnie 10)
-//   node tasks/queue.mjs list [--area A] [--status S]
+//   node tasks/queue.mjs next [A | --area A] [--all] zadania gotowe do wzięcia (domyślnie 10)
+//   node tasks/queue.mjs list [A | --area A] [--status S]
 //   node tasks/queue.mjs show <ID>                   ścieżka, zależności i decyzje zadania
 //   node tasks/queue.mjs index                       generuje tasks/QUEUE.md i listy zadań w decisions.md
 //   node tasks/queue.mjs claim <ID> <owner> [branch] przejęcie: status in_progress, owner, branch
 //   node tasks/queue.mjs set <ID> <status> [--reason "…"]
 //
-// Opcje: --json (next, list, show), --force (claim, set), --limit N (next).
+// Opcje: --json (next, list, show), --force (claim, set), --limit N (next),
+//        --env emulator,macos,device,owner|none (next: tylko zadania, których kryteria [ręcznie] da się sprawdzić).
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -25,6 +26,9 @@ export const AREAS = {
 export const STATUSES = ['todo', 'in_progress', 'review', 'done', 'blocked'];
 export const SIZES = ['S', 'M', 'L'];
 export const DECISION_STATUSES = ['otwarta', 'rozstrzygnięta'];
+/** Opcjonalne pole `needs`: środowisko potrzebne do kryteriów [ręcznie] (tasks/README.md punkt 4). */
+export const NEEDS = ['emulator', 'macos', 'device', 'owner'];
+const MANUAL_TAG = '[ręcznie]';
 export const REQUIRED_KEYS = [
   'id',
   'title',
@@ -51,6 +55,8 @@ export const REQUIRED_SECTIONS = [
 const ID_RE = /^(BE|WEB|MOB|TAB|SH)-\d{3}$/;
 const ID_IN_TEXT_RE = /\b(?:BE|WEB|MOB|TAB|SH)-\d{3}\b/g;
 const DEC_RE = /^DEC-\d{2,}$/;
+const DEC_IN_TEXT_RE = /\bDEC-\d{2,}\b/g;
+const DEP_OK_RE = /<!--\s*dep-ok:([^>]*)-->/g;
 const TASKS_LINE = '- **Zadania:**';
 const BLOCK_SECTION = 'Blokada';
 
@@ -157,6 +163,55 @@ export function sectionsOf(body) {
     .map((l) => /^## (.+?)\s*$/.exec(l))
     .filter(Boolean)
     .map((m) => m[1]);
+}
+
+/** Treść sekcji `## <name>` (bez nagłówka) albo pusty tekst. */
+export function sectionText(body, name) {
+  const lines = body.split('\n');
+  const start = lines.findIndex((l) => l.trim() === `## ${name}`);
+  if (start < 0) return '';
+  let end = start + 1;
+  while (end < lines.length && !/^## /.test(lines[end])) end++;
+  return lines.slice(start + 1, end).join('\n');
+}
+
+/** Punkt „Stan kodu” z sekcji Kontekst (od `- Stan kodu` / `- **Stan kodu…**` do następnego punktu). */
+export function codeStateText(body) {
+  const lines = sectionText(body, 'Kontekst').split('\n');
+  const start = lines.findIndex((l) => /^- (\*\*)?Stan kodu/.test(l));
+  if (start < 0) return '';
+  let end = start + 1;
+  while (end < lines.length && !/^- /.test(lines[end])) end++;
+  return lines.slice(start, end).join('\n');
+}
+
+/** Liczba kryteriów `- [ ] [ręcznie] …` (także odhaczonych) w sekcji Kryteria akceptacji. */
+export function manualCriteria(body) {
+  return sectionText(body, 'Kryteria akceptacji')
+    .split('\n')
+    .filter((l) => /^- \[[ xX]\] /.test(l) && l.includes(MANUAL_TAG)).length;
+}
+
+/** Zbiór przodków (wszystkie zależności przechodnie) każdego zadania. */
+export function ancestorsMap(tasks) {
+  const byId = new Map(tasks.map((t) => [t.id, t]));
+  const memo = new Map();
+  const visit = (id, stack = new Set()) => {
+    if (memo.has(id)) return memo.get(id);
+    const acc = new Set();
+    if (stack.has(id)) return acc;
+    stack.add(id);
+    for (const dep of byId.get(id)?.depends_on ?? []) {
+      if (!byId.has(dep)) continue;
+      acc.add(dep);
+      for (const a of visit(dep, stack)) acc.add(a);
+    }
+    stack.delete(id);
+    memo.set(id, acc);
+    return acc;
+  };
+  for (const t of tasks) visit(t.id);
+  return memo;
 }
 
 /** Dopisuje punkt do sekcji `## Blokada` (tworzy ją na końcu pliku, jeśli jej nie ma). */
@@ -319,6 +374,24 @@ export function checkAll(tasks, decisions, { loadErrors = [] } = {}) {
     }
     if (Array.isArray(t.decisions) && new Set(t.decisions).size !== t.decisions.length)
       warnings.push(`${where}: powtórzona decyzja w decisions`);
+    if ('needs' in t && t.needs !== null) {
+      if (!Array.isArray(t.needs)) errors.push(`${where}: needs musi być listą [..]`);
+      else
+        for (const n of t.needs)
+          if (!NEEDS.includes(n)) errors.push(`${where}: needs „${n}” (dozwolone: ${NEEDS.join(', ')})`);
+    }
+    const hasManual = t.body.includes(MANUAL_TAG);
+    const needs = Array.isArray(t.needs) ? t.needs : [];
+    if (hasManual && !needs.length) warnings.push(`${where}: kryteria ${MANUAL_TAG} bez pola needs w nagłówku`);
+    if (!hasManual && needs.length) warnings.push(`${where}: needs bez kryteriów ${MANUAL_TAG} w treści`);
+    if (Array.isArray(t.decisions)) {
+      const cited = new Set();
+      for (const s of t.sections.filter((x) => x !== 'Poza zakresem' && x !== BLOCK_SECTION))
+        for (const m of sectionText(t.body, s).match(DEC_IN_TEXT_RE) ?? []) cited.add(m);
+      for (const m of t.body.split('\n').find((l) => /^# /.test(l))?.match(DEC_IN_TEXT_RE) ?? []) cited.add(m);
+      const missing = [...cited].filter((d) => !t.decisions.includes(d)).sort();
+      if (missing.length) warnings.push(`${where}: treść cytuje ${missing.join(', ')}, których nie ma w decisions`);
+    }
     const h1 = t.body.split('\n').find((l) => /^# /.test(l));
     if (!h1 || !h1.startsWith(`# ${t.id} · `)) errors.push(`${where}: pierwszy nagłówek powinien mieć postać „# ${t.id} · <tytuł>”`);
     for (const s of REQUIRED_SECTIONS) if (!t.sections.includes(s)) errors.push(`${where}: brak sekcji „## ${s}”`);
@@ -342,6 +415,22 @@ export function checkAll(tasks, decisions, { loadErrors = [] } = {}) {
   for (const d of decisions)
     for (const id of d.blocks) if (!byId.has(id)) errors.push(`decisions.md: ${d.id} blokuje nieistniejące zadanie ${id}`);
 
+  // Zadania z „Stan kodu” i „Testy” muszą być przed tym zadaniem (przodek) albo po nim (potomek).
+  const valid = [...byId.values()];
+  const anc = ancestorsMap(valid);
+  for (const t of valid) {
+    const ok = new Set([t.id]);
+    for (const m of t.body.matchAll(DEP_OK_RE)) for (const id of m[1].match(ID_IN_TEXT_RE) ?? []) ok.add(id);
+    const text = `${codeStateText(t.body)}\n${sectionText(t.body, 'Testy')}`;
+    const loose = [...new Set(text.match(ID_IN_TEXT_RE) ?? [])]
+      .filter((id) => byId.has(id) && !ok.has(id) && !anc.get(t.id)?.has(id) && !anc.get(id)?.has(t.id))
+      .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+    if (loose.length)
+      warnings.push(
+        `${t.rel}: „Stan kodu”/„Testy” korzystają z ${loose.join(', ')}, których nie ma w depends_on (ani przechodnio); dopisz zależność albo <!-- dep-ok: ID -->`,
+      );
+  }
+
   for (const cycle of findCycles([...byId.values()])) errors.push(`cykl zależności: ${cycle.join(' → ')}`);
   return { errors, warnings };
 }
@@ -358,14 +447,21 @@ export function blockingDecisions(task, decisions) {
   return decisions.filter((d) => d.status !== 'rozstrzygnięta' && d.blocks.includes(task.id)).map((d) => d.id);
 }
 
+/** Czy środowisko `env` (lista z NEEDS) wystarcza do wszystkich kryteriów [ręcznie] zadania. */
+export function fitsEnv(task, env) {
+  if (!env) return true;
+  return (Array.isArray(task.needs) ? task.needs : []).every((n) => env.includes(n));
+}
+
 /** Zadania todo z wszystkimi zależnościami done. `waiting` = gotowe, ale czekają na decyzję właściciela. */
-export function readyTasks(tasks, decisions = [], { area } = {}) {
+export function readyTasks(tasks, decisions = [], { area, env } = {}) {
   const byId = new Map(tasks.map((t) => [t.id, t]));
   const ready = [];
   const waiting = [];
   for (const t of [...tasks].sort(byStageAndId)) {
     if (t.status !== 'todo') continue;
     if (area && t.area !== area) continue;
+    if (!fitsEnv(t, env)) continue;
     if (!(t.depends_on ?? []).every((d) => byId.get(d)?.status === 'done')) continue;
     const blockedBy = blockingDecisions(t, decisions);
     (blockedBy.length ? waiting : ready).push({ ...t, blockedBy });
@@ -383,6 +479,21 @@ export function nearestTasks(tasks, { area, limit = 5 } = {}) {
     .sort((a, b) => a.missing.length - b.missing.length || byStageAndId(a, b))
     .slice(0, limit)
     .map((t) => ({ ...t, missing: t.missing.map((d) => ({ id: d, status: byId.get(d)?.status ?? '?' })) }));
+}
+
+/**
+ * Gotowe zadania (z dowolnego obszaru), od których przechodnio zależą zadania todo obszaru `area`,
+ * posortowane według liczby zadań obszaru, które czekają na nie (najwięcej pierwsze).
+ */
+export function unblockers(tasks, decisions = [], { area, env, limit = 5 } = {}) {
+  const { ready } = readyTasks(tasks, decisions, { env });
+  const anc = ancestorsMap(tasks);
+  const waitingInArea = tasks.filter((t) => t.status === 'todo' && t.area === area);
+  return ready
+    .map((r) => ({ ...r, unblocks: waitingInArea.filter((w) => anc.get(w.id)?.has(r.id)).length }))
+    .filter((r) => r.unblocks > 0)
+    .sort((a, b) => b.unblocks - a.unblocks || byStageAndId(a, b))
+    .slice(0, limit);
 }
 
 // ---------------------------------------------------------------------------
@@ -447,10 +558,10 @@ export function renderQueue(tasks, decisions) {
       out.push('Brak zadań.', '');
       continue;
     }
-    out.push('| ID | Zadanie | Etap | Rozmiar | Status | Zależności | Decyzje |', '|---|---|--:|---|---|---|---|');
+    out.push('| ID | Zadanie | Etap | Rozmiar | Status | Zależności | Decyzje | Wymaga |', '|---|---|--:|---|---|---|---|---|');
     for (const t of list)
       out.push(
-        `| ${t.id} | ${link(t)} | ${t.stage} | ${t.size} | ${t.status} | ${(t.depends_on ?? []).join(', ')} | ${(t.decisions ?? []).join(', ')} |`,
+        `| ${t.id} | ${link(t)} | ${t.stage} | ${t.size} | ${t.status} | ${(t.depends_on ?? []).join(', ')} | ${(t.decisions ?? []).join(', ')} | ${(Array.isArray(t.needs) ? t.needs : []).join(', ')} |`,
       );
     out.push('');
   }
@@ -548,7 +659,8 @@ function today() {
 
 function fmtTask(t) {
   const dec = (t.decisions ?? []).length ? `  [${t.decisions.join(', ')}]` : '';
-  return `${t.id.padEnd(8)} etap ${t.stage}  ${t.size}  ${t.status.padEnd(11)} ${t.title}${dec}\n         tasks/${t.rel}`;
+  const needs = Array.isArray(t.needs) && t.needs.length ? `  wymaga: ${t.needs.join(', ')}` : '';
+  return `${t.id.padEnd(8)} etap ${t.stage}  ${t.size}  ${t.status.padEnd(11)} ${t.title}${dec}${needs}\n         tasks/${t.rel}`;
 }
 
 export function main(argv, root = import.meta.dirname, log = console.log, logErr = console.error) {
@@ -564,7 +676,13 @@ export function main(argv, root = import.meta.dirname, log = console.log, logErr
     if (!t) throw new Error(`nie ma zadania ${id}`);
     return t;
   };
-  const areaOpt = opts.area;
+  let areaOpt = opts.area;
+  if (['next', 'list'].includes(cmd) && rest.length) {
+    if (rest.length > 1 || areaOpt) throw new Error(`nieoczekiwany argument „${rest.join(' ')}” (użycie: ${cmd} [obszar] albo ${cmd} --area <obszar>)`);
+    if (!(rest[0] in AREAS))
+      throw new Error(`nieoczekiwany argument „${rest[0]}”: to nie obszar (dozwolone: ${Object.keys(AREAS).join(', ')}; albo --area <obszar>)`);
+    areaOpt = rest[0];
+  }
   if (areaOpt && !(areaOpt in AREAS)) throw new Error(`nieznany obszar ${areaOpt} (dozwolone: ${Object.keys(AREAS).join(', ')})`);
 
   switch (cmd) {
@@ -581,10 +699,20 @@ export function main(argv, root = import.meta.dirname, log = console.log, logErr
     }
     case 'next': {
       const { tasks, decisions } = load();
-      const { ready, waiting } = readyTasks(tasks, decisions, { area: areaOpt });
+      let env;
+      if (opts.env !== undefined) {
+        env = String(opts.env)
+          .split(',')
+          .map((s) => s.trim())
+          .filter((s) => s && s !== 'none');
+        const bad = env.filter((e) => !NEEDS.includes(e));
+        if (bad.length) throw new Error(`nieznane środowisko ${bad.join(', ')} (dozwolone: ${NEEDS.join(', ')} albo none)`);
+      }
+      const { ready, waiting } = readyTasks(tasks, decisions, { area: areaOpt, env });
       const limit = opts.all ? Infinity : Number(opts.limit ?? 10);
       const shown = ready.slice(0, limit);
       const nearest = ready.length ? [] : nearestTasks(tasks, { area: areaOpt });
+      const unblock = ready.length || !areaOpt ? [] : unblockers(tasks, decisions, { area: areaOpt, env });
       if (opts.json) {
         log(
           JSON.stringify(
@@ -593,6 +721,7 @@ export function main(argv, root = import.meta.dirname, log = console.log, logErr
               total: ready.length,
               waitingForDecision: waiting.map(pick),
               nearest: nearest.map((t) => ({ ...pick(t), missing: t.missing })),
+              unblockers: unblock.map((t) => ({ ...pick(t), unblocks: t.unblocks })),
             },
             null,
             2,
@@ -600,12 +729,16 @@ export function main(argv, root = import.meta.dirname, log = console.log, logErr
         );
         return 0;
       }
-      log(`Gotowe do wzięcia${areaOpt ? ` (${areaOpt})` : ''}: ${ready.length}${shown.length < ready.length ? `, pokazuję ${shown.length} (--all: wszystkie)` : ''}`);
+      log(`Gotowe do wzięcia${areaOpt ? ` (${areaOpt})` : ''}${env ? ` (środowisko: ${env.join(', ') || 'none'})` : ''}: ${ready.length}${shown.length < ready.length ? `, pokazuję ${shown.length} (--all: wszystkie)` : ''}`);
       for (const t of shown) log(fmtTask(t));
       if (waiting.length) log(`Czekają na decyzję właściciela: ${waiting.map((t) => `${t.id} (${t.blockedBy.join(', ')})`).join('; ')}`);
       if (nearest.length) {
         log('Nic gotowego. Najbliższe (czekają na zależności):');
         for (const t of nearest) log(`  ${t.id.padEnd(8)} ${t.title}  ← ${t.missing.map((m) => `${m.id} (${m.status})`).join(', ')}`);
+      }
+      if (unblock.length) {
+        log(`Gotowe zadania, które odblokują obszar ${areaOpt} (tasks/README.md punkt 1):`);
+        for (const t of unblock) log(`  ${t.id.padEnd(8)} ${t.area.padEnd(8)} ${t.title}  (zależnych zadań obszaru: ${t.unblocks})`);
       }
       return 0;
     }
@@ -641,6 +774,8 @@ export function main(argv, root = import.meta.dirname, log = console.log, logErr
       for (const d of t.decisions ?? [])
         log(`  ${d} ${decById.get(d)?.status ?? '?'}${decById.get(d)?.blocks.includes(t.id) ? ' (blokuje start)' : ''}  ${decById.get(d)?.title ?? ''}`);
       log(`Zależą od niego: ${dependents.join(', ') || '-'}`);
+      const manual = manualCriteria(t.body);
+      if (manual) log(`Kryteria ${MANUAL_TAG}: ${manual} (wymaga: ${(t.needs ?? []).join(', ') || '-'}; tasks/README.md punkt 4)`);
       return 0;
     }
     case 'index': {
@@ -705,8 +840,8 @@ export function main(argv, root = import.meta.dirname, log = console.log, logErr
         [
           'Kolejka zadań EQUENOR (tasks/README.md)',
           '  check                          sprawdza pliki zadań i aktualność QUEUE.md (kod 1 przy błędach)',
-          '  next [--area A] [--all]        zadania gotowe do wzięcia (domyślnie 10; --limit N, --json)',
-          '  list [--area A] [--status S]   lista zadań (--json)',
+          '  next [A | --area A] [--all]    zadania gotowe do wzięcia (domyślnie 10; --limit N, --json, --env E,…|none)',
+          '  list [A | --area A] [--status S]  lista zadań (--json)',
           '  show <ID>                      zależności, decyzje i zadania zależne',
           '  index                          generuje tasks/QUEUE.md i listy w decisions.md',
           '  claim <ID> <owner> [branch]    przejęcie zadania (status in_progress)',
@@ -719,8 +854,23 @@ export function main(argv, root = import.meta.dirname, log = console.log, logErr
 }
 
 function pick(t) {
-  const { id, title, area, stage, size, status, depends_on, decisions, owner, branch, trello, rel, blockedBy } = t;
-  return { id, title, area, stage, size, status, depends_on, decisions, owner, branch, trello, file: `tasks/${rel}`, ...(blockedBy?.length ? { blockedBy } : {}) };
+  const { id, title, area, stage, size, status, depends_on, decisions, needs, owner, branch, trello, rel, blockedBy } = t;
+  return {
+    id,
+    title,
+    area,
+    stage,
+    size,
+    status,
+    depends_on,
+    decisions,
+    needs: Array.isArray(needs) ? needs : [],
+    owner,
+    branch,
+    trello,
+    file: `tasks/${rel}`,
+    ...(blockedBy?.length ? { blockedBy } : {}),
+  };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === import.meta.filename) {

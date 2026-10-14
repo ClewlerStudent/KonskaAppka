@@ -25,6 +25,7 @@ Jedyny serwis z dostępem do magazynu plików zgodnego z S3. Daje innym serwisom
 
 ## Zakres
 - [ ] Serwis `backend/src/services/files/` (`main.ts`, `app.ts`, `env.ts`), skrypty `start:files`, `dev:files`; kontrakt `backend/src/contracts/files.ts` w `backend/src/contracts/index.ts`.
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”).
 - [ ] Adapter magazynu (`@aws-sdk/client-s3` i `@aws-sdk/s3-request-presigner`, dokładne wersje w `package.json`): env `S3_ENDPOINT`, `S3_PUBLIC_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_FORCE_PATH_STYLE`, poświadczenia z pliku (`S3_ACCESS_KEY_FILE`, `S3_SECRET_KEY_FILE`); linki podpisywane adresem publicznym.
 - [ ] Trasy wewnętrzne na porcie `files` (`callers: ['operations', 'schedule', 'billing', 'stables', 'platform']`):
   - `POST /files/v1/internal/files`: `{ownerService, ownerId, stableId | null, originalName, contentType, sizeBytes, sha256}` → wiersz `pending` z kluczem `{stableId}/{ownerService}/{fileId}` (APK: `releases/{fileId}`), presigned PUT z wymuszonym `Content-Type` i `Content-Length`, ważny 15 min;

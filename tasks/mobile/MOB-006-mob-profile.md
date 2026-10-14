@@ -5,8 +5,9 @@ area: mobile
 stage: 1
 size: M
 status: todo
-depends_on: [BE-020, BE-023, MOB-005]
+depends_on: [BE-020, BE-023, MOB-005, BE-019]
 decisions: [DEC-15]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -42,15 +43,15 @@ Każda osoba w apce zmienia język, imię, kanał kodu, hasło, numer albo e-mai
 - [ ] Ola zmienia język na „Українська”: interfejs od razu po ukraińsku, a następny kod logowania przychodzi po ukraińsku.
 - [ ] Damian zmienia kanał kodu na e-mail; kolejne logowanie wysyła kod e-mailem.
 - [ ] Anna zmienia numer: kod MFA na stary numer, kod na nowy numer, potem `GET /me` pokazuje nowy zamaskowany numer; numer innego konta daje komunikat bez ujawniania czyje.
-- [ ] Zmiana hasła na telefonie zostawia ten telefon zalogowany, a drugi telefon Anny po ≤ 5 min wraca do logowania.
+- [ ] [ręcznie] Zmiana hasła na telefonie zostawia ten telefon zalogowany, a drugi telefon Anny po ≤ 5 min wraca do logowania.
 - [ ] „Opuść stajnię” Oli w Brzozowej usuwa ją z przełącznika; Damian nie ma tej akcji przy stajniach swojej firmy; „Usuń konto” Damiana kończy się komunikatem o jedynym adminie.
 
 ## Testy
 - Jest + RNTL: `profile.test.tsx` (warianty roli, widoczność „Kod logowania”, dialogi), `change-contact.test.tsx`, `change-password.test.tsx` na atrapie API z kodami błędów.
-- Maestro: `mobile/e2e/maestro/profile.yaml` (język, kanał kodu, wylogowanie wszędzie) na lokalnym stosie.
+- [ręcznie] Maestro: `mobile/e2e/maestro/profile.yaml` (język, kanał kodu, wylogowanie wszędzie) na lokalnym stosie.
 
 ## Definicja gotowości
-- `npm run check` w `mobile/` zielone; flow Maestro przechodzi; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `mobile/` zielone; flow Maestro przechodzi [ręcznie]; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Usuwanie konta w apce jest wymogiem App Store (5.1.1(v)) i Google Play; nie chowaj go głębiej niż Profil.

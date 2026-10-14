@@ -6,7 +6,7 @@ stage: 2
 size: M
 status: todo
 depends_on: [BE-024, BE-032, WEB-011, WEB-006]
-decisions: [DEC-27]
+decisions: [DEC-27, DEC-32]
 owner:
 branch:
 trello:
@@ -31,7 +31,7 @@ Admin dodaje konia (z boksem albo bez, z zaproszeniem klienta albo dostępem dla
 - [ ] Po zapisach unieważnienie `boxes-overview`, `horses-overview` i `horse-clients`.
 
 ## Poza zakresem
-- Zdjęcie konia (BE-051, poza PoC panelu); chip „Odeszły” (brak trasy listy koni `left`; pusty w seedzie); karta konia i flaga z panelu (P3).
+- Zdjęcie konia (po PoC według DEC-32: na PoC bez tras i pola w dialogu); chip „Odeszły” (brak trasy listy koni `left`; pusty w seedzie); karta konia i flaga z panelu (P3).
 
 ## Kryteria akceptacji
 - [ ] A-04: Luna dodana „Bez boksu na razie” z zaproszeniem Marka Nowaka SMS-em, „Ważne do” czw 15.10; w PanelBoksy „Konie bez boksu: Luna · Klient: Marek Nowak · zaproszenie czeka”; „Przypisz boks” do „Hala nowa · boks 6” wysyła `boxId` tego boksu.

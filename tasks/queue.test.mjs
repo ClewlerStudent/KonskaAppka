@@ -6,24 +6,28 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   REQUIRED_SECTIONS,
+  ancestorsMap,
   appendBlockReason,
   checkAll,
+  codeStateText,
   findCycles,
   formatValue,
   loadDecisions,
   loadTasks,
   main,
+  manualCriteria,
   nearestTasks,
   parseDecisions,
   parseFrontMatter,
   readyTasks,
   setFrontMatterFields,
+  unblockers,
 } from './queue.mjs';
 
 const body = (id) =>
   `# ${id} · Tytuł\n\n${REQUIRED_SECTIONS.map((s) => `## ${s}\n- treść\n`).join('\n')}`;
 
-function taskFile({ id, area, stage = 0, status = 'todo', deps = [], decisions = [], owner = '' }) {
+function taskFile({ id, area, stage = 0, status = 'todo', deps = [], decisions = [], owner = '', needs, text }) {
   return [
     '---',
     `id: ${id}`,
@@ -34,11 +38,12 @@ function taskFile({ id, area, stage = 0, status = 'todo', deps = [], decisions =
     `status: ${status}`,
     `depends_on: [${deps.join(', ')}]`,
     `decisions: [${decisions.join(', ')}]`,
+    ...(needs ? [`needs: [${needs.join(', ')}]`] : []),
     `owner:${owner ? ` ${owner}` : ''}`,
     'branch:',
     'trello:',
     '---',
-    body(id),
+    text ?? body(id),
   ].join('\n');
 }
 
@@ -250,4 +255,96 @@ test('claim i set: zmieniają nagłówek, pilnują zależności i odświeżają 
 test('prawdziwa kolejka w repo przechodzi check', () => {
   const res = run(import.meta.dirname, 'check');
   assert.equal(res.code, 0, res.err);
+});
+
+const bodyWith = (id, parts) =>
+  `# ${id} · Tytuł\n\n${REQUIRED_SECTIONS.map((s) => `## ${s}\n${parts[s] ?? '- treść'}\n`).join('\n')}`;
+
+test('check: zadania ze „Stan kodu” i „Testy” spoza depends_on dają uwagę, dep-ok ją wycisza', () => {
+  const text = (extra = '') =>
+    bodyWith('WEB-002', {
+      Kontekst: '- **Stan kodu:** komponenty z WEB-001, kolejka z MOB-001 i kontrakt z BE-001.\n- **Dokumenty:** WEB-003 tylko w dokumentach',
+      Testy: '- Playwright na atrapie z SH-001.',
+      'Uwagi dla wykonawcy': `- uwaga${extra}`,
+    });
+  const tasks = [
+    { id: 'BE-001', area: 'backend' },
+    { id: 'WEB-001', area: 'web', deps: ['BE-001'] },
+    { id: 'WEB-002', area: 'web', deps: ['WEB-001'], text: text() },
+    { id: 'WEB-003', area: 'web', deps: ['WEB-002'] },
+    { id: 'MOB-001', area: 'mobile' },
+    { id: 'SH-001', area: 'shared' },
+  ];
+  let root = fixture(tasks);
+  let { tasks: loaded } = loadTasks(root);
+  let { warnings } = checkAll(loaded, parseDecisions(DECISIONS));
+  const w = warnings.filter((x) => x.includes('WEB-002'));
+  assert.equal(w.length, 1, warnings.join('\n'));
+  assert.match(w[0], /korzystają z MOB-001, SH-001,/);
+  assert.equal(codeStateText(loaded.find((x) => x.id === 'WEB-002').body).includes('WEB-003'), false, 'tylko punkt „Stan kodu”');
+  assert.equal(ancestorsMap(loaded).get('WEB-003').has('BE-001'), true);
+  root = fixture(tasks.map((x) => (x.id === 'WEB-002' ? { ...x, text: text('\n<!-- dep-ok: MOB-001, SH-001 (wzór) -->') } : x)));
+  ({ tasks: loaded } = loadTasks(root));
+  ({ warnings } = checkAll(loaded, parseDecisions(DECISIONS)));
+  assert.deepEqual(warnings.filter((x) => x.includes('WEB-002')), []);
+});
+
+test('check: DEC cytowana w treści poza „Poza zakresem” musi być w decisions', () => {
+  const text = bodyWith('BE-001', { Kontekst: '- Decyzje: DEC-01 A.', 'Poza zakresem': '- coś innego (DEC-02).' });
+  let root = fixture([{ id: 'BE-001', area: 'backend', text }]);
+  let { warnings } = checkAll(loadTasks(root).tasks, parseDecisions(DECISIONS));
+  assert.equal(warnings.length, 1, warnings.join('\n'));
+  assert.match(warnings[0], /cytuje DEC-01, których nie ma w decisions/);
+  root = fixture([{ id: 'BE-001', area: 'backend', text, decisions: ['DEC-01'] }]);
+  ({ warnings } = checkAll(loadTasks(root).tasks, parseDecisions(DECISIONS)));
+  assert.deepEqual(warnings, []);
+});
+
+test('check i next: needs, kryteria [ręcznie] i filtr --env', () => {
+  const manual = bodyWith('TAB-001', { 'Kryteria akceptacji': '- [ ] Jest zielony.\n- [ ] [ręcznie] Na emulatorze działa.' });
+  const root = fixture(
+    [
+      { id: 'TAB-001', area: 'tablet', text: manual, needs: ['emulator'] },
+      { id: 'TAB-002', area: 'tablet', text: manual },
+      { id: 'TAB-003', area: 'tablet', needs: ['kvm'] },
+      { id: 'TAB-004', area: 'tablet' },
+    ],
+    DECISIONS.replace('- **Blokuje:** BE-003', '- **Blokuje:** brak'),
+  );
+  const { tasks } = loadTasks(root);
+  const { errors, warnings } = checkAll(tasks, parseDecisions(DECISIONS));
+  assert.match(errors.join('\n'), /needs „kvm”/);
+  assert.match(warnings.join('\n'), /TAB-002-x\.md: kryteria \[ręcznie\] bez pola needs/);
+  assert.match(warnings.join('\n'), /TAB-003-x\.md: needs bez kryteriów/);
+  assert.equal(manualCriteria(tasks.find((x) => x.id === 'TAB-001').body), 1);
+  const ok = tasks.filter((x) => x.id !== 'TAB-003');
+  assert.deepEqual(readyTasks(ok, [], { env: [] }).ready.map((x) => x.id), ['TAB-002', 'TAB-004']);
+  assert.deepEqual(readyTasks(ok, [], { env: ['emulator'] }).ready.map((x) => x.id), ['TAB-001', 'TAB-002', 'TAB-004']);
+  fs.rmSync(path.join(root, 'tablet', 'TAB-003-x.md'));
+  run(root, 'index');
+  assert.match(run(root, 'next', '--env', 'none').out, /Gotowe do wzięcia \(środowisko: none\): 2/);
+  assert.throws(() => run(root, 'next', '--env', 'kvm'), /nieznane środowisko kvm/);
+  assert.match(run(root, 'show', 'TAB-001').out, /Kryteria \[ręcznie\]: 1 \(wymaga: emulator/);
+});
+
+test('next i list: obszar jako argument pozycyjny, nieznany argument to błąd', () => {
+  const root = fixture(
+    [
+      { id: 'BE-001', area: 'backend' },
+      { id: 'WEB-001', area: 'web', deps: ['BE-001'] },
+    ],
+    DECISIONS.replace('- **Blokuje:** BE-003', '- **Blokuje:** brak'),
+  );
+  run(root, 'index');
+  assert.match(run(root, 'next', 'backend').out, /Gotowe do wzięcia \(backend\): 1/);
+  const web = run(root, 'next', 'web').out;
+  assert.match(web, /Gotowe do wzięcia \(web\): 0/);
+  assert.match(web, /odblokują obszar web[\s\S]*BE-001/);
+  assert.match(run(root, 'list', 'web').out, /^WEB-001 /);
+  assert.doesNotMatch(run(root, 'list', 'web').out, /BE-001/);
+  assert.throws(() => run(root, 'next', 'bakend'), /nieoczekiwany argument „bakend”/);
+  assert.throws(() => run(root, 'list', 'web', 'backend'), /nieoczekiwany argument/);
+  assert.throws(() => run(root, 'next', 'web', '--area', 'backend'), /nieoczekiwany argument/);
+  const { tasks } = loadTasks(root);
+  assert.deepEqual(unblockers(tasks, [], { area: 'web' }).map((x) => [x.id, x.unblocks]), [['BE-001', 1]]);
 });

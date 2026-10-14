@@ -5,7 +5,7 @@ area: backend
 stage: 1
 size: M
 status: todo
-depends_on: [BE-008]
+depends_on: [BE-008, BE-016]
 decisions: [DEC-11, DEC-01]
 owner:
 branch:
@@ -17,13 +17,14 @@ trello:
 Niezależny serwis `email` wysyła e-maile z kolejek: najpierw kody od `auth` (konta techniczne tabletów i TV logują się kodem e-mailem przy każdym logowaniu), potem powiadomienia od `notifications`, i raportuje wynik zdarzeniem `email.result`. Bez tabel, roli bazy i API (W5).
 
 ## Kontekst
-- Stan kodu: jak w BE-016 (jeden obraz, `start:<serwis>`, `kit/env.ts`, `kit/logger.ts`); kolejki `email.codes`, `email.notifications` i zdarzenie `email.result` z `lib/messaging` (BE-008). SH-002 dodaje Mailpit do compose (SMTP i podgląd skrzynki). Wspólny wzorzec pętli z BE-016: jeśli BE-016 już jest, wydziel go do `backend/src/kit/queue-worker.ts` i użyj w obu.
+- Stan kodu: jak w BE-016 (jeden obraz, `start:<serwis>`, `kit/env.ts`, `kit/logger.ts`); kolejki `email.codes`, `email.notifications` i zdarzenie `email.result` z `lib/messaging` (BE-008). SH-002 dodaje Mailpit do compose (SMTP i podgląd skrzynki). Wspólny wzorzec pętli z BE-016 (zależność): wydziel go do `backend/src/kit/queue-worker.ts` i użyj w obu.
 - Dokumenty: `docs/mikroserwisy.md` 5.8 (jak `sms`: kody przed powiadomieniami, błąd stały bez ponowień, ostatnia próba → `failed`, kody bez wyniku i bez treści w logach), 9.3 i 9.4 (tablet i TV: kod na skrzynkę konta technicznego, np. boksy@stajnielipowe.pl); `docs/development-szczegoly.md` 3.3 „sms i email”, 2.6 (SES), 3.2 (lokalna skrzynka, np. Mailpit).
 - Decyzje: DEC-11 wariant B (SMTP przez adapter; lokalnie Mailpit; prawdziwy dostawca i SPF/DKIM/DMARC w BE-059), DEC-01.
 - Dane demo: Marta (marta@stajnielipowe.pl, kod e-mailem), „Tablety Pod Lipami” (boksy@stajnielipowe.pl), „Telewizor korytarz” (tv.korytarz@stajnielipowe.pl).
 
 ## Zakres
 - [ ] `backend/src/services/email/main.ts`, `env.ts`, `app.ts`; skrypty `dev:email`, `start:email`. Env: `APP_ENV`, `MESSAGING*`, `EMAIL_SENDER=console|smtp`, `SMTP_URL` (lokalnie Mailpit z SH-002), `EMAIL_FROM` (np. `EQUENOR <no-reply@…>`); `console` zabroniony w prod.
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `email` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:email']`, env jak w `backend/.env.example`, profil `infra`), trasa `/email/*` w `tools/local/Caddyfile` już jest (SH-002).
 - [ ] Adapter `EmailSender` (`send({ to, subject, body }) → { providerMessageId } | { error: 'permanent' | 'transient' }`): `console`, `smtp` (np. `nodemailer`, treść tekstowa; HTML później).
 - [ ] Pętla jak w `sms`: najpierw `email.codes`, potem `email.notifications`; dla powiadomień `email.result` (`notificationId`, `status`, `providerMessageId`); klasyfikacja błędów SMTP (5xx stały, 4xx i sieć przejściowe).
 - [ ] Walidacja adresu (format, długość); adres zastępczy `*@phone.invalid` (konta rejestrowane telefonem, BE-012) to błąd stały bez wysyłki.

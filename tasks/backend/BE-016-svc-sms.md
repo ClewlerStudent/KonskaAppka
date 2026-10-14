@@ -24,6 +24,7 @@ Niezależny serwis `sms` wysyła SMS-y z kolejek: najpierw kody od `auth`, potem
 
 ## Zakres
 - [ ] `backend/src/services/sms/main.ts`, `env.ts`, `app.ts`; skrypty `dev:sms`, `start:sms`. Env: `APP_ENV`, `MESSAGING*`, `SMS_SENDER=console|fake-sms|provider`, `FAKE_SMS_URL`, `SMS_SENDER_ID` (domyślnie `EQUENOR`), `SMS_ALLOWED_COUNTRY_CODES` (domyślnie `48`); `console` i `fake-sms` zabronione w prod.
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `sms` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:sms']`, env jak w `backend/.env.example`, profil `infra`), trasa `/sms/*` w `tools/local/Caddyfile` już jest (SH-002).
 - [ ] Adapter `SmsSender` (`send({ to, body }) → { providerMessageId } | { error: 'permanent' | 'transient', reason }`): `console` (log bez treści kodów), `fake-sms` (POST do lokalnego `fake-sms`), szkielet `provider` (implementacja: BE-059).
 - [ ] Pętla: odbiór z `sms.codes`, a gdy pusta, z `sms.notifications`; kody: wysyłka, przy błędzie stałym albo ostatniej próbie usunięcie z kolejki i metryka; powiadomienia: po wysyłce `sms.result` (`notificationId`, `status: sent | failed`, `providerMessageId`), błąd stały albo ostatnia próba → `failed` i potwierdzenie wiadomości, błąd przejściowy → ponowienie przez broker.
 - [ ] Walidacja numeru: E.164, kraj z listy dozwolonych; inny kraj = błąd stały (`failed`, bez wysyłki).

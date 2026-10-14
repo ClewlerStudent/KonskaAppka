@@ -5,8 +5,8 @@ area: web
 stage: 9
 size: L
 status: todo
-depends_on: [BE-026, BE-036, WEB-004]
-decisions: [DEC-10, DEC-07]
+depends_on: [BE-026, BE-036, WEB-004, WEB-002]
+decisions: [DEC-10, DEC-07, DEC-31]
 owner:
 branch:
 trello:
@@ -17,7 +17,7 @@ trello:
 Zespół EQUENOR (admin globalny, np. Kuba) wchodzi na osobny host `[OPS]`: loguje się hasłem i kodem z podaniem powodu wejścia (np. numer zgłoszenia), wybiera firmę i stajnię i pracuje na zwykłych ekranach admina ze stałym paskiem „EQUENOR · pełny dostęp · … · powód: …”. Ma też narzędzia platformy: użytkownicy (wylogowanie, odblokowanie), historia powiadomień z ponowieniem i wnioski o admina konta we dwie osoby.
 
 ## Kontekst
-- **Stan kodu:** panel admina (WEB-004…WEB-025) na trasach `/stables/$stableId/*`; sesja i ekrany logowania panelu (WEB-001, WEB-002); `vite.web.config.ts`, `nginx/default.conf.template` (serwery 8080 www i 8081 panel, CSP z Trusted Types), `frontend/Dockerfile`.
+- **Stan kodu:** panel admina (od WEB-004) na trasach `/stables/$stableId/*`; sesja i ekrany logowania panelu (WEB-001, WEB-002); `vite.web.config.ts`, `nginx/default.conf.template` (serwery 8080 www i 8081 panel, CSP z Trusted Types), `frontend/Dockerfile`.
 - **Dokumenty:** docs/mikroserwisy.md 4.1 (osobny host `[OPS]`, trasy `/auth/v1/ops/login`, `/ops/login/mfa` z powodem, `/ops/password/*`, `/ops/token`, `/ops/logout`; ciasteczko `__Secure-eq_rt_ops` z `Path=/auth/v1/ops/token`; step-up: `auth_time` ≤ 5 min; ekran: wybór firmy i stajni, pasek), 4.2–4.4 (zapis jak admin konta; autor „Zespół EQUENOR”), 3.4 (sesja `ops`: 30 min bezczynności, 10 h maksimum), 3.6 (`platform` przechodzi tam, gdzie `admin`, także z `client_id = ops`), 3.7 (tabela: `401 step_up_required` → ponowne logowanie i powtórzenie zapisu), 9.6 (przykład Kuby). BE-026: trasy `ops`, `GET /auth/v1/platform/businesses`, `GET …/platform/stables/{s}/technical-accounts`, `GET /platform/users?q=`, `POST /platform/users/{u}/sign-out|unlock`, `POST /platform/business-admin-requests` i `…/{id}/approve` (step-up, druga osoba). BE-036: `GET /notifications/v1/platform/notifications?stableId=&userId=&status=`, `POST …/{id}/retry`.
 - **Makiety:** brak planszy (PanelOps P2 do narysowania, mockups/STAN.md pkt 5); układ jak panel admina z paskiem nad nagłówkiem, logowanie jak PanelLogowanie z polem „Powód wejścia” w kroku kodu.
 - **Decyzje:** DEC-10 A (osobny host `[OPS]`, opctl, role we dwie osoby; konta zespołu = wiersz `platform_roles` w tej samej organizacji ZITADEL, bez `identity_pool`; support później; allowlista IP po PoC). DEC-07 A (`ops.<domena>`).
@@ -32,7 +32,7 @@ Zespół EQUENOR (admin globalny, np. Kuba) wchodzi na osobny host `[OPS]`: logu
 - [ ] W Ludziach i historii autor z zespołu jako „Zespół EQUENOR”, nadania z `grantedVia = platform` oznaczone (WEB-005).
 
 ## Poza zakresem
-- Role platformowe, konta zespołu i rotacja kluczy (tylko `opctl`, BE-056); PanelDiagnostyka (P3); Wsparcie IT (`plt = support`, po PoC); allowlista IP i VPN (infrastruktura Dawida).
+- Role platformowe i konta zespołu (tylko `opctl`, BE-056); rotacja klucza podpisu to wymiana sekretu przez Dawida (DEC-05 B), bez trasy i komendy; PanelDiagnostyka (P3); Wsparcie IT (`plt = support`, po PoC); allowlista IP i VPN (infrastruktura Dawida).
 
 ## Kryteria akceptacji
 - [ ] 9.6: Kuba loguje się na `[OPS]` z powodem „ZGL-123”, wybiera Brzozową, przedłuża dostęp Anny do Komety (WEB-005) — zapis działa, pasek pokazuje powód.

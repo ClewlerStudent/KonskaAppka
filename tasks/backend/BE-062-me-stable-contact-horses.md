@@ -5,7 +5,7 @@ area: backend
 stage: 2
 size: S
 status: todo
-depends_on: [BE-019, BE-032]
+depends_on: [BE-019, BE-032, BE-003]
 decisions: [DEC-15]
 owner:
 branch:
@@ -18,7 +18,7 @@ Apka ma numer do przycisku „Zadzwoń do stajni” (SzybkaFlagaNieWyslano, Stat
 
 ## Kontekst
 - **Stan kodu:** `GET /auth/v1/me` z `stables[]` (`id`, `name`, `businessId`, `role`, `features`, `status`) robi BE-019 (`backend/src/contracts/auth.ts`, `backend/src/services/auth/routes/me.ts`). Tabele: `business_admins`, `users.phone_e164` (prywatne `auth`, BE-001), `stables.business_id` i `horses.name` (tabele `stables`, widoczność `shared`, BE-003/BE-004), `horse_access` (prywatna `auth`), claim `m[].h` (BE-013). Dane demo koni i dostępów: BE-032.
-- **Dokumenty:** docs/makiety-plan.md dec. 25 („Numer dla »Zadzwoń do stajni«: `stables` nie ma telefonu; rekomendacja: numer pierwszego aktywnego admina na PoC”), A „StajniaZawieszona”, D „SzybkaFlagaNieWyslano” (`tel:`), dec. 21 (przełącznik stajni z rolą i końmi); docs/mikroserwisy.md 5.2 „Profil”, 8 (obsługa widzi same imiona, bez telefonów klientów; ten numer to kontakt do stajni, nie do klienta), 10.2 pkt 22 (luka „telefon stajni”).
+- **Dokumenty:** docs/makiety-plan.md 5 pkt 25 („Numer dla »Zadzwoń do stajni«: `stables` nie ma telefonu; rekomendacja: numer pierwszego aktywnego admina na PoC”), A „StajniaZawieszona”, D „SzybkaFlagaNieWyslano” (`tel:`), docs/makiety-plan.md 5 pkt 21 (przełącznik stajni z rolą i końmi); docs/mikroserwisy.md 5.2 „Profil”, 8 (obsługa widzi same imiona, bez telefonów klientów; ten numer to kontakt do stajni, nie do klienta), 10.2 pkt 22 (luka „telefon stajni”).
 - **Decyzje:** DEC-15 A („Zadzwoń do stajni” = telefon pierwszego aktywnego admina firmy, do której należy stajnia).
 - **Dane demo:** Stajnia Pod Lipami i Brzozowa (firma Stajnie Lipowe, admin Damian z telefonem w seedzie); Anna (klientka Kasztana i Belli w Pod Lipami), Marek (zaproszony do Luny, bez przyjęcia), Ola (obsługa, bez koni).
 

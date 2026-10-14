@@ -5,8 +5,9 @@ area: shared
 stage: 9
 size: S
 status: todo
-depends_on: [BE-058]
+depends_on: [BE-058, SH-005, BE-055, BE-060, TAB-006, TAB-020, TAB-021, WEB-019, BE-026]
 decisions: [DEC-05, DEC-10]
+needs: [owner]
 owner:
 branch:
 trello:
@@ -29,12 +30,12 @@ Przed wejściem do stajni pilotażowej zespół ma krótkie, sprawdzone instrukc
   - `tablet-zgubiony.md` („Wyloguj wszystkie tablety” albo blokada konta w Ludziach, ponowne logowanie pozostałych hasłem i kodem; w ≤ 5 min bez dostępu);
   - `tablet-tv-ponowne-logowanie.md` (kod na skrzynkę konta technicznego, kto ma do niej dostęp);
   - `wifi-zmiana.md` (ukryte ustawienia → SIEĆ, kolejność przy zmianie routera, czas przywrócenia z T-15);
-  - `apk-cofniecie.md` (`halted`, nowe wydanie z wyższym `versionCode` przez `opctl`, rollout procentowy);
+  - `apk-cofniecie.md` (`halted`, nowe wydanie z wyższym `versionCode`, rollout procentowy; kroki przez trasy `/platform/*` z BE-040, wariant `opctl` dopisany dopiero po BE-056, które czeka na DEC-10);
   - `klucz-podpisu-rotacja.md` (planowa: `SIGNING_KEY_NEXT_FILE` → przełączenie → usunięcie starego; awaryjna: usunięcie starego klucza z konfiguracji i restart `auth`, wszyscy logują się ponownie, sprawdzenie JWKS i odrzucenia starych tokenów ≤ 5 min);
   - `zitadel-awaria.md` (co stoi: nowe logowania, rejestracje, resety, zmiany profilu; co działa: odświeżanie; jak to rozpoznać w metrykach `auth`; komunikat dla stajni) i `zitadel-backup-aktualizacja.md` (kroki po stronie Dawida z odnośnikiem; po stronie aplikacji: test logowania i konto bez pary w ZITADEL);
   - `kolejki-kodow-awaria.md` (wiek najstarszej wiadomości, kody nie dochodzą, sprawdzenie `sms`/`email` i dostawców);
   - `dlq-redrive.md` (`npm run events -- dlq …`, kiedy wolno ponowić, idempotencja);
-  - `cron-reczny-przebieg.md` (`opctl cron run` / `npm run cron`, bezpieczeństwo powtórzenia, blokada advisory);
+  - `cron-reczny-przebieg.md` (`npm run cron` z BE-009, bezpieczeństwo powtórzenia, blokada advisory; `opctl cron run` dopiero po BE-056 i DEC-10);
   - `admin-globalny-wejscie.md` (`[OPS]`, powód wejścia, step-up, role we dwie osoby);
   - `wyswietlacz-pi-odtworzenie.md` (obraz z `tools/display-kiosk`, zapamiętany widok);
   - `baza-odtworzenie.md` (po stronie Dawida; po stronie aplikacji: migracje, `/readyz`, sprawdzenie spójności z ZITADEL).
@@ -48,8 +49,9 @@ Przed wejściem do stajni pilotażowej zespół ma krótkie, sprawdzone instrukc
 
 ## Kryteria akceptacji
 - [ ] Każdy runbook z listy 4.5 istnieje, ma sekcję „sprawdzenie, że działa” i odwołuje się tylko do istniejących komend i ekranów (sprawdzone na środowisku testowym albo oznaczone „do przećwiczenia” z datą).
-- [ ] Trzy runbooki przećwiczone; wynik i czas wykonania wpisane w `docs/gotowosc-pilotazu.md`.
-- [ ] Lista kryteriów zawiera każdy punkt z 4.5 z właścicielem i sposobem sprawdzenia; Dawid potwierdził sekcję infrastrukturalną (komentarz albo podpis w pliku).
+- [ ] [ręcznie] Trzy runbooki przećwiczone na środowisku testowym Dawida; wynik i czas wykonania wpisane w `docs/gotowosc-pilotazu.md`.
+- [ ] Lista kryteriów zawiera każdy punkt z 4.5 z właścicielem i sposobem sprawdzenia.
+- [ ] [ręcznie] Dawid potwierdził sekcję infrastrukturalną (komentarz albo podpis w pliku).
 
 ## Testy
 - Ćwiczenia runbooków na środowisku testowym; brak testów automatycznych.
@@ -58,6 +60,8 @@ Przed wejściem do stajni pilotażowej zespół ma krótkie, sprawdzone instrukc
 - Pliki w `docs/`, linki w README działają, ćwiczenia zapisane; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
+- Zależności obejmują zadania, które dają komendy i ekrany opisywane w runbookach (SH-005, BE-055, BE-060, TAB-006, TAB-020, TAB-021, WEB-019); BE-056 (`opctl`) nie jest zależnością, bo czeka na DEC-10: runbooki z `opctl` uzupełnia BE-056.
 - Bez sekretów, haseł i prawdziwych adresów w runbookach; nazwy zmiennych i miejsc w sejfie, nie wartości.
 - Piszesz dla osoby pod presją: krótkie kroki, jedna komenda na krok, jasne „jeśli X, to Y”.
 - Gdy kod różni się od docs, opisz stan kodu i zgłoś różnicę jako nowe zadanie według `tasks/README.md` („Nowe zadanie”).
+<!-- dep-ok: BE-056 (runbooki z opctl uzupełnia BE-056 po DEC-10) -->

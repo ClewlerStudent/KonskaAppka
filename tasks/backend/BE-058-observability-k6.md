@@ -5,7 +5,7 @@ area: backend
 stage: 9
 size: M
 status: todo
-depends_on: [BE-045]
+depends_on: [BE-045, BE-009]
 decisions: [DEC-13, DEC-01]
 owner:
 branch:

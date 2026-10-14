@@ -5,7 +5,7 @@ area: backend
 stage: 2
 size: M
 status: todo
-depends_on: [BE-030, BE-032]
+depends_on: [BE-030, BE-032, BE-064, BE-003]
 decisions: []
 owner:
 branch:
@@ -20,11 +20,12 @@ Powstaje serwis `board`: tylko odczyt, składa ekrany z tabel innych serwisów p
 - Stan kodu: wzór serwisu `auth` i `stables` (BE-029); tabele `stables`, `stable_settings`, `notification_rules`, `buildings`, `boxes`, `horses`, `horse_box_history` (BE-004, dane z BE-029–BE-032), `flag_templates`, `meal_slots` (BE-028); `stableFeatures` (BE-007); polityka z `feature` i `TenantScope` (BE-006); rola bazy `eq_board` tylko `SELECT`, bez tabel prywatnych `auth` (BE-003).
 - Dokumenty: `docs/mikroserwisy.md` 5.4 (bez tabel; ETag = hash treści, 304; ścieżki z prefiksem stajni; język w zapytaniu; dane o ludziach aplikacja dociąga z `auth`, `board` nie woła `auth`; tabela tras: `GET …/boxes-overview` admin, `GET …/horses-overview` obsługa i admin, `GET …/setup-checklist` admin), 10.2 pkt 22 (stan „Pomiń” nie ma gdzie się zapisać); `docs/development-szczegoly.md` 3.3 board (ETag i czas serwera w nagłówku, cała odpowiedź przy każdym zapytaniu, konfiguracja zmienia ETag, sortowanie naturalne numerów), 3.5.3 (PanelBoksy).
 - Makiety: `PanelBoksy.dc.html` („2 hale · 14 boksów · 13 koni”, liczniki Boksy 14, Konie w boksach 12, Konie bez boksu 1, Wolne boksy 2; sekcje hal „boksy 1–8 · 7 koni · 1 wolny” z adresem; kolumny Boks, Koń, Klient, Aktywne flagi, Boks gotowy), `BoksyAdmin.dc.html` (filtry Wszystkie · Z koniem · Wolne · Koń bez boksu), `StajennyKonie.dc.html` („Konie w stajni … wg boksu”, „Główna 1 · Iskra”, „Bez boksu · Luna”), `PanelPulpitStart.dc.html` („Pierwsze kroki · 3 z 8”: Stajnia, Boksy 1–6 z poidłem, Powiadomienia, Ustawienia stajni „Sprawdź”, Dodaj konia „0 z 6 boksów zajętych”, Ludzie, Tablety, Wyświetlacz „Pomiń”; „Dziś w stajni 06:30 · 12:00 · 18:00”).
-- Decyzje: brak (DEC-14 dotyczy widoku TV, BE-042).
+- Decyzje: brak (plan dnia na TV dotyczy widoku wyświetlacza, BE-042).
 - Dane demo: Pod Lipami (dwie hale), Brzozowa (jedna hala: bez nazwy hali przy numerze), nowa stajnia bez koni.
 
 ## Zakres
-- [ ] Serwis `backend/src/services/board/{main,app,env,deps}.ts`, skrypty `dev:board`, `serve:board`, `start:board`; kontrakty `contracts/board.ts` → `openapi/board.json`; port dev (propozycja) 4040; połączenie rolą tylko do odczytu.
+- [ ] Serwis `backend/src/services/board/{main,app,env,deps}.ts`, skrypty `dev:board`, `serve:board`, `start:board`; kontrakty widoków admina (`boxes-overview`, `horses-overview`, `setup-checklist`) dopisane do `contracts/board.ts` z BE-064 (tam są już trasy tabletu, wyświetlacza i klienta z przykładami) → `openapi/board.json`; port dev (propozycja) 4040; połączenie rolą tylko do odczytu.
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `board` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:board']`, env jak w `backend/.env.example`, profil `infra`), trasa `/board/*` w `tools/local/Caddyfile` już jest (SH-002).
 - [ ] Wspólny mechanizm odpowiedzi: treść → `ETag` (skrót SHA-256 kanonicznego JSON), `If-None-Match` → 304, nagłówek `Date` z zegara serwisu (czas nie w treści), `Cache-Control: no-cache`.
 - [ ] `GET /board/v1/stables/{stableId}/boxes-overview` (admin): `buildingCount`, liczniki, hale (`id`, `name`, adres, `boxRange`, liczby), boksy (DTO boksu z BE-031 + `horse: { id, name } | null`), konie bez boksu; sortowanie hal po `sort_order`, boksów naturalnie (2 przed 10). Pola na flagi i „Boks gotowy” jako opcjonalne (wypełnią BE-038 i BE-045).
 - [ ] `GET …/horses-overview` (obsługa i admin; obsługa tylko w stajni z `m`): konie aktywne z boksem i halą, konie bez boksu na końcu; bez danych klientów (te panel i apka biorą z `auth …/horse-clients`).

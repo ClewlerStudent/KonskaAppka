@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [MOB-024, WEB-008]
 decisions: [DEC-19, DEC-22]
+needs: [macos, device, owner]
 owner:
 branch:
 trello:
@@ -36,13 +37,13 @@ Apka trafia do testerów stajni pilotażowej przez TestFlight i ścieżkę test�
 - Zakładanie kont i płatności w Apple, Google i Expo oraz przechowywanie keystore (Dawid); strony www (WEB-008); APK tabletu (poza Play, TAB-017).
 
 ## Kryteria akceptacji
-- [ ] Build `preview` jest dostępny w TestFlight dla testerów wewnętrznych i na ścieżce testów wewnętrznych Google Play; instaluje się i loguje do środowiska testowego.
+- [ ] [ręcznie] Build `preview` jest dostępny w TestFlight dla testerów wewnętrznych i na ścieżce testów wewnętrznych Google Play; instaluje się i loguje do środowiska testowego.
 - [ ] Recenzent (symulacja: osoba spoza zespołu) loguje się kontem demo według notatki, odbiera kod MFA ze skrzynki demo i przechodzi przez flagę i usunięcie konta zapasowego.
 - [ ] Formularze Data safety i App Privacy są wypełnione zgodnie z faktycznym działaniem apki; linki do polityki prywatności i usuwania konta działają.
 - [ ] Aktualizacja przez EAS Update na kanale `preview` dociera do zainstalowanego buildu bez reinstalacji.
 
 ## Testy
-- Ręczne: lista kontrolna instalacji i logowania na fizycznym iPhonie i telefonie z Androidem; smoke z MOB-024 na buildzie `preview`.
+- [ręcznie] Ręczne: lista kontrolna instalacji i logowania na fizycznym iPhonie i telefonie z Androidem; smoke z MOB-024 na buildzie `preview`.
 
 ## Definicja gotowości
 - Buildy w obu sklepach na ścieżkach testowych, `mobile/STORE.md` i `mobile/store/` w repo (bez sekretów), notatka dla recenzentów gotowa, status w tym pliku i w `tasks/QUEUE.md`.

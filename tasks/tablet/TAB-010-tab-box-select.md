@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [BE-041, TAB-009]
 decisions: []
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -17,7 +18,7 @@ trello:
 Każdy, kto stoi przy tablecie, może wskazać, który boks ten tablet pokazuje: pierwszy raz po zalogowaniu i potem przyciskiem „Zmień boks”. Wybór to `id` boksu zapisane tylko na tablecie; przetrwa restart, aktualizację APK i ponowne logowanie, a przy dwóch halach z tymi samymi numerami nigdy nie pomyli boksów.
 
 ## Kontekst
-- **Stan kodu:** sesja i `GET /me` z TAB-009 (stajnia konta tabletów w `stableId`), klient API i tryb `fake` z TAB-001 (fixture'y `boxes-podlipami.json`, `boxes-brzozowa.json`), komponenty z TAB-008. `GET /board/v1/stables/{stableId}/boxes` z BE-041: aktywne hale według `sort_order`, w każdej boksy z `id`, numerem, koniem albo „wolny”, sortowanie naturalne.
+- **Stan kodu:** sesja i `GET /me` z TAB-009 (stajnia konta tabletów w `stableId`), klient API i tryb `fake` z TAB-001 (przykłady kontraktu `boxes-podlipami`, `boxes-brzozowa` z BE-064), komponenty z TAB-008. `GET /board/v1/stables/{stableId}/boxes` z BE-041: aktywne hale według `sort_order`, w każdej boksy z `id`, numerem, koniem albo „wolny”, sortowanie naturalne.
 - **Dokumenty:** `docs/development-szczegoly.md` 3.5.2 „TabletZmianaBoksu” (lista z `board GET …/boxes` w zakładkach hal; otwarta zakładka hali bieżącego boksu; jedna hala = lista bez zakładek; konto tabletów ma jedną stajnię, bez wyboru stajni; ta sama lista bez powrotu po 30 s to TabletPierwszyBoks z nagłówkiem „WYBIERZ BOKS”; przycisk boksu z numerem i koniem, wolny oznaczony; przełączenie od razu po stuknięciu; powrót do poprzedniego boksu po 30 s bez wyboru; wybór `boxes.id` lokalnie), 4.3.1 T-28 („Zmień boks”: 30 s liczone od ostatniego dotknięcia listy, propozycja; nowy pop-up w trakcie wybierania; boks przeniesiony do innej hali zostaje na tym samym `id`; nowa hala = nowa zakładka przy najbliższym odpytaniu), 5 pkt 32 (zapamiętany boks w wyłączonej hali albo niedostępny dla konta: od razu lista, bez powrotu po 30 s), 4.4 A-05, A-10, A-11, A-17; `docs/erd.md` pkt 2.
 - **Makiety:** `mockups/project/TabletPierwszyBoks.dc.html` („WYBIERZ BOKS”, zakładki „Hala główna · boksy 1–8” i „Hala nowa · boksy 1–6”, kafle „Boks 1 · Iskra”, „Boks 3 · wolny” z ramką przerywaną; stopka ONLINE, PL | UA), `TabletZmianaBoksu.dc.html` („Zmień boks”, „Teraz: boks 7 · Kasztan”, „Anuluj”, kafel bieżący z „TERAZ”, „Stuknij boks, a tablet od razu pokaże jego tablicę. Wybór zapisuje się tylko na tym tablecie.”, „Bez wyboru powrót do boksu 7 za 30 s”); TabletBoksNiedostepny z `docs/makiety-plan.md` E (linia `t-warn` „HALA GŁÓWNA · BOKS 7 NIEDOSTĘPNY”, lista od razu).
 - **Decyzje:** brak.
@@ -41,11 +42,11 @@ Każdy, kto stoi przy tablecie, może wskazać, który boks ten tablet pokazuje:
 - [ ] A-05: „Boks 3 · wolny” i „Boks 6 · wolny” oznaczone w zakładkach swoich hal.
 - [ ] A-11: nowa hala dodana w panelu pojawia się jako zakładka przy najbliższym odpytaniu listy; boks przeniesiony do nowej hali zostaje wybrany (to samo `id`), a zakładka i etykieta pokazują nową halę.
 - [ ] A-17: konto „Tablety Brzozowa” widzi tylko boksy 1–6 bez zakładek i bez nazwy hali.
-- [ ] Wybór przetrwa zabicie procesu, `adb install -r` i wylogowanie z ponownym logowaniem (T-28); zapamiętany boks w wyłączonej hali daje TabletBoksNiedostepny.
+- [ ] [ręcznie] Wybór przetrwa zabicie procesu, `adb install -r` i wylogowanie z ponownym logowaniem (T-28); zapamiętany boks w wyłączonej hali daje TabletBoksNiedostepny.
 
 ## Testy
 - Jest + RNTL z fixture'ami: grupowanie, etykiety, powrót po 30 s z fałszywymi timerami (`jest.useFakeTimers`), reset licznika po dotknięciu, BoxUnavailable.
-- Emulator: flow Maestro `tablet/e2e/maestro/change-box.yaml` (rozbudowa w TAB-019).
+- [ręcznie] Emulator: flow Maestro `tablet/e2e/maestro/change-box.yaml` (rozbudowa w TAB-019).
 
 ## Definicja gotowości
 - `npm run check` w `tablet/` zielone; zrzuty ekranów w galerii (TAB-008) zaktualizowane; status w tym pliku i w `tasks/QUEUE.md`.

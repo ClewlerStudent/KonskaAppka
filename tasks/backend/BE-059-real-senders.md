@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [BE-016, BE-017]
 decisions: [DEC-11]
+needs: [owner]
 owner:
 branch:
 trello:
@@ -37,7 +38,7 @@ Kody logowania, zaproszenia i powiadomienia docierają na prawdziwe telefony i s
 - [ ] W `APP_ENV=prod` serwisy nie startują z adapterem `console` albo fałszywym; z prawdziwym startują po walidacji env.
 - [ ] Numer spoza Polski daje `sms.result` `failed` bez wywołania dostawcy; błąd przejściowy daje ponowienie z brokera, a ostatnia próba `failed`.
 - [ ] Kod nie pojawia się w logach serwisów (test hasła-kanarka z BE-015) ani w `sms.result`.
-- [ ] Kod MFA dochodzi na testowy numer i skrzynkę; czas doręczenia zapisany w raporcie testu.
+- [ ] [ręcznie] Kod MFA dochodzi na testowy numer i skrzynkę (konta u dostawców zakłada Dawid); czas doręczenia zapisany w raporcie testu.
 
 ## Testy
 - Jednostkowe: klasyfikacja odpowiedzi dostawcy (nagrane odpowiedzi HTTP i SMTP), liczenie segmentów, blokada krajów.

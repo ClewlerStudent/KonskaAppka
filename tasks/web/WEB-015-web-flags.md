@@ -5,7 +5,7 @@ area: web
 stage: 3
 size: M
 status: todo
-depends_on: [BE-034, BE-036, BE-038, WEB-006, WEB-011]
+depends_on: [BE-034, BE-036, BE-038, WEB-006, WEB-011, WEB-013, WEB-014]
 decisions: [DEC-21]
 owner:
 branch:
@@ -42,7 +42,7 @@ Admin widzi w panelu aktywne flagi koni z godzinami i statusem, dostaje wyraźny
 
 ## Testy
 - Vitest: formatowanie komórek flag (z i bez `requiresAck`, krytyczna, Derka), wybór flag do alertu, mapowanie stanów wysyłek.
-- Playwright na atrapie: alert Belli, A-20 (zmiana odpowiedzi atrapy), chip „Z flagą”; zrzut PanelBoksy 1440 do porównania z makietą.
+- Playwright na atrapie: alert Belli, A-20 (zmiana odpowiedzi atrapy), chip „Z flagą”; wzorzec `toHaveScreenshot` PanelBoksy 1440 tworzony w tym zadaniu (makieta tylko do ręcznego przeglądu w PR).
 - `cd frontend && npm run check && npm run e2e`.
 
 ## Definicja gotowości
@@ -50,5 +50,5 @@ Admin widzi w panelu aktywne flagi koni z godzinami i statusem, dostaje wyraźny
 
 ## Uwagi dla wykonawcy
 - Nigdy „przyjęte” przy flagach (to słowo tylko dla zaproszeń).
-- Zdania objaśniające z makiety pod alertem („Obsługa widzi ją przy boksie…”) pomijamy (dec. 38).
+- Zdania objaśniające z makiety pod alertem („Obsługa widzi ją przy boksie…”) pomijamy (docs/makiety-plan.md 2.3 i 5 pkt 38).
 - Zmiana zależności względem listy: dodane BE-038 (flagi i alert w `boxes-overview` dostarcza BE-038, nie BE-034).

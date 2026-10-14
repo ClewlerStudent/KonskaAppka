@@ -44,7 +44,7 @@ Ekran startowy admina w panelu odpowiada na pytanie „co dziś w stajni i co wy
 
 ## Testy
 - Vitest: składanie sekcji z fixture'ów `admin-today` (Pod Lipami, Brzozowa, BezAkcji), wybór Start/Pulpit.
-- Playwright na atrapie: trzy warianty, zrzuty 1440 do porównania z PanelPulpit.dc.html.
+- Playwright na atrapie: trzy warianty, wzorce `toHaveScreenshot` 1440 tworzone w tym zadaniu (PanelPulpit.dc.html tylko do ręcznego przeglądu w PR).
 - `cd frontend && npm run check && npm run e2e`.
 
 ## Definicja gotowości

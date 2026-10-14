@@ -14,10 +14,10 @@ trello:
 # BE-061 · kit: bramka minimalnej wersji klienta (X-Client-Version)
 
 ## Cel
-Gdy zmiana API wymaga nowej apki albo nowego APK tabletu, Dawid ustawia minimalną wersję w konfiguracji, a każdy serwis odpowiada starszym klientom `403 client_upgrade_required`. Apka pokazuje wtedy „Zaktualizuj aplikację” (MOB-023), tablet pasek „WYMAGANA AKTUALIZACJA” (TAB-012), a tablet dalej może pobrać nowy APK, bo trasy aktualizacji są spod bramki wyjęte.
+Gdy zmiana API wymaga nowej apki albo nowego APK tabletu, Dawid ustawia minimalną wersję w konfiguracji, a każdy serwis odpowiada starszym klientom `403 client_upgrade_required`. Apka pokazuje wtedy „Zaktualizuj aplikację” (MOB-026), tablet pasek „WYMAGANA AKTUALIZACJA” (TAB-012), a tablet dalej może pobrać nowy APK, bo trasy aktualizacji są spod bramki wyjęte.
 
 ## Kontekst
-- **Stan kodu:** `backend/src/kit/service.ts` (`prepare()`: weryfikacja tokenu, Origin, limity, walidacja; po BE-006 także polityka trasy), `backend/src/kit/route.ts` (`defineRoute`, rodzaje `external | open | internal`), `backend/src/kit/env.ts` (env wspólne dla serwisów, zod), `backend/src/contracts/common.ts` (`ERRORS`, `ClientIdSchema`: `web | mobile | tablet`; `ops`, `opctl` dochodzą w BE-026). `client_id` aplikacji jest w tokenie (`backend/src/lib/auth/claims.ts`, `Principal`). Kodu `client_upgrade_required` jeszcze nie ma w `ERRORS`. Żadne inne zadanie BE nie robi tej bramki, a apka (MOB-002, MOB-023) i tablet (TAB-009, TAB-012) już wysyłają nagłówek i obsługują kod.
+- **Stan kodu:** `backend/src/kit/service.ts` (`prepare()`: weryfikacja tokenu, Origin, limity, walidacja; po BE-006 także polityka trasy), `backend/src/kit/route.ts` (`defineRoute`, rodzaje `external | open | internal`), `backend/src/kit/env.ts` (env wspólne dla serwisów, zod), `backend/src/contracts/common.ts` (`ERRORS`, `ClientIdSchema`: `web | mobile | tablet`; `ops`, `opctl` dochodzą w BE-026). `client_id` aplikacji jest w tokenie (`backend/src/lib/auth/claims.ts`, `Principal`). Kodu `client_upgrade_required` jeszcze nie ma w `ERRORS`. Żadne inne zadanie BE nie robi tej bramki, a apka (MOB-002, MOB-026) i tablet (TAB-009, TAB-012) już wysyłają nagłówek i obsługują kod.
 - **Dokumenty:** docs/development-szczegoly.md 3.1.5 (lista kodów błędów z `client_upgrade_required`; „Nagłówek `X-Client-Version`; aplikację serwis zna z `client_id` w tokenie … Bramka minimalnej wersji nie obejmuje tras wydań APK w `platform`, żeby stary tablet zawsze mógł się zaktualizować”). Historyczny projekt (docs/analiza.md ADR-04, nieaktualny w szczegółach, ale dobry jako wzór): env `CLIENT_MIN_VERSIONS` jako JSON, 403 z polem `minVersion`.
 - **Format wersji:** apka mobilna wysyła `nativeApplicationVersion` z `expo-application` (semver `1.2.3`, MOB-002); tablet wysyła Android `versionCode` (liczba całkowita, TAB-009). Panel web, `ops` i `opctl` nie podlegają bramce (panel wdraża się razem z backendem).
 - **Decyzje:** brak otwartych. Zgodne z przyjętą zasadą: tylko zmiany addytywne w `/v1`; bramka to wyjątek na zmiany, których nie da się zrobić addytywnie.
@@ -33,7 +33,7 @@ Gdy zmiana API wymaga nowej apki albo nowego APK tabletu, Dawid ustawia minimaln
 - [ ] README (sekcja „Kod”): jak ustawić `CLIENT_MIN_VERSIONS` i które trasy są spod bramki wyjęte.
 
 ## Poza zakresem
-- Ekrany po stronie klientów (MOB-023, TAB-012, TAB-017); wymuszenie aktualizacji tabletu przez `min_required_version_code` wydania (BE-040, TAB-017) to osobny mechanizm i zostaje.
+- Ekrany po stronie klientów (MOB-026, TAB-012, TAB-017); wymuszenie aktualizacji tabletu przez `min_required_version_code` wydania (BE-040, TAB-017) to osobny mechanizm i zostaje.
 - Przechowywanie minimalnych wersji w bazie albo zmiana bez restartu (na PoC wystarczy env i rolling restart).
 
 ## Kryteria akceptacji
@@ -52,4 +52,5 @@ Gdy zmiana API wymaga nowej apki albo nowego APK tabletu, Dawid ustawia minimaln
 - Bramka nie może zablokować drogi aktualizacji: tablet poniżej minimum musi dalej odświeżać token i pytać o nowe APK. Dopisz test, który to sprawdza.
 - Nie dodawaj zależności npm do semvera; wystarczy porównanie trzech liczb (bez pre-release).
 - `X-Client-Version` jest niezaufany (klient może skłamać): bramka chroni zgodność kontraktu, nie bezpieczeństwo. Nie używaj wersji do autoryzacji.
-- Zadanie dopisane przy domykaniu kolejki (luka zgłoszona w MOB-002, MOB-023, TAB-012).
+- Zadanie dopisane przy domykaniu kolejki (luka zgłoszona w MOB-002, MOB-023, TAB-012; ekran apki jest teraz w MOB-026).
+<!-- dep-ok: BE-026, MOB-002, MOB-026, TAB-009, TAB-012 (klienci bramki i nowe client_id; bramka działa bez nich) -->

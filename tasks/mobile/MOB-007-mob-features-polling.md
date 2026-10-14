@@ -5,8 +5,9 @@ area: mobile
 stage: 2
 size: M
 status: todo
-depends_on: [BE-030, MOB-005]
+depends_on: [BE-030, MOB-005, BE-033]
 decisions: [DEC-27]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -19,7 +20,7 @@ Po wyborze stajni apka zna jej konfigurację (kafelki flag, moczenie, włączone
 ## Kontekst
 - Stan kodu: wybrana stajnia i pasek ról (MOB-005), klient API z sesją (MOB-002). Trasa `GET /stables/v1/stables/{stableId}/features?locale=` (każda rola w stajni; wynik `stableFeatures` dla roli z tokenu i aktywnych szablonów flag; `ETag`, 304) — BE-030; kształt odpowiedzi w `backend/openapi/stables.json` po `npm run gen:api`. Widoki `board` mają `ETag` = skrót treści, 304 i czas tylko w nagłówku `Date` (BE-033).
 - Dokumenty: `docs/development-szczegoly.md` 3.5.1 („Po przełączeniu apka pobiera konfigurację tej stajni (`stables GET …/features`) i pokazuje tylko włączone opcje i funkcje widoczne dla roli: kafelki aktywnych flag, „namoczyć” przy włączonym moczeniu, włączone przyciski, status tylko przy flagach z `requires_ack`”; „Cache i kolejka zapisów są osobne dla każdej stajni”; „Odpytywanie z ETag tylko na widocznym ekranie”; „Przy kilku halach zawsze „Hala nowa · boks 4”; przy jednej hali bez podziału. Nawigacja do boksu zawsze po `id`”), 4.1 „Apka mobilna” (A-17). `docs/makiety-plan.md` 2.3 „Boks” (w wąskich listach „Nowa 4”, w Brzozowej „boks 1”, formularze wysyłają `boxId`), „Widoczność”. Nagłówek makiet: „online · aktualne na 07:15” (`ListaDnia.dc.html`).
-- Decyzje: brak nowych (DEC-13 dotyczy tabletu; dla apki interwał jest propozycją niżej).
+- Decyzje: DEC-27 h (interwał apki; decyzja o odpytywaniu tabletu go nie dotyczy).
 - Dane demo: Pod Lipami (dwie hale: Hala główna 1–8, Hala nowa 1–6; potwierdzenia, Derka, moczenie, wszystkie przyciski), Brzozowa (jedna hala, bez potwierdzeń, Derki, moczenia i padoku), wariant BezAkcji seedu (`tidy`, `meal_served`, `paddock_out` wyłączone).
 
 ## Zakres
@@ -43,11 +44,11 @@ Po wyborze stajni apka zna jej konfigurację (kafelki flag, moczenie, włączone
 
 ## Testy
 - Jest: `etag-fetch.test.ts` (304, zapis `Date`), `use-polled-query.test.ts` (fokus, AppState, zmiana stajni), `box-label.test.ts`, `use-stable-config.test.ts` na odpowiedziach z kontraktu.
-- Ręcznie: Flipper/proxy albo logi żądań na emulatorze z lokalnym `stables` i `board`.
+- [ręcznie] Ręcznie: Flipper/proxy albo logi żądań na emulatorze z lokalnym `stables` i `board`.
 
 ## Definicja gotowości
 - `npm run check` w `mobile/` zielone (`gen:api` z `stables.json`); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Apka nie liczy sama skutków flag ani godzin: etykiety („06:00–10:00”, „od 14:30”, „dziś, cały dzień”) przychodzą z serwera (`hoursLabel`).
-- Tablet ma własne odpytywanie (DEC-13); nie kopiuj jego interwału 5 s do apki, bo telefon i tak odświeża się przy wejściu na ekran.
+- Tablet ma własne odpytywanie (TAB-012); nie kopiuj jego interwału 5 s do apki, bo telefon i tak odświeża się przy wejściu na ekran.

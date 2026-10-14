@@ -6,7 +6,7 @@ stage: 5
 size: M
 status: todo
 depends_on: [BE-041]
-decisions: [DEC-14, DEC-03]
+decisions: [DEC-14, DEC-03, DEC-29]
 owner:
 branch:
 trello:
@@ -24,6 +24,7 @@ Telewizor w korytarzu stajni (konto techniczne z rolą `display`) pokazuje wszys
 - **Dane demo:** „Telewizor korytarz” (Pod Lipami). Hala główna 7 koni, wolny boks 3, flaga krytyczna Kasztana; Hala nowa 5 koni, wolny boks 6, niepotwierdzona Bella. Stajnia Brzozowa nie ma wyświetlacza (testy jednej hali na fixture z kontem `display`).
 
 ## Zakres
+- [ ] Kontrakt tych tras jest już w `backend/src/contracts/board.ts` z przykładami w `backend/openapi/examples/board/` (BE-064): implementuj go; zmiany tylko addytywne i razem z aktualizacją przykładów.
 - [ ] `GET /board/v1/stables/{stableId}/display?buildingId=&lang=` (rola `display`, admin, `plt`):
   - nagłówek: „Teraz” (po którym posiłku), następny posiłek z godziną (z `meal_slots` w strefie stajni);
   - `urgent`: flagi z `requires_ack` bez potwierdzenia po `warn_at` (z informacją o `admin_notify`) i flagi krytyczne niepotwierdzone; przy `buildingId` tylko flagi tej hali;
@@ -39,7 +40,7 @@ Telewizor w korytarzu stajni (konto techniczne z rolą `display`) pokazuje wszys
 ## Poza zakresem
 - „Boks gotowy HH:MM”, godzina wody, rutyna w nagłówkach hal, „Ostatnie akcje” i „podane” w planie dnia (BE-045);
 - zadania na TV (aplikacja pobiera `GET /operations/v1/…/tasks`, BE-050; WEB-023);
-- koń bez boksu na TV (docs/development-szczegoly.md 5 pkt 16, nierozstrzygnięte: na razie pomijamy);
+- koń bez boksu na TV (DEC-29; do decyzji pole `horsesWithoutBox` z kontraktu BE-064 zostaje puste);
 - ekran w panelu (WEB-016…WEB-018), stan „zawieszona” (BE-054).
 
 ## Kryteria akceptacji
@@ -64,3 +65,4 @@ Telewizor w korytarzu stajni (konto techniczne z rolą `display`) pokazuje wszys
 - Wybór widoku (wszystkie hale albo jedna) zna tylko przeglądarka TV; serwer dostaje `buildingId` w zapytaniu i niczego nie zapisuje.
 - Bez danych osobowych także w etykietach (np. „Jazda Iskra”, nie „Jazda Karoliny W.”).
 - Plan dnia liczony w strefie stajni przez `lib/rules`; noc zmiany czasu w testach.
+<!-- dep-ok: BE-047, BE-048 (wizyty i jazdy w testach z fabryk, seed dopisują tamte zadania) -->

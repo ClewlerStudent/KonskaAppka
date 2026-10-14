@@ -3,10 +3,10 @@ id: SH-004
 title: Generowanie typów API i tokenów palety dla frontend, mobile i tablet
 area: shared
 stage: 0
-size: S
+size: M
 status: todo
 depends_on: []
-decisions: [DEC-02]
+decisions: [DEC-02, DEC-30]
 owner:
 branch:
 trello:

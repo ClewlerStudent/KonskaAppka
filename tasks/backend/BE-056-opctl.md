@@ -31,6 +31,7 @@ Zespół EQUENOR ma narzędzie wiersza poleceń do operacji, których nie robi s
 - [ ] CLI `backend/scripts/opctl/` (`npm run opctl -- <komenda>`): `login` (login, hasło bez echa, kod; nagłówek bez `Origin`; tokeny tylko w pamięci procesu albo w pliku `~/.config/equenor/opctl.json` z prawami 600, wygasają według okien `opctl`), `whoami`, `operators create`, `platform grant|revoke|approve|list`, `business-admin request|approve` (trasy z BE-026), `releases create|upload|rollout|complete|halt|list` (BE-040), `plans get|set` (BE-052), `cron run <nazwa>` (lokalnie `npm run cron -- <nazwa>`, w klastrze wypisuje polecenie utworzenia Joba z CronJoba; uruchomienie zależy od dostępu do klastra).
 - [ ] Odpowiedzi `401 step_up_required` CLI obsługuje ponownym logowaniem i powtórzeniem polecenia.
 - [ ] README: sekcja „opctl” z przykładami i wymaganiami (adres `[OPS]`, zmienne env CLI).
+- [ ] Runbooki `docs/runbooki/apk-cofniecie.md` i `cron-reczny-przebieg.md` (SH-006): dopisz wariant z `opctl` obok kroków przez `/platform/*` i `npm run cron`.
 
 ## Poza zakresem
 - rotacja klucza podpisu (DEC-05 B: wymiana sekretu `SIGNING_KEY_FILE` / `SIGNING_KEY_NEXT_FILE` przez Dawida, runbook SH-006); konto awaryjne `break_glass` (po PoC); Wsparcie IT (`support`, DEC-10: później).

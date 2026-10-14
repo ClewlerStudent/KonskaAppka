@@ -5,7 +5,7 @@ area: backend
 stage: 9
 size: M
 status: todo
-depends_on: [BE-045, BE-048, BE-050, BE-052]
+depends_on: [BE-045, BE-048, BE-050, BE-002, BE-027]
 decisions: [DEC-03, DEC-10]
 owner:
 branch:
@@ -49,5 +49,7 @@ Przed stajnią pilotażową mamy dowód, że dane stajni i firm się nie mieszaj
 - Status w tym pliku i w `tasks/QUEUE.md` zaktualizowany.
 
 ## Uwagi dla wykonawcy
+- Zmiana zależności: bez BE-052 (billing czeka na decyzję właściciela, a to zadanie blokowało SH-005). Trasy `billing` wchodzą do macierzy automatycznie, bo meta-test obejmuje każdą trasę z `{stableId}`; jeśli BE-052 powstanie po tym zadaniu, dopisuje swoje identyfikatory (`invoiceId` itd.) do mapy parametrów (zakres BE-052).
 - Test jest generyczny: trasy dodane po tym zadaniu (np. BE-055, BE-056) wchodzą do macierzy same; mapa parametrów musi wtedy dostać id z seedu.
 - Oczekiwane 404, nie 403, dla obiektów spoza dostępu (także obiektów innej firmy).
+<!-- dep-ok: SH-003 (dłuższy przebieg w nocnym CI, uruchamianie poza zakresem) -->

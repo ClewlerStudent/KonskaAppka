@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [TAB-002]
 decisions: []
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -38,13 +39,13 @@ Tablet instaluje nową wersję naszej apki bez dotykania ekranu i bez sklepu: ty
 - Serwer wydań i rollout (BE-040), CLI wydań (BE-056).
 
 ## Kryteria akceptacji
-- [ ] T-24 na emulatorze: N → N+1 instaluje się bez dotykania ekranu; po instalacji apka jest w Lock Task, a znacznik w diagnostyce mówi „zaktualizowano z N do N+1”.
+- [ ] [ręcznie] T-24 na emulatorze: N → N+1 instaluje się bez dotykania ekranu; po instalacji apka jest w Lock Task, a znacznik w diagnostyce mówi „zaktualizowano z N do N+1”.
 - [ ] Obcy podpis: `signature_mismatch`, nic się nie instaluje; uszkodzony plik: `sha256_mismatch`; ten sam albo niższy `versionCode`: `not_newer`.
-- [ ] T-25 (emulator): restart w trakcie instalacji kończy się działającą wersją i powrotem do kiosku; znacznik „instalacja przerwana”, gdy została stara wersja.
+- [ ] [ręcznie] T-25 (emulator): restart w trakcie instalacji kończy się działającą wersją i powrotem do kiosku; znacznik „instalacja przerwana”, gdy została stara wersja.
 - [ ] Dane lokalne (boks, język, refresh token) przetrwały aktualizację (test z wartościami zapisanymi przed instalacją).
 
 ## Testy
-- Instrumentowane: `cd tablet && bash scripts/build-test-apks.sh && bash scripts/emulator-kiosk-test.sh --suite install`.
+- [ręcznie] Instrumentowane: `cd tablet && bash scripts/build-test-apks.sh && bash scripts/emulator-kiosk-test.sh --suite install`.
 - Jest: logika znacznika „instalacja w toku” i mapowanie powodów odrzucenia (atrapa modułu).
 
 ## Definicja gotowości
@@ -55,3 +56,4 @@ Tablet instaluje nową wersję naszej apki bez dotykania ekranu i bez sklepu: ty
 - Sprawdź, czy przy `targetSdk` 36 potrzebne jest uprawnienie `REQUEST_INSTALL_PACKAGES` dla DO; dopisz je przez config plugin tylko, jeśli test bez niego nie przechodzi.
 - Klucz podpisu release to sekret (keystore Dawida z kopią poza klastrem); w repo i w testach tylko klucze tymczasowe.
 - Utrata klucza podpisu = brak aktualizacji na wszystkich tabletach (trzeba ponownego provisioningu); dopisz to do runbooków (SH-006).
+<!-- dep-ok: BE-040 (serwer wydań woła dopiero TAB-017; tu instalacja z pliku) -->

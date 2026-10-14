@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [TAB-014]
 decisions: [DEC-18]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -36,7 +37,7 @@ Przed myciem albo wycieraniem tabletu obsługa stuka kłódkę i ekran przestaje
 - Test mycia na sztuce (T-30; testy po bramce).
 
 ## Kryteria akceptacji
-- [ ] A-15 na emulatorze: po zablokowaniu seria stuknięć i przeciągnięć po całym ekranie (skrypt `adb shell input tap/swipe` w pętli) nie wysyła żadnego żądania zapisu (log klienta API i kolejka puste), boks się nie zmienia, „Zmień boks” się nie otwiera.
+- [ ] [ręcznie] A-15 na emulatorze: po zablokowaniu seria stuknięć i przeciągnięć po całym ekranie (skrypt `adb shell input tap/swipe` w pętli) nie wysyła żadnego żądania zapisu (log klienta API i kolejka puste), boks się nie zmienia, „Zmień boks” się nie otwiera.
 - [ ] Przytrzymanie kłódki 2,9 s nie odblokowuje, 3 s odblokowuje; przytrzymanie z przesunięciem > tolerancji nie odblokowuje.
 - [ ] Nowa flaga z apki w trakcie blokady: pop-up się pojawia, POTWIERDZAM nie działa do odblokowania, po odblokowaniu działa.
 - [ ] Po 10 min blokada schodzi sama; po zabiciu procesu ekran jest odblokowany; blokowanie i odblokowanie nie wysyłają żadnego żądania.
@@ -44,10 +45,10 @@ Przed myciem albo wycieraniem tabletu obsługa stuka kłódkę i ekran przestaje
 
 ## Testy
 - Jest + RNTL z fałszywymi timerami: przechwytywanie dotyku, progi 3 s i 10 min, przesunięcie palca, pop-up przy blokadzie.
-- Emulator: flow Maestro `tablet/e2e/maestro/screen-lock.yaml` + skrypt `tablet/e2e/scripts/wipe-simulation.sh` (losowe `input swipe`/`tap` przez 60 s, potem sprawdzenie, że kolejka i log zapisów są puste).
+- [ręcznie] Emulator: flow Maestro `tablet/e2e/maestro/screen-lock.yaml` + skrypt `tablet/e2e/scripts/wipe-simulation.sh` (losowe `input swipe`/`tap` przez 60 s, potem sprawdzenie, że kolejka i log zapisów są puste).
 
 ## Definicja gotowości
-- `npm run check` w `tablet/` zielone; flow Maestro i skrypt „mycia” przechodzą; zrzuty TabletEkranZablokowany i TabletPopupZablokowany w galerii; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `tablet/` zielone; flow Maestro i skrypt „mycia” przechodzą [ręcznie]; zrzuty TabletEkranZablokowany i TabletPopupZablokowany w galerii; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Serwer o blokadzie nie wie; nie zapisuj jej w pamięci trwałej (po restarcie ma być odblokowane).

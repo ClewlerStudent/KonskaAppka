@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [BE-040, TAB-004, TAB-012, TAB-013]
 decisions: []
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -37,7 +38,7 @@ Tablety w stajni same pobierają i instalują nową wersję apki, którą zespó
 - Weryfikacja podpisu i instalacja w Kotlinie (TAB-004); watchdog przy wadliwej wersji (TAB-003).
 
 ## Kryteria akceptacji
-- [ ] Emulator na stosie dev (SH-002 + `platform`): wydanie N+1 w `rolling` 100% dla Pod Lipami; tablet z N pobiera, czeka na okno (zegar seedu ustawiony w oknie) i instaluje bez dotykania; po starcie ten sam boks, język i sesja (T-24).
+- [ ] [ręcznie] Emulator na stosie dev (SH-002 + `platform`): wydanie N+1 w `rolling` 100% dla Pod Lipami; tablet z N pobiera, czeka na okno (zegar seedu ustawiony w oknie) i instaluje bez dotykania; po starcie ten sam boks, język i sesja (T-24).
 - [ ] Zerwanie sieci w połowie pobierania i powrót: pobieranie kończy się wznowieniem (`Range`), a nie od zera; wygasły URL: nowe zapytanie o link i wznowienie (T-25).
 - [ ] Niepusta kolejka zapisów wstrzymuje instalację do opróżnienia; `mandatory` instaluje poza oknem po opróżnieniu kolejki i pokazuje wcześniej pasek „WYMAGANA AKTUALIZACJA”.
 - [ ] Uszkodzony plik albo zła suma: odrzucony, stara wersja działa, w diagnostyce powód (T-24).
@@ -45,10 +46,10 @@ Tablety w stajni same pobierają i instalują nową wersję apki, którą zespó
 
 ## Testy
 - Jest: harmonogram sprawdzeń (jitter), decyzja o instalacji (okno w strefie stajni, kolejka, `mandatory`), obsługa wygasłego URL (atrapa modułu).
-- Instrumentowane/emulator: pobieranie z serwera testowego z przerwaniem (np. MinIO z SH-002 i `adb shell svc wifi disable` w trakcie), instalacja N → N+1.
+- [ręcznie] Instrumentowane/emulator: pobieranie z serwera testowego z przerwaniem (np. MinIO z SH-002 i `adb shell svc wifi disable` w trakcie), instalacja N → N+1.
 
 ## Definicja gotowości
-- `npm run check` w `tablet/` zielone; scenariusz aktualizacji przechodzi na emulatorze; `tablet/docs/kiosk.md` „Aktualizacja APK” uzupełniony o przepływ w apce; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `tablet/` zielone; scenariusz aktualizacji przechodzi na emulatorze [ręcznie]; `tablet/docs/kiosk.md` „Aktualizacja APK” uzupełniony o przepływ w apce; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Trasy wydań nie są objęte bramką minimalnej wersji: stary tablet zawsze może zapytać o nową wersję.

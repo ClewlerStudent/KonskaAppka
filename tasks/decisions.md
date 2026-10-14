@@ -21,7 +21,7 @@ Zasady dla agentów:
 - **Rekomendacja:** B za interfejsem `lib/messaging` z adapterem w pamięci do testów.
 - **Do czasu decyzji:** zadania ruszają na adapterze w pamięci (BE-008); adapter brokera powstaje jako wymienny moduł, a `docker-compose.yml` dostaje RabbitMQ w profilu `infra`. Żadnych typów ani nazw specyficznych dla brokera poza adapterem.
 - **Blokuje:** brak
-- **Zadania:** [BE-008](backend/BE-008-messaging.md), [SH-001](shared/SH-001-docs-decyzje.md), [SH-002](shared/SH-002-local-env-2.md), [BE-015](backend/BE-015-auth-code-queues.md), [BE-016](backend/BE-016-svc-sms.md), [BE-017](backend/BE-017-svc-email.md), [BE-035](backend/BE-035-cron-escalation.md), [BE-036](backend/BE-036-svc-notifications.md), [BE-046](backend/BE-046-horse-left.md), [BE-058](backend/BE-058-observability-k6.md), [BE-060](backend/BE-060-platform-manifests.md)
+- **Zadania:** [BE-008](backend/BE-008-messaging.md), [SH-001](shared/SH-001-docs-decyzje.md), [SH-002](shared/SH-002-local-env-2.md), [SH-003](shared/SH-003-ci.md), [BE-015](backend/BE-015-auth-code-queues.md), [BE-016](backend/BE-016-svc-sms.md), [BE-017](backend/BE-017-svc-email.md), [BE-035](backend/BE-035-cron-escalation.md), [BE-036](backend/BE-036-svc-notifications.md), [BE-046](backend/BE-046-horse-left.md), [BE-058](backend/BE-058-observability-k6.md), [BE-060](backend/BE-060-platform-manifests.md)
 - **Odwołania:** docs/mikroserwisy.md 1.4, 5.2 „Kody”, 5.8; docs/development-szczegoly.md 3.1.8.
 - **Rozstrzygnięcie:** —
 
@@ -36,7 +36,7 @@ Zasady dla agentów:
 - **Rekomendacja:** A; typy z `backend/openapi/*.json` przez openapi-typescript (`gen:api`), tokeny przez `gen:theme` z tabel docs/paleta.md, z testem zgodności w CI.
 - **Do czasu decyzji:** MOB-001 i TAB-001 zakładają `mobile/` i `tablet/` w tym repo; nic nie importuje z innych pakietów, więc przeniesienie do osobnego repo to zmiana ścieżek w `gen:api` i `gen:theme`.
 - **Blokuje:** brak
-- **Zadania:** [SH-001](shared/SH-001-docs-decyzje.md), [SH-003](shared/SH-003-ci.md), [SH-004](shared/SH-004-gen-api-theme.md), [TAB-001](tablet/TAB-001-tab-skeleton.md), [MOB-001](mobile/MOB-001-mob-skeleton.md)
+- **Zadania:** [MOB-001](mobile/MOB-001-mob-skeleton.md), [SH-001](shared/SH-001-docs-decyzje.md), [SH-003](shared/SH-003-ci.md), [SH-004](shared/SH-004-gen-api-theme.md), [TAB-001](tablet/TAB-001-tab-skeleton.md)
 - **Odwołania:** README.md „Kod”; docs/development-szczegoly.md 3.1.1, 3.1.12.
 - **Rozstrzygnięcie:** —
 
@@ -50,7 +50,7 @@ Zasady dla agentów:
 - **Rekomendacja:** A, zgodnie z docs/mikroserwisy.md.
 - **Do czasu decyzji:** `m[].f` w tokenie; sprawdzanie funkcji w jednym miejscu (`lib/authz`, polityka `stable.feature` w deskryptorze trasy).
 - **Blokuje:** brak
-- **Zadania:** [BE-006](backend/BE-006-tenancy-authz.md), [BE-013](backend/BE-013-auth-db-repos.md), [BE-024](backend/BE-024-auth-horse-access-matrix.md), [WEB-014](web/WEB-014-web-stable-settings.md), [BE-034](backend/BE-034-ops-flags.md), [BE-038](backend/BE-038-board-client.md), [BE-041](backend/BE-041-board-tablet.md), [BE-042](backend/BE-042-board-display.md), [BE-047](backend/BE-047-schedule-health.md), [BE-048](backend/BE-048-schedule-rides.md), [BE-050](backend/BE-050-ops-tasks.md), [BE-057](backend/BE-057-isolation-matrix.md)
+- **Zadania:** [BE-006](backend/BE-006-tenancy-authz.md), [BE-013](backend/BE-013-auth-db-repos.md), [BE-024](backend/BE-024-auth-horse-access-matrix.md), [BE-030](backend/BE-030-stables-settings.md), [WEB-014](web/WEB-014-web-stable-settings.md), [BE-034](backend/BE-034-ops-flags.md), [BE-038](backend/BE-038-board-client.md), [BE-041](backend/BE-041-board-tablet.md), [BE-042](backend/BE-042-board-display.md), [BE-047](backend/BE-047-schedule-health.md), [BE-048](backend/BE-048-schedule-rides.md), [BE-050](backend/BE-050-ops-tasks.md), [BE-057](backend/BE-057-isolation-matrix.md)
 - **Odwołania:** docs/mikroserwisy.md 3.2, 10.2 pkt 1.
 - **Rozstrzygnięcie:** —
 
@@ -79,7 +79,7 @@ Zasady dla agentów:
 - **Rekomendacja:** B: `SIGNING_KEY_FILE` i opcjonalny `SIGNING_KEY_NEXT_FILE`, `kid` = odcisk RFC 7638, refresh token przyjmowany tylko kluczami z konfiguracji; rotacja awaryjna = usunięcie starego klucza z sekretu. Bez `signing_keys` w ERD i bez trasy `/platform/keys/rotate`.
 - **Do czasu decyzji:** wariant B (BE-013); bez tabeli `signing_keys` (BE-001).
 - **Blokuje:** brak
-- **Zadania:** [BE-001](backend/BE-001-db-migrator.md), [SH-001](shared/SH-001-docs-decyzje.md), [BE-013](backend/BE-013-auth-db-repos.md), [BE-026](backend/BE-026-auth-platform-admin.md), [BE-056](backend/BE-056-opctl.md), [SH-006](shared/SH-006-runbooks.md)
+- **Zadania:** [BE-001](backend/BE-001-db-migrator.md), [BE-003](backend/BE-003-db-grants.md), [BE-004](backend/BE-004-db-domain-tables.md), [SH-001](shared/SH-001-docs-decyzje.md), [BE-013](backend/BE-013-auth-db-repos.md), [BE-026](backend/BE-026-auth-platform-admin.md), [BE-056](backend/BE-056-opctl.md), [SH-006](shared/SH-006-runbooks.md)
 - **Odwołania:** docs/mikroserwisy.md 3.5, 10.2 pkt 5; docs/erd.md pkt 6.
 - **Rozstrzygnięcie:** —
 
@@ -123,7 +123,7 @@ Zasady dla agentów:
 - **Rekomendacja:** C; jedna instancja na środowisko, jedna organizacja klientów; hasło min. 10 znaków, kod MFA 6 cyfr i 5 min, kody weryfikacji i resetu 8 cyfr i 15 min, blokada po 5 złych kodach, bez blokady hasłem.
 - **Do czasu decyzji:** BE-012 obsługuje oba sposoby uwierzytelnienia (PAT z pliku, klucz JSON konta serwisowego); wartości polityk w skrypcie `zitadel:configure`, nie w kodzie.
 - **Blokuje:** brak
-- **Zadania:** [BE-012](backend/BE-012-zitadel-adapter.md), [BE-018](backend/BE-018-auth-password-reset.md), [BE-020](backend/BE-020-auth-profile-changes.md), [BE-056](backend/BE-056-opctl.md)
+- **Zadania:** [BE-012](backend/BE-012-zitadel-adapter.md), [BE-018](backend/BE-018-auth-password-reset.md), [BE-020](backend/BE-020-auth-profile-changes.md), [WEB-002](web/WEB-002-web-reset-password.md), [BE-056](backend/BE-056-opctl.md)
 - **Odwołania:** docs/mikroserwisy.md 5.2, 5.10, 10.2 pkt 17; `docker-compose.yml` (usługa `zitadel`).
 - **Rozstrzygnięcie:** —
 
@@ -152,7 +152,7 @@ Zasady dla agentów:
 - **Rekomendacja:** A; `support` później; allowlista IP po PoC.
 - **Do czasu decyzji:** trasy `/ops/*` i `/platform/*` w `auth` (BE-026) i build `[OPS]` panelu (WEB-026) według A. CLI `opctl` (BE-056) czeka na rozstrzygnięcie, bo w wariancie C go nie ma.
 - **Blokuje:** BE-056
-- **Zadania:** [BE-001](backend/BE-001-db-migrator.md), [BE-004](backend/BE-004-db-domain-tables.md), [BE-011](backend/BE-011-seed.md), [BE-012](backend/BE-012-zitadel-adapter.md), [SH-001](shared/SH-001-docs-decyzje.md), [BE-013](backend/BE-013-auth-db-repos.md), [BE-022](backend/BE-022-auth-invitations.md), [BE-026](backend/BE-026-auth-platform-admin.md), [BE-040](backend/BE-040-platform-apk.md), [BE-055](backend/BE-055-audit-retention.md), [BE-056](backend/BE-056-opctl.md), [BE-057](backend/BE-057-isolation-matrix.md), [SH-006](shared/SH-006-runbooks.md), [WEB-026](web/WEB-026-web-ops.md)
+- **Zadania:** [BE-001](backend/BE-001-db-migrator.md), [BE-003](backend/BE-003-db-grants.md), [BE-004](backend/BE-004-db-domain-tables.md), [BE-011](backend/BE-011-seed.md), [BE-012](backend/BE-012-zitadel-adapter.md), [SH-001](shared/SH-001-docs-decyzje.md), [BE-013](backend/BE-013-auth-db-repos.md), [BE-022](backend/BE-022-auth-invitations.md), [BE-026](backend/BE-026-auth-platform-admin.md), [BE-040](backend/BE-040-platform-apk.md), [BE-055](backend/BE-055-audit-retention.md), [BE-056](backend/BE-056-opctl.md), [BE-057](backend/BE-057-isolation-matrix.md), [SH-006](shared/SH-006-runbooks.md), [WEB-026](web/WEB-026-web-ops.md)
 - **Odwołania:** docs/mikroserwisy.md 4.1–4.6, 10.2 pkt 4 i 9.
 - **Rozstrzygnięcie:** —
 
@@ -167,7 +167,7 @@ Zasady dla agentów:
 - **Rekomendacja:** B na PoC (bez wiązania z chmurą).
 - **Do czasu decyzji:** `sms` i `email` działają z adapterami `console`, fake-sms i SMTP do Mailpit (BE-016, BE-017). Prawdziwe adaptery (BE-059) czekają na wybór dostawcy i konta założone przez Dawida.
 - **Blokuje:** BE-059
-- **Zadania:** [BE-016](backend/BE-016-svc-sms.md), [BE-017](backend/BE-017-svc-email.md), [BE-059](backend/BE-059-real-senders.md)
+- **Zadania:** [SH-001](shared/SH-001-docs-decyzje.md), [BE-016](backend/BE-016-svc-sms.md), [BE-017](backend/BE-017-svc-email.md), [BE-059](backend/BE-059-real-senders.md)
 - **Odwołania:** docs/development-szczegoly.md 2.5, 2.6, 5 pkt 24.
 - **Rozstrzygnięcie:** —
 
@@ -180,9 +180,9 @@ Zasady dla agentów:
   - B: billing poza PoC.
   - C: subskrypcja per konto firmy.
 - **Rekomendacja:** A; KSeF i prawdziwy dostawca płatności po pilotażu.
-- **Do czasu decyzji:** nie zaczynamy serwisu `billing` (BE-052); zadania zależne czekają przez zależności. Tabele billingu w BE-004 powstają, bo są w ERD.
+- **Do czasu decyzji:** nie zaczynamy serwisu `billing` (BE-052); przez zależności czekają też BE-053 (crony billingu), BE-065 (zawieszenie stajni ze zdarzenia subskrypcji), BE-056 (`opctl`, także DEC-10), WEB-024 (Płatności i baner `past_due`) i WEB-030 (E2E płatności). Stan zawieszenia stajni (BE-054, MOB-023, WEB-025), E2E panelu i apki (WEB-028, MOB-024) i harness akceptacji (SH-005) od billingu nie zależą. Tabele billingu w BE-004 powstają, bo są w ERD.
 - **Blokuje:** BE-052
-- **Zadania:** [BE-052](backend/BE-052-svc-billing.md), [BE-053](backend/BE-053-cron-billing.md), [BE-054](backend/BE-054-stable-suspended.md), [WEB-024](web/WEB-024-web-billing.md)
+- **Zadania:** [BE-052](backend/BE-052-svc-billing.md), [BE-053](backend/BE-053-cron-billing.md), [BE-065](backend/BE-065-subscription-suspends-stable.md), [WEB-024](web/WEB-024-web-billing.md), [WEB-030](web/WEB-030-web-e2e-billing.md)
 - **Odwołania:** docs/erd.md „Otwarte kwestie” pkt 3; docs/development-szczegoly.md 5 pkt 28, 47.
 - **Rozstrzygnięcie:** —
 
@@ -196,8 +196,8 @@ Zasady dla agentów:
 - **Rekomendacja:** A; odpytywanie co 5 s z jitterem, p95 opóźnienia flagi do 15 s, „dane nieaktualne” po 2 min bez udanego odpytania.
 - **Do czasu decyzji:** TAB-012 i TAB-013 według A, wartości w konfiguracji apki.
 - **Blokuje:** brak
-- **Zadania:** [BE-041](backend/BE-041-board-tablet.md), [TAB-012](tablet/TAB-012-tab-polling.md), [TAB-013](tablet/TAB-013-tab-write-queue.md), [BE-058](backend/BE-058-observability-k6.md)
-- **Odwołania:** docs/development-szczegoly.md 5 pkt 19, 33; docs/makiety-plan.md dec. 16.
+- **Zadania:** [TAB-003](tablet/TAB-003-tab-kiosk-2.md), [TAB-007](tablet/TAB-007-tab-gate-b.md), [BE-041](backend/BE-041-board-tablet.md), [TAB-012](tablet/TAB-012-tab-polling.md), [TAB-013](tablet/TAB-013-tab-write-queue.md), [BE-058](backend/BE-058-observability-k6.md), [SH-005](shared/SH-005-acceptance.md)
+- **Odwołania:** docs/development-szczegoly.md 5 pkt 19, 33; docs/makiety-plan.md 5 pkt 16.
 - **Rozstrzygnięcie:** —
 
 ## DEC-14 · Plan dnia na TV
@@ -210,7 +210,7 @@ Zasady dla agentów:
 - **Rekomendacja:** A.
 - **Do czasu decyzji:** BE-042 i WEB-016 według A.
 - **Blokuje:** brak
-- **Zadania:** [BE-042](backend/BE-042-board-display.md), [WEB-016](web/WEB-016-tv-central.md), [BE-045](backend/BE-045-board-day.md)
+- **Zadania:** [BE-064](backend/BE-064-board-contracts.md), [BE-042](backend/BE-042-board-display.md), [WEB-016](web/WEB-016-tv-central.md), [WEB-017](web/WEB-017-tv-hall.md), [BE-045](backend/BE-045-board-day.md)
 - **Odwołania:** docs/mikroserwisy.md 5.4, 10.2 pkt 7.
 - **Rozstrzygnięcie:** —
 
@@ -218,13 +218,13 @@ Zasady dla agentów:
 - **Status:** otwarta
 - **Pytanie:** Pasek admina w apce, panel dla ról innych niż admin, miejsce „Opuść stajnię” i numer „Zadzwoń do stajni”.
 - **Opcje:**
-  - A: rekomendacje z docs/makiety-plan.md (dec. 17a, 18a, 25b).
+  - A: rekomendacje z docs/makiety-plan.md (5 pkt 17a, 18a, 25b).
   - B: inne.
 - **Rekomendacja:** A: admin w apce Dziś | Boksy | Zadania | Ludzie | Profil; panel tylko dla admina i wyświetlacza (inni widzą PanelWitaj z linkiem do apki); „Opuść stajnię” w Profilu; „Zadzwoń do stajni” dzwoni na telefon pierwszego aktywnego admina.
 - **Do czasu decyzji:** według A; numer stajni daje `GET /me` (BE-062).
 - **Blokuje:** brak
-- **Zadania:** [BE-019](backend/BE-019-auth-me.md), [BE-023](backend/BE-023-auth-members.md), [MOB-005](mobile/MOB-005-mob-start-nav.md), [MOB-006](mobile/MOB-006-mob-profile.md), [WEB-001](web/WEB-001-web-session.md), [WEB-004](web/WEB-004-web-admin-layout.md), [BE-062](backend/BE-062-me-stable-contact-horses.md), [MOB-011](mobile/MOB-011-mob-people.md), [MOB-020](mobile/MOB-020-mob-admin-today.md)
-- **Odwołania:** docs/makiety-plan.md 5 dec. 17, 18, 25; docs/mikroserwisy.md 10.2 pkt 21, 22.
+- **Zadania:** [BE-063](backend/BE-063-me-contract-memory.md), [BE-019](backend/BE-019-auth-me.md), [BE-023](backend/BE-023-auth-members.md), [MOB-005](mobile/MOB-005-mob-start-nav.md), [MOB-006](mobile/MOB-006-mob-profile.md), [WEB-001](web/WEB-001-web-session.md), [WEB-004](web/WEB-004-web-admin-layout.md), [BE-062](backend/BE-062-me-stable-contact-horses.md), [MOB-009](mobile/MOB-009-mob-boxes-admin.md), [MOB-011](mobile/MOB-011-mob-people.md), [MOB-013](mobile/MOB-013-mob-quick-flag.md), [MOB-020](mobile/MOB-020-mob-admin-today.md)
+- **Odwołania:** docs/makiety-plan.md 5 pkt 17, 18, 25; docs/mikroserwisy.md 10.2 pkt 21, 22.
 - **Rozstrzygnięcie:** —
 
 ## DEC-16 · Dzwonek i powiadomienia push w apce
@@ -238,7 +238,7 @@ Zasady dla agentów:
 - **Do czasu decyzji:** brak ikony dzwonka i rejestracji tokenów push.
 - **Blokuje:** brak
 - **Zadania:** [MOB-005](mobile/MOB-005-mob-start-nav.md), [BE-036](backend/BE-036-svc-notifications.md), [MOB-020](mobile/MOB-020-mob-admin-today.md)
-- **Odwołania:** docs/makiety-plan.md dec. 22; docs/mikroserwisy.md 10.2 pkt 22.
+- **Odwołania:** docs/makiety-plan.md 5 pkt 22; docs/mikroserwisy.md 10.2 pkt 22.
 - **Rozstrzygnięcie:** —
 
 ## DEC-17 · Jazdy: kto tworzy
@@ -252,7 +252,7 @@ Zasady dla agentów:
 - **Do czasu decyzji:** BE-048 i MOB-022 według A.
 - **Blokuje:** brak
 - **Zadania:** [BE-048](backend/BE-048-schedule-rides.md), [MOB-022](mobile/MOB-022-mob-rides-health.md), [WEB-029](web/WEB-029-web-arenas.md)
-- **Odwołania:** docs/makiety-plan.md dec. 20; docs/mikroserwisy.md 10.2 pkt 11.
+- **Odwołania:** docs/makiety-plan.md 5 pkt 20; docs/mikroserwisy.md 10.2 pkt 11.
 - **Rozstrzygnięcie:** —
 
 ## DEC-18 · Czasy „Cofnij” i blokady, ukryte ustawienia, Wi-Fi
@@ -261,11 +261,11 @@ Zasady dla agentów:
 - **Opcje:**
   - A: wartości proponowane (niżej).
   - B: inne.
-- **Rekomendacja:** A: „Cofnij” przez 1 h, blokada ekranu schodzi po 10 min, ukryte ustawienia przytrzymaniem stopki „ONLINE” przez 5 s, Wi-Fi zmienia każdy na PoC.
+- **Rekomendacja:** A: „Cofnij” przez 1 h od zapisu na serwerze (`created_at`, nie `occurredAt` urządzenia, bo wpis z kolejki offline może dojść później; `occurredAt` najwyżej czas serwera + 2 min, inaczej 422), blokada ekranu schodzi po 10 min, ukryte ustawienia przytrzymaniem stopki „ONLINE” przez 5 s, Wi-Fi zmienia każdy na PoC.
 - **Do czasu decyzji:** wartości w konfiguracji (backend: okno „Cofnij”; tablet: czasy i gest), nie w kodzie.
 - **Blokuje:** brak
-- **Zadania:** [MOB-008](mobile/MOB-008-mob-write-queue.md), [TAB-015](tablet/TAB-015-tab-screen-lock.md), [TAB-016](tablet/TAB-016-tab-hidden-settings.md), [BE-044](backend/BE-044-ops-quick-actions.md), [BE-045](backend/BE-045-board-day.md), [MOB-016](mobile/MOB-016-mob-day-list.md), [MOB-020](mobile/MOB-020-mob-admin-today.md), [TAB-018](tablet/TAB-018-tab-quick-actions.md)
-- **Odwołania:** docs/development-szczegoly.md 5 pkt 17, 30; docs/makiety-plan.md dec. 13, 14.
+- **Zadania:** [TAB-003](tablet/TAB-003-tab-kiosk-2.md), [TAB-006](tablet/TAB-006-tab-provision.md), [MOB-008](mobile/MOB-008-mob-write-queue.md), [TAB-015](tablet/TAB-015-tab-screen-lock.md), [TAB-016](tablet/TAB-016-tab-hidden-settings.md), [BE-044](backend/BE-044-ops-quick-actions.md), [BE-045](backend/BE-045-board-day.md), [MOB-016](mobile/MOB-016-mob-day-list.md), [MOB-020](mobile/MOB-020-mob-admin-today.md), [TAB-018](tablet/TAB-018-tab-quick-actions.md), [WEB-021](web/WEB-021-web-tv-routine.md), [SH-005](shared/SH-005-acceptance.md)
+- **Odwołania:** docs/development-szczegoly.md 5 pkt 17, 30; docs/makiety-plan.md 5 pkt 13, 14.
 - **Rozstrzygnięcie:** —
 
 ## DEC-19 · Kod MFA dla recenzentów sklepów
@@ -291,7 +291,7 @@ Zasady dla agentów:
 - **Rekomendacja:** A.
 - **Do czasu decyzji:** wartości domyślne w jednym module (`lib/rules`, BE-007) i w danych domyślnych `operations` (BE-028).
 - **Blokuje:** brak
-- **Zadania:** [BE-007](backend/BE-007-rules.md), [BE-011](backend/BE-011-seed.md), [BE-028](backend/BE-028-ops-defaults.md), [BE-029](backend/BE-029-stables-create.md), [BE-030](backend/BE-030-stables-settings.md), [WEB-009](web/WEB-009-web-create-stable.md), [BE-036](backend/BE-036-svc-notifications.md), [WEB-022](web/WEB-022-web-general-settings.md), [BE-049](backend/BE-049-cron-health-due.md), [BE-053](backend/BE-053-cron-billing.md)
+- **Zadania:** [BE-007](backend/BE-007-rules.md), [BE-011](backend/BE-011-seed.md), [BE-014](backend/BE-014-i18n-messages.md), [BE-025](backend/BE-025-auth-internal.md), [BE-028](backend/BE-028-ops-defaults.md), [BE-029](backend/BE-029-stables-create.md), [BE-030](backend/BE-030-stables-settings.md), [WEB-009](web/WEB-009-web-create-stable.md), [BE-036](backend/BE-036-svc-notifications.md), [MOB-019](mobile/MOB-019-mob-plan-edit.md), [WEB-022](web/WEB-022-web-general-settings.md), [BE-049](backend/BE-049-cron-health-due.md), [BE-053](backend/BE-053-cron-billing.md)
 - **Odwołania:** docs/mikroserwisy.md 10.2 pkt 15, 20; docs/development-szczegoly.md 5 pkt 27, 49.
 - **Rozstrzygnięcie:** —
 
@@ -304,7 +304,7 @@ Zasady dla agentów:
 - **Rekomendacja:** A.
 - **Do czasu decyzji:** BE-034 i WEB-014 według A.
 - **Blokuje:** brak
-- **Zadania:** [BE-028](backend/BE-028-ops-defaults.md), [WEB-014](web/WEB-014-web-stable-settings.md), [BE-034](backend/BE-034-ops-flags.md), [MOB-013](mobile/MOB-013-mob-quick-flag.md), [WEB-015](web/WEB-015-web-flags.md)
+- **Zadania:** [BE-028](backend/BE-028-ops-defaults.md), [WEB-014](web/WEB-014-web-stable-settings.md), [BE-034](backend/BE-034-ops-flags.md), [MOB-013](mobile/MOB-013-mob-quick-flag.md), [WEB-015](web/WEB-015-web-flags.md), [SH-005](shared/SH-005-acceptance.md)
 - **Odwołania:** docs/development-szczegoly.md 5 pkt 48.
 - **Rozstrzygnięcie:** —
 
@@ -316,8 +316,8 @@ Zasady dla agentów:
   - B: inne.
 - **Rekomendacja:** A; do zatwierdzenia przed założeniem rekordów w sklepach i EAS.
 - **Do czasu decyzji:** buildy deweloperskie z sufiksem `.dev` (`pl.equenor.app.dev`, `pl.equenor.tablet.dev`); żadnych rekordów w sklepach ani projektów EAS na docelowe identyfikatory.
-- **Blokuje:** MOB-025
-- **Zadania:** [TAB-001](tablet/TAB-001-tab-skeleton.md), [MOB-001](mobile/MOB-001-mob-skeleton.md), [MOB-025](mobile/MOB-025-mob-store.md)
+- **Blokuje:** MOB-025, TAB-022
+- **Zadania:** [MOB-001](mobile/MOB-001-mob-skeleton.md), [TAB-001](tablet/TAB-001-tab-skeleton.md), [WEB-008](web/WEB-008-www-legal.md), [MOB-025](mobile/MOB-025-mob-store.md), [TAB-022](tablet/TAB-022-tab-release.md)
 - **Odwołania:** docs/development-szczegoly.md 5 pkt 29.
 - **Rozstrzygnięcie:** —
 
@@ -330,8 +330,8 @@ Zasady dla agentów:
 - **Rekomendacja:** A (docs/mikroserwisy.md ma pierwszeństwo); MainBezKonia powstaje tylko przy B.
 - **Do czasu decyzji:** BE-013 i apka według A.
 - **Blokuje:** brak
-- **Zadania:** [BE-013](backend/BE-013-auth-db-repos.md), [MOB-005](mobile/MOB-005-mob-start-nav.md), [BE-038](backend/BE-038-board-client.md), [MOB-023](mobile/MOB-023-mob-suspended.md)
-- **Odwołania:** docs/mikroserwisy.md 3.2, 10.2 pkt 10; docs/makiety-plan.md dec. 24.
+- **Zadania:** [BE-063](backend/BE-063-me-contract-memory.md), [BE-013](backend/BE-013-auth-db-repos.md), [MOB-005](mobile/MOB-005-mob-start-nav.md), [MOB-026](mobile/MOB-026-mob-upgrade-no-horse.md), [BE-038](backend/BE-038-board-client.md), [SH-005](shared/SH-005-acceptance.md)
+- **Odwołania:** docs/mikroserwisy.md 3.2, 10.2 pkt 10; docs/makiety-plan.md 5 pkt 24.
 - **Rozstrzygnięcie:** —
 
 ## DEC-24 · Okresy retencji
@@ -356,7 +356,7 @@ Zasady dla agentów:
 - **Rekomendacja:** A; na PoC lokalny ekran TabletDiagnostyka i bufor logów.
 - **Do czasu decyzji:** TAB-020 robi ekran i bufor lokalny za interfejsem wysyłki; sama wysyłka czeka na wybór narzędzia.
 - **Blokuje:** brak
-- **Zadania:** [TAB-020](tablet/TAB-020-tab-diagnostics.md)
+- **Zadania:** [WEB-019](web/WEB-019-display-kiosk.md), [TAB-020](tablet/TAB-020-tab-diagnostics.md)
 - **Odwołania:** docs/mikroserwisy.md 10.2 pkt 16; docs/development-szczegoly.md 5 pkt 11.
 - **Rozstrzygnięcie:** —
 
@@ -398,6 +398,93 @@ Zasady dla agentów:
 - **Rekomendacja:** A.
 - **Do czasu decyzji:** propozycje obowiązują; wartości liczbowe w konfiguracji, nie w kodzie.
 - **Blokuje:** brak
-- **Zadania:** [BE-018](backend/BE-018-auth-password-reset.md), [BE-021](backend/BE-021-auth-businesses.md), [MOB-004](mobile/MOB-004-mob-signup-reset.md), [MOB-005](mobile/MOB-005-mob-start-nav.md), [WEB-002](web/WEB-002-web-reset-password.md), [WEB-006](web/WEB-006-web-invite.md), [BE-029](backend/BE-029-stables-create.md), [MOB-007](mobile/MOB-007-mob-features-polling.md), [MOB-008](mobile/MOB-008-mob-write-queue.md), [WEB-010](web/WEB-010-web-pulpit-start.md), [WEB-013](web/WEB-013-web-horses.md), [BE-035](backend/BE-035-cron-escalation.md), [TAB-009](tablet/TAB-009-tab-session.md), [BE-048](backend/BE-048-schedule-rides.md), [BE-049](backend/BE-049-cron-health-due.md), [BE-050](backend/BE-050-ops-tasks.md), [WEB-023](web/WEB-023-web-tasks.md), [BE-053](backend/BE-053-cron-billing.md)
+- **Zadania:** [BE-018](backend/BE-018-auth-password-reset.md), [BE-021](backend/BE-021-auth-businesses.md), [MOB-004](mobile/MOB-004-mob-signup-reset.md), [MOB-005](mobile/MOB-005-mob-start-nav.md), [WEB-002](web/WEB-002-web-reset-password.md), [WEB-006](web/WEB-006-web-invite.md), [BE-029](backend/BE-029-stables-create.md), [MOB-007](mobile/MOB-007-mob-features-polling.md), [MOB-008](mobile/MOB-008-mob-write-queue.md), [WEB-010](web/WEB-010-web-pulpit-start.md), [WEB-013](web/WEB-013-web-horses.md), [BE-035](backend/BE-035-cron-escalation.md), [TAB-009](tablet/TAB-009-tab-session.md), [BE-048](backend/BE-048-schedule-rides.md), [BE-049](backend/BE-049-cron-health-due.md), [BE-050](backend/BE-050-ops-tasks.md), [WEB-023](web/WEB-023-web-tasks.md), [BE-053](backend/BE-053-cron-billing.md), [WEB-030](web/WEB-030-web-e2e-billing.md)
 - **Odwołania:** uwagi w plikach zadań wymienionych przy punktach.
 - **Rozstrzygnięcie:** —
+
+## DEC-28 · Ręczne zawieszenie stajni przez admina globalnego
+- **Status:** otwarta
+- **Pytanie:** Czy zespół EQUENOR może zawiesić (i odwiesić) stajnię niezależnie od billingu, np. przy sporze, nadużyciu albo na prośbę firmy, i jak?
+- **Kontekst:** docs/mikroserwisy.md 10.2 pkt 14 („nowa kolumna w `stables`?”). Stan zawieszenia w `board` liczy się ze `stables.status` (BE-054), więc wystarczy ustawić kolumnę; billing robi to przez zdarzenie subskrypcji (BE-065, DEC-12).
+- **Opcje:**
+  - A: trasa `POST /stables/v1/platform/stables/{stableId}/status` (`plt = admin`, powód, audyt `actor_type = operator`) i przycisk w panelu `[OPS]`; billing nie odwiesza stajni zawieszonej ręcznie (osobna kolumna `stables.suspended_reason`: `billing | platform`).
+  - B: tylko billing (bez ręcznego zawieszenia).
+  - C: tylko skrypt na serwerze (bez UI), wołany przez Dawida.
+- **Rekomendacja:** A po PoC; na PoC C (skrypt `npm run stable:status` z BE-054, w prod przez Job z audytem `system`).
+- **Do czasu decyzji:** BE-054 daje stan w `board` i skrypt dev; trasa `platform` i przycisk w `[OPS]` nie powstają. Ekrany (MOB-023, WEB-025) nie zależą od przyczyny zawieszenia.
+- **Blokuje:** brak
+- **Zadania:** [BE-054](backend/BE-054-stable-suspended.md), [MOB-023](mobile/MOB-023-mob-suspended.md), [WEB-025](web/WEB-025-web-suspended.md)
+- **Odwołania:** docs/mikroserwisy.md 3.8, 10.2 pkt 14.
+- **Rozstrzygnięcie:** —
+
+## DEC-29 · Koń bez boksu na wyświetlaczu
+- **Status:** otwarta
+- **Pytanie:** Czy koń bez boksu (w demo Luna) jest widoczny na TV, a jeśli tak, to gdzie?
+- **Kontekst:** docs/development-szczegoly.md 5 pkt 16; makieta WyswietlaczCentralny nie ma takiej sekcji; panel i apka admina pokazują „Konie bez boksu”.
+- **Opcje:**
+  - A: osobna sekcja „Bez boksu” obok sekcji hal, tylko w widoku wszystkich hal (bez pełnego ekranu hali), z flagami konia.
+  - B: TV nie pokazuje koni bez boksu.
+- **Rekomendacja:** A (propozycja z docs: flaga konia bez boksu też musi być widoczna dla obsługi).
+- **Do czasu decyzji:** BE-042 i WEB-016 bez sekcji (B), a kontrakt `display` z BE-064 ma opcjonalne pole `horsesWithoutBox` (puste), żeby A było zmianą addytywną.
+- **Blokuje:** brak
+- **Zadania:** [BE-064](backend/BE-064-board-contracts.md), [BE-042](backend/BE-042-board-display.md), [WEB-016](web/WEB-016-tv-central.md)
+- **Odwołania:** docs/development-szczegoly.md 5 pkt 16; docs/makiety-plan.md F.
+- **Rozstrzygnięcie:** —
+
+## DEC-30 · Tablet po bramce B: model, firmware, profil palety, czarno-białe
+- **Status:** otwarta
+- **Pytanie:** Która para model + firmware idzie do stajni pilotażowej, czy utrzymujemy profil palety Gallery 3 i czy v1 oficjalnie wspiera czarno-białe tablety?
+- **Kontekst:** rozstrzyga raport z pomiarów na Boox Note Air6 C (szablon, skrypty i instrukcja: TAB-007; pomiary robi Dawid albo osoba z urządzeniem). Plan B: Samsung Galaxy Tab Active5 albo inny e-ink z działającym DO, gdy T-01 albo T-02 nie przejdą.
+- **Opcje:**
+  - A: Boox Note Air6 C z zatwierdzonym firmware i zablokowanym OTA, profil Kaleido 3; Gallery 3 zostaje w kodzie bez testów sprzętowych; czarno-białe wspierane „best effort” (drabina jasności), bez oficjalnego wsparcia w v1.
+  - B: plan B (inny model) z powtórzeniem testów (B) na nim.
+  - C: A, ale bez profilu Gallery 3 (mniej kodu i testów zrzutów).
+- **Rekomendacja:** zależy od raportu; wstępnie A.
+- **Do czasu decyzji:** oba profile palety w kodzie i w testach zrzutów (SH-004, TAB-005, TAB-008); ekran projektowany tak, żeby działał w szarości. Pierwsze wydanie produkcyjne APK (TAB-022) czeka na decyzję.
+- **Blokuje:** TAB-022
+- **Zadania:** [SH-004](shared/SH-004-gen-api-theme.md), [TAB-005](tablet/TAB-005-tab-epd.md), [TAB-007](tablet/TAB-007-tab-gate-b.md), [TAB-008](tablet/TAB-008-tab-eink-ui.md), [TAB-022](tablet/TAB-022-tab-release.md)
+- **Odwołania:** docs/development-szczegoly.md 3.6 „Etap 0 tor B”, 4.3.1, 5 pkt 38–41; docs/paleta.md „Tablet e-ink”.
+- **Rozstrzygnięcie:** — (tu link do wypełnionego `tablet/gate/RAPORT.md`)
+
+## DEC-31 · Wejścia zespołu EQUENOR do stajni: powiadomienie i autor w historii
+- **Status:** otwarta
+- **Pytanie:** Czy admin konta firmy dostaje powiadomienie albo log wejść zespołu EQUENOR do swoich stajni i jak podpisujemy zmiany zrobione przez zespół?
+- **Kontekst:** docs/mikroserwisy.md 10.2 pkt 4 (dziś powiadomienie tylko przy dodaniu admina konta); zadania już przyjęły etykietę „Zespół EQUENOR” (BE-038, BE-041, BE-055, WEB-027) bez decyzji.
+- **Opcje:**
+  - A: autor „Zespół EQUENOR” (bez imienia) wszędzie, gdzie widzi go stajnia; admin konta widzi wejścia zespołu w historii zmian (audyt z `actor_type = operator`), bez osobnego powiadomienia.
+  - B: A plus e-mail do admina konta przy pierwszym wejściu zespołu do stajni w danym dniu.
+  - C: imię członka zespołu zamiast etykiety.
+- **Rekomendacja:** A na PoC.
+- **Do czasu decyzji:** etykieta „Zespół EQUENOR” z jednego miejsca (`lib/rules` albo słownik w aplikacji), bez powiadomień o wejściach.
+- **Blokuje:** brak
+- **Zadania:** [BE-038](backend/BE-038-board-client.md), [BE-041](backend/BE-041-board-tablet.md), [WEB-021](web/WEB-021-web-tv-routine.md), [BE-055](backend/BE-055-audit-retention.md), [WEB-026](web/WEB-026-web-ops.md), [WEB-027](web/WEB-027-web-history.md)
+- **Odwołania:** docs/mikroserwisy.md 4.4, 10.2 pkt 4.
+- **Rozstrzygnięcie:** —
+
+## DEC-32 · Dane bez ekranu na PoC: wizyty, jazdy, załączniki, zdjęcia koni
+- **Status:** otwarta
+- **Pytanie:** Czy na PoC powstają ekrany dodawania wizyt i wpisów zdrowia z załącznikami, jazd i zdjęcia konia, czy te dane pochodzą tylko z seedu i API?
+- **Kontekst:** docs/makiety-plan.md H oznacza ZdrowieWpis i DodajJazde jako P3 (po PoC); zdjęcie konia jest opcjonalne w dialogu dodawania konia w panelu, ale WEB-013 je pomija. Trasy backendu bez ekranu to koszt bez użytkownika.
+- **Opcje:**
+  - A: na PoC wizyty, wpisy zdrowia, załączniki i jazdy tylko z seedu i przez API (`schedule`: BE-047, BE-048); zdjęcia koni po PoC (trasy zdjęcia z mikroserwisy.md 5.3 nie powstają).
+  - B: nowe zadania ekranów: wpis wizyty z załącznikiem i zdjęcie konia w panelu, DodajJazde w apce.
+- **Rekomendacja:** A (PoC tani; ekrany P3 po pilotażu).
+- **Do czasu decyzji:** BE-051 bez tras zdjęcia konia; MOB-022 i panel tylko odczyt wizyt i jazd; WEB-013 bez pola zdjęcia.
+- **Blokuje:** brak
+- **Zadania:** [WEB-013](web/WEB-013-web-horses.md), [BE-047](backend/BE-047-schedule-health.md), [BE-048](backend/BE-048-schedule-rides.md), [BE-051](backend/BE-051-files-full.md), [MOB-022](mobile/MOB-022-mob-rides-health.md)
+- **Odwołania:** docs/makiety-plan.md H (ZdrowieWpis, DodajJazde), 5 pkt 20; docs/mikroserwisy.md 5.3, 5.6.
+- **Rozstrzygnięcie:** —
+
+## Odłożone, obowiązuje wariant z docs
+
+Punkty z docs oznaczone jako „może poczekać” albo rozstrzygnięte wariantem z docs. Nie mają numerów DEC, bo do czasu zmiany obowiązuje to, co opisują docs; zmiana któregoś z nich = nowa DEC.
+
+- docs/mikroserwisy.md 10.2 pkt 12: ekrany składa `board`, dane o ludziach aplikacja dociąga z `auth` (bez osobnego BFF).
+- docs/mikroserwisy.md 10.2 pkt 13: domyślne dane nowej stajni przez synchroniczne wywołanie `operations` i zdarzenie (bez crona uzgadniającego), BE-028, BE-029.
+- docs/mikroserwisy.md 10.2 pkt 18: „Zobacz jako” dla admina globalnego nie powstaje (P3 albo wcale).
+- docs/mikroserwisy.md 10.2 pkt 19: token zawężony do jednej stajni tylko przy przekroczeniu budżetu 4 KB; na PoC limity i alert (BE-013).
+- docs/mikroserwisy.md 10.2 pkt 23: tożsamość wołającego na `/internal` przez NetworkPolicy (manifesty BE-060), bez tokenu konta serwisowego ani mTLS.
+- docs/development-szczegoly.md 5 pkt 3: jedno konto `display` na kilka telewizorów albo osobne na każdy: oba dopuszczalne (erd.md), seed ma jedno („Telewizor korytarz”).
+- docs/development-szczegoly.md 5 pkt 45: model karmienia w wersji prostej („namoczyć” i ile przy pozycji planu), bez nowych pól i tabel.
+- docs/development-szczegoly.md 5 pkt 46: blokada dotyku tabletu na czas mycia (TAB-015), bez fizycznego przycisku.
+- docs/development-szczegoly.md 5 pkt 52: NIP bez sprawdzania w rejestrach; przejęcie NIP-u zajętego przez nieaktywne konto ręcznie przez zespół EQUENOR, bez UI na PoC.

@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [SH-002, TAB-015, TAB-016, TAB-018]
 decisions: []
+needs: [emulator, device]
 owner:
 branch:
 trello:
@@ -41,14 +42,14 @@ Najważniejsze zachowania tabletu (logowanie i język, „Zmień boks”, blokad
 - Harness wszystkich scenariuszy A-01…A-25 (SH-005).
 
 ## Kryteria akceptacji
-- [ ] `cd tablet && npm run e2e:emulator` na Linuksie z KVM i stosem z SH-002 przechodzi wszystkie zestawy (dwa emulatory dla A-10 albo wariant ze skryptem).
+- [ ] [ręcznie] `cd tablet && npm run e2e:emulator` na Linuksie z KVM i stosem z SH-002 przechodzi wszystkie zestawy (dwa emulatory dla A-10 albo wariant ze skryptem).
 - [ ] Raport wskazuje dla każdego zestawu wynik i dowód; zepsucie powrotu po 30 s (np. zmiana na 60 s) wywraca `T-28-change-box`.
-- [ ] `device.sh` przechodzi `T-28-change-box` i `A-25-login-language` na sztuce deweloperskiej (wykonuje osoba z urządzeniem; wynik w raporcie).
+- [ ] [ręcznie] `device.sh` przechodzi `T-28-change-box` i `A-25-login-language` na sztuce deweloperskiej (wykonuje osoba z urządzeniem; wynik w raporcie).
 - [ ] Build release nie zawiera skróconych czasów (test jednostkowy konfiguracji).
 
 ## Testy
-- Same zestawy Maestro i skrypty są testami; dodatkowo Jest dla konfiguracji czasów testowych.
-- Komendy: `cd tablet && npm run e2e:emulator`, `bash tablet/e2e/device.sh --serial <id>`.
+- [ręcznie] Same zestawy Maestro i skrypty są testami; dodatkowo Jest dla konfiguracji czasów testowych.
+- [ręcznie] Komendy: `cd tablet && npm run e2e:emulator`, `bash tablet/e2e/device.sh --serial <id>`.
 
 ## Definicja gotowości
 - Zestawy zielone lokalnie i w nocnym przebiegu; `tablet/e2e/README.md` i raport gotowe; status w tym pliku i w `tasks/QUEUE.md`.

@@ -5,7 +5,7 @@ area: web
 stage: 1
 size: M
 status: todo
-depends_on: [BE-022, WEB-004]
+depends_on: [BE-022, WEB-004, WEB-005]
 decisions: [DEC-27]
 owner:
 branch:
@@ -17,10 +17,10 @@ trello:
 Admin zaprasza do stajni klienta (z koniem), obsługę, instruktora albo konto techniczne (wyświetlacz, tablet przy boksie) SMS-em albo e-mailem. Zaproszenie dopasowuje się samo po zalogowaniu osoby, bez „Przyjmij”. Admin widzi listę zaproszeń, ponawia wygasłe i odwołuje oczekujące.
 
 ## Kontekst
-- **Stan kodu:** `SidePanel`, `SegmentedControl`, `RadioGroup`, `DateField`, `PhoneField`, `TextField`, `Toast`, `DataTable`, `newId()` z WEB-001/WEB-004; ekran Ludzie z WEB-005 (jeśli już jest; inaczej zakładka i przycisk trafiają na zaślepkę `/stables/$stableId/people`).
+- **Stan kodu:** `SidePanel`, `SegmentedControl`, `RadioGroup`, `DateField`, `PhoneField`, `TextField`, `Toast`, `DataTable`, `newId()` z WEB-001/WEB-004; ekran Ludzie z WEB-005 (zakładka „Zaproszenia” i przycisk „Zaproś osobę” trafiają tam).
 - **Dokumenty:** docs/mikroserwisy.md 5.2 „Zaproszenia”, 2 (konto techniczne tylko na świeży kontakt: `409 target_in_use`), 9.2 pkt 8–10, 9.3 pkt 1. BE-022: `GET /auth/v1/stables/{stableId}/invitations` (status `pending | accepted | expired | revoked`, cel zamaskowany), `POST …/invitations` (`{ channel, target, displayName, locale, role, horseId?, expiresAt? }`; `role`: `client | staff | instructor | display | tablet`; `horseId` wymagany dla `client`; `expiresAt` domyślnie +7 dni, najwyżej +30), `POST …/invitations/{id}/resend` (nowe zaproszenie, stare odwołane), `POST …/invitations/{id}/revoke`; `429 rate_limited` (200 na firmę na dobę). docs/development-szczegoly.md 4.1 „Panel web” (zaproszenie z kanałem i rolą, bez Wsparcia IT), A-06, A-24, A-25.
 - **Makiety:** mockups/project/PanelZaprosOsobe.dc.html: „Zaproś osobę · Stajnia Brzozowa”, „Kanał SMS | E-mail”, „Język wiadomości PL | UA”, „Ważne do * · 7 dni”, „Numer telefonu * +48”, „Imię”, „Rola w Stajni Brzozowej *”: „Osoba: Klient | Obsługa | Instruktor”, „Konto techniczne: Wyświetlacz | Tablet przy boksie”, „Podgląd SMS”, „Anuluj”, „Wyślij zaproszenie”. makiety-plan.md B „PanelZaprosOsobe” (stany: Klient z polem „Koń”, konta techniczne e-mailem, toast „Wysłano zaproszenie SMS · ważne do 08.10”, „Nie wysłano, spróbuj ponownie”, walidacje) i „PanelLudzie” (zakładka „Zaproszenia”: „wygasa za 2 dni” z „Odwołaj”, „wygasło 08.10” z „Wyślij ponownie”, filtr przyjętych i odwołanych). WiadomosciSms.dc.html (treść SMS); mockups/STAN.md pkt 7 („zaloguj się tym numerem” → „załóż konto na ten numer”).
-- **Decyzje:** brak (DEC-11 dotyczy wysyłki po stronie serwisów).
+- **Decyzje:** brak (wybór dostawców SMS i e-maila dotyczy serwisów `sms` i `email`).
 - **Dane demo:** zaproszenie Pawła (SMS, Obsługa, Brzozowa), Marek Nowak (SMS, Klient, Luna, ważne do 15.10), wygasłe +48 512 *** 908 (Obsługa, 08.10), „Telewizor korytarz” (e-mail tv.korytarz@stajnielipowe.pl), „Tablety Pod Lipami” (boksy@stajnielipowe.pl).
 
 ## Zakres
@@ -38,7 +38,7 @@ Admin zaprasza do stajni klienta (z koniem), obsługę, instruktora albo konto t
 - [ ] A-24/A-25: „Konto techniczne: Wyświetlacz” e-mailem tv.korytarz@stajnielipowe.pl z nazwą „Telewizor korytarz” tworzy zaproszenie widoczne w zakładce; zajęty adres daje komunikat `target_in_use`.
 - [ ] Klient bez wybranego konia nie wyśle formularza; Klient z koniem wysyła `horseId`.
 - [ ] „Wyślij ponownie” przy wygasłym tworzy nowe zaproszenie (stare znika z oczekujących).
-- [ ] Na liście ról nie ma Wsparcia IT ani Admina; bez opisów ról (dec. 19, 35, 38).
+- [ ] Na liście ról nie ma Wsparcia IT ani Admina; bez opisów ról (docs/makiety-plan.md 5 pkt 19, 35 i 38).
 - [ ] 390 px bez poziomego przewijania; formularz obsługiwany klawiaturą.
 
 ## Testy

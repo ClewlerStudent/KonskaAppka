@@ -5,8 +5,9 @@ area: web
 stage: 5
 size: M
 status: todo
-depends_on: [WEB-016]
-decisions: []
+depends_on: [WEB-016, WEB-018]
+decisions: [DEC-25]
+needs: [device]
 owner:
 branch:
 trello:
@@ -34,10 +35,10 @@ Powtarzalny zestaw skryptów, który zamienia Raspberry Pi 5 z czystym Raspberry
 - [ ] `tools/display-kiosk/README.md`: przygotowanie karty (Raspberry Pi Imager: host, użytkownik, klucz SSH, Wi-Fi, strefa Europe/Warsaw), instalacja, pierwsze logowanie kontem `display`, wybór hali (WEB-017), procedura odtworzenia W-18 z pomiarem czasu, lista testów W do wykonania na stanowisku.
 
 ## Poza zakresem
-- Obraz systemu do klonowania i zarządzanie flotą; monitoring urządzeń (DEC-25 dotyczy tabletu); testy W na sprzęcie (stanowisko Dawida, wyniki do docs).
+- Obraz systemu do klonowania i zarządzanie flotą; monitoring urządzeń (wysyłka diagnostyki Pi według DEC-25, po wyborze narzędzia); testy W na sprzęcie (stanowisko Dawida, wyniki do docs).
 
 ## Kryteria akceptacji
-- [ ] Na czystym Raspberry Pi OS Trixie 64-bit po `install.sh` i restarcie Pi otwiera się panel na pełnym ekranie; po zalogowaniu kontem `display` tablica.
+- [ ] [ręcznie] Na czystym Raspberry Pi OS Trixie 64-bit po `install.sh` i restarcie Pi otwiera się panel na pełnym ekranie; po zalogowaniu kontem `display` tablica.
 - [ ] W-12: `kill -9` Chromium → przeglądarka wraca w ≤ 10 s bez „Przywrócić strony?”, infobaru i okna pęku kluczy.
 - [ ] W-06, W-14: przycisk zasilania nie wyłącza Pi; ekran nie gaśnie, kursor niewidoczny.
 - [ ] W-27: logowanie SSH hasłem odrzucone.
@@ -55,3 +56,4 @@ Powtarzalny zestaw skryptów, który zamienia Raspberry Pi 5 z czystym Raspberry
 - Bez `--incognito` i `--temp-profile`: profil musi trzymać ciasteczko sesji i `localStorage` (wybór hali).
 - Nie używać pakietu `watchdog` ani FullPageOS (3.5.4).
 - Punkty oznaczone w docs jako [niepotwierdzone] (`HandlePowerKey`, tryb HDMI, `--hide-crash-restore-bubble`) zostaw jako opcje z opisem w README.
+<!-- dep-ok: SH-003 (shellcheck jako krok CI; lokalnie wystarczy shellcheck) -->

@@ -6,7 +6,8 @@ stage: 7
 size: M
 status: todo
 depends_on: [BE-047, BE-048, MOB-018]
-decisions: [DEC-17]
+decisions: [DEC-17, DEC-32]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -31,7 +32,7 @@ Instruktor (Marta) widzi swoje jazdy w wybranej stajni i flagi koni (tylko do od
 - [ ] Wszystko według funkcji `health` i `rides` roli w wybranej stajni; Brzozowa: klient bez jazd, obsługa bez jazd.
 
 ## Poza zakresem
-- Dodawanie jazd i wpisów zdrowia w apce (DodajJazde, ZdrowieWpis — P3, po decyzji); wgrywanie załączników (panel/backend).
+- Dodawanie jazd i wpisów zdrowia w apce (DodajJazde, ZdrowieWpis — P3, po decyzji); wgrywanie załączników (DEC-32 A: na PoC wpisy i załączniki tylko z seedu i przez API `schedule` z BE-047, bez ekranu w apce i panelu).
 
 ## Kryteria akceptacji
 - [ ] Marta w Pod Lipami widzi „16:00 · Iskra · Hala główna · boks 1 · Kryta ujeżdżalnia · Jeździec: Karolina W.” i 5 flag koni bez akcji; w Brzozowej „Brak jazd”.
@@ -42,10 +43,10 @@ Instruktor (Marta) widzi swoje jazdy w wybranej stajni i flagi koni (tylko do od
 
 ## Testy
 - Jest + RNTL: `instructor-rides.test.tsx` (dziś, kolejne dni, `no_riding`, pusty dzień), `instructor-flags.test.tsx` (bez akcji), `horse-card-health.test.tsx` (`owner_private`, role) na atrapach `schedule` i `board`.
-- Maestro: `mobile/e2e/maestro/instructor.yaml` (Marta w obu stajniach na seedzie).
+- [ręcznie] Maestro: `mobile/e2e/maestro/instructor.yaml` (Marta w obu stajniach na seedzie).
 
 ## Definicja gotowości
-- `npm run check` w `mobile/` zielone (`gen:api` z `schedule.json`); flow Maestro przechodzi; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `mobile/` zielone (`gen:api` z `schedule.json`); flow Maestro przechodzi [ręcznie]; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Instruktor nie ustawia i nie potwierdza flag w apce (DEC-17, docs/mikroserwisy.md 8: flagi R* dla instruktora).

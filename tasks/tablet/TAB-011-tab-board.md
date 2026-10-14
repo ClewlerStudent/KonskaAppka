@@ -7,6 +7,7 @@ size: L
 status: todo
 depends_on: [TAB-010]
 decisions: []
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -46,7 +47,7 @@ Obsługa przy boksie widzi z 1,5–2 m, co dziś obowiązuje dla tego konia: fla
 - [ ] A-12: tablet HG 4 o 07:15 pokazuje „Derka: zakładać · od 16:00” w „Później”.
 - [ ] A-10: tablety HG 4 i HN 4 pokazują różne konie i flagi; nagłówki zawsze z halą.
 - [ ] A-19: po wyłączeniu moczenia „NAMOCZYĆ” znika przy najbliższym odpytaniu; wariant BezAkcji bez sekcji szybkich akcji, z bannerem i karmieniem bez zmian.
-- [ ] A-25: przełącznik UA zmienia teksty stałe i etykiety z serwera; drugi tablet (emulator) zostaje po polsku; tablica nie pokazuje nazwy konta.
+- [ ] [ręcznie] A-25: przełącznik UA zmienia teksty stałe i etykiety z serwera; drugi tablet (emulator) zostaje po polsku; tablica nie pokazuje nazwy konta.
 - [ ] Zrzuty w obu profilach (TAB-008) dla HG 7, HN 5, HN 6, Brzozowa 1 i BezAkcji zgodne z makietami (porównanie wzrokowe w raporcie zrzutów).
 
 ## Testy
@@ -60,3 +61,4 @@ Obsługa przy boksie widzi z 1,5–2 m, co dziś obowiązuje dla tego konia: fla
 - Status flagi to tylko „potwierdzona HH:MM” albo „niepotwierdzona”, i tylko przy `requiresAck`; żadnych innych nazw statusów.
 - Bez siana i ścielenia jako zdarzeń, bez zadań i bez ramki „PADOK / DZIŚ” (padok jest w przycisku PADOK, TAB-018).
 - Nie licz niczego z reguł domeny na tablecie (okna, wstrzymania): wszystko przychodzi gotowe z `board`.
+<!-- dep-ok: BE-045 (pola rutyny są w kontrakcie BE-064; ekran pokazuje je, gdy są w odpowiedzi) -->

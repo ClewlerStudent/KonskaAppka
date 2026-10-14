@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [MOB-003]
 decisions: [DEC-15, DEC-16, DEC-23, DEC-27]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -17,7 +18,7 @@ trello:
 Po zalogowaniu każda rola od razu trafia na swój ekran startowy z własnym paskiem, bez ekranu „Przyjmij zaproszenie”. Osoba w kilku stajniach przełącza je w nagłówku; osoba bez dostępu widzi tylko „Brak dostępu do stajni”.
 
 ## Kontekst
-- Stan kodu: sesja i `GET /me` z `stables[]`, `startView`, `matchedInvitations[]` (MOB-002, kontrakt z BE-019); ekrany logowania (MOB-003). W panelu routing po `startView` jest w `frontend/web/src/session/home.ts` (wzorzec: nieznana wartość → `welcome`).
+- Stan kodu: sesja i `GET /me` z `stables[]`, `startView`, `matchedInvitations[]` (MOB-002, kontrakt z BE-063); ekrany logowania (MOB-003). W panelu routing po `startView` jest w `frontend/web/src/session/home.ts` (wzorzec: nieznana wartość → `welcome`).
 - Dokumenty: `mockups/project/MapaNawigacjiRol.dc.html` i `docs/makiety-plan.md` C „MapaNawigacjiRol” (jedyny opis nawigacji): Klient: start Main, pasek Konie | Flagi [flags] | Historia [box_history] | Profil; Obsługa: ListaDnia, pasek Dziś | Konie | Zadania [tasks] | Profil; Admin w apce: AdminDzis, pasek Dziś | Boksy | Zadania | Ludzie | Profil (DEC-15); Instruktor: InstruktorJazdy [rides i `rides_enabled`], pasek Jazdy | Flagi [flags] | Profil; jedna stajnia → start roli, kilka → ostatnio używana, przy pierwszym logowaniu PrzelacznikStajni. `docs/makiety-plan.md` A „BrakDostepu”, „ZaproszenieNoweStajnia” (toast „Masz teraz dostęp do Stajni Brzozowej” i „▾”, bez „Przyjmij”), „PrzelacznikStajni” (arkusz nad Main, nakładka `rgba(46,36,29,.40)`, wiersze 64 px „Stajnia Pod Lipami · Klient · Kasztan, Bella” z ✓, „Zamknij”; stan pierwszego logowania bez ✓ i „Zamknij”), 2.3 „Nagłówki” (przełącznik „▾” tylko przy kilku stajniach, bez dzwonka) i „Widoczność” (funkcja odznaczona dla roli znika razem z pozycją paska; admin widzi wszystko). `docs/mikroserwisy.md` 3.2 (klient bez ważnego konia nie ma stajni w `m`), 3.8 (odebrana stajnia znika z przełącznika do 5 min), 9.1 (Ola: `startView = staff_day`).
 - Decyzje: DEC-15 wariant A (pasek admina jak wyżej; „Opuść stajnię” w Profilu — MOB-006). DEC-16 wariant A (bez dzwonka i push). DEC-23 wariant A (klient bez ważnego konia traci stajnię: BrakDostepu, bez MainBezKonia).
 - Makiety: `BrakDostepu.dc.html` (bez linku „Wyloguj”: jeden przycisk), `MapaNawigacjiRol.dc.html`, nagłówki z `Main.dc.html`, `ListaDnia.dc.html`, `AdminDzis.dc.html`, `InstruktorJazdy.dc.html`.
@@ -46,12 +47,12 @@ Po zalogowaniu każda rola od razu trafia na swój ekran startowy z własnym pas
 
 ## Testy
 - Jest: `selected-stable.test.ts` (reguły wyboru, znikająca stajnia), `tabs.test.ts` (macierz rola × funkcje → pozycje paska dla Ani, Oli, Damiana, Marty w obu stajniach, z danymi z docs/mikroserwisy.md 3.3), testy renderu nagłówka i BrakDostepu.
-- Maestro: `mobile/e2e/maestro/start-roles.yaml` (logowanie Oli, Anny, Damiana i przełączenie stajni) na lokalnym stosie albo z tokenami `npm run dev:token`.
+- [ręcznie] Maestro: `mobile/e2e/maestro/start-roles.yaml` (logowanie Oli, Anny, Damiana i przełączenie stajni) na lokalnym stosie albo z tokenami `npm run dev:token`.
 
 ## Definicja gotowości
-- `npm run check` w `mobile/` zielone; flow Maestro przechodzi; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `mobile/` zielone; flow Maestro przechodzi [ręcznie]; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Apka nie dekoduje tokenu: role i funkcje tylko z `GET /me`. Funkcje: `flags`, `feeding_plan`, `routine`, `box_history`, `health`, `rides`, `tasks`.
-- Bez próśb do admina, numeru i telefonu stajni na BrakDostepu (dec. 38).
+- Bez próśb do admina, numeru i telefonu stajni na BrakDostepu (docs/makiety-plan.md 2.3 i 5 pkt 38).
 - Nazwy koni w wierszach przełącznika daje `GET /me` w `stables[].horses` (BE-062, etap 2; celowo nie jest zależnością, żeby nie opóźniać etapu 1); dopóki pola nie ma, wiersz pokazuje „nazwa · rola”, a po `gen:api` z BE-062 imiona koni pojawiają się bez zmian w logice.

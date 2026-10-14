@@ -5,7 +5,7 @@ area: backend
 stage: 1
 size: L
 status: todo
-depends_on: [BE-006, BE-008, BE-013]
+depends_on: [BE-006, BE-008, BE-013, BE-019]
 decisions: [DEC-10]
 owner:
 branch:
@@ -31,9 +31,10 @@ Admin zaprasza do stajni osobę (Klient z koniem, Obsługa, Instruktor) albo kon
 - [ ] Dopasowanie (`invitations/match.ts`), wołane w kroku MFA (po upsercie `users`, w tej samej transakcji) i przy odświeżeniu: ważne zaproszenia na zweryfikowany telefon albo e-mail konta (kanał musi się zgadzać); osoba: nowe `stable_members` (rola z zaproszenia), klient: także `horse_access` (`valid_from = teraz`); konto techniczne: tylko świeże konto (pierwsze logowanie, brak członkostw) → `account_kind = technical`, `display_name` z zaproszenia; zaproszenie osoby nie pasuje do konta technicznego i odwrotnie; członkostwo z inną rolą w tej stajni → zaproszenie zostaje niedopasowane z logiem ostrzeżenia (propozycja); limity z 3.2. Zapis `accepted_at`, `accepted_by`; po COMMIT `invitation.accepted`.
 - [ ] Ponowne dopasowanie tego samego zaproszenia nie tworzy drugiego członkostwa (warunek `accepted_at IS NULL` w `UPDATE`).
 - [ ] Kod błędu `target_in_use` do `ERRORS`.
+- [ ] `GET /me` (BE-019): `matchedInvitations` wypełnione zaproszeniami tej osoby z `accepted_at` w ostatnich 24 h (`stableId`, `stableName`, `role`, `horseName` dla klienta), z testem.
 
 ## Poza zakresem
-- Treść i wysyłka zaproszenia (BE-036 przez `invitation.created`), wygasłe zaproszenia (BE-037), ekrany (WEB-006, MOB-010), `GET /me` z `matchedInvitations` (BE-019).
+- Treść i wysyłka zaproszenia (BE-036 przez `invitation.created`), wygasłe zaproszenia (BE-037), ekrany (WEB-006, MOB-010).
 
 ## Kryteria akceptacji
 - [ ] Zaproszenie Marka (klient, Luna) i jego pierwsze logowanie hasłem i kodem: token ma Pod Lipami z `h` = Luna; `invitations.accepted_at` ustawione; `invitation.accepted` opublikowane.
@@ -41,6 +42,7 @@ Admin zaprasza do stajni osobę (Klient z koniem, Obsługa, Instruktor) albo kon
 - [ ] Zaproszenie e-mailem nie daje dostępu osobie, która ma ten sam numer, ale inny e-mail; wygasłe i odwołane się nie dopasowują.
 - [ ] Zaproszenie „Tablety” na adres Damiana: 409 `target_in_use`; na świeże boksy@…: po pierwszym logowaniu konto `technical` z jednym `m` (`tablet`).
 - [ ] Ola zaproszona do Brzozowej jako zalogowana: Brzozowa pojawia się w tokenie przy najbliższym odświeżeniu, bez ponownego logowania.
+- [ ] Marek Nowak po pierwszym logowaniu z ważnym zaproszeniem do Luny: `GET /me` ma w `matchedInvitations` Stajnię Pod Lipami z rolą `client` i `horseName` „Luna”; po 24 h lista jest pusta.
 
 ## Testy
 - `backend/src/services/auth/invitations.test.ts` na harnessie (FAKE IdP, fabryki): tworzenie i walidacja, `target_in_use`, dopasowanie w MFA i przy odświeżeniu, formaty numerów, limity, równoległe dopasowanie. `cd backend && npm test`.

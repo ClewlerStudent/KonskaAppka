@@ -6,7 +6,8 @@ stage: 0
 size: M
 status: todo
 depends_on: [TAB-002]
-decisions: []
+decisions: [DEC-13, DEC-18]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -35,13 +36,13 @@ Tablet nie aktualizuje sam firmware producenta (który może zepsuć kiosk albo 
 - Pomiary T-05, T-10, T-15 na sztuce i ich raport (TAB-007, testy po bramce).
 
 ## Kryteria akceptacji
-- [ ] Emulator z DO: `addNetwork` dodaje sieć emulatora (`AndroidWifi`) także przy `DISALLOW_CONFIG_WIFI`; złe hasło daje zdarzenie `auth_failed`, nie wyjątek w JS.
+- [ ] [ręcznie] Emulator z DO: `addNetwork` dodaje sieć emulatora (`AndroidWifi`) także przy `DISALLOW_CONFIG_WIFI`; złe hasło daje zdarzenie `auth_failed`, nie wyjątek w JS.
 - [ ] `blockVendorUpdater(['pakiet.nieistniejacy'])` zwraca `not_found`, a dla istniejącego pakietu testowego (np. zainstalowane APK testowe) `blocked`; `setSystemUpdatePolicy` jest widoczne w `dumpsys device_policy`.
 - [ ] Watchdog: bez `alive` przez skrócony w teście czas (1 min) proces jest restartowany i wraca do Lock Task; bez `heartbeat` przy żywym `alive` restart następuje po `WATCHDOG_POLL_MIN`, a kolejny dopiero po podwojonym odstępie; przy regularnych sygnałach restartu nie ma; licznik restartów rośnie.
-- [ ] `getChargeLimitSupport()` na emulatorze zwraca `unsupported` z opisem (bez wyjątku).
+- [ ] [ręcznie] `getChargeLimitSupport()` na emulatorze zwraca `unsupported` z opisem (bez wyjątku).
 
 ## Testy
-- Instrumentowane na emulatorze (rozszerzenie `scripts/emulator-kiosk-test.sh` z TAB-002): Wi-Fi z restrykcją, polityka aktualizacji, watchdog ze skróconym limitem.
+- [ręcznie] Instrumentowane na emulatorze (rozszerzenie `scripts/emulator-kiosk-test.sh` z TAB-002): Wi-Fi z restrykcją, polityka aktualizacji, watchdog ze skróconym limitem.
 - Jest: logika backoffu watchdoga i mapowanie zdarzeń Wi-Fi (atrapa modułu). `cd tablet && npm test`.
 
 ## Definicja gotowości

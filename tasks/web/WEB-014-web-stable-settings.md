@@ -40,7 +40,7 @@ Admin konta ustawia stajnię w jednym ekranie: czy flagi wymagają potwierdzenia
 - [ ] A-21: odznaczenie klientowi „Plan karmienia” zapisuje macierz; w kolumnie Tablet „Zadania” i „Historia boksu” nie da się zaznaczyć.
 - [ ] Zmiana w Pod Lipami nie zmienia Brzozowej; 412 z równoległej zmiany pokazuje komunikat; wymuszony błąd `PUT role-features` daje komunikat częściowego zapisu.
 - [ ] A-20: wyłączenie „Flagi wymagają potwierdzenia” zapisuje się bez dodatkowych pytań.
-- [ ] Bez opisów trybów i dopisków (dec. 38); przełączniki z `role="switch"` i etykietami, 390 px bez poziomego przewijania.
+- [ ] Bez opisów trybów i dopisków (docs/makiety-plan.md 2.3 i 5 pkt 38); przełączniki z `role="switch"` i etykietami, 390 px bez poziomego przewijania.
 
 ## Testy
 - Vitest: diff formularza → lista żądań, częściowy zapis i ponowienie, 412, macierz z komórkami nieaktywnymi, dialog Derki.
@@ -52,5 +52,5 @@ Admin konta ustawia stajnię w jednym ekranie: czy flagi wymagają potwierdzenia
 
 ## Uwagi dla wykonawcy
 - „Woda” nie ma przełącznika (ustawienie boksu, WEB-012).
-- Bez kolumny Wsparcia IT i bez wiersza diagnostyki (dec. 19).
+- Bez kolumny Wsparcia IT i bez wiersza diagnostyki (docs/makiety-plan.md 5 pkt 19).
 - Kolejność zapisu stała, żeby komunikat częściowego zapisu był przewidywalny.

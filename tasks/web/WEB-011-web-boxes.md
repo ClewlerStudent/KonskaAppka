@@ -45,7 +45,7 @@ Admin widzi wszystkie boksy stajni pogrupowane w hale (z adresem hali), z koniem
 
 ## Testy
 - Vitest: funkcje filtrów i wyszukiwarki, łączenie `boxes-overview` z `horse-clients` i zaproszeniami (fixture'y Pod Lipami i Brzozowej), widok jednej hali.
-- Playwright na atrapie (`e2e/helpers/mock-api.ts` + fixture `boxes-overview` z seedu): liczniki, wyszukiwanie „4”, filtr hali, zrzuty 1440 i 390 (porównanie z PanelBoksy.dc.html).
+- Playwright na atrapie (`e2e/helpers/mock-api.ts` z WEB-004 + fixture `frontend/web/src/test/fixtures/boxes-overview.ts` pisany ręcznie według docs/development-szczegoly.md 3.2, stałe UUID z `fixtures/demo.ts`): liczniki, wyszukiwanie „4”, filtr hali; zrzuty 1440 i 390 jako wzorce `toHaveScreenshot` tworzone w tym zadaniu (PanelBoksy.dc.html tylko do ręcznego przeglądu w PR).
 - `cd frontend && npm run check && npm run e2e`.
 
 ## Definicja gotowości
@@ -53,5 +53,5 @@ Admin widzi wszystkie boksy stajni pogrupowane w hale (z adresem hali), z koniem
 
 ## Uwagi dla wykonawcy
 - Boks zawsze po `boxId`; numer tylko do wyświetlania (`boxes.label` nie jest unikalny).
-- Bez opisów pod kartami (mockup ma zdania objaśniające, ale dec. 38 ma pierwszeństwo).
+- Bez opisów pod kartami (mockup ma zdania objaśniające, ale docs/makiety-plan.md 2.3 i 5 pkt 38 ma pierwszeństwo).
 - Zmiana zależności względem listy: dodane BE-022 i BE-024 (kolumna Klient i „zaproszenie czeka” pochodzą z `auth`).

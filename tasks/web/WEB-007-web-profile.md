@@ -5,7 +5,7 @@ area: web
 stage: 1
 size: M
 status: todo
-depends_on: [BE-020, WEB-004]
+depends_on: [BE-020, WEB-004, BE-019]
 decisions: []
 owner:
 branch:
@@ -40,7 +40,7 @@ Osoba zalogowana w panelu zmienia swoje imię i język, kanał kodu logowania (S
 - Profil w apce (MOB-006) i „Opuść stajnię” (apka, MOB-006); konto firmy (WEB-003); strona usuwania konta na www (WEB-008).
 
 ## Kryteria akceptacji
-- [ ] Zmiana języka na „Українська” zapisuje się i przetrwa przeładowanie (kody przy następnym logowaniu w tym języku, BE-019).
+- [ ] Zmiana języka na „Українська” zapisuje się i przetrwa przeładowanie (zapis `locale` przez `PATCH /me` z BE-019; kody przy następnym logowaniu po ukraińsku dzięki BE-014 i BE-015, które są przodkami przez BE-020).
 - [ ] Damian zmienia numer: nowy numer i hasło → kod MFA → kod z nowego numeru → profil pokazuje nowy numer zamaskowany; złe hasło kończy się na kroku 1 bez wysłania kodu.
 - [ ] Zmiana hasła: to urządzenie zostaje zalogowane; inna przeglądarka po ≤ 5 min trafia na logowanie (`session_revoked`).
 - [ ] Marta (sam e-mail) nie widzi wyboru kanału kodu.
@@ -57,4 +57,4 @@ Osoba zalogowana w panelu zmienia swoje imię i język, kanał kodu logowania (S
 
 ## Uwagi dla wykonawcy
 - Token logowania (`Authorization: Login …`) i kody tylko w pamięci komponentu; po zamknięciu panelu bocznego czyścić stan.
-- Teksty bez objaśnień; skutki tylko w dialogach potwierdzenia (dec. 38).
+- Teksty bez objaśnień; skutki tylko w dialogach potwierdzenia (docs/makiety-plan.md 2.3 i 5 pkt 38).

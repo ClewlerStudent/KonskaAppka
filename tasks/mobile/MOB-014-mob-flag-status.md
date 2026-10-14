@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [MOB-013]
 decisions: []
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -19,7 +20,7 @@ Klient sprawdza, czy obsługa potwierdziła jego flagę (w stajni z potwierdzeni
 ## Kontekst
 - Stan kodu: `FlagCard` i KartaKonia z flagami (MOB-012), ekran nowej flagi i arkusz godzin (MOB-013), wzorzec zapisu tylko online (MOB-008), pozycja paska „Flagi” klienta (MOB-005, trasa `mobile/app/(app)/(client)/flags.tsx`). Trasy `operations` (BE-034): `GET /operations/v1/stables/{stableId}/flags/{flagId}` (status z eskalacjami), `GET …/flags?date=&horseId=` (klient: tylko konie z `m[].h`), `POST …/flags/{flagId}/replace` (nowa flaga z `replaces_flag_id`, stara odwołana, jedna transakcja; `{ id, … }` jak przy tworzeniu), `POST …/flags/{flagId}/cancel` (`{ reason? }`).
 - Dokumenty: `docs/development-szczegoly.md` 3.5.1 („StatusFlagi: godziny obowiązywania i oś Ustawiona → Potwierdzona (tylko dla flag z `requires_ack`; flaga bez potwierdzeń ma samo „Ustawiona · obowiązuje od razu”)”). `docs/makiety-plan.md` D „StatusFlagiOdwolaj” (arkusz o 07:16: „Odwołać flagę „Bez śniadania” · Kasztan?”; skutki „Śniadanie Hali głównej podano już o 06:40 bez Kasztana.”; „Odwołaj”, „Zostaw”; stany: odwołanie przed posiłkiem „Wstrzymane śniadanie wraca do planu”, po odwołaniu „Odwołana 07:16” w historii, „Zmień” otwiera SzybkaFlaga z danymi flagi i tworzy nową z `replaces_flag_id`), „KlientFlagi” (H1 „Flagi”, chipy Wszystkie · Kasztan · Bella, „Teraz”: Bella · Nie na padok · dziś, cały dzień · niepotwierdzona („Admin stajni dostał powiadomienie”), Kasztan · Bez śniadania · 06:00–10:00 · potwierdzona 06:02; „Później dziś”: Kasztan · Nie na padok · od 14:30; „Zakończone i odwołane · 7 dni”; stany: brak flag, bez funkcji `flags` zakładki nie ma). A-03 (odwołanie przy otwartym pop-upie: wstrzymany posiłek wraca, eskalacja nie wychodzi).
-- Makiety: `mockups/project/StatusFlagi.dc.html` („Bez śniadania · Kasztan · Krytyczna · Hala główna · boks 7”, oś „Ustawiona 03:14 → Potwierdzona 06:02”, „Godziny: dziś 06:00–10:00 · wt 13.10”, „Wstrzymuje: śniadanie 06:30”, „Notatka”, „Zmień”, „Odwołaj flagę”, „Inne flagi” z Bellą „NIEPOTWIERDZONA” i „Zadzwoń do stajni”; zdanie „Nikt z obsługi jeszcze jej nie potwierdził.” pomijamy, dec. 38).
+- Makiety: `mockups/project/StatusFlagi.dc.html` („Bez śniadania · Kasztan · Krytyczna · Hala główna · boks 7”, oś „Ustawiona 03:14 → Potwierdzona 06:02”, „Godziny: dziś 06:00–10:00 · wt 13.10”, „Wstrzymuje: śniadanie 06:30”, „Notatka”, „Zmień”, „Odwołaj flagę”, „Inne flagi” z Bellą „NIEPOTWIERDZONA” i „Zadzwoń do stajni”; zdanie „Nikt z obsługi jeszcze jej nie potwierdził.” pomijamy, docs/makiety-plan.md 2.3 i 5 pkt 38).
 - Decyzje: brak nowych.
 - Dane demo: Anna (Kasztan: dwie flagi potwierdzone 06:02; Bella: niepotwierdzona od 01:20 z eskalacją do Damiana), Anna w Brzozowej (Kometa, bez potwierdzeń).
 
@@ -42,10 +43,10 @@ Klient sprawdza, czy obsługa potwierdziła jego flagę (w stajni z potwierdzeni
 
 ## Testy
 - Jest + RNTL: `flag-status.test.tsx` (warianty `requiresAck`, eskalacja), `flag-cancel.test.tsx` (skutki, błąd sieci), `client-flags.test.tsx` (grupy, chipy, brak funkcji) na atrapie `operations`.
-- Maestro: `mobile/e2e/maestro/client-flag-status.yaml` (zmiana i odwołanie na seedzie).
+- [ręcznie] Maestro: `mobile/e2e/maestro/client-flag-status.yaml` (zmiana i odwołanie na seedzie).
 
 ## Definicja gotowości
-- `npm run check` w `mobile/` zielone; flow Maestro przechodzi; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `mobile/` zielone; flow Maestro przechodzi [ręcznie]; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Autora potwierdzenia klient nie widzi (A-01: „Potwierdzona 06:02”, bez autora).

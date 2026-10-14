@@ -6,7 +6,8 @@ stage: 0
 size: M
 status: todo
 depends_on: [TAB-003, TAB-004, TAB-005, TAB-006]
-decisions: []
+decisions: [DEC-13, DEC-30]
+needs: [emulator, device, owner]
 owner:
 branch:
 trello:
@@ -14,14 +15,14 @@ trello:
 # TAB-007 · Bramka sprzętowa B: prototyp tablicy, skrypty pomiarowe i raport
 
 ## Cel
-Przed zakupem kolejnego sprzętu sprawdzamy na jednej sztuce Boox Note Air6 C, czy nadaje się na tablet przy boksie: kiosk bez ucieczki, autostart po rozładowaniu, Wi-Fi, cicha aktualizacja oraz czytelność pól koloru `t-*`. Zadanie daje prototyp tablicy, skrypty pomiarowe i raport, z którym właściciel decyduje: model zostaje albo plan B.
+Przed zakupem kolejnego sprzętu sprawdzamy na jednej sztuce Boox Note Air6 C, czy nadaje się na tablet przy boksie: kiosk bez ucieczki, autostart po rozładowaniu, Wi-Fi, cicha aktualizacja oraz czytelność pól koloru `t-*`. Zadanie daje prototyp tablicy, skrypty pomiarowe i szablon raportu z instrukcją; pomiary na sztuce robi Dawid (albo osoba z urządzeniem), a wynik i decyzja (model zostaje albo plan B, profil palety, czarno-białe w v1) trafiają do DEC-30.
 
 ## Kontekst
-- **Stan kodu:** `tablet/` z TAB-001 (tryb `fake` z fixture'ami `board`, profile palety), moduł kiosku z TAB-002/TAB-003 (DO, Lock Task, OTA, Wi-Fi, watchdog), cicha instalacja z TAB-004, `epdRefresh` i ekran „EPD” z TAB-005, `tools/provision-tablet` z TAB-006.
+- **Stan kodu:** `tablet/` z TAB-001 (tryb `fake` z przykładami kontraktu `board` z BE-064, profile palety), moduł kiosku z TAB-002/TAB-003 (DO, Lock Task, OTA, Wi-Fi, watchdog), cicha instalacja z TAB-004, `epdRefresh` i ekran „EPD” z TAB-005, `tools/provision-tablet` z TAB-006.
 - **Dokumenty:** `docs/development-szczegoly.md` 3.6 „Etap 0 tor B” (punkty (B) z 4.3.1: T-01…T-04, T-08, T-13, T-24, T-25 oraz K-01 i K-05 na Boox Note Air6 C, na sztucznych odpowiedziach `board`, z paletą `t-*` w profilu właściwym dla ekranu; kończy się decyzją: model zostaje albo plan B, Samsung Galaxy Tab Active5 dokupiony dopiero, gdy T-01 albo T-02 nie przejdą; ten sam moduł DO przechodzi na nim T-01…T-03), 4.3.1 (opis każdego testu: T-01 DO z `dumpsys device_policy`, T-02 próby ucieczki, T-03 HOME, T-04 obserwacja 72 h, T-08 50 cykli rozładowania, T-13 Wi-Fi 2,4/5 GHz, WPA2/WPA3, opóźnienie przy oszczędzaniu energii, T-24/T-25 aktualizacje; K-01 plansza testowa z polami `t-*` w rozmiarach z makiet, oświetlenie z luksomierzem, zdjęcie z szarą kartą, kolejność jasności; K-05 pola `t-warn`/`t-crit` w A2 i DU, tryb jakościowy w E-Ink Center), 4.5 „Zestaw domowy” (cykle zasilania ręcznie wtyczką, dopóki nie ma przekaźników), 5 pkt 33, 34, 37 (progi do ustalenia przed testem: interwał odpytywania i opóźnienie flagi p95, trafność stuknięć w rękawicach, próg rozróżnialności jasności).
 - **Makiety:** `mockups/project/TabletBoks.dc.html` (prototyp), `TabletPopup.dc.html`, `TabletUstawienia.dc.html` (EKRAN: „Profil kolorów: Kaleido 3”, „PLANSZA TESTOWA”).
-- **Decyzje:** DEC-13 A (odpytywanie co 5 s z jitterem, p95 opóźnienia flagi ≤ 15 s) jako próg do raportu.
-- **Dane demo:** fixture'y z TAB-001 (Kasztan HG 7 o 07:15 i pop-up o 06:01, Bella HN 4, Brzozowa boks 1).
+- **Decyzje:** DEC-13 A (odpytywanie co 5 s z jitterem, p95 opóźnienia flagi ≤ 15 s) jako próg do raportu. DEC-30 (model i firmware po bramce B, profil Gallery 3, czarno-białe w v1): rozstrzyga ją właściciel na podstawie raportu z tego zadania.
+- **Dane demo:** przykłady kontraktu `board` (BE-064) w trybie `fake` z TAB-001 (Kasztan HG 7 o 07:15 i pop-up o 06:01, Bella HN 4, Brzozowa boks 1).
 
 ## Zakres
 - [ ] Prototyp `tablet/src/gate/GateBoard.tsx`: uproszczona TabletBoks z fixture'ów (nagłówek, baner flagi `t-crit` z białym tekstem, „Później: …”, tabela KARMIENIE z WSTRZYMANE i NAMOCZYĆ, OSTATNIE AKCJE, stopka ONLINE) i pop-up na `t-scrim`; przełączanie fixture'ów co N s (symulacja odpytywania z ETag w trybie `fake`), każde przełączenie z polami koloru woła `epdRefresh('full')`, zegar `partial`. Kod bramki w `src/gate/`, usuwany albo zastąpiony przez TAB-011.
@@ -41,16 +42,16 @@ Przed zakupem kolejnego sprzętu sprawdzamy na jednej sztuce Boox Note Air6 C, c
 - Docelowe ekrany tabletu (TAB-008…TAB-018); zakup sprzętu (Dawid).
 
 ## Kryteria akceptacji
-- [ ] Na emulatorze: `GateBoard` i plansza testowa działają w trybie `fake`, przełączanie fixture'ów woła `full` tylko przy zmianie pól koloru (licznik), skrypty `t01-03.sh` i `t24-25.sh` przechodzą na emulatorze z DO.
-- [ ] Raport ma wypełnioną sekcję „Progi”, wynik każdego testu (B) z dowodem i rekomendację; wypełnia go osoba z urządzeniem (Dawid albo wykonawca z dostępem do sztuki).
-- [ ] Jeśli T-01 albo T-02 nie przechodzą na Boox, raport wskazuje plan B i listę testów do powtórzenia na Tab Active5.
+- [ ] [ręcznie] Na emulatorze: `GateBoard` i plansza testowa działają w trybie `fake`, przełączanie fixture'ów woła `full` tylko przy zmianie pól koloru (licznik), skrypty `t01-03.sh` i `t24-25.sh` przechodzą na emulatorze z DO.
+- [ ] Szablon `tablet/gate/RAPORT.md` ma sekcję „Progi” do uzgodnienia, tabelę wszystkich testów (B) z miejscem na wynik i dowód, kroki uruchomienia każdego skryptu i listę testów do powtórzenia na Tab Active5 przy planie B; `tablet/gate/README.md` prowadzi osobę z urządzeniem od provisioningu (TAB-006) do wypełnionego raportu.
+- [ ] [ręcznie] Pomiary na Boox Note Air6 C wykonane, raport wypełniony i dołączony do DEC-30 (robi Dawid albo osoba z urządzeniem; nie blokuje zamknięcia części kodowej, patrz tasks/README.md punkt 5).
 
 ## Testy
 - Jest: przełączanie fixture'ów i liczenie wywołań `full` w `GateBoard`.
-- `shellcheck tablet/gate/*.sh`; ręczne przebiegi na emulatorze i na sztuce.
+- `shellcheck tablet/gate/*.sh`; przebiegi skryptów na emulatorze [ręcznie]; na sztuce [ręcznie].
 
 ## Definicja gotowości
-- Kod i skrypty w repo, `npm run check` w `tablet/` zielone; raport wypełniony i przekazany właścicielowi (link w `tasks/QUEUE.md`); status w tym pliku i w `tasks/QUEUE.md` (zadanie zamyka decyzja właściciela zapisana w raporcie).
+- Kod, skrypty i szablon raportu w repo, `npm run check` w `tablet/` zielone; link do wypełnionego raportu w „Rozstrzygnięciu” DEC-30 w `tasks/decisions.md` (nie w `QUEUE.md`, który jest generowany); status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Agent bez sprzętu robi prototyp, skrypty i szablon; pomiary na sztuce robi osoba z urządzeniem. Nie zaznaczaj testów jako zaliczonych bez dowodu.

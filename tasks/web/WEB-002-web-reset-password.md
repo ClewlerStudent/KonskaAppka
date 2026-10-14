@@ -6,7 +6,7 @@ stage: 1
 size: S
 status: todo
 depends_on: [BE-018, WEB-001]
-decisions: [DEC-27]
+decisions: [DEC-27, DEC-08]
 owner:
 branch:
 trello:
@@ -38,7 +38,7 @@ Osoba, która nie pamięta hasła albo ma konto zablokowane po 5 złych kodach, 
 - [ ] Damian: kontakt → „Wyślij kod” → kod z dev-inbox (8 cyfr) i nowe hasło → logowanie z komunikatem „Hasło zmienione. Zaloguj się.” → logowanie nowym hasłem działa, starym nie.
 - [ ] Nieznany numer: ten sam krok 2 i ten sam komunikat przy złym kodzie co dla istniejącego konta.
 - [ ] Konto zablokowane po 5 złych kodach: z komunikatu na logowaniu przejście do resetu; po resecie logowanie hasłem i kodem działa (odblokowanie, BE-018).
-- [ ] Za krótkie hasło: komunikat błędu bez opisu reguł pod polem (dec. 38).
+- [ ] Za krótkie hasło: komunikat błędu bez opisu reguł pod polem (docs/makiety-plan.md 2.3 i 5 pkt 38).
 - [ ] Przy 390 px bez poziomego przewijania; całość obsługiwana klawiaturą.
 
 ## Testy

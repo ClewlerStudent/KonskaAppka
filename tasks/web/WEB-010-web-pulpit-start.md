@@ -40,7 +40,7 @@ Zaraz po założeniu stajni admin widzi „Pierwsze kroki”: co już jest gotow
 - [ ] Odpowiedź `setup-checklist` z `operationsDefaults: missing` pokazuje „Dokończ zakładanie stajni”; po udanym ponowieniu pozycja znika; ponowienie bez `pendingSetup` (nowa karta) wysyła żądanie bez pór.
 - [ ] „Pomiń” chowa pozycję wyświetlacza; z `localStorage` rzucającym wyjątek pozycja zostaje, a strona działa.
 - [ ] Pod Lipami (wszystko zrobione) nie pokazuje listy.
-- [ ] Bez instrukcji i „Jak podłączyć telewizor” (dec. 11, 38); 1440 i 390 px bez poziomego przewijania.
+- [ ] Bez instrukcji i „Jak podłączyć telewizor” (docs/makiety-plan.md 5 pkt 11, 38); 1440 i 390 px bez poziomego przewijania.
 
 ## Testy
 - Vitest: wyliczenie pozycji i licznika z odpowiedzi (fixture'y: dzień założenia, w połowie, komplet), „Pomiń” z wyjątkiem storage, ponowienie z porami i bez.

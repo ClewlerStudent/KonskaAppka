@@ -7,6 +7,7 @@ size: L
 status: todo
 depends_on: [TAB-001]
 decisions: []
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -39,21 +40,22 @@ Tablet przy boksie działa jak urządzenie jednej aplikacji: po włączeniu star
 - Pomiary na Boox Note Air6 C i raport bramki (TAB-007).
 
 ## Kryteria akceptacji
-- [ ] Na emulatorze Android 16 (AOSP) po ustawieniu DO: `getStatus()` zwraca `deviceOwner: true, lockTaskActive: true, isHome: true`; HOME, Recents, przeciągnięcie paska stanu i długie przytrzymanie zasilania nie wychodzą z apki (T-02 w zakresie emulatora).
-- [ ] Po `adb reboot` apka startuje sama w Lock Task bez launchera (T-03); po `adb shell am force-stop` i ponownym starcie systemu też.
-- [ ] `adb install -r` nowszej wersji wywołuje `MY_PACKAGE_REPLACED`, a apka wraca do Lock Task bez dotykania ekranu.
-- [ ] Na emulatorze z dodanym kontem `dpm set-device-owner` się nie udaje, a apka działa dalej jako zwykła aplikacja (bez wyjątku).
+- [ ] [ręcznie] Na emulatorze Android 16 (AOSP) po ustawieniu DO: `getStatus()` zwraca `deviceOwner: true, lockTaskActive: true, isHome: true`; HOME, Recents, przeciągnięcie paska stanu i długie przytrzymanie zasilania nie wychodzą z apki (T-02 w zakresie emulatora).
+- [ ] [ręcznie] Po `adb reboot` apka startuje sama w Lock Task bez launchera (T-03); po `adb shell am force-stop` i ponownym starcie systemu też.
+- [ ] [ręcznie] `adb install -r` nowszej wersji wywołuje `MY_PACKAGE_REPLACED`, a apka wraca do Lock Task bez dotykania ekranu.
+- [ ] [ręcznie] Na emulatorze z kontem dodanym przez testowy `AccountAuthenticator` z APK testowego (`androidTest`, typ konta `pl.equenor.test`; AOSP bez Play nie ma innego typu konta) `dpm set-device-owner` się nie udaje, a apka działa dalej jako zwykła aplikacja (bez wyjątku). Na sprzęcie ten sam warunek sprawdza T-01 (bramka B, TAB-007).
 - [ ] Profil `prod` ustawia `DISALLOW_DEBUGGING_FEATURES` tylko po jawnym wywołaniu; build `development` ma `testOnly` i daje się zdjąć `dpm remove-active-admin`.
 
 ## Testy
-- Instrumentowane: `cd tablet && bash scripts/emulator-kiosk-test.sh` (wymaga KVM; w CI krok z SH-003).
+- [ręcznie] Instrumentowane: `cd tablet && bash scripts/emulator-kiosk-test.sh` (wymaga KVM; w CI krok z SH-003).
 - Jest: `useKiosk()` z atrapą modułu (wywołanie `enterKiosk()` tylko gdy DO).
 
 ## Definicja gotowości
-- `npm run check` w `tablet/` zielone, testy instrumentowane zielone na emulatorze; `tablet/docs/kiosk.md` gotowy; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `tablet/` zielone, testy instrumentowane zielone na emulatorze [ręcznie]; `tablet/docs/kiosk.md` gotowy; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - `LOCK_TASK_FEATURE_NONE` wyłącza też menu zasilania (`GLOBAL_ACTIONS`); nie dodawaj go z powrotem.
 - Nigdy nie ustawiaj `DISALLOW_DEBUGGING_FEATURES` w dev ani w testach: stracisz ADB i emulator trzeba wyczyścić.
 - DO można ustawić tylko na urządzeniu bez kont; na Boox najpierw rozpakowanie bez Wi-Fi i bez konta BOOX (T-01, TAB-006).
 - Ten sam moduł ma przejść T-01…T-03 na Samsung Galaxy Tab Active5 (plan B), więc bez kodu zależnego od Boox w tej części.
+<!-- dep-ok: SH-003 (krok CI z KVM; lokalnie skrypt emulatora) -->

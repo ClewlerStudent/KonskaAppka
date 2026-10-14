@@ -5,8 +5,9 @@ area: tablet
 stage: 4
 size: M
 status: todo
-depends_on: [TAB-003, TAB-011]
+depends_on: [TAB-003, TAB-011, TAB-007, TAB-015]
 decisions: [DEC-18]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -37,15 +38,15 @@ Osoba wdrażająca albo obsługa może bez narzędzi wylogować tablet, zmienić
 - [ ] Przytrzymanie tekstu stopki 5 s otwiera ustawienia; 4 s, przytrzymanie PL | UA i przytrzymanie przy zablokowanym ekranie nie otwierają.
 - [ ] „WYLOGUJ” z potwierdzeniem daje TabletWylogowany z wierszem „BOKS: …”; po ponownym logowaniu ten sam boks i język (A-25).
 - [ ] Zmiana języka na UA w ustawieniach zmienia tablicę i zostaje po restarcie; stopka PL | UA pokazuje ten sam wybór.
-- [ ] Na emulatorze z DO: dodanie sieci przez `WifiScreen` przechodzi; złe hasło daje „ZŁE HASŁO” bez zawieszenia ekranu; po połączeniu „odpytanie HH:MM OK”.
+- [ ] [ręcznie] Na emulatorze z DO: dodanie sieci przez `WifiScreen` przechodzi; złe hasło daje „ZŁE HASŁO” bez zawieszenia ekranu; po połączeniu „odpytanie HH:MM OK”.
 - [ ] Przełączenie profilu kolorów zmienia pola `t-ok`/`t-warn`/`t-crit` od razu (jedno pełne odświeżenie) i zostaje po restarcie; „automatycznie” wraca do mapy model → profil.
 
 ## Testy
 - Jest + RNTL: wejście przytrzymaniem (fałszywe timery), dialog wylogowania, wiersze przy braku konta, stany `WifiScreen` z atrapą modułu kiosku.
-- Emulator: flow Maestro `tablet/e2e/maestro/settings.yaml` (wejście, język, wylogowanie, Wi-Fi).
+- [ręcznie] Emulator: flow Maestro `tablet/e2e/maestro/settings.yaml` (wejście, język, wylogowanie, Wi-Fi).
 
 ## Definicja gotowości
-- `npm run check` w `tablet/` zielone; flow Maestro przechodzi; zrzuty TabletUstawienia i TabletWifi w galerii; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `tablet/` zielone; flow Maestro przechodzi [ręcznie]; zrzuty TabletUstawienia i TabletWifi w galerii; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Bez wiersza STAJNIA: konto tabletów ma jedną stajnię.

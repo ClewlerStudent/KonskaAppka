@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [MOB-002]
 decisions: []
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -42,16 +43,16 @@ Każda osoba (klient, obsługa, admin, instruktor) loguje się w apce telefonem 
 - [ ] Złe hasło i nieistniejący numer dają ten sam komunikat; zły kod daje „Zły kod” bez utraty tokenu logowania; po 5 złych kodach widać „Za dużo prób” z przejściem do resetu.
 - [ ] „Wyślij kod ponownie” wraca do ekranu hasła z wpisanym numerem; nowe logowanie wysyła nowy kod.
 - [ ] Konto „Tablety Pod Lipami” w apce dostaje BrakDostepu (`wrong_client`), bez danych stajni.
-- [ ] Na ekranach nie ma „Kod jest ważny 10 minut”, TOTP ani dopisków o zaproszeniach (makiety-plan 2.3, dec. 38).
+- [ ] Na ekranach nie ma „Kod jest ważny 10 minut”, TOTP ani dopisków o zaproszeniach (docs/makiety-plan.md 2.3 i 5 pkt 38).
 
 ## Testy
 - Jest + React Native Testing Library: `login.test.tsx`, `login-code.test.tsx` na atrapie API (każdy kod błędu z listy), `phone.test.ts` (normalizacja numerów), `CodeInput.test.tsx` (wklejanie, kasowanie, dostępność).
-- Maestro: `mobile/e2e/maestro/login-sms.yaml` i `login-email.yaml` na lokalnym `auth` z odczytem kodu z `backend/.local/inbox.jsonl` (skrypt pomocniczy jak `frontend/e2e/helpers/inbox.ts`).
+- [ręcznie] Maestro: `mobile/e2e/maestro/login-sms.yaml` i `login-email.yaml` na lokalnym `auth` z odczytem kodu z `backend/.local/inbox.jsonl` (skrypt pomocniczy jak `frontend/e2e/helpers/inbox.ts`).
 
 ## Definicja gotowości
-- `npm run check` w `mobile/` zielone; flow Maestro przechodzi na emulatorze z lokalnym `auth`; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `mobile/` zielone; flow Maestro przechodzi na emulatorze z lokalnym `auth` [ręcznie]; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Apka rozmawia tylko z `auth`; żadnych bibliotek ani adresów ZITADEL (W6).
 - Hasło nie trafia do stanu nawigacji, pamięci podręcznej ani logów; po kroku hasła pole jest czyszczone.
-- Teksty bez objaśnień (makiety-plan 2.3, dec. 38); komunikaty zgodne z panelem, żeby osoba widziała to samo w obu miejscach.
+- Teksty bez objaśnień (docs/makiety-plan.md 2.3 i 5 pkt 38); komunikaty zgodne z panelem, żeby osoba widziała to samo w obu miejscach.

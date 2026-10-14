@@ -22,8 +22,9 @@ Nagłówek:
   stage      0–9 (etapy z tasks/README.md)
   size       S | M | L
   status     todo (zmieniają go komendy claim i set)
-  depends_on [ID, ID]  zadania, które muszą być done przed startem
-  decisions  [DEC-xx]  decyzje z tasks/decisions.md, od których zależy zakres
+  depends_on [ID, ID]  zadania, które muszą być done przed startem; każde zadanie z „Stan kodu” i „Testy” (wprost albo przez inne zależności)
+  decisions  [DEC-xx]  decyzje z tasks/decisions.md, od których zależy zakres (każda DEC cytowana w treści poza „Poza zakresem”)
+  needs      opcjonalnie [emulator, macos, device, owner]: czego wymagają kryteria [ręcznie] (tasks/README.md punkt 4)
   owner, branch, trello  puste (wypełniają claim i właściciel)
 Pisz tak, żeby agent bez historii rozmowy mógł od razu zacząć. Usuń ten komentarz.
 -->
@@ -47,6 +48,7 @@ Jedno, dwa zdania: co działa po zadaniu i dla kogo (rola, aplikacja). Bez szcze
 
 ## Kryteria akceptacji
 - [ ] Sprawdzalne zdania na danych demo („Ola w Brzozowej dostaje 403 `feature_hidden`”).
+- [ ] [ręcznie] Kryterium, które wymaga emulatora, macOS, sprzętu albo środowiska Dawida (agent bez niego zostawia je do sprawdzenia przy `review`).
 
 ## Testy
 - Rodzaj testów (Vitest, Playwright, Jest/RNTL, Maestro, testy instrumentowane), pliki i komenda (`cd backend && npm test`).

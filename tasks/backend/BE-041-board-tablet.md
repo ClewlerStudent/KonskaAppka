@@ -5,8 +5,8 @@ area: backend
 stage: 4
 size: L
 status: todo
-depends_on: [BE-033, BE-034]
-decisions: [DEC-13, DEC-03]
+depends_on: [BE-033, BE-034, BE-038]
+decisions: [DEC-13, DEC-03, DEC-31]
 owner:
 branch:
 trello:
@@ -24,13 +24,14 @@ Tablet e-ink przy boksie co kilka sekund pyta `board` o stan swojego boksu i dos
 - **Dane demo:** tablet HG 7 (Kasztan), HG 4 (Sonata, Derka od 16:00), HN 4 (Bella, niepotwierdzona), HN 5 (Bursztyn, poidło ręczne), wolne HG 3 i HN 6; Brzozowa boks 1 (Kometa). Plany karmienia seeduje BE-043; tu testy na fabrykach danych.
 
 ## Zakres
+- [ ] Kontrakt tych tras jest już w `backend/src/contracts/board.ts` z przykładami w `backend/openapi/examples/board/` (BE-064): implementuj go; zmiany tylko addytywne i razem z aktualizacją przykładów.
 - [ ] `GET /board/v1/stables/{stableId}/boxes/{boxId}?lang=pl|uk|en` (tablet, klient ze swoim koniem w tym boksie, obsługa, admin, `plt`):
   - `building` (`id`, nazwa, `showBuilding` gdy aktywnych hal > 1), `box` (`id`, `label`, `autoWaterer`), `horse` (`id`, nazwa) albo `null` i stan `free`;
   - `flags.banner` (obowiązujące teraz) i `flags.later` (dziś później, „od 14:30”), każda z etykietą w języku tabletu, `hoursLabel`, wariantem, notatką, autorem według `stable_settings.author_display` (`role | initial | name`; przy `author_role = operator` „Zespół EQUENOR”), godziną utworzenia, `requiresAck`, statusem i znacznikiem `popup` (tylko `requires_ack` bez potwierdzenia i bez odwołania);
   - `feeding` (gdy funkcja `feeding_plan`): wiersze pasz × pory z `meal_slots` (etykiety z `*_labels` z polskim zapasem), ilości („bez ogr.” przy pustej ilości), `soak` i `soakNote` tylko przy `soak_enabled`, pory wstrzymane przez flagi w oknie (`WSTRZYMANE`) z `lib/rules`;
   - `config`: wynik `stableFeatures` dla roli (przyciski szybkich akcji, tryb potwierdzeń);
   - `recentActions` (≤ 5, boks i koń): na tym etapie zdarzenia flag (nowa, potwierdzona, odwołana) z autorem albo bez (tablet); rutynę dokłada BE-045;
-  - stan `suspended` przy `stables.status = suspended`: bez flag i karmienia, z komunikatem (pełne przejście ze `billing`: BE-054).
+  - stan `suspended` przy `stables.status = suspended`: bez flag i karmienia, z komunikatem (wspólny stan we wszystkich widokach: BE-054; zawieszanie przez billing: BE-065).
 - [ ] `GET /board/v1/stables/{stableId}/boxes` (tablet, obsługa, admin): aktywne hale według `sort_order`, w każdej boksy z `id`, numerem, koniem albo „wolny”, sortowanie naturalne numerów (2 przed 10).
 - [ ] Dostęp: boks musi należeć do stajni ze ścieżki (inaczej 404); tablet widzi każdy boks swojej stajni; klient tylko boks, w którym stoi jego koń z `m[].h` (wolny boks i cudzy: 404).
 - [ ] Odpowiedź bez danych zalogowanego konta (tablica nie pokazuje, kto jest zalogowany) i bez opisów wizyt.

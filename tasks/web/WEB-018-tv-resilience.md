@@ -5,7 +5,7 @@ area: web
 stage: 5
 size: M
 status: todo
-depends_on: [WEB-016]
+depends_on: [WEB-016, WEB-017]
 decisions: []
 owner:
 branch:

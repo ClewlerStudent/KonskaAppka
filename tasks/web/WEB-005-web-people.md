@@ -46,7 +46,7 @@ Admin konta zarządza ludźmi stajni w jednym miejscu: widzi członków z rolami
 
 ## Testy
 - Vitest: filtry i wyszukiwarka (czyste funkcje), akcje wierszy na fałszywym API, dialogi i 412.
-- Playwright na atrapie (nowy helper `e2e/helpers/mock-api.ts` z fixture'ami Pod Lipami i Brzozowej): filtr kont technicznych, blokada, przypisanie Oli; zrzuty 1440 i 390.
+- Playwright na atrapie (`e2e/helpers/mock-api.ts` z WEB-004, fixture'y Pod Lipami i Brzozowej w `frontend/web/src/test/fixtures/`): filtr kont technicznych, blokada, przypisanie Oli; zrzuty 1440 i 390.
 - `cd frontend && npm run check && npm run e2e`.
 
 ## Definicja gotowości
@@ -55,4 +55,4 @@ Admin konta zarządza ludźmi stajni w jednym miejscu: widzi członków z rolami
 ## Uwagi dla wykonawcy
 - Kontakty tylko zamaskowane w tabeli; pełny telefon klienta (z `horse-clients`) admin widzi tylko w „Konie i dostęp”, nie w logach.
 - Bez listy tabletów i sesji: jednego tabletu nie da się odłączyć (W4); jest tylko „Wyloguj wszystkie tablety” i blokada.
-- Bez roli „Wsparcie IT” i bez objaśnień ról (dec. 19, 38).
+- Bez roli „Wsparcie IT” i bez objaśnień ról (docs/makiety-plan.md 5 pkt 19 i 38).

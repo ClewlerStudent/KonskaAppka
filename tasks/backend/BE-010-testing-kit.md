@@ -5,7 +5,7 @@ area: backend
 stage: 0
 size: S
 status: todo
-depends_on: [BE-001, BE-004]
+depends_on: [BE-001, BE-004, BE-063, BE-064]
 decisions: []
 owner:
 branch:
@@ -23,7 +23,7 @@ Wspólne narzędzia testów backendu: tokeny EQUENOR dla osób z danych demo i k
 - Dane demo: Damian, Ola, Piotr, Paweł, Marta, Anna, Marek Nowak, Karolina W., Tomasz L., Ewa K., „Telewizor korytarz”, „Tablety Pod Lipami”, „Tablety Brzozowa”, Kuba (+ drugi admin globalny), admin Stajni Olszynka; stajnie Pod Lipami, Brzozowa, Olszynka; hale, boksy i konie z 3.2.
 
 ## Zakres
-- [ ] `backend/src/lib/testing/demo.ts`: stałe UUID (v7, czytelne prefiksy, np. `0199c6a0-0000-7000-8000-0000000000xx`) osób, firm, stajni, hal, boksów (oba „boks 4”!) i koni z seedu; zachowaj istniejące UUID kont z `backend/src/services/auth/identity/demo-users.ts`. Wzorzec claimów (`m`, `f`, `h`, `biz`, `plt`, `client_id`) każdej osoby według mikroserwisy.md 3.3.
+- [ ] `backend/src/lib/testing/demo.ts`: stałe UUID (v7, czytelne prefiksy, np. `0199c6a0-0000-7000-8000-0000000000xx`) osób, firm, stajni, hal, boksów (oba „boks 4”!) i koni z seedu; UUID bierz z `backend/src/lib/demo/ids.ts` (BE-063: osoby, firmy, stajnie; BE-064: hale, boksy, konie) i tylko tam dopisuj brakujące; `demo.ts` importuje stałe stamtąd i dodaje wzorce claimów. Wzorzec claimów (`m`, `f`, `h`, `biz`, `plt`, `client_id`) każdej osoby według mikroserwisy.md 3.3.
 - [ ] `mintToken(persona | claims, { client, now?, key? })` → `{ accessToken, refreshToken }` (ES256, `at+jwt` i `rt+jwt`, `iss` i `aud` z `lib/auth/constants.ts`), z kluczem testowym albo z pliku PEM.
 - [ ] Fabryki w `lib/testing/factories.ts` (wstawiają wiersze przez Drizzle w transakcji testu): firma, użytkownik, stajnia z `stable_settings` z `lib/rules` (jeśli BE-007 już jest; inaczej stałe w fabryce), hala, boksy, koń, członkostwo, dostęp do konia.
 - [ ] `createServiceHarness({ build, db?, clock?, key? })`: baza po migracjach (BE-001), weryfikator access tokenów na kluczu testowym (`lib/auth/verify.ts`, `keys: { jwks }`), `inject(method, url, { as: persona })` z nagłówkiem `Authorization`.

@@ -27,6 +27,7 @@ Admin konta widzi subskrypcję stajni (plan, okres, następna faktura), zużycie
 - [ ] `web/src/features/billing/BillingScreen.tsx` na `/stables/$stableId/billing`: karty „Subskrypcja” (status: Aktywna, Po terminie, Zawieszona), „Zużycie” (liczba boksów z koniem, cena za boks, szacunek; „Zobacz boksy” → PanelBoksy), „Dane do faktury” (nazwa i NIP z konta firmy tylko do odczytu; „Edytuj” w `SidePanel`: adres i e-mail do faktur → `PATCH …/account` z `If-Match`), „Metoda płatności” („Zmień” → `POST …/payment-method-session` → przejście na adres sesji zwrócony przez adapter; po powrocie odświeżenie), „Faktury” (tabela; „Pobierz” → `POST …/invoices/{id}/pdf-url` → otwarcie adresu w nowej karcie).
 - [ ] Kwoty z groszy formatowane `Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' })`; daty w strefie stajni; status faktury jako plakietka (Do zapłaty — uwaga, Opłacona — OK, Po terminie — krytyczna).
 - [ ] Kafel „Subskrypcja” na PanelPulpit (WEB-020): status, plan, następna faktura, link „Płatności”.
+- [ ] Baner „uwaga” „Płatność po terminie” z „Płatności” w `AdminLayout`, gdy subskrypcja ma `past_due` (odczyt przy wejściu na pulpit); przeniesione z WEB-025.
 - [ ] Brak konta rozliczeniowego (stajnia świeżo założona, zdarzenie jeszcze nie dotarło): „Konto rozliczeniowe jest w przygotowaniu.” i ponowienie przy następnym wejściu.
 
 ## Poza zakresem
@@ -34,6 +35,7 @@ Admin konta widzi subskrypcję stajni (plan, okres, następna faktura), zużycie
 
 ## Kryteria akceptacji
 - [ ] Pod Lipami: subskrypcja „Aktywna · Stajnia · 01.10–31.10.2026”, zużycie 12 boksów z koniem, cztery faktury ze statusami jak na makiecie; NIP 123-456-32-18 bez możliwości edycji.
+- [ ] Subskrypcja `past_due` (fixture atrapy) daje w panelu baner „Płatność po terminie” z przejściem do Płatności.
 - [ ] „Pobierz” otwiera PDF faktury z fałszywego adaptera (presigned URL z MinIO w pełnym stosie).
 - [ ] „Zmień” metodę płatności przechodzi na stronę fałszywego dostawcy i z powrotem.
 - [ ] Obsługa i klient nie mają ekranu (WEB-004), API 403.
@@ -41,7 +43,7 @@ Admin konta widzi subskrypcję stajni (plan, okres, następna faktura), zużycie
 
 ## Testy
 - Vitest: formatowanie kwot w groszach, mapowanie statusów, formularz danych do faktury (412).
-- Playwright na atrapie: ekran Pod Lipami, „Pobierz” (sprawdzenie wywołania i otwarcia karty), kafel na pulpicie. Podwójny webhook i zawieszenie na pełnym stosie: WEB-028.
+- Playwright na atrapie: ekran Pod Lipami, „Pobierz” (sprawdzenie wywołania i otwarcia karty), kafel na pulpicie. Podwójny webhook i zawieszenie przez billing na pełnym stosie: WEB-030.
 - `cd frontend && npm run check && npm run e2e`.
 
 ## Definicja gotowości
@@ -49,5 +51,5 @@ Admin konta widzi subskrypcję stajni (plan, okres, następna faktura), zużycie
 
 ## Uwagi dla wykonawcy
 - CSP panelu: przejście na stronę dostawcy to nawigacja (nie `connect-src`); otwarcie PDF przez `window.open` z `noopener`.
-- Zdania objaśniające z makiety („Liczymy tylko boksy, w których stoi koń…”) pomijamy (dec. 38).
+- Zdania objaśniające z makiety („Liczymy tylko boksy, w których stoi koń…”) pomijamy (docs/makiety-plan.md 2.3 i 5 pkt 38).
 - Zmiana zależności względem listy: dodane WEB-020 (kafel „Subskrypcja” na pulpicie).

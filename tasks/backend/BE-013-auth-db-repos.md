@@ -5,7 +5,7 @@ area: backend
 stage: 1
 size: L
 status: todo
-depends_on: [BE-001, BE-004, BE-005, BE-007, BE-010]
+depends_on: [BE-001, BE-004, BE-005, BE-007, BE-010, BE-011]
 decisions: [DEC-03, DEC-05, DEC-06, DEC-10, DEC-23]
 owner:
 branch:
@@ -17,7 +17,7 @@ trello:
 `auth` trzyma konta i uprawnienia w PostgreSQL zamiast w pamięci i liczy z nich prawdziwe claimy (`biz`, `m` z `f` i `h`, `plt`) przy logowaniu i każdym odświeżeniu. Od tego zadania restart `auth` nikogo nie wylogowuje, a zmiany uprawnień działają do 5 min.
 
 ## Kontekst
-- Stan kodu: `backend/src/services/auth/users/user-repository.ts` (`User` z `identityPool`, `upsertOnLogin`), `memory-users.ts`, `access/access-repository.ts` (`AccessGrants`), `memory-access.ts` (zawsze brak dostępu), `tokens/claims.ts` (`computeAccessClaims`, `isClientAllowed`, `sessionKindOf`), `tokens/issue.ts` (`issueSession`, `verifyRefreshToken`), `tokens/signer.ts` (jeden klucz, `publicJwks`), `routes/session.ts` (odświeżenie: konto, `tv`, zgodność z aplikacją), `routes/login.ts` (upsert przy kroku MFA z `identityPool: 'customer'`), `main.ts` (repozytoria w pamięci). Tabele: `users`, `businesses`, `business_admins`, `platform_roles` (BE-001), `stable_members`, `horse_access`, `stable_role_features`, `stables`, `horses` (BE-004). Macierz domyślna: `lib/rules/features.ts` (BE-007). Stałe demo: `lib/testing/demo.ts` (BE-010).
+- Stan kodu: seed kont, firm i stajni `npm run db:seed` (BE-011), dane demo w pamięci i `GET /me` v1 z `StableDirectory` (BE-063, `AUTH_STORE=memory`). `backend/src/services/auth/users/user-repository.ts` (`User` z `identityPool`, `upsertOnLogin`), `memory-users.ts`, `access/access-repository.ts` (`AccessGrants`), `memory-access.ts` (zawsze brak dostępu), `tokens/claims.ts` (`computeAccessClaims`, `isClientAllowed`, `sessionKindOf`), `tokens/issue.ts` (`issueSession`, `verifyRefreshToken`), `tokens/signer.ts` (jeden klucz, `publicJwks`), `routes/session.ts` (odświeżenie: konto, `tv`, zgodność z aplikacją), `routes/login.ts` (upsert przy kroku MFA z `identityPool: 'customer'`), `main.ts` (repozytoria w pamięci). Tabele: `users`, `businesses`, `business_admins`, `platform_roles` (BE-001), `stable_members`, `horse_access`, `stable_role_features`, `stables`, `horses` (BE-004). Macierz domyślna: `lib/rules/features.ts` (BE-007). Stałe demo: `lib/testing/demo.ts` (BE-010).
 - Dokumenty: `docs/mikroserwisy.md` 3.2 (reguły wyliczania: `m` bez stajni z `biz`, `h` ważne teraz, klient bez konia bez stajni, `exp` na granicy dzierżawy, `f` z macierzy, konto techniczne dokładnie jedno `m`, budżet 4 KB, twarde limity 20 członkostw i 100 koni), 3.3 (wzorce claimów), 3.4 (okna sesji), 3.5 (JWKS), 3.7 (kolejność sprawdzeń przy odświeżeniu), 3.8.
 - Decyzje: DEC-03 A (funkcje w `m[].f`), DEC-05 B (`SIGNING_KEY_FILE` + opcjonalny `SIGNING_KEY_NEXT_FILE`; oba w JWKS, podpisuje tylko pierwszy; refresh token przyjmowany tylko kluczami z konfiguracji), DEC-06 A (okna z 3.4, bez DPoP), DEC-10 (konto zespołu = konto z wierszem `platform_roles`, bez `identity_pool`), DEC-23 A (klient bez ważnego konia traci stajnię w tokenie).
 - Dane demo: Damian (`biz`), Ola (dwie stajnie, różne `f`), Anna (Kasztan, Bella; Kometa), Marta, „Tablety Pod Lipami”, „Telewizor korytarz”, Kuba.
@@ -36,7 +36,8 @@ trello:
 - Dopasowanie zaproszeń przy logowaniu i odświeżeniu (BE-022), `GET /me` z listą stajni (BE-019), okna i `plt` dla `ops`/`opctl` (BE-026), token zawężony `resource` przy przekroczeniu budżetu (mikroserwisy.md 10.2 pkt 19; na razie tylko limity i alert).
 
 ## Kryteria akceptacji
-- [ ] Claimy każdej osoby z seedu (BE-011 + konie z BE-032 albo fabryki) zgadzają się ze wzorcem z mikroserwisy.md 3.3; Damian bez `m`; tablet bez `tasks` i `box_history`.
+- [ ] Claimy każdej osoby z seedu (BE-011 + konie z fabryk; konie z seedu dochodzą w BE-032) zgadzają się ze wzorcem z mikroserwisy.md 3.3; Damian bez `m`; tablet bez `tasks` i `box_history`.
+- [ ] Logowanie Oli z FAKE IdP przy `AUTH_STORE=postgres` trafia w wiersz `users` z seedu (to samo `id`, `idp_user_id = id`), a nie zakłada nowego.
 - [ ] Dostęp Anny do Komety z `valid_to` za 2 min: token ma `exp` równy granicy, a następny token nie ma Brzozowej.
 - [ ] Zablokowane konto techniczne przy odświeżeniu dostaje `403 access_revoked`, a nie `401 session_revoked`; po podbiciu `token_version` osoby stary refresh token daje `401 session_revoked`.
 - [ ] Restart `auth` z `AUTH_STORE=postgres` nie wylogowuje (ten sam refresh token działa).

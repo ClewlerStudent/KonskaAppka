@@ -5,8 +5,9 @@ area: tablet
 stage: 0
 size: M
 status: todo
-depends_on: [TAB-002]
-decisions: []
+depends_on: [TAB-002, TAB-003]
+decisions: [DEC-18]
+needs: [emulator, device]
 owner:
 branch:
 trello:
@@ -37,14 +38,14 @@ Nowy tablet z pudełka staje się kioskiem EQUENOR jednym skryptem, w stałej ko
 - Pomiary T-07 na Boox i raport (TAB-007); flota i zdalne zarządzanie (nie ma tabeli urządzeń, erd.md pkt 2).
 
 ## Kryteria akceptacji
-- [ ] Na emulatorze AOSP bez kont `provision.sh --profile dev --serial emulator-5554` przechodzi kroki 2–7 bez błędu, a apka jest DO w Lock Task, z dodaną siecią; log JSON zawiera model, fingerprint i czasy kroków.
-- [ ] Na emulatorze z kontem skrypt przerywa w kroku 2 z czytelnym komunikatem.
+- [ ] [ręcznie] Na emulatorze AOSP bez kont `provision.sh --profile dev --serial emulator-5554` przechodzi kroki 2–7 bez błędu, a apka jest DO w Lock Task, z dodaną siecią; log JSON zawiera model, fingerprint i czasy kroków.
+- [ ] [ręcznie] Na emulatorze z kontem skrypt przerywa w kroku 2 z czytelnym komunikatem.
 - [ ] Ponowne uruchomienie na tym samym urządzeniu (już DO) jest bezpieczne: kroki już wykonane raportuje jako „bez zmian”.
-- [ ] `--profile prod` na emulatorze kończy się odcięciem ADB (`adb devices` pokazuje `unauthorized`/brak), co potwierdza krok 9; emulator trzeba potem wyczyścić (opis w README).
+- [ ] [ręcznie] `--profile prod` na emulatorze kończy się odcięciem ADB (`adb devices` pokazuje `unauthorized`/brak), co potwierdza krok 9; emulator trzeba potem wyczyścić (opis w README).
 - [ ] `shellcheck tools/provision-tablet/*.sh` bez ostrzeżeń.
 
 ## Testy
-- Ręczny przebieg na emulatorze (kryteria wyżej) i na sztuce deweloperskiej przez osobę z urządzeniem (wynik T-07 do raportu bramki).
+- [ręcznie] Ręczny przebieg na emulatorze (kryteria wyżej) i na sztuce deweloperskiej przez osobę z urządzeniem (wynik T-07 do raportu bramki).
 - Instrumentowane: `ProvisionReceiver` odrzuca wywołanie bez uprawnienia i bez DO.
 
 ## Definicja gotowości
@@ -54,3 +55,4 @@ Nowy tablet z pudełka staje się kioskiem EQUENOR jednym skryptem, w stałej ko
 - Kolejność kroków jest ważna: sieć dopiero po DO i blokadzie OTA (inaczej tablet może pobrać aktualizację firmware przed blokadą).
 - Hasła Wi-Fi i danych logowania nie zapisuj w logach skryptu; plik hasła z prawami 600.
 - `DUMP` jako uprawnienie ochronne odbiornika to propozycja: sprawdź na Android 16, że zwykła apka nie wywoła odbiornika, a `adb shell am broadcast` tak.
+<!-- dep-ok: WEB-019 (tylko wzór katalogu tools/) -->

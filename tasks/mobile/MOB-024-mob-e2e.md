@@ -5,8 +5,9 @@ area: mobile
 stage: 9
 size: M
 status: todo
-depends_on: [MOB-004, MOB-006, MOB-011, MOB-014, MOB-016, MOB-017, MOB-019, MOB-020, MOB-021, MOB-022, MOB-023]
+depends_on: [MOB-004, MOB-006, MOB-011, MOB-014, MOB-016, MOB-017, MOB-019, MOB-020, MOB-021, MOB-022, MOB-023, MOB-026]
 decisions: []
+needs: [emulator, macos]
 owner:
 branch:
 trello:
@@ -35,8 +36,8 @@ Przed pilotażem ścieżki klienta, obsługi, admina i instruktora przechodzą a
 - Harness wszystkich scenariuszy A-01…A-25 przez backend, panel i tablet (SH-005); definicja kroków CI i runnerów (SH-003); publikacja w sklepach (MOB-025).
 
 ## Kryteria akceptacji
-- [ ] Wszystkie suity Maestro przechodzą na emulatorze Androida (API 36) na świeżym seedzie, dwa przebiegi pod rząd bez ręcznego sprzątania.
-- [ ] Detox przechodzi na symulatorze iOS dla czterech ścieżek z zakresu.
+- [ ] [ręcznie] Wszystkie suity Maestro przechodzą na emulatorze Androida (API 36) na świeżym seedzie, dwa przebiegi pod rząd bez ręcznego sprzątania.
+- [ ] [ręcznie] Detox przechodzi na symulatorze iOS dla czterech ścieżek z zakresu.
 - [ ] Ścieżka klienta „kafelek → wysłana flaga” mieści się w 3 stuknięciach (bez notatki).
 - [ ] Flaga przy zrywanym połączeniu daje jeden wiersz w bazie i stan „Nie wysłano”/„Zapisano na serwerze”.
 - [ ] Zrzuty w `uk` i `en` nie mają brakujących kluczy ani polskich tekstów; przy `font_scale 1.3` żaden przycisk nie jest obcięty.
@@ -51,3 +52,4 @@ Przed pilotażem ścieżki klienta, obsługi, admina i instruktora przechodzą a
 - Selektory po `testID` (dodawaj w komponentach, nie po tekście), bo teksty są w trzech językach.
 - Boksy i konie identyfikuj po stałych UUID z `backend/src/lib/testing/demo.ts`, nigdy po numerze (dwa „boks 4”).
 - Zmiana względem listy: zależności rozszerzone o wszystkie zadania ekranów, które E2E sprawdza (MOB-004 rejestracja i reset, MOB-006 profil i kanał kodu, MOB-011 Ludzie, MOB-014 status flagi, MOB-017 MojBoks, MOB-019 plan, MOB-020 AdminDzis i „Woda”, MOB-023 stany); wcześniej było tylko MOB-016, MOB-021, MOB-022, przez co część ścieżek nie byłaby gotowa.
+<!-- dep-ok: SH-003 (kroki CI definiuje SH-003; lokalnie suity bez CI) -->

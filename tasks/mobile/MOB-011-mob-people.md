@@ -7,6 +7,7 @@ size: S
 status: todo
 depends_on: [BE-022, BE-023, BE-024, MOB-005, MOB-010]
 decisions: [DEC-15]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -18,7 +19,7 @@ Admin w zakładce Ludzie widzi członków wybranej stajni (obsługa, klienci z k
 
 ## Kontekst
 - Stan kodu: pasek admina z pozycją Ludzie (MOB-005, trasa `mobile/app/(app)/(admin)/people.tsx`), `InvitationList` i ekran zaproszenia (MOB-010), komponenty `FilterChips`, `SearchField` (MOB-009). Trasy `auth`: `GET /auth/v1/stables/{stableId}/members?role=&technical=` (imię, rola, aktywność, konie klienta, telefon osoby dla admina, konta techniczne zamaskowane, `grantedVia`), `PATCH …/members/{memberId}` (`{ role?: staff | instructor | client, active? }`, `If-Match`, tylko osoby), `DELETE …/members/{memberId}` („Usuń ze stajni”, `member.removed`) — BE-023; `GET …/horse-clients` — BE-024; `GET …/invitations` — BE-022.
-- Dokumenty: `docs/makiety-plan.md` A „LudzieAdmin” (H1 „Ludzie”, „+ Zaproś osobę”, chipy Wszyscy · Obsługa · Klienci · Inne; grupy jak PanelLudzie; konta techniczne „Telewizor korytarz · konto techniczne · Wyświetlacz”, „Tablety Pod Lipami · konto techniczne · Tablet” bez akcji, bo zarządza nimi panel; „Zaproszenia”), B „PanelLudzie” (wiersze: Damian · Admin konta (wszystkie stajnie); Ola, Piotr · Obsługa; Anna · Klient · Kasztan, Bella; Karolina W. · Iskra; Tomasz L. · Grom; Ewa K. · Sonata; Marta · Instruktor; akcje „Zmień rolę”, „Dezaktywuj”), dec. 33 („Zmień rolę” tylko w obrębie Obsługa, Instruktor, Klient; konta techniczne roli nie zmieniają; admin to rola konta firmy). `docs/mikroserwisy.md` 9.5 (Ola traci Brzozową: do 5 min), 9.6 (dostęp „nadane przez zespół EQUENOR”).
+- Dokumenty: `docs/makiety-plan.md` A „LudzieAdmin” (H1 „Ludzie”, „+ Zaproś osobę”, chipy Wszyscy · Obsługa · Klienci · Inne; grupy jak PanelLudzie; konta techniczne „Telewizor korytarz · konto techniczne · Wyświetlacz”, „Tablety Pod Lipami · konto techniczne · Tablet” bez akcji, bo zarządza nimi panel; „Zaproszenia”), B „PanelLudzie” (wiersze: Damian · Admin konta (wszystkie stajnie); Ola, Piotr · Obsługa; Anna · Klient · Kasztan, Bella; Karolina W. · Iskra; Tomasz L. · Grom; Ewa K. · Sonata; Marta · Instruktor; akcje „Zmień rolę”, „Dezaktywuj”), docs/makiety-plan.md 5 pkt 33 („Zmień rolę” tylko w obrębie Obsługa, Instruktor, Klient; konta techniczne roli nie zmieniają; admin to rola konta firmy). `docs/mikroserwisy.md` 9.5 (Ola traci Brzozową: do 5 min), 9.6 (dostęp „nadane przez zespół EQUENOR”).
 - Decyzje: DEC-15 wariant A (Ludzie w pasku admina apki).
 - Makiety: brak pliku `.dc.html` (P2); układ jak `mockups/project/PanelLudzieWyswietlacze.dc.html` w wersji 390 px.
 - Dane demo: Damian w Pod Lipami i Brzozowej; konta techniczne „Telewizor korytarz” i „Tablety Pod Lipami”; zaproszenia Marka Nowaka i +48 512 *** 908.
@@ -42,10 +43,10 @@ Admin w zakładce Ludzie widzi członków wybranej stajni (obsługa, klienci z k
 
 ## Testy
 - Jest + RNTL: `people.test.tsx` (grupy, filtry, akcje dostępne per typ konta, 412) na atrapie `auth`.
-- Maestro: `mobile/e2e/maestro/admin-people.yaml` (zmiana roli i usunięcie ze stajni na seedzie).
+- [ręcznie] Maestro: `mobile/e2e/maestro/admin-people.yaml` (zmiana roli i usunięcie ze stajni na seedzie).
 
 ## Definicja gotowości
-- `npm run check` w `mobile/` zielone; flow Maestro przechodzi; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `mobile/` zielone; flow Maestro przechodzi [ręcznie]; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Kontakty zawsze zamaskowane poza telefonem osoby, który `auth` daje adminowi.

@@ -3,10 +3,11 @@ id: TAB-020
 title: Diagnostyka tabletu z buforem offline (TabletDiagnostyka)
 area: tablet
 stage: 9
-size: S
+size: M
 status: todo
-depends_on: [TAB-016]
+depends_on: [TAB-016, TAB-012, TAB-013, TAB-017]
 decisions: [DEC-25]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -36,14 +37,14 @@ Gdy tablet przy boksie zachowuje się dziwnie, osoba na miejscu widzi w ukrytych
 - Długie testy ciągłe i raporty (TAB-021).
 
 ## Kryteria akceptacji
-- [ ] Ekran pokazuje wszystkie wiersze z makiety na emulatorze (z wartościami albo „brak danych”), w tym „EPD: brak (LCD)” i stan offline przy wyłączonej sieci.
+- [ ] [ręcznie] Ekran pokazuje wszystkie wiersze z makiety na emulatorze (z wartościami albo „brak danych”), w tym „EPD: brak (LCD)” i stan offline przy wyłączonej sieci.
 - [ ] Bufor przetrwa restart i brak sieci; po przekroczeniu limitu usuwa najstarsze wpisy.
 - [ ] W eksporcie nie ma haseł, kodów, tokenów ani pełnych e-maili i numerów (test z kanarkami).
 - [ ] Wywołany celowo błąd JS i crash natywny (przycisk w buildzie dev) są w logu po ponownym starcie, z `versionCode`.
 
 ## Testy
 - Jest: redakcja, bufor pierścieniowy, agregacja metryk, render ekranu w stanach z makiety.
-- Emulator: eksport po „WYŚLIJ DIAGNOSTYKĘ” i `adb pull`.
+- [ręcznie] Emulator: eksport po „WYŚLIJ DIAGNOSTYKĘ” i `adb pull`.
 
 ## Definicja gotowości
 - `npm run check` w `tablet/` zielone; `tablet/docs/diagnostics.md` (co logujemy, gdzie leży bufor, jak go pobrać, jak podpiąć SDK); status w tym pliku i w `tasks/QUEUE.md`.

@@ -6,7 +6,7 @@ stage: 0
 size: L
 status: todo
 depends_on: [BE-001]
-decisions: [DEC-10]
+decisions: [DEC-10, DEC-05]
 owner:
 branch:
 trello:

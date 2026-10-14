@@ -7,6 +7,7 @@ size: M
 status: todo
 depends_on: [TAB-012, TAB-013]
 decisions: []
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -38,17 +39,17 @@ Gdy klient albo obsługa ustawi flagę wymagającą potwierdzenia (np. „Bez ś
 ## Kryteria akceptacji
 - [ ] A-01: zegar seedu 06:01, tablet HG 7: dwa pop-upy, „Bez śniadania” (krytyczny) pierwszy, „dziś 06:00–10:00”; POTWIERDZAM na obu → tablica z „POTWIERDZONA 06:02”; w bazie dwa wiersze `flag_acknowledgements` z `method = tablet`, `user_id = NULL`, `box_id` boksu 7 Hali głównej.
 - [ ] A-03: odwołanie flagi w apce przy otwartym pop-upie → pop-up znika przy najbliższym odpytaniu, bez „ducha” (pełne odświeżenie).
-- [ ] T-28: potwierdzenie na drugim tablecie (emulator) albo w apce usuwa pop-up z pierwszego przy najbliższym odpytaniu.
+- [ ] [ręcznie] T-28: potwierdzenie na drugim tablecie (emulator) albo w apce usuwa pop-up z pierwszego przy najbliższym odpytaniu.
 - [ ] A-18: w Brzozowej nowa flaga dla Komety nie daje pop-upu.
 - [ ] A-20: po wyłączeniu potwierdzeń trwająca niepotwierdzona flaga Belli dalej ma pop-up na tablecie HN 4.
 - [ ] Potwierdzenie offline: pop-up znika od razu, nie wraca po restarcie, a potwierdzenie wychodzi po powrocie sieci.
 
 ## Testy
 - Jest z fixture'ami: sortowanie kolejki, odejmowanie `pendingAcks`, znikanie po zmianie odpowiedzi, licznik „1 z 2”, wywołania `epdRefresh('full')`.
-- Emulator na stosie dev: A-01 (skrypt ustawia zegar seedu 06:01 przez `npm run clock` z SH-002), flow Maestro `tablet/e2e/maestro/popup.yaml`.
+- [ręcznie] Emulator na stosie dev: A-01 (skrypt ustawia zegar seedu 06:01 przez `npm run clock` z SH-002), flow Maestro `tablet/e2e/maestro/popup.yaml`.
 
 ## Definicja gotowości
-- `npm run check` w `tablet/` zielone; flow Maestro przechodzi; zrzuty pop-upu w obu profilach w galerii; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `tablet/` zielone; flow Maestro przechodzi [ręcznie]; zrzuty pop-upu w obu profilach w galerii; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Nie śledzimy, czy pop-up się wyświetlił, i nie wysyłamy tego na serwer (erd.md pkt 2).

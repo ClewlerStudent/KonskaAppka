@@ -47,5 +47,5 @@ Admin widzi i dodaje ujeżdżalnie stajni w panelu, w tym samym ekranie „Słow
 - `npm run check`, `npm run build` i `npm run e2e` we `frontend/` zielone; `npm run gen:api` po BE-048; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
-- Bez dopisków objaśniających pod polami (zasada makiet, dec. 38), poza jedną linią o wyłączonych jazdach.
+- Bez dopisków objaśniających pod polami (docs/makiety-plan.md 2.3 i 5 pkt 38), poza jedną linią o wyłączonych jazdach.
 - Zadanie dopisane przy domykaniu kolejki (luka zgłoszona w WEB-022 „Poza zakresem”).

@@ -5,8 +5,9 @@ area: tablet
 stage: 4
 size: L
 status: todo
-depends_on: [BE-018, BE-019, TAB-002, TAB-008]
+depends_on: [BE-018, BE-019, BE-023, SH-002, TAB-002, TAB-008]
 decisions: [DEC-06, DEC-27]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -17,7 +18,7 @@ trello:
 Tablet loguje się kontem technicznym tabletów stajni (np. „Tablety Pod Lipami”) e-mailem albo telefonem, hasłem i zawsze kodem MFA, a potem tygodniami odświeża sesję sam, także przy zrywanym Wi-Fi. Gdy admin zablokuje konto albo wyloguje wszystkie tablety, tablet w ciągu 5 minut przestaje pokazywać dane i przechodzi na właściwy ekran, pamiętając boks i język.
 
 ## Kontekst
-- **Stan kodu:** trasy `auth` istnieją: `POST /auth/v1/login` (`{login, password, clientId}` → `{loginToken, channel, maskedContact, expiresIn}`; błędy `invalid_credentials`, `account_not_confirmed`, `account_locked`, `client_not_allowed`), `POST /auth/v1/login/mfa` (kod 6 cyfr, nagłówek `Authorization: Login <loginToken>`; `invalid_code`, `wrong_client`), `POST /auth/v1/token` (`{grantType: 'refresh_token', refreshToken}`; `session_revoked`, `wrong_client`), `GET /auth/v1/me` (`backend/src/contracts/auth.ts`, okna sesji `backend/src/services/auth/tokens/lifetimes.ts`: tablet 30 dni bezczynności, bez limitu całości). BE-019 dodaje `startView = tablet` i `stables[]` (jedna stajnia konta technicznego z nazwą), BE-018 trasy `POST /auth/v1/password/forgot` i `/password/reset` (kod 8 cyfr), BE-023 blokadę (`403 access_revoked`) i „Wyloguj wszystkie tablety” (`401 session_revoked`). Wzorzec obsługi sesji: `frontend/web/src/session/session.ts`, `sign-in-flow.ts`. Komponenty: TAB-008 (`Segmented`, `QwertyKeyboard`, `CodeInput`, `Button`); moduł kiosku TAB-002.
+- **Stan kodu:** trasy `auth` istnieją: `POST /auth/v1/login` (`{login, password, clientId}` → `{loginToken, channel, maskedContact, expiresIn}`; błędy `invalid_credentials`, `account_not_confirmed`, `account_locked`, `client_not_allowed`), `POST /auth/v1/login/mfa` (kod 6 cyfr, nagłówek `Authorization: Login <loginToken>`; `invalid_code`, `wrong_client`), `POST /auth/v1/token` (`{grantType: 'refresh_token', refreshToken}`; `session_revoked`, `wrong_client`), `GET /auth/v1/me` (`backend/src/contracts/auth.ts`, okna sesji `backend/src/services/auth/tokens/lifetimes.ts`: tablet 30 dni bezczynności, bez limitu całości). BE-019 dodaje `startView = tablet` i `stables[]` (jedna stajnia konta technicznego z nazwą), BE-018 trasy `POST /auth/v1/password/forgot` i `/password/reset` (kod 8 cyfr), BE-023 blokadę (`403 access_revoked`) i „Wyloguj wszystkie tablety” (`401 session_revoked`). Konta „Tablety Pod Lipami” i „Tablety Brzozowa” są w FAKE IdP (BE-063) i w seedzie (BE-011); stos dev z Mailpit i `npm run clock`: SH-002. Wzorzec obsługi sesji: `frontend/web/src/session/session.ts`, `sign-in-flow.ts`. Komponenty: TAB-008 (`Segmented`, `QwertyKeyboard`, `CodeInput`, `Button`); moduł kiosku TAB-002.
 - **Dokumenty:** `docs/mikroserwisy.md` 3.1 (kroki logowania, kanał kodu, „Wyślij kod ponownie” wraca do ekranu hasła z wpisanym loginem; zgodność konta z aplikacją: konto `tablet` tylko aplikacją `tablet`, osoba nigdy → `403 wrong_client`), 3.4, 3.7 (refresh token tabletu w Android Keystore; zgubiona odpowiedź: ten sam refresh token działa dalej; tabela odpowiedzi: `token_expired` → ciche odświeżenie; `session_revoked` → logowanie, tablet zachowuje boks i język; `access_revoked` → ekran blokady bez danych, ponawia co 5 min; `Equenor-Token-Refresh: required` → natychmiastowe odświeżenie), 3.8, 5.2 „Kody” i „Limity żądań” (login także w nagłówku `X-Equenor-Login`), 9.3; `docs/development-szczegoly.md` 3.5.2 „Logowanie tabletu”, „Stany ekranu”, 4.3.1 T-23, 4.4 A-25; `docs/erd.md` pkt 2.
 - **Makiety:** `mockups/project/TabletLogowanie.dc.html` i `TabletLogowanieKod.dc.html` („ZALOGUJ TABLET”, „TELEFON | E-MAIL”, „ADRES E-MAIL”, „WPISZ KOD Z E-MAILA”, „Wysłaliśmy kod na b•••@stajnielipowe.pl”, 6 pól, klawiatura 3×4 z „WYCZYŚĆ”, „ZALOGUJ”, „WYŚLIJ KOD PONOWNIE ZA 0:42” z ramką przerywaną, „ZMIEŃ E-MAIL”, zły kod: pole `t-warn`, ramka 4 px, „ZŁY KOD”); stany z `docs/makiety-plan.md` E: TabletWylogowany („TABLET WYLOGOWANY”, „BOKS: Hala główna · boks 7”, przyczyna „WYLOGOWANO” / „WYLOGOWANO ZE WSZYSTKICH URZĄDZEŃ” / „SESJA WYGASŁA”, „ZALOGUJ”), TabletBrakUprawnien („TO KONTO NIE OBSŁUGUJE TABLETU” + „ZALOGUJ INNYM KONTEM”; po blokadzie „TO KONTO NIE MA JUŻ DOSTĘPU DO TEJ STAJNI”), stopka „BRAK POŁĄCZENIA”. Plansza TabletLogowanie ma jeszcze „WYŚLIJ KOD” bez hasła (stan sprzed decyzji, `mockups/STAN.md` pkt 7): implementuj pole „HASŁO”, „ZALOGUJ” i „NIE PAMIĘTAM HASŁA”.
 - **Decyzje:** DEC-06 A (okna z 3.4, bez DPoP na PoC).
@@ -36,8 +37,8 @@ Tablet loguje się kontem technicznym tabletów stajni (np. „Tablety Pod Lipam
 - DPoP i klucz urządzenia (po PoC, DEC-06); rejestracja konta technicznego (robi się w panelu, WEB-xxx).
 
 ## Kryteria akceptacji
-- [ ] A-25 (na stosie dev z SH-002): „Tablety Pod Lipami” logują się e-mailem, hasłem i kodem z e-maila; po kodzie od razu TabletPierwszyBoks (bez wyboru stajni); konto Oli dostaje „TO KONTO NIE OBSŁUGUJE TABLETU”.
-- [ ] T-23 (emulator): zerwanie sieci w trakcie `POST /token` (odpowiedź zgubiona) i ponowienie tym samym refresh tokenem daje nowe tokeny, bez wylogowania.
+- [ ] A-25 (na stosie dev z SH-002): „Tablety Pod Lipami” logują się e-mailem, hasłem i kodem z e-maila; po kodzie od razu przejście na stan `firstBox` (zaślepka z tytułem; ekran TabletPierwszyBoks powstaje w TAB-010), bez wyboru stajni; konto Oli dostaje „TO KONTO NIE OBSŁUGUJE TABLETU”.
+- [ ] [ręcznie] T-23 (emulator): zerwanie sieci w trakcie `POST /token` (odpowiedź zgubiona) i ponowienie tym samym refresh tokenem daje nowe tokeny, bez wylogowania.
 - [ ] Blokada konta w panelu: w ≤ 5 min ekran „TO KONTO NIE MA JUŻ DOSTĘPU DO TEJ STAJNI” bez starych flag; po odblokowaniu TabletWylogowany „WYLOGOWANO ZE WSZYSTKICH URZĄDZEŃ”, po ponownym logowaniu ten sam boks i język.
 - [ ] „Wyloguj wszystkie tablety”: w ≤ 5 min TabletWylogowany; wylogowanie Oli ze wszystkich urządzeń nie dotyka tabletu.
 - [ ] Reset hasła z tabletu: kod 8 cyfr z e-maila konta, nowe hasło, potem zwykłe logowanie; po 5 złych kodach MFA „KONTO ZABLOKOWANE” prowadzi do resetu.
@@ -45,10 +46,10 @@ Tablet loguje się kontem technicznym tabletów stajni (np. „Tablety Pod Lipam
 
 ## Testy
 - Jest + RNTL z atrapą API: maszyna stanów sesji (wszystkie kody z tabeli 3.7), jitter i pojedyncze odświeżanie, ekrany logowania, kodu i resetu (teksty, licznik), brak tokenu w logach.
-- Integracyjnie na emulatorze ze stosem dev (SH-002): logowanie kontem z seedu, kod z Mailpit API; skrypt Maestro `tablet/e2e/maestro/login.yaml` (rozbudowa w TAB-019).
+- [ręcznie] Integracyjnie na emulatorze ze stosem dev (SH-002): logowanie kontem z seedu, kod z Mailpit API; skrypt Maestro `tablet/e2e/maestro/login.yaml` (rozbudowa w TAB-019).
 
 ## Definicja gotowości
-- `npm run check` w `tablet/` zielone; flow Maestro logowania przechodzi na emulatorze; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `tablet/` zielone; flow Maestro logowania przechodzi na emulatorze [ręcznie]; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Nie loguj haseł, kodów ani tokenów (także w diagnostyce TAB-020).

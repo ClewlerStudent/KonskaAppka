@@ -7,6 +7,7 @@ size: S
 status: todo
 depends_on: [TAB-019, TAB-020]
 decisions: []
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -35,13 +36,13 @@ Na stanowisku testowym tablety pracują tygodniami, a my bez ręcznego notowania
 - Test obciążenia backendu (BE-058).
 
 ## Kryteria akceptacji
-- [ ] `collect.sh` na emulatorze przez 1 h zbiera dane co 1 min; zabicie procesu apki w trakcie jest widoczne w raporcie jako restart; crash wywołany przyciskiem dev jest policzony.
+- [ ] [ręcznie] `collect.sh` na emulatorze przez 1 h zbiera dane co 1 min; zabicie procesu apki w trakcie jest widoczne w raporcie jako restart; crash wywołany przyciskiem dev jest policzony.
 - [ ] `report.mjs` na danych przykładowych (`tools/tablet-soak/fixtures/`) daje raport z trendem pamięci i listą zdarzeń; test `node --test tools/tablet-soak`.
-- [ ] `net-faults.sh` na emulatorze w wariancie uproszczonym (`adb shell svc wifi disable/enable`) mierzy czas powrotu do ONLINE.
+- [ ] [ręcznie] `net-faults.sh` na emulatorze w wariancie uproszczonym (`adb shell svc wifi disable/enable`) mierzy czas powrotu do ONLINE.
 - [ ] `shellcheck tools/tablet-soak/*.sh` bez ostrzeżeń.
 
 ## Testy
-- `node --test tools/tablet-soak` (parsowanie `dumpsys`, trend, histogram fali); ręczny przebieg na emulatorze.
+- [ręcznie] `node --test tools/tablet-soak` (parsowanie `dumpsys`, trend, histogram fali); ręczny przebieg na emulatorze.
 
 ## Definicja gotowości
 - Narzędzia i README w repo, testy zielone; przykładowy raport z emulatora dołączony do zadania (ścieżka w tym pliku); status w tym pliku i w `tasks/QUEUE.md`.

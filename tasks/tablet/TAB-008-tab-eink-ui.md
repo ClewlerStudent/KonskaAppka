@@ -6,7 +6,8 @@ stage: 4
 size: M
 status: todo
 depends_on: [TAB-001, TAB-005]
-decisions: []
+decisions: [DEC-30]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -20,8 +21,8 @@ Wszystkie ekrany tabletu powstają z jednego zestawu komponentów, które same p
 - **Stan kodu:** `tablet/` z TAB-001 (`src/theme/palette.gen.ts` z `t-*` i profilami, `useTabletPalette()`, font Atkinson Hyperlegible, ESLint bez `Animated` i literałów kolorów), `epdRefresh` i `useEpdOnChange` z TAB-005. Komponentów jeszcze nie ma (prototyp bramki w `src/gate/` z TAB-007 jest jednorazowy).
 - **Dokumenty:** `docs/paleta.md` „Zasady tabletu” (kolor tylko w polach: baner flagi, komórki tabeli, kafle ≥ 44 px, pasek popupu 16 px, lewy pasek ≥ 10 px; tekst na kolorze tylko czarny na `t-ok`/`t-warn` albo biały na `t-crit` ≥ 19 px, pogrubiony; neutralne achromatyczne; bez szarych wypełnień w roli struktury; obrysy: krytyczna ciemne pole bez ramki, uwaga ramka 4 px, OK 2 px, do zrobienia 2 px przerywana; info bez wypełnienia, ramka 2 px i ikona), `docs/development-szczegoly.md` 3.5.2 „Zasady e-ink” (popup na nieprzezroczystym `t-scrim`; bez animacji; duże fonty, przyciski ok. 15 mm; pełne odświeżenie po pop-upie, przy nowej fladze krytycznej, przy każdej zmianie pola koloru i co najmniej raz na dobę; zegar częściowo co minutę) i „Testy zrzutów”, 4.1 „Tablet” (zrzuty w obu profilach przeliczone na szarość), 1.1 „Skala makiety” (1 px makiety ≈ 0,22 mm na Air6 C: przycisk 15 mm ≈ 68 px makiety).
 - **Makiety:** `mockups/project/TabletBoks.dc.html` (nagłówek 42 px, podtytuł 22 px, przyciski 64 px z ramką 2 px i zaokrągleniem 12 px, kłódka, „Zmień boks”), `TabletPopup.dc.html`, `TabletEkranZablokowany.dc.html` (przyciski z przerywaną ramką), `TabletLogowanie.dc.html` (przełącznik „TELEFON | E-MAIL”: wybrany = czarne pole i biały pogrubiony tekst), `TabletPierwszyBoks.dc.html` (kafle boksów, „WOLNY” z ramką przerywaną).
-- **Decyzje:** brak (profil palety dla modelu wynika z TAB-007; development-szczegoly.md 5 pkt 40).
-- **Dane demo:** fixture'y z TAB-001.
+- **Decyzje:** DEC-30 (profil palety dla modelu po bramce B; development-szczegoly.md 5 pkt 40): do decyzji oba profile.
+- **Dane demo:** przykłady kontraktu `board` (BE-064) w trybie `fake` z TAB-001.
 
 ## Zakres
 - [ ] `tablet/src/ui/` (każdy komponent bierze kolory z `useTabletPalette()`):
@@ -39,14 +40,14 @@ Wszystkie ekrany tabletu powstają z jednego zestawu komponentów, które same p
 - Ocena czytelności na prawdziwym ekranie (T-20, K-01, K-06; po bramce).
 
 ## Kryteria akceptacji
-- [ ] Galeria pokazuje `StatusField` w 5 wariantach, a w wersji szarości warianty różnią się jasnością i obrysem (wizualnie w raporcie zrzutów; jasności z testu tokenów SH-004).
+- [ ] [ręcznie] Galeria pokazuje `StatusField` w 5 wariantach, a w wersji szarości warianty różnią się jasnością i obrysem (wizualnie w raporcie zrzutów; jasności z testu tokenów SH-004).
 - [ ] Test zasad e-ink wykrywa celowo złamaną regułę (np. `t-ink-2` na `t-ok`, `opacity: 0.5`, pole koloru 30 px).
-- [ ] `capture.sh` + `compare.mjs` dają zrzuty obu profili; zmiana koloru tokenu bez aktualizacji wzorców zatrzymuje porównanie.
+- [ ] [ręcznie] `capture.sh` + `compare.mjs` dają zrzuty obu profili na emulatorze; zmiana koloru tokenu bez aktualizacji wzorców zatrzymuje porównanie.
 - [ ] Zegar odświeża się przez `partial` w swoim regionie, a zmiana pola koloru daje dokładnie jedno `full` (licznik z TAB-005).
 
 ## Testy
 - Jest + RNTL: render każdego komponentu w obu profilach, test zasad e-ink, `useColorSignature`. `cd tablet && npm test`.
-- Zrzuty: `npm run screens` (emulator wymagany; w CI nocnym, SH-003).
+- [ręcznie] Zrzuty: `npm run screens` (emulator wymagany; w CI nocnym, SH-003).
 
 ## Definicja gotowości
 - `npm run check` w `tablet/` zielone, zrzuty wzorcowe w repo; `tablet/README.md` opisuje galerię i zrzuty; status w tym pliku i w `tasks/QUEUE.md`.
@@ -55,3 +56,4 @@ Wszystkie ekrany tabletu powstają z jednego zestawu komponentów, które same p
 - Szary tekst na kolorze jest zakazany; szary tekst tylko `t-ink-2` ≥ 20 px na papierze.
 - Na zablokowanym ekranie przyciski mają przerywaną ramkę, nie wyszarzenie (e-ink nie ma półtonów w szybkich trybach).
 - Kolory wyłącznie z `t-*`; LCD-owe tokeny na tablecie nie istnieją.
+<!-- dep-ok: SH-003, TAB-007 (CI nocne uruchamia zrzuty; prototyp bramki jest jednorazowy i nie jest potrzebny) -->

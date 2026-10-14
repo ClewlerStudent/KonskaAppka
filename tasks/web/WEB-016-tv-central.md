@@ -5,8 +5,8 @@ area: web
 stage: 5
 size: L
 status: todo
-depends_on: [BE-042, WEB-001]
-decisions: [DEC-14]
+depends_on: [BE-042, WEB-001, WEB-004]
+decisions: [DEC-14, DEC-29]
 owner:
 branch:
 trello:
@@ -46,7 +46,7 @@ Telewizor w korytarzu stajni loguje się zwykłą stroną panelu kontem technicz
 
 ## Testy
 - Vitest: `usePolledBoard` (ETag, 304, przesunięcie zegara), wyliczenie „za X h Y min” w strefie stajni (noc 25.10.2026), składanie kafli z fixture'ów.
-- Playwright: projekt `tv` (1920×1080) na atrapie `display` z seedu: A-08, odpytywanie z `page.clock`, logowanie TV na atrapie `mock-auth`; zrzut do porównania z makietą.
+- Playwright: projekt `tv` (1920×1080) na atrapie `mock-api` (WEB-004) z przykładami kontraktu `display-podlipami`, `display-podlipami-hala-nowa`, `display-brzozowa` (`frontend/src/api/examples/board/`, BE-064): A-08, odpytywanie z `page.clock`, logowanie TV na atrapie `mock-auth`; wzorzec zrzutu `toHaveScreenshot` tworzony w tym zadaniu (WyswietlaczCentralny.dc.html tylko do ręcznego przeglądu w PR).
 - `cd frontend && npm run check && npm run e2e`.
 
 ## Definicja gotowości

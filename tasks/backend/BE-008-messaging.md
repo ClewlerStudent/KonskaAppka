@@ -54,3 +54,4 @@ Wspólna warstwa komunikacji asynchronicznej: zdarzenia domenowe (publish/subscr
 - Docs mówią „SNS + SQS” i LocalStack; to opis z czasów przed DEC-01. Nazwy w kodzie: neutralne (`topic`, `queue`), bez AWS.
 - Bez outboxu i bez tabeli `inbox`: idempotencję konsumentów dają unikalności w bazie (np. `notifications.dedupe_key`).
 - Treść wiadomości z kodem nie trafia do logów (redakcja w `kit/logger.ts`, test hasła-kanarka w BE-015).
+<!-- dep-ok: SH-003 (CI tylko uruchamia testy; lokalnie Testcontainers albo MESSAGING_TEST_URL) -->

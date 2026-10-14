@@ -5,7 +5,7 @@ area: backend
 stage: 4
 size: M
 status: todo
-depends_on: [BE-039]
+depends_on: [BE-039, BE-030]
 decisions: [DEC-10]
 owner:
 branch:
@@ -25,6 +25,7 @@ Tablety aktualizują się same, bez dotykania urządzeń: zespół EQUENOR wgryw
 
 ## Zakres
 - [ ] Serwis `backend/src/services/platform/` (`main.ts`, `app.ts`, `env.ts`), skrypty `start:platform`, `dev:platform`; kontrakt `backend/src/contracts/platform.ts`.
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `platform` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:platform']`, env jak w `backend/.env.example`, profil `infra`), trasa `/platform/*` w `tools/local/Caddyfile` już jest (SH-002).
 - [ ] Trasy platformowe (`plt = admin`; `GET` także `support`; audyt każdego zapisu):
   - `GET /platform/v1/platform/releases`;
   - `POST /platform/v1/platform/releases`: `{versionCode, versionName, sha256, signingCertSha256, minSdk, minRequiredVersionCode, sizeBytes}` → `draft`, plik przez `files` (`ownerService = platform`, `stableId = null`), w odpowiedzi link do wgrania;

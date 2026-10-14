@@ -5,7 +5,7 @@ area: web
 stage: 1
 size: M
 status: todo
-depends_on: [WEB-001, WEB-003]
+depends_on: [WEB-001, WEB-003, BE-019]
 decisions: [DEC-15]
 owner:
 branch:
@@ -18,7 +18,7 @@ Szkielet panelu admina konta firmy, na którym powstaną wszystkie ekrany stajni
 
 ## Kontekst
 - **Stan kodu:** `frontend/web/src/components/AppLayout.tsx` (nagłówek z „Zalogowano” i „Wyloguj”), `Button`, `fields.tsx` (`TextField`, `PhoneField`, `PasswordField`, `SegmentedControl`), `Notice`, `Icon` (`src/theme/icons.ts`), `cx.ts`; CSS Modules; tokeny `frontend/src/theme/tokens.ts` i `theme.css` (`--eq-*`); klient API, `useApi`, sesja i `homePath` z WEB-001; trasa `/business` z WEB-003.
-- **Dokumenty:** docs/development-szczegoly.md 3.5.3 (przełącznik stajni w nagłówku, `role="switch"`/`role="checkbox"` z klawiaturą, edycje z `If-Match` i 412, hala przy numerze, `crit-solid` z `on-crit` dla flagi krytycznej); docs/makiety-plan.md 2.3 „Nagłówki” (panel: „▾” tylko przy kilku stajniach, menu 240 px, formularz jako `aside role=dialog` z prawej, bez dzwonka), „Boks” („Hala nowa · boks 4”, w wąskich listach „Nowa 4”, przy jednej hali sam numer), „Teksty, bez objaśnień” (dec. 38); B „PanelMenuKonta”. docs/mikroserwisy.md 5.2 `POST /me/sign-out-everywhere` (BE-019).
+- **Dokumenty:** docs/development-szczegoly.md 3.5.3 (przełącznik stajni w nagłówku, `role="switch"`/`role="checkbox"` z klawiaturą, edycje z `If-Match` i 412, hala przy numerze, `crit-solid` z `on-crit` dla flagi krytycznej); docs/makiety-plan.md 2.3 „Nagłówki” (panel: „▾” tylko przy kilku stajniach, menu 240 px, formularz jako `aside role=dialog` z prawej, bez dzwonka), „Boks” („Hala nowa · boks 4”, w wąskich listach „Nowa 4”, przy jednej hali sam numer), „Teksty, bez objaśnień” (docs/makiety-plan.md 2.3 i 5 pkt 38); B „PanelMenuKonta”. docs/mikroserwisy.md 5.2 `POST /me/sign-out-everywhere` (BE-019).
 - **Makiety:** nagłówek i nawigacja z mockups/project/PanelBoksy.dc.html, PanelPulpit.dc.html, PanelUstawieniaStajni.dc.html: „EQUENOR · Stajnia Pod Lipami ▾ · D Damian (admin) ▾” i menu „Pulpit | Boksy | Konie | Ludzie | Płatności | Ustawienia”; MapaNawigacjiRol.dc.html (Admin w panelu). PanelMenuKonta (P2, opis w makiety-plan.md B): „Damian · admin konta · Stajnie Lipowe sp. z o.o.”, telefon i e-mail zamaskowane, „Profil i język”, „Konto firmy”, „Stajnie firmy” (✓ przy bieżącej), „Załóż stajnię”, „Wyloguj”, „Wyloguj ze wszystkich urządzeń”.
 - **Decyzje:** DEC-15 A (panel tylko admin konta i wyświetlacz).
 - **Dane demo:** Damian (Pod Lipami z dwiema halami, Brzozowa z jedną), Kuba później w WEB-026 (ten sam układ z paskiem `[OPS]`).
@@ -29,6 +29,7 @@ Szkielet panelu admina konta firmy, na którym powstaną wszystkie ekrany stajni
 - [ ] PanelMenuKonta (popover 320 px, fokus i Esc): pozycje jak wyżej; „Profil i język” → `/account` (zaślepka do WEB-007), „Konto firmy” → `/business` (WEB-003), „Załóż stajnię” → `/stables/new`, „Wyloguj ze wszystkich urządzeń” z dialogiem „Wyloguj ze wszystkich urządzeń?” → `POST /auth/v1/me/sign-out-everywhere`, potem wylogowanie lokalne.
 - [ ] Komponenty w `web/src/components/`: `DataTable` (nagłówki, sekcje grup np. hal, wiersz pusty, na 390 px karty), `Toolbar` z `FilterChips` (licznik w chipie) i `SearchField`, `SidePanel` (`aside role="dialog"` z prawej, pułapka fokusu, Esc, powrót fokusu), `ConfirmDialog` (skutki w treści), `Switch` (`role="switch"`, Space/Enter), `Checkbox` (także `aria-disabled` z wyjaśnieniem dla czytnika), `RadioGroup`, `Select`, `DateField`, `TimeField`, `Toast`, `StatCard` (liczniki), `FlagPill` (warianty: krytyczna `crit-solid`/`on-crit`, uwaga, info; status „potwierdzona HH:MM” albo „niepotwierdzona” tylko przy `requiresAck`), `EmptyState`, `Skeleton`.
 - [ ] Narzędzia: `boxLabel(box, buildingCount, { short })` („Hala nowa · boks 4”, „Nowa 4”, „boks 1”); `formatInStableTz(date, tz)` (Intl, „wt 13.10.2026, 07:15”); `useEditable` (pobiera `ETag`, wysyła `If-Match`; 412 → komunikat „Dane zmienił ktoś inny. Odśwież.” z przyciskiem „Odśwież”, 428 jako błąd programisty w konsoli dev).
+- [ ] Atrapa API dla Playwright: `e2e/helpers/mock-api.ts` (`mockApi(page, { 'GET /board/v1/stables/:stableId/boxes-overview': fixture, … })`: przechwytuje trasy serwisów innych niż `auth` przez `page.route`, odpowiada JSON-em z `ETag`, obsługuje 304, 412 i opóźnienie; nieobsłużona trasa = błąd testu) i fixture'y widoków w `frontend/web/src/test/fixtures/` (stałe UUID z `fixtures/demo.ts` z WEB-001; Pod Lipami i Brzozowa), wspólne dla Vitest i Playwright. Z helpera korzystają WEB-005, WEB-011 i kolejne zadania panelu.
 - [ ] Mapowanie kodów odmowy na komunikaty w `web/src/errors.ts`: `forbidden_role`, `feature_hidden`, `option_disabled`, `not_found`, `version_conflict`/412, `rate_limited`, `network_error`.
 
 ## Poza zakresem

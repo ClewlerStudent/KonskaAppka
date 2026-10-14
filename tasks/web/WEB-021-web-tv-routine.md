@@ -5,8 +5,8 @@ area: web
 stage: 6
 size: M
 status: todo
-depends_on: [BE-044, BE-045, WEB-011, WEB-016]
-decisions: []
+depends_on: [BE-044, BE-045, WEB-011, WEB-016, WEB-015, WEB-017, WEB-018]
+decisions: [DEC-31, DEC-18]
 owner:
 branch:
 trello:
@@ -41,7 +41,7 @@ Panel i telewizor pokazują stan rutyny obsługi zapisany przyciskami w apce i n
 
 ## Testy
 - Vitest: komórka „Boks gotowy” (autor, tablet, daty), karta przycisków dla kombinacji ustawień, elementy kafla TV dla fixture'ów Pod Lipami i BezAkcji.
-- Playwright na atrapie: A-13, A-16, A-19 w panelu i na TV (projekt `tv`), zrzuty porównawcze z makietami; aktualizacja zrzutów wzorcowych z WEB-018.
+- Playwright na atrapie `mock-api` (WEB-004) z fixture'ami `frontend/web/src/test/fixtures/` (Pod Lipami i BezAkcji, pisane ręcznie według docs/development-szczegoly.md 3.2) i przykładami `display-*` z BE-064: A-13, A-16, A-19 w panelu i na TV (projekt `tv`); aktualizacja wzorców `toHaveScreenshot` z WEB-016, WEB-017 i WEB-018 (makiety tylko do ręcznego przeglądu w PR).
 - `cd frontend && npm run check && npm run e2e`.
 
 ## Definicja gotowości

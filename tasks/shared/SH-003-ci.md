@@ -5,8 +5,8 @@ area: shared
 stage: 0
 size: M
 status: todo
-depends_on: []
-decisions: [DEC-02]
+depends_on: [SH-004]
+decisions: [DEC-02, DEC-01]
 owner:
 branch:
 trello:
@@ -24,8 +24,8 @@ Każdy PR przechodzi ten sam zestaw sprawdzeń dla `backend/`, `frontend/`, `mob
 
 ## Zakres
 - [ ] Katalog `ci/` (skrypty bash `set -euo pipefail`, uruchamialne lokalnie i w dowolnym CI):
-  - `ci/changed.sh`: lista pakietów zmienionych względem `origin/main` (`backend`, `frontend`, `mobile`, `tablet`, `tools`, `docs`); zmiana w `backend/openapi/` albo `docs/paleta.md` oznacza też pakiety aplikacji (generowane typy i tokeny);
-  - `ci/package.sh <pakiet>`: `npm ci`, `npm run check`, `npm run build` (pomija pakiet, którego katalogu nie ma, z komunikatem); dla aplikacji także `npm run gen:api -- --check` i `npm run gen:theme -- --check` (SH-004);
+  - `ci/changed.sh`: lista pakietów zmienionych względem bazy porównania z env `CI_BASE_REF` (domyślnie gałąź integracyjna z tasks/README.md punkt 1: dziś `origin/claude/affectionate-bell-325org`, po scaleniu `origin/main`) (`backend`, `frontend`, `mobile`, `tablet`, `tools`, `docs`); zmiana w `backend/openapi/` albo `docs/paleta.md` oznacza też pakiety aplikacji (generowane typy i tokeny);
+  - `ci/package.sh <pakiet>`: `npm ci`, `npm run check`, `npm run build` (pomija pakiet, którego katalogu nie ma, z komunikatem); dla pakietów z generowanymi plikami (`frontend`, `mobile`, `tablet`) także `npm run gen:check` (SH-004; brak skryptu w pakiecie aplikacji = błąd z nazwą pakietu);
   - `ci/backend-integration.sh`: testy integracyjne backendu z Testcontainers (PostgreSQL 17, broker wg DEC-01, ZITADEL w wersji z `docker-compose.yml`); bez Dockera kończy się błędem w CI (zmienna `CI=true`), a lokalnie pomija z komunikatem;
   - `ci/backend-db.sh`: kroki bazy, gdy istnieją skrypty (`db:lint`, `sql-gate`, `migrations:lint`, `migrate` od zera, test „brak niewygenerowanych migracji” z BE-001/BE-002); brakujący skrypt = krok pominięty z ID zadania;
   - `ci/contracts.sh`: `openapi:check`, test listy tras otwartych, porównanie `backend/openapi/*.json` z migawkami wydanych wersji (`backend/openapi/snapshots/<aplikacja>-<wersja>/`, na start pusty katalog z README); zmiana łamiąca (usunięte pole, zmieniony typ, nowe pole wymagane w żądaniu) daje błąd; narzędzie: np. `oasdiff` w obrazie Docker albo własny skrypt w `backend/scripts/openapi-compat.ts`;
@@ -62,3 +62,4 @@ Każdy PR przechodzi ten sam zestaw sprawdzeń dla `backend/`, `frontend/`, `mob
 - Wersje narzędzi (syft, trivy, oasdiff, emulatora) przypięte w skryptach albo w obrazach z dokładnym tagiem.
 - Skrypty nie mogą wymagać sekretów do kroków PR; push obrazów i podpisywanie APK tylko gdy env jest ustawiony.
 - Emulator do Device Owner: obraz AOSP (`system-images;android-36;default;x86_64`), bez konta Google; urządzenie z dodanym kontem odrzuca `dpm set-device-owner` (T-01). Tablety nie potrzebują GMS (development-szczegoly.md 1.1).
+<!-- dep-ok: MOB-001, TAB-001 (skrypty pomijają brakujące pakiety z komunikatem) -->

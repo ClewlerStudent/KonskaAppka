@@ -6,7 +6,7 @@ stage: 0
 size: M
 status: todo
 depends_on: [BE-001]
-decisions: []
+decisions: [DEC-05, DEC-10]
 owner:
 branch:
 trello:
@@ -50,3 +50,4 @@ Jedno źródło prawdy o tym, kto pisze do której tabeli i kto ją czyta (`owne
 - Jeśli BE-004 jest już scalone, obejmij wszystkie tabele; jeśli nie, BE-004 dopisze wpisy, a test „każda tabela ma wpis” to wymusi.
 - Klucze obce do `users` z innych tabel działają bez grantu `SELECT` (sprawdza je baza).
 - Granty to obrona, a nie autoryzacja: serwisy dalej decydują wyłącznie z tokenu (W2).
+<!-- dep-ok: BE-004 (kolejność dowolna: test „każda tabela ma wpis w owners.ts” wymusza wpisy na tym, kto scala drugi) -->

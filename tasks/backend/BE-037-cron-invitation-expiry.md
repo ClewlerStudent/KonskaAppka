@@ -50,3 +50,4 @@ Admin (i obsługa, jeśli tak mówią reguły stajni) dowiaduje się SMS-em albo
 - Grant na tabeli prywatnej `auth` jest kolumnowy (bez `target`) i nie służy autoryzacji (W2 zostaje); podobne wąskie granty mają tylko `horse-left-reconciler` i `retention-pruner`.
 - Cron nie zna adresów (bez `target`); adres zaproszenia zna tylko `auth`, a powiadomienie o wygaśnięciu idzie do admina i obsługi według `notification_rules`, nie do zaproszonego.
 - Bez tokenów i bez wywołań serwisów (W3).
+<!-- dep-ok: BE-036 (konsument zdarzenia po stronie notifications, nie kod tego zadania) -->

@@ -5,8 +5,9 @@ area: mobile
 stage: 6
 size: M
 status: todo
-depends_on: [BE-043, BE-045, MOB-012]
+depends_on: [BE-043, BE-045, MOB-012, BE-024]
 decisions: []
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -42,11 +43,11 @@ Karta konia mówi w jednym miejscu, co koń dziś ma (flagi, padok, wizyty), jak
 
 ## Testy
 - Jest + RNTL: `horse-card.test.tsx` (klient, obsługa, admin, Kometa, BezAkcji, bez `feeding_plan`) na fixture'ach z `backend/openapi/board.json`.
-- Maestro: `mobile/e2e/maestro/horse-card.yaml` (Anna i Ola na seedzie).
+- [ręcznie] Maestro: `mobile/e2e/maestro/horse-card.yaml` (Anna i Ola na seedzie).
 
 ## Definicja gotowości
-- `npm run check` w `mobile/` zielone; flow Maestro przechodzi; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `mobile/` zielone; flow Maestro przechodzi [ręcznie]; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Nazwy pasz pojawiają się tylko w planie karmienia, nigdy jako zdarzenia (A-13).
-- Zmiana względem makiety-plan (dec. 27): „Zadzwoń” do klienta w karcie obsługi pokazujemy tylko adminowi, bo docs/mikroserwisy.md 8 (pierwszeństwo) daje obsłudze same imiona klientów, bez telefonu.
+- Zmiana względem makiety-plan (docs/makiety-plan.md 5 pkt 27): „Zadzwoń” do klienta w karcie obsługi pokazujemy tylko adminowi, bo docs/mikroserwisy.md 8 (pierwszeństwo) daje obsłudze same imiona klientów, bez telefonu.

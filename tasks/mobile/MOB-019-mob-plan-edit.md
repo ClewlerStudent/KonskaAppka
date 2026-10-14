@@ -6,7 +6,8 @@ stage: 6
 size: M
 status: todo
 depends_on: [MOB-018]
-decisions: []
+decisions: [DEC-20]
+needs: [emulator]
 owner:
 branch:
 trello:
@@ -18,7 +19,7 @@ Obsługa i admin (a klient przy włączonej opcji stajni) zmieniają plan karmie
 
 ## Kontekst
 - Stan kodu: karta konia z „Edytuj plan” (MOB-018), konfiguracja stajni (`soak_enabled`, padok włączony, `owner_edits_feeding`, pory posiłków) (MOB-007). Trasy `operations` (BE-043): `GET`, `PUT /operations/v1/stables/{stableId}/horses/{horseId}/feeding-plan` (pory `mealSlotId` z pozycjami `{ feedId, quantity | null, unit, soak, soakNote, sortOrder }`; zapis: obsługa, admin, klient swojego konia tylko przy `owner_edits_feeding`, inaczej `409 option_disabled`; `If-Match` z wersją planu: `412 version_conflict`, bez nagłówka 428; `soak = true` przy wyłączonym moczeniu → `409 option_disabled`), `GET`, `PUT …/paddock-plan` (`{ paddockId, daysMask, startLocal, endLocal, companionHorseIds[] }`; zapis obsługa, admin; przy wyłączonym padoku 409), `GET`, `PUT …/feeds` i `…/paddocks` (pełna lista z `id` od klienta i `If-Match`; nazwa unikalna w stajni → 409), `GET …/meal-slots`. Nowy plan obowiązuje od dziś (serwer zamyka poprzednią wersję).
-- Dokumenty: `docs/makiety-plan.md` G „EdycjaPlanuKonia” (Ola, Kasztan · Hala główna · boks 7, „← Konie”, bez paska; H1 „Plan · Kasztan”; „Karmienie” według `meal_slots`: Śniadanie 06:30: owies 1,5 kg, siano bez ograniczeń, suplement X 1 miarka; Obiad 12:00: siano; Kolacja 18:00: owies 1,5 kg, siano, wysłodki 0,5 kg z „Namoczyć” i „w 2 l wody”; wiersz: pasza (select ze słownika), ilość, jednostka, usuń; „+ Dodaj paszę”; „Padok”: Padok B · pn–pt · 10:00–16:00 · razem z: Fala, Rumba, „Dziś skrócony do 14:30 przez flagę „Nie na padok””; „Obowiązuje od: dziś”; „Zapisz plan”, „Anuluj”; stany: „+ Nowa pasza” (nazwa, rodzaj, jednostka) i „+ Nowy padok” w selectach, klient tylko odczyt bez `owner_edits_feeding`, 412 „Plan zmienił ktoś inny, odśwież”, 409 przy „Namoczyć” po wyłączeniu moczenia), dec. 34 (słowniki dopisują admin i obsługa). A-07 (Ola zmienia plan karmienia z „namoczyć” i ile).
+- Dokumenty: `docs/makiety-plan.md` G „EdycjaPlanuKonia” (Ola, Kasztan · Hala główna · boks 7, „← Konie”, bez paska; H1 „Plan · Kasztan”; „Karmienie” według `meal_slots`: Śniadanie 06:30: owies 1,5 kg, siano bez ograniczeń, suplement X 1 miarka; Obiad 12:00: siano; Kolacja 18:00: owies 1,5 kg, siano, wysłodki 0,5 kg z „Namoczyć” i „w 2 l wody”; wiersz: pasza (select ze słownika), ilość, jednostka, usuń; „+ Dodaj paszę”; „Padok”: Padok B · pn–pt · 10:00–16:00 · razem z: Fala, Rumba, „Dziś skrócony do 14:30 przez flagę „Nie na padok””; „Obowiązuje od: dziś”; „Zapisz plan”, „Anuluj”; stany: „+ Nowa pasza” (nazwa, rodzaj, jednostka) i „+ Nowy padok” w selectach, klient tylko odczyt bez `owner_edits_feeding`, 412 „Plan zmienił ktoś inny, odśwież”, 409 przy „Namoczyć” po wyłączeniu moczenia), docs/makiety-plan.md 5 pkt 34 (słowniki dopisują admin i obsługa). A-07 (Ola zmienia plan karmienia z „namoczyć” i ile).
 - Makiety: brak pliku `.dc.html` (P1 z planu, jeszcze nienarysowana); układ według opisu wyżej.
 - Decyzje: brak nowych.
 - Dane demo: Ola i Kasztan (plan z seedu BE-043), Kometa w Brzozowej (bez moczenia i padoku: owies 1 kg rano i wieczorem, siano, musli 0,5 kg wieczorem), Anna (klient; `owner_edits_feeding` włączone w Pod Lipami według DEC-20).
@@ -43,10 +44,10 @@ Obsługa i admin (a klient przy włączonej opcji stajni) zmieniają plan karmie
 
 ## Testy
 - Jest + RNTL: `plan-edit.test.tsx` (karmienie, padok, słowniki, 412, 409, klient tylko odczyt) na atrapie `operations`.
-- Maestro: `mobile/e2e/maestro/staff-plan.yaml` (A-07 na seedzie).
+- [ręcznie] Maestro: `mobile/e2e/maestro/staff-plan.yaml` (A-07 na seedzie).
 
 ## Definicja gotowości
-- `npm run check` w `mobile/` zielone (`gen:api` z `operations.json`); flow Maestro przechodzi; status w tym pliku i w `tasks/QUEUE.md`.
+- `npm run check` w `mobile/` zielone (`gen:api` z `operations.json`); flow Maestro przechodzi [ręcznie]; status w tym pliku i w `tasks/QUEUE.md`.
 
 ## Uwagi dla wykonawcy
 - Zapis planu nie idzie przez kolejkę offline (konflikty wersji wymagają decyzji osoby); przycisk offline nieaktywny z „tylko online”.

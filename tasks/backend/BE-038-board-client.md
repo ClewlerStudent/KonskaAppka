@@ -6,7 +6,7 @@ stage: 3
 size: M
 status: todo
 depends_on: [BE-033, BE-034]
-decisions: [DEC-23, DEC-03]
+decisions: [DEC-23, DEC-03, DEC-31]
 owner:
 branch:
 trello:
@@ -24,7 +24,7 @@ Klient po zalogowaniu widzi „Moje konie”: swoje konie w wybranej stajni, ich
 - **Dane demo:** Anna (Kasztan HG 7 z dwiema potwierdzonymi flagami, Bella HN 4 z niepotwierdzoną; w Brzozowej Kometa z flagą bez potwierdzeń), Marek Nowak (Luna bez boksu, brak flag), Ola (obsługa), Damian (admin).
 
 ## Zakres
-- [ ] Kontrakty w `backend/src/contracts/board.ts`:
+- [ ] Kontrakty `client-home` i `card` są już w `backend/src/contracts/board.ts` z przykładami (BE-064): implementuj je; zmiany tylko addytywne i razem z przykładami. Zakres pól:
   - `GET /board/v1/stables/{stableId}/client-home?lang=` (rola `client`): konie z `m[].h` w tej stajni (także bez boksu, jak Luna), każdy z `horseId`, nazwą, płcią i rasą, boksem (`boxId`, numer, hala z `showBuilding` gdy stajnia ma więcej niż jedną halę) albo `null`, flagami aktywnymi i dzisiejszymi;
   - `GET /board/v1/stables/{stableId}/horses/{horseId}/card?lang=` (klient: swój koń; obsługa; admin; `plt`): nagłówek konia (nazwa, boks z halą, rasa, wiek), zakładka flag z godzinami i skutkami („Wstrzymuje śniadanie 06:30, obiad bez zmian”), sekcja „Dziś” z flagami.
 - [ ] DTO flagi w widokach: etykieta, `hoursLabel` („06:00–10:00”, „od 14:30”, „dziś, cały dzień”), notatka, wariant („Derka: zakładać”), `requiresAck`, `status` (`acknowledged` z godziną, `unacknowledged`, albo brak i „obowiązuje od razu”), `createdAt`, informacja o eskalacji `admin_notify` („Admin stajni dostał powiadomienie”), skutki z `lib/rules`.

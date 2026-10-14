@@ -40,7 +40,7 @@ Właściciel stajni po pierwszym logowaniu zakłada konto firmy: NIP, nazwa, sie
 - [ ] Ten sam NIP drugi raz (także „1234563218”): „Ten NIP ma już konto w EQUENOR”, nic się nie zapisuje.
 - [ ] NIP z błędną cyfrą kontrolną blokuje zapis bez wywołania API.
 - [ ] Podwójne kliknięcie „Załóż konto firmy” albo ponowienie po zerwanym połączeniu nie tworzy drugiej firmy (ten sam `Idempotency-Key`).
-- [ ] Bez dopisków o NIP-ie i koncie (dec. 38); układ 1440 i 390 px bez poziomego przewijania.
+- [ ] Bez dopisków o NIP-ie i koncie (docs/makiety-plan.md 2.3 i 5 pkt 38); układ 1440 i 390 px bez poziomego przewijania.
 
 ## Testy
 - Vitest: `nip.test.ts` (sumy kontrolne, normalizacja), testy ekranu przez `renderApp` z fałszywym API (rejestr 200/404, 409, 422, sukces → odświeżenie i nawigacja).

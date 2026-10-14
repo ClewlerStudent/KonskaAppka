@@ -6,7 +6,7 @@ stage: 1
 size: S
 status: todo
 depends_on: []
-decisions: []
+decisions: [DEC-20]
 owner:
 branch:
 trello:

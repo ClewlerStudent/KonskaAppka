@@ -5,7 +5,7 @@ area: backend
 stage: 3
 size: L
 status: todo
-depends_on: [BE-014, BE-025, BE-029]
+depends_on: [BE-014, BE-025, BE-029, BE-003]
 decisions: [DEC-16, DEC-20, DEC-01]
 owner:
 branch:
@@ -25,6 +25,7 @@ trello:
 
 ## Zakres
 - [ ] Serwis `backend/src/services/notifications/` (`main.ts`, `app.ts`, `env.ts`), skrypty `start:notifications`, `dev:notifications` w `backend/package.json`; kontrakt `backend/src/contracts/notifications.ts` zarejestrowany w `backend/src/contracts/index.ts`; wywołanie `recipients` przez `backend/src/lib/internal-client/` z BE-029 (env `AUTH_RECIPIENTS_URL`, limit czasu, ponowienie; błąd = brak potwierdzenia wiadomości i ponowienie z brokera).
+- [ ] Lokalnie: port według tabeli „Porty serwisów” w tasks/README.md (wiersz w README.md „Porty”); usługa `notifications` w `docker-compose.yml` (obraz backendu, `command: ['npm', 'run', 'start:notifications']`, env jak w `backend/.env.example`, profil `infra`), trasa `/notifications/*` w `tools/local/Caddyfile` już jest (SH-002).
 - [ ] Konsumenci (każdy idempotentny, potwierdza zdarzenie dopiero po wrzuceniu wiadomości do kolejki):
   - `flag.created` → reguła `flag_created_by_client`, `recipients` z `feature=flags`;
   - `flag.escalated` → reguła `flag_unacknowledged`; przed wysyłką sprawdza `horse_flags` (potwierdzona albo odwołana: wiersz `cancelled`);
